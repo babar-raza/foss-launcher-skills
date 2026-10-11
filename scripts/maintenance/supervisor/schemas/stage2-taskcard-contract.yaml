@@ -1,0 +1,50 @@
+# Stage 2 Taskcard Contract -- defines required fields for taskcards
+# Used by: prompt2-plan-hardening.md, loop_controller.py
+schema_version: "1.0.0"
+
+required_fields:
+  - taskcard_id
+  - title
+  - source_issue_id
+  - source_issue_level
+  - source_audit_finding
+  - why_it_matters
+  - risk_addressed
+  - current_status
+  - lane_owner
+  - supervisor_role
+  - required_implementation_or_investigation
+  - required_verification
+  - required_evidence
+  - quality_dimensions
+  - scoring_rubric
+  - reroute_rule_if_score_below_4
+  - acceptance_criteria
+  - stop_conditions
+  - allowed_actions
+  - forbidden_actions
+  - dependencies
+  - closeout_rules
+  - machine_state
+
+valid_statuses:
+  - completed_verified
+  - completed_but_weakly_verified
+  - partially_done
+  - not_attempted
+  - claimed_unproven
+  - blocker
+  - follow_up
+  - ready_for_execution
+  - blocked_external
+  - deferred_with_reason
+
+issue_mapping_categories:
+  - fixed_by_existing_plan_item
+  - new_plan_item_required
+  - updated_plan_item_required
+  - taskcard_required
+  - governance_change_required
+  - verification_only_required
+  - rejected_with_reason
+  - blocked_external

@@ -1,0 +1,85 @@
+{
+  "formats": [
+    {
+      "format": "Byte",
+      "enum": "",
+      "value": "",
+      "file": "src/dfont.ts",
+      "line": 19,
+      "direction": "import"
+    },
+    {
+      "format": "Huffman",
+      "enum": "",
+      "value": "",
+      "file": "src/jbig2huffman.ts",
+      "line": 18,
+      "direction": "import"
+    },
+    {
+      "format": "Markdown",
+      "enum": "",
+      "value": "",
+      "file": "src/mdexport.ts",
+      "line": 20,
+      "direction": "export"
+    },
+    {
+      "format": "Ot",
+      "enum": "",
+      "value": "",
+      "file": "src/otlayout.ts",
+      "line": 25,
+      "direction": "import"
+    },
+    {
+      "format": "Tiff",
+      "enum": "",
+      "value": "",
+      "file": "src/raster.ts",
+      "line": 1255,
+      "direction": "export"
+    },
+    {
+      "format": "Svg",
+      "enum": "",
+      "value": "",
+      "file": "src/svgrender.ts",
+      "line": 43,
+      "direction": "export"
+    },
+    {
+      "format": "Tiff",
+      "enum": "",
+      "value": "",
+      "file": "src/tiff.ts",
+      "line": 38,
+      "direction": "import"
+    },
+    {
+      "format": "Byte",
+      "enum": "",
+      "value": "",
+      "file": "src/tiffencode.ts",
+      "line": 94,
+      "direction": "export"
+    },
+    {
+      "format": "Markdown",
+      "enum": "",
+      "value": "",
+      "file": "src/document.ts",
+      "line": 1641,
+      "direction": "import"
+    },
+    {
+      "format": "SVG",
+      "enum": "",
+      "value": "",
+      "file": "src/page.ts",
+      "line": 651,
+      "direction": "import"
+    }
+  ],
+  "claims_count": 11
+}

@@ -1,0 +1,16 @@
+# Pipeline entry points: enrich.py, scout.py, refresh_knowledge.py,
+# audit.py, update_product_registry.py, embed.py, project_phase_store.py
+tree-sitter>=0.25
+tree-sitter-language-pack>=0.13
+tree-sitter-c-sharp>=0.23
+pyyaml>=6.0
+requests>=2.28
+python-dotenv>=1.0
+json-repair>=0.29
+# tests/test_enrichment_schemas.py (S-98 enrichment JSON schemas, TC-004) — uses
+# jsonschema.validate / Draft7Validator / ValidationError, all stable since 4.x.
+# Found undeclared 2026-08-16 (repo usability/operability audit, D4): a clean
+# bootstrap from documented requirements alone failed `pytest --collect-only`.
+jsonschema>=4.0
+# optimize_media_assets.py (S-119): dimension reads + pixel-identity verification
+pillow>=11.0

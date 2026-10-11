@@ -1,0 +1,347 @@
+{
+  "classes": [
+    {
+      "bases": [],
+      "canonical_namespace": "cell",
+      "class_import": "cell::CellValue",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "The value stored in a single cell.",
+      "enum_members": [
+        {
+          "name": "Number",
+          "value": ""
+        },
+        {
+          "name": "Text",
+          "value": ""
+        },
+        {
+          "name": "Empty",
+          "value": ""
+        }
+      ],
+      "file": "src/cell.rs",
+      "kind": "enum_item",
+      "line": 2,
+      "methods": [],
+      "name": "CellValue",
+      "properties": [],
+      "reachable": false,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "canonical_namespace": "cell",
+      "class_import": "cell::Coord",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "Cell coordinate pair.",
+      "file": "src/cell.rs",
+      "kind": "struct_item",
+      "line": 21,
+      "methods": [],
+      "name": "Coord",
+      "properties": [
+        {
+          "access_mode": "readwrite",
+          "doc": "",
+          "file": "src/cell.rs",
+          "kind": "property",
+          "line": 22,
+          "name": "row",
+          "type": "u32"
+        },
+        {
+          "access_mode": "readwrite",
+          "doc": "",
+          "file": "src/cell.rs",
+          "kind": "property",
+          "line": 23,
+          "name": "col",
+          "type": "u32"
+        }
+      ],
+      "reachable": false,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "class_import": "FlatType",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "A type living in a #[path]-mapped dotted directory.",
+      "file": "src/Aspose.Fixture_FOSS/flat.rs",
+      "kind": "struct_item",
+      "line": 6,
+      "methods": [
+        {
+          "doc": "Rust conversion idiom — must NOT be detected as a \"vec\" file format.",
+          "file": "src/Aspose.Fixture_FOSS/flat.rs",
+          "is_constructor": false,
+          "line": 12,
+          "name": "to_vec",
+          "params": [],
+          "return_type": "Vec<u8>"
+        },
+        {
+          "doc": "Explicit I/O verb — the only pass-2 format signal that counts for Rust.",
+          "file": "src/Aspose.Fixture_FOSS/flat.rs",
+          "is_constructor": false,
+          "line": 17,
+          "name": "save_to_xlsx",
+          "params": [
+            {
+              "name": "path",
+              "type": "&str"
+            }
+          ],
+          "return_type": "Result<(), String>"
+        }
+      ],
+      "name": "FlatType",
+      "properties": [
+        {
+          "access_mode": "readwrite",
+          "doc": "",
+          "file": "src/Aspose.Fixture_FOSS/flat.rs",
+          "kind": "property",
+          "line": 7,
+          "name": "id",
+          "type": "u32"
+        }
+      ],
+      "reachable": true,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "class_import": "SaveFormat",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "Output formats supported by the fixture crate.",
+      "enum_members": [
+        {
+          "name": "Xlsx",
+          "value": ""
+        }
+      ],
+      "file": "src/Aspose.Fixture_FOSS/flat.rs",
+      "kind": "enum_item",
+      "line": 24,
+      "methods": [],
+      "name": "SaveFormat",
+      "properties": [],
+      "reachable": true,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "canonical_namespace": "cell",
+      "class_import": "cell::Saveable",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "Anything that can be persisted to disk.",
+      "file": "src/cell.rs",
+      "kind": "trait_item",
+      "line": 10,
+      "methods": [
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "Persists the object to the given path.",
+          "file": "src/cell.rs",
+          "is_constructor": false,
+          "line": 12,
+          "name": "save_as",
+          "params": [
+            {
+              "name": "path",
+              "type": "&str"
+            }
+          ],
+          "return_type": "Result<(), String>"
+        },
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "Returns a stable format tag.",
+          "file": "src/cell.rs",
+          "is_constructor": false,
+          "line": 15,
+          "name": "format_tag",
+          "params": [],
+          "return_type": "u32"
+        }
+      ],
+      "name": "Saveable",
+      "properties": [],
+      "reachable": false,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "canonical_namespace": "workbook",
+      "class_import": "workbook::SheetRef",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "A borrowed reference to a sheet-like value.",
+      "file": "src/workbook.rs",
+      "kind": "struct_item",
+      "line": 41,
+      "methods": [],
+      "name": "SheetRef",
+      "properties": [
+        {
+          "access_mode": "readwrite",
+          "doc": "",
+          "file": "src/workbook.rs",
+          "kind": "property",
+          "line": 42,
+          "name": "inner",
+          "type": "&'a T"
+        }
+      ],
+      "reachable": false,
+      "visibility": "public"
+    },
+    {
+      "bases": [
+        "Debug",
+        "Clone",
+        "Saveable"
+      ],
+      "canonical_namespace": "workbook",
+      "class_import": "workbook::Workbook",
+      "deprecated": false,
+      "deprecated_reason": "",
+      "doc": "A spreadsheet workbook.",
+      "file": "src/workbook.rs",
+      "kind": "struct_item",
+      "line": 4,
+      "methods": [
+        {
+          "doc": "",
+          "file": "src/save.rs",
+          "is_constructor": false,
+          "line": 5,
+          "name": "save_as",
+          "params": [
+            {
+              "name": "path",
+              "type": "&str"
+            }
+          ],
+          "return_type": "Result<(), String>"
+        },
+        {
+          "doc": "Creates a new empty workbook.",
+          "file": "src/workbook.rs",
+          "is_constructor": true,
+          "line": 14,
+          "name": "new",
+          "params": [],
+          "return_type": "Self"
+        },
+        {
+          "doc": "Saves the workbook to the given path.",
+          "file": "src/workbook.rs",
+          "is_constructor": false,
+          "line": 24,
+          "name": "save",
+          "params": [
+            {
+              "name": "path",
+              "type": "&str"
+            }
+          ],
+          "return_type": "Result<(), String>"
+        },
+        {
+          "doc": "Exports the workbook to PDF.",
+          "file": "src/workbook.rs",
+          "is_constructor": false,
+          "line": 30,
+          "name": "export_pdf",
+          "params": [
+            {
+              "name": "path",
+              "type": "&str"
+            }
+          ],
+          "return_type": "Result<(), String>"
+        },
+        {
+          "deprecated": false,
+          "deprecated_reason": "",
+          "doc": "Returns a stable format tag.",
+          "file": "src/cell.rs",
+          "is_constructor": false,
+          "line": 15,
+          "name": "format_tag",
+          "params": [],
+          "return_type": "u32"
+        }
+      ],
+      "name": "Workbook",
+      "properties": [
+        {
+          "access_mode": "readwrite",
+          "doc": "File system path of the workbook.",
+          "file": "src/workbook.rs",
+          "kind": "property",
+          "line": 6,
+          "name": "path",
+          "type": "String"
+        },
+        {
+          "access_mode": "readwrite",
+          "doc": "",
+          "file": "src/workbook.rs",
+          "kind": "property",
+          "line": 7,
+          "name": "sheet_count",
+          "type": "usize"
+        }
+      ],
+      "reachable": true,
+      "visibility": "public"
+    },
+    {
+      "bases": [],
+      "doc": "Opens a workbook from disk.",
+      "file": "src/lib.rs",
+      "kind": "function",
+      "line": 15,
+      "methods": [],
+      "name": "open",
+      "params": [
+        {
+          "name": "path",
+          "type": "&str"
+        }
+      ],
+      "properties": [],
+      "reachable": false,
+      "return_type": "Workbook"
+    }
+  ],
+  "packages": [
+    "cell",
+    "flat",
+    "internal_util",
+    "save",
+    "tests",
+    "workbook"
+  ],
+  "report": {
+    "files_attempted": 6,
+    "files_capped": false,
+    "files_parsed": 6,
+    "files_skipped": [],
+    "parse_error_rate": 0.0,
+    "parse_errors": [],
+    "skip_reasons": {},
+    "total_source_files_found": 6
+  }
+}

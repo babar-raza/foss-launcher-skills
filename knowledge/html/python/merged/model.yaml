@@ -1,0 +1,37 @@
+family: html
+platform: python
+product_name: aspose-html-foss
+version: 0.1.0
+license: MIT
+repo_url: https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python.git
+repo_sha: 912f0ae078b5418226a51de08539bc591547682e
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-09-10T11:07:28.069137+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: da72a907-298d-4a2d-8388-cd0b2a7eb8af
+bundle_generated_at: '2026-09-10T11:07:27.705656+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: e24f998c0d721fd3
+  scout_claims_sha: b5c869072fd71be9fd79af02fd3937a17dffc7ad3c279aaf355e8a0e661eef04
+  scout_api_surface_sha: 2d4afc66ad1e4fdd5f0a56992c7a269f20251c937e30242a2c08f42615bab539
+  enriched_claims_sha: 8663c2d4449eafc637668fc68b6535c7a47d0e6b4896da44f428231d7ab5c4ba
+  products_json_entry_sha: f95fe544839a0bd2b39aca56c0bfabd78dd3d5f40b17e880d6c380f8f3a54b8f
+stats:
+  scout_claims: 2012
+  enriched_claims: 288
+  supplemental_claims: 0
+  total_claims: 2300
+  class_count: 244
+  classes:
+    total_declared: 244
+    public_documented: 244
+    raw_entries_including_non_class: 292
+  forbidden_count: 14
+  snippet_count: 100

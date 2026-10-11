@@ -1,0 +1,18 @@
+# Anchor Overrides
+# Page-specific anchor text exceptions — populated only when a page requires
+# different wording than the registry template produces.
+# ALL entries require: reason, evidence, review_policy
+# Version: 1.0.0
+
+schema_version: "1.0.0"
+
+overrides: {}
+# Entry format:
+#   source_path: "content/..."   OR   source_key: "subdomain/family/platform"
+#   link_slot: "enterprise_deep_primary"
+#   target_path: "family/platform/"
+#   anchor_text: "Exact link text (no brackets)"
+#   reason: "..."
+#   evidence: "URL or internal reference"
+#   expires: null | "ISO date"
+#   review_policy: "annual" | "never" | "on_config_change"

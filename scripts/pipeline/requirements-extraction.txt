@@ -1,0 +1,4 @@
+# Extraction pipeline CI dependencies — tree-sitter parsers needed by TestFamilyFormatAllowlist.
+# Not in requirements-ci.txt (shared baseline) to avoid adding ~10MB to all other CI workflows.
+tree-sitter>=0.25
+tree-sitter-language-pack>=0.13

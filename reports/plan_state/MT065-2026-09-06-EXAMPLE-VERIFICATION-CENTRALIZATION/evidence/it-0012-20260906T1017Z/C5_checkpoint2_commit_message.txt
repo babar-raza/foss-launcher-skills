@@ -1,0 +1,60 @@
+feat(example-verification): C5 checkpoint 2/N -- GoRunner: the first real LanguageRunner protocol implementation (tier 1-3)
+
+Builds on checkpoint 1 (commit 7ff4f5ef0d, which moved/fixed
+check_go_code_blocks.py's module-resolution helpers into
+runners/go.py). This checkpoint adds GoRunner, the first concrete
+implementation of runners/base.py's LanguageRunner protocol -- no prior
+runner has used it (python.py/typescript.py predate it and aren't
+retrofit onto it, per base.py's own docstring).
+
+canonical_lang="go", ceiling_tier=3:
+- starts_chain: first non-comment line is package/import.
+- acquire: resolves this product's module info + replace path. Always
+  succeeds -- a stdlib-only block needs no replace directive at all, and
+  _write_go_module already omits it when None, matching
+  check_go_code_blocks.py:_vet_block's existing tolerance.
+- compile: real `go vet` (tier 2) -- the same check the CLI already runs.
+- execute: real `go run` (tier 3) -- a genuinely new capability; the CLI
+  never executed Go code before, only vetted it.
+- classify: UPSTREAM-BROKEN (error cites the replaced clone directory) vs
+  COMPILE-ERROR/RUNTIME-ERROR in the block's own generated main.go.
+
+Design fix caught before writing tests: acquire() originally hard-failed
+when no replace path resolved, which would have blocked every stdlib-only
+block (fmt.Println, no product import) via BaseRunner._climb's
+acquired["ok"] short-circuit. Fixed to always succeed, since a missing
+replace path is a normal, harmless case, not an acquire failure.
+
+_infer_imports/_wrap_fragment gained an additive extra_heuristics param
+(defaults to None -> falls through to the existing _EXTRA_IMPORT_HEURISTICS
+global, zero behavior change for the CLI or any existing test) so GoRunner
+can use its own instance-level alias heuristic instead of mutating shared
+module state -- one process may construct runners for more than one
+family, and this class's own test suite does.
+
+New test_example_verification_runners_go.py (14 tests, skipped if go isn't
+on PATH): starts_chain (4), construction fallback (1), classify (3), real
+go vet via compile() -- clean pass + a genuine undefined-identifier error
+(2), real go run via execute() -- clean pass + a genuine divide-by-zero
+runtime panic (2), and two full BaseRunner(GoRunner(...)).run(...)
+end-to-end proofs -- a clean block reaching real proof_tier=3, and a
+broken block correctly classified COMPILE-ERROR through the whole tier
+ladder (2). All real subprocess calls, no mocking. Full regression:
+test_ci_go_code_blocks.py (23) + this file (14) +
+test_example_verification_runners_base.py = 55 tests green.
+check_monkeypatch_lint.py: 0 violations.
+
+Deliberately deferred (disclosed in full in
+C5_checkpoint2_promotion_gate_decision.md): pre-commit Step 18
+generalization and the registry.py/platform_capabilities.yaml max_tier
+flip (both structurally blocked -- neither pre-commit-audit.sh, the
+smoke_test.py flags the design calls for, registry.py, nor
+platform_capabilities.yaml are in this taskcard's allowed_paths, mirroring
+C7's own api.py gap); a real pilot against actual product content (needs
+Go fixture-staging support GoRunner doesn't have yet, a separable piece of
+work parallel to how C11-C14 scope their own fixture engineering).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C5 (checkpoint, IN_PROGRESS -- pending review before deciding closure)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

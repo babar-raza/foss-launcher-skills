@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """core/knowledge.py — Re-export shim for the knowledge model.
 
 The canonical implementation lives in ``knowledge_core.py`` (sibling module).

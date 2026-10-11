@@ -1,0 +1,37 @@
+family: pdf
+platform: typescript
+product_name: '@asposefoss/pdf'
+version: 0.1.0
+license: MIT
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git
+repo_sha: 155bfc7a33f0ba23fb4252b6ba201828b02a5b9d
+config_sha: ba558925e966ce6d
+stale_since: null
+promoted_at: '2026-09-24T14:22:19.993184+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 47ad08067148d602dc12a041cdd801e4d8b3f9d29ef818cfdd5639859cc99da7
+generator_semver: 2.0.0
+bundle_id: 2bcd03d3-79d7-485a-93b0-c7f45b9f15da
+bundle_generated_at: '2026-09-24T14:22:12.867987+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: ba558925e966ce6d
+  scout_claims_sha: 399e15353bc8a6c429d31aa086d550f40abbf59f89949ef73088e49125555638
+  scout_api_surface_sha: f3dcb362fc98173f5f3f1cb174666045bf75b173e45eaa5a044c96c7a834d826
+  enriched_claims_sha: 47037b1a602ddbaf2e9f74e5ceaacafbaa4107dc7dd8ab0a43634916cbee8995
+  products_json_entry_sha: b36ca837845eb4a967a01323ac2e26e6a0e1c860d67db4982878348ae62a4127
+stats:
+  scout_claims: 11194
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 10550
+  class_count: 1385
+  classes:
+    total_declared: 1385
+    public_documented: 1312
+    raw_entries_including_non_class: 4578
+  forbidden_count: 0
+  snippet_count: 100

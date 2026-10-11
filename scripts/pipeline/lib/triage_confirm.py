@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Layer 2 body-prose scanner for refresh pipeline triage.
 
 Complements the Layer 1 SHA-based staleness detection in refresh_knowledge.py
@@ -9,7 +8,19 @@ RH-201: P-8 diagnostic — missing Layer 2 detection causes false negatives wher
 the knowledge SHA has not changed but the page's rendered prose is stale relative
 to the current knowledge state (e.g., after a partial refresh cycle).
 
-Usage::
+CONTRACT: scripts/pipeline/lib/triage_confirm.py (RPR-F-03, S-111)
+  purpose: real CLI for the S-92 triage-confirm Layer 2 scan, replacing the
+           documented-but-nonexistent invocation the SKILL.md previously described
+           (this file had no argparse/__main__ prior to RPR-F-03 — the documented
+           command silently no-op'd if run literally as written).
+  inputs:  content pages for {family}/{platform} (via content_discovery.discover_content)
+           knowledge/{family}/{platform}/merged/{api_surface.json,claims.json,knowledge_delta.json}
+  outputs: reports/refresh_review/{family}/{platform}/triage_verdict.yaml
+  idempotent: yes — overwrites output on each run; pure read+scan, no content writes
+  exit codes: 0 = confirmed (no page scored stale), 1 = unresolved (>=1 page stale),
+              2 = error (knowledge artifacts unreadable/absent)
+
+Library usage::
 
     from triage_confirm import triage_confirm
 
@@ -17,12 +28,208 @@ Usage::
     if result['stale']:
         for reason in result['reasons']:
             print(reason)
+
+CLI usage::
+
+    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py pdf net
 """
 from __future__ import annotations
 
+import argparse
+import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
+
+_LIB_DIR = Path(__file__).resolve().parents[0]
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
+_PIPELINE_ROOT = Path(__file__).resolve().parents[1]  # lib/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]  # lib/ -> pipeline/ -> scripts/ -> repo root
+_REPO_ROOT = _DEFAULT_REPO_ROOT
+
+
+def configure(*, repo_root=None):
+    """Redirect module-level paths for testing. Call with no args to reset."""
+    global _REPO_ROOT
+    _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+
+
+_TYPE_WORDS = {
+    "bool", "boolean", "byte", "char", "decimal", "double", "float", "int",
+    "integer", "long", "object", "short", "str", "string", "uint", "ulong",
+    "ushort", "void",
+}
+
+
+def _split_signature_params(value: str) -> list[str]:
+    params: list[str] = []
+    start = 0
+    depth = 0
+    for index, char in enumerate(value):
+        if char in "<[(":
+            depth += 1
+        elif char in ">])" and depth:
+            depth -= 1
+        elif char == "," and depth == 0:
+            params.append(value[start:index].strip())
+            start = index + 1
+    tail = value[start:].strip()
+    if tail:
+        params.append(tail)
+    return params
+
+
+# RPR-ST091-01: negation/error-context guard for the missing-member check.
+# A backtick-quoted `ClassName.member` citation next to explicit "this
+# doesn't work" language is documenting an ABSENCE, not asserting the
+# member exists -- e.g. a troubleshooting table row "**`AttributeError` on
+# `SaveFormat.PDF`** | PDF export is not in the FOSS library; use
+# `SaveFormat.MARKDOWN` or `SaveFormat.XLSX` instead" is entirely correct,
+# current documentation, yet the missing-member scan's plain backtick match
+# has no way to distinguish it from a genuine (wrong) claim that
+# `SaveFormat.PDF` is a real, current member. Found live 2026-08-18,
+# cells/python S-84 remediation: export-troubleshooting.md's real,
+# accurate error-table entry was the last remaining flagged "stale" page,
+# blocking the S-84 gate on content that needed no change at all.
+#
+# Scope is deliberately narrow: same LINE as the match only (not the whole
+# page) -- markdown table rows and single-sentence prose in this repo are
+# each one logical line, so this catches the real repro shape without
+# risking a false negative elsewhere on the page (suppressing a genuinely
+# wrong claim merely because the word "AttributeError" appears somewhere
+# unrelated, further down the same page, would be worse than the false
+# positive this fixes).
+_NEGATION_CONTEXT_RE = re.compile(
+    r"\b(?:AttributeError|NotImplementedError|NotSupportedException|"
+    r"UnsupportedOperationException|NotImplementedException)\b"
+    r"|\bis\s+not\s+(?:in|part\s+of|available|supported|implemented|present)\b"
+    r"|\bdoes\s+not\s+(?:exist|support)\b"
+    r"|\bnot\s+(?:yet\s+)?(?:supported|available|implemented|present)\b"
+    r"|\bno\s+longer\s+(?:exists?|supported|available)\b",
+    re.IGNORECASE,
+)
+
+
+def _line_containing(text: str, pos: int) -> str:
+    """Return the full line of *text* that character offset *pos* falls in."""
+    start = text.rfind("\n", 0, pos) + 1
+    end = text.find("\n", pos)
+    if end == -1:
+        end = len(text)
+    return text[start:end]
+
+
+def _normalize_type(value: str) -> str:
+    value = re.sub(r"^(?:ref|out|in|params)\s+", "", value.strip(), flags=re.I)
+    value = re.sub(r"\s+", "", value)
+    value = value.replace("System.", "")
+    return value.lower()
+
+
+def _signature_matches_known(claimed: tuple[str, ...], known: set[tuple[str, ...]]) -> bool:
+    """Return True if *claimed* matches any real signature in *known*,
+    tolerating a claimed class/enum reference in a ``type[T]``-typed
+    parameter position.
+
+    Found live 2026-08-28 (note/python, 4 pages): a method like
+    ``GetChildNodes(node_type: type[TNode]) -> list[TNode]`` is called by
+    literally passing the desired class as the argument value, e.g.
+    ``doc.GetChildNodes(Image)`` -- prose documenting this correctly cites
+    the concrete class name ("Image") in the parens, or, in a general
+    usage table, a generic placeholder name like "NodeType"/"Type". Either
+    shape is accurate prose, but _signature_claim tokenizes the cited name
+    as if it were asserting a literal parameter TYPE, and the plain
+    ``claimed in known`` check then compares it against the real declared
+    type ``type[TNode]`` -- a guaranteed mismatch for every single
+    accurate usage, since no real call site ever literally writes the
+    type annotation itself in this position. Enum access
+    (``SaveFormat.Pdf``) hits the same shape.
+
+    Every token that survives into *claimed* has already passed
+    _signature_claim's own identifier-shape gate (capitalized, dotted, a
+    known type word, or bracketed) before being lowercased -- there is no
+    further signal left to check here, so once a real parameter's type is
+    a ``type[...]`` generic, any claimed token in that position is
+    accepted unconditionally. This mirrors the existing bare-call
+    RPR-ST087-01 guard's own reasoning: a real, current class/enum name
+    genuinely satisfying a type-parameter slot is not evidence of stale
+    prose, so skipping the check is correct, not merely convenient.
+    """
+    if claimed in known:
+        return True
+    for candidate in known:
+        if len(candidate) != len(claimed):
+            continue
+        if all(
+            claimed_tok == known_tok or known_tok.startswith("type[")
+            for claimed_tok, known_tok in zip(claimed, candidate)
+        ):
+            return True
+    return False
+
+
+def _signature_claim(value: str) -> tuple[str, ...] | None:
+    """Return normalized type tokens, or None when text looks like call values."""
+    if not value.strip():
+        # RPR-ST087-01: bare `Class.member()` in running prose (no params
+        # written between the parens) is virtually always just NAMING the
+        # method, not asserting it takes zero arguments -- e.g. "call
+        # `Workbook.save()` to persist changes" is accurate prose even
+        # though save() takes several real params. Treating this as an
+        # explicit zero-arity claim compared it against every real
+        # non-zero-arity method and produced a false "stale signature"
+        # finding on completely normal documentation style. Found live
+        # 2026-08-18, cells/python S-84 remediation attempt #7: 9 of the
+        # session's 17 reported "stale" pages were driven entirely by this
+        # single false-positive pattern (Workbook.save(), Cell.apply_style(),
+        # Cell.put_value(), Cells.iter_rows(), Worksheet.protect(), etc. --
+        # every one a real, current, non-zero-arity method cited by bare
+        # name in prose). None is the correct return here, matching every
+        # other "can't tell what this claims" branch below -- skip the
+        # check rather than manufacture a false positive. A genuinely
+        # zero-arg method cited with empty parens is unaffected: it simply
+        # isn't checked either way, since prose can't misrepresent an
+        # arity it never stated.
+        return None
+    types: list[str] = []
+    for raw in _split_signature_params(value):
+        if (
+            not raw
+            or any(char in raw for char in "\"'=")
+            or re.fullmatch(r"[-+]?\d+(?:\.\d+)?", raw)
+            # A bare ellipsis ("...") is a common documentation convention
+            # for "other arguments omitted here, see the real signature" --
+            # not a claimed parameter type. Found live 2026-08-28
+            # (note/python installation.md): "Document.Save(..., SaveFormat.
+            # Pdf)" tokenized "..." as its own claimed type (it contains a
+            # "." so passed the acceptance check below), comparing it
+            # against Save's real first-parameter type and producing a
+            # guaranteed mismatch on prose that never claimed anything
+            # about that parameter's type at all. Rejecting any token with
+            # no alphanumeric content at all (same test already used for
+            # "can't tell what this claims" elsewhere in this function)
+            # skips the check instead of manufacturing a false positive.
+            or not any(char.isalnum() for char in raw)
+        ):
+            return None
+        # Accept both ``String`` and ``String value`` documentation forms.
+        token = raw.split()[0]
+        core = re.sub(r"[\[\]<>?,]", "", token)
+        if not core:
+            return None
+        if not (
+            token.lower() in _TYPE_WORDS
+            or token[0].isupper()
+            or "." in token
+            or any(char in token for char in "[]<>?")
+        ):
+            return None
+        types.append(_normalize_type(token))
+    return tuple(types)
 
 
 def triage_confirm(
@@ -51,19 +258,41 @@ def triage_confirm(
     """
     page_path = Path(page_path)
     reasons: list[str] = []
+    advisories: list[str] = []
     confidence = 0.0
 
     # Read the page; if unreadable return a distinct "read_error" verdict (TC-2).
     # Callers must treat "read_error" as unknown — NOT as "current".
     try:
-        body = page_path.read_text(encoding="utf-8")
+        page_text = page_path.read_text(encoding="utf-8")
     except Exception as exc:
         return {
             "stale": False,
             "verdict": "read_error",
             "reasons": [f"could not read page: {exc}"],
+            "advisories": [],
             "confidence": 0.0,
         }
+
+    truth_errors = list(knowledge.get("_truth_errors") or [])
+    if not truth_errors and "api_surface" not in knowledge and "delta" not in knowledge:
+        truth_errors = ["api_surface and knowledge delta were not supplied"]
+    if truth_errors:
+        return {
+            "stale": False,
+            "verdict": "unknown",
+            "reasons": [f"truth unavailable: {error}" for error in truth_errors],
+            "advisories": [],
+            "confidence": 0.0,
+        }
+
+    # This is a body-prose gate. Evidence/frontmatter drift has separate,
+    # stronger validators and must not manufacture a prose-staleness verdict.
+    body = page_text
+    if page_text.startswith("---"):
+        boundary = page_text.find("\n---", 3)
+        if boundary != -1:
+            body = page_text[boundary + 4:]
 
     delta: dict[str, Any] = knowledge.get("delta") or {}
     api_surface: list[dict] = knowledge.get("api_surface") or []
@@ -72,24 +301,169 @@ def triage_confirm(
     }
 
     # --- Signal 1: page body mentions APIs that have been removed ---
+    # Found live 2026-08-31 (3d/typescript refresh_run): `removed_apis` comes
+    # from a delta computation upstream and can carry MEMBER names (not just
+    # class names) -- a class's own `constructor`, legitimately present with
+    # multiple overloaded signatures in api_surface.json, can be represented
+    # there as a signature-level removal even though the NAME still exists
+    # in current knowledge. The word-boundary regex below then flags ANY
+    # page whose body happens to contain that bare word, including entirely
+    # unrelated classes that document their OWN, still-current `constructor`/
+    # `name`/`clear` member (generic member names recur across many
+    # classes). current_member_names (every method/property name across the
+    # WHOLE current api_surface) closes this: a member name still present
+    # anywhere in current knowledge was never truly removed in a way that
+    # makes citing it stale prose.
+    current_member_names: set[str] = set()
+    for _entry in api_surface:
+        if not isinstance(_entry, dict):
+            continue
+        for _m in _entry.get("methods") or []:
+            if isinstance(_m, dict) and _m.get("name"):
+                current_member_names.add(_m["name"])
+        for _p in _entry.get("properties") or []:
+            if isinstance(_p, dict) and _p.get("name"):
+                current_member_names.add(_p["name"])
+
     removed_apis: list[str] = delta.get("removed_apis") or []
     for api_name in removed_apis:
+        if api_name in current_api_names or api_name in current_member_names:
+            continue
         # Word-boundary match to avoid false positives (e.g. "Workbook" in "WorkbookSettings")
         if re.search(rf"\b{re.escape(api_name)}\b", body):
             reasons.append(f"body references removed API '{api_name}'")
             confidence = max(confidence, 0.9)
 
-    # --- Signal 2: page body mentions APIs that have been modified ---
+    # --- Advisory 1: page body mentions APIs that have been modified ---
+    #
+    # "Modified" says that the API still exists and some source representation
+    # changed. Mere presence of its class name does not prove that any sentence
+    # on the page is stale. The old implementation treated presence alone as a
+    # blocking 0.6-confidence verdict, making every valid continued reference a
+    # false positive. Removed APIs/members and explicit contradictions remain
+    # blocking signals; a modified-name hit is retained for review evidence.
     modified_apis: list[str] = delta.get("modified_apis") or []
+    current_members: dict[str, set[str]] = {}
+    current_signatures: dict[tuple[str, str], set[tuple[str, ...]]] = {}
+    for entry in api_surface:
+        if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+            continue
+        class_name = entry["name"]
+        members: set[str] = set()
+        # RPR-ST088-01: api_surface.json stores enum classes' own members
+        # (e.g. SaveFormat.XLSX, ChartType.LINE) under a dedicated
+        # "enum_members" key, distinct from "methods"/"properties" -- this
+        # loop never scanned it, so EVERY real, current enum member got
+        # reported as "missing" the moment its class was cited via a
+        # dotted backtick reference. Found live 2026-08-18, cells/python
+        # S-84 remediation attempt #8: 6 of the run's 7 remaining
+        # triage_confirm "stale" flags (after ST-087's fix) were this
+        # exact pattern -- SaveFormat.XLSX/CSV/TSV/MARKDOWN/JSON and
+        # ChartType.LINE are all real, current enum members (confirmed
+        # against knowledge/cells/python/merged/api_surface.json), only
+        # SaveFormat.PDF was a genuinely absent member among the 7 flags.
+        for field in ("methods", "properties", "members", "values", "enum_members"):
+            for member in entry.get(field) or []:
+                if isinstance(member, str):
+                    members.add(member)
+                elif isinstance(member, dict) and isinstance(member.get("name"), str):
+                    member_name = member["name"]
+                    members.add(member_name)
+                    if field == "methods":
+                        params = member.get("params")
+                        if params is None:
+                            params = member.get("parameters")
+                        if isinstance(params, list):
+                            signature: list[str] = []
+                            for param in params:
+                                if isinstance(param, str):
+                                    param_type = param
+                                elif isinstance(param, dict):
+                                    param_type = (
+                                        param.get("type")
+                                        or param.get("data_type")
+                                        or param.get("param_type")
+                                        or ""
+                                    )
+                                else:
+                                    param_type = ""
+                                signature.append(_normalize_type(str(param_type)))
+                            current_signatures.setdefault(
+                                (class_name, member_name), set()
+                            ).add(tuple(signature))
+        # A merged surface can legitimately contain multiple same-name class
+        # entries (for example namespaces/partials). Never let the last entry
+        # erase members observed in earlier authoritative rows.
+        current_members.setdefault(class_name, set()).update(members)
     for api_name in modified_apis:
         if re.search(rf"\b{re.escape(api_name)}\b", body):
-            reasons.append(f"body references modified API '{api_name}'")
-            confidence = max(confidence, 0.6)
+            advisories.append(
+                f"body references modified API '{api_name}'; "
+                "presence alone does not prove stale prose"
+            )
+        # Found live (MT014-2026-07-29-PDF-GO-REDO): [^`]* inside the
+        # parameter group is greedy across parens, so a CHAINED call in the
+        # same backtick span -- e.g. `Document.Form().Field(name)` -- has its
+        # first call's "()" swallow everything up to the LAST ")" before the
+        # backtick ("). Field(name" became the claimed param list for
+        # Form(), which takes none, producing a false "stale signature"
+        # finding on prose that was actually accurate). Excluding parens from
+        # the captured class means the match simply stops at the first
+        # real ")" -- a chained call then fails to match at all (silently
+        # skipped, not mis-attributed), while a real single call's params
+        # ("path, opts") are still captured correctly.
+        for match in re.finditer(
+            rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
+            rf"(?:\([^`()]*\))?`",
+            body,
+        ):
+            member = match.group(1)
+            if api_name in current_members and member not in current_members[api_name]:
+                if _NEGATION_CONTEXT_RE.search(_line_containing(body, match.start())):
+                    continue
+                reasons.append(
+                    f"body references missing member '{api_name}.{member}' "
+                    "on a modified API"
+                )
+                confidence = max(confidence, 0.9)
+        for member, raw_params in re.findall(
+            rf"`{re.escape(api_name)}\.([A-Za-z_][A-Za-z0-9_]*)"
+            rf"\(([^`()]*)\)`",
+            body,
+        ):
+            claimed = _signature_claim(raw_params)
+            if claimed is None:
+                continue
+            known = current_signatures.get((api_name, member))
+            if known is not None and not _signature_matches_known(claimed, known):
+                reasons.append(
+                    f"body references stale signature "
+                    f"'{api_name}.{member}({raw_params})' on a modified API"
+                )
+                confidence = max(confidence, 0.9)
 
     # --- Signal 3: page slug references a class not in current api_surface ---
-    slug = page_path.stem  # e.g. "Workbook" from "Workbook.md"
+    # Found live 2026-08-24 (mission-plan-the-end-to-end-vast-hejlsberg.md
+    # Task 14): reference pages for a class name that collides with another
+    # class in a different namespace get a disambiguation suffix appended by
+    # batch_reference.py's _entry_slug() -- "Bind-Template.md" for a real
+    # class named "Bind" -- and page_path.stem then never equals the bare
+    # class name, so this check flagged every disambiguated page as stale
+    # unconditionally (68 false positives on pdf/java alone, a product with
+    # many same-simple-named XFA element classes across sub-schemas).
+    # _sanitize_slug() only replaces path-unsafe characters (dots, colons,
+    # slashes, etc.) with underscores, never with a hyphen, so a slug's
+    # hyphen is reliably the base-name/suffix separator this repo's own
+    # disambiguation convention introduces, not a hyphen from the class name
+    # itself (vanishingly rare for a Java/C#/Python/Rust class name, and this
+    # signal already only fires for PascalCase-looking slugs). Try the exact
+    # slug first (unchanged behavior for the common, non-colliding case);
+    # only fall back to stripping the trailing "-suffix" segment when the
+    # exact match fails.
+    slug = page_path.stem  # e.g. "Workbook" from "Workbook.md", "Bind" from disambiguated "Bind-Template.md"
     if current_api_names and slug and slug[0].isupper():
-        if slug not in current_api_names:
+        base_slug = slug.rsplit("-", 1)[0] if "-" in slug else slug
+        if slug not in current_api_names and base_slug not in current_api_names:
             reasons.append(f"page slug '{slug}' not found in current api_surface")
             confidence = max(confidence, 0.8)
 
@@ -101,4 +475,164 @@ def triage_confirm(
             confidence = max(confidence, 0.7)
 
     stale = bool(reasons)
-    return {"stale": stale, "reasons": reasons, "confidence": confidence}
+    return {
+        "stale": stale,
+        "reasons": reasons,
+        "advisories": advisories,
+        "confidence": confidence,
+    }
+
+
+# ── CLI (RPR-F-03) ───────────────────────────────────────────────────────────
+
+def _load_knowledge(family: str, platform: str, repo_root: Path) -> dict[str, Any]:
+    """Load the knowledge dict shape triage_confirm() expects from merged/ artifacts."""
+    merged = repo_root / "knowledge" / family / platform / "merged"
+    knowledge: dict[str, Any] = {"_truth_errors": []}
+
+    def _load_required(name: str, *, list_key: str | None = None) -> Any:
+        path = merged / name
+        if not path.is_file():
+            knowledge["_truth_errors"].append(f"{name} is missing")
+            return [] if list_key is not None else {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            knowledge["_truth_errors"].append(f"{name} is unreadable: {exc}")
+            return [] if list_key is not None else {}
+        if list_key is not None:
+            value = data if isinstance(data, list) else (
+                data.get(list_key, []) if isinstance(data, dict) else []
+            )
+            if not isinstance(value, list):
+                knowledge["_truth_errors"].append(f"{name} has an invalid list shape")
+                return []
+            return value
+        if not isinstance(data, dict):
+            knowledge["_truth_errors"].append(f"{name} must contain an object")
+            return {}
+        return data
+
+    knowledge["api_surface"] = _load_required(
+        "api_surface.json", list_key="classes"
+    )
+    knowledge["claims"] = _load_required("claims.json", list_key="claims")
+    knowledge["delta"] = _load_required("knowledge_delta.json")
+
+    return knowledge
+
+
+def run(family: str, platform: str, *, repo_root: Path | None = None, files: list[str] | None = None) -> dict[str, Any]:
+    """Run the Layer 2 scan across every English content page for a product.
+
+    Returns a summary dict; also the basis for the CLI's exit code and the
+    written triage_verdict.yaml. Raises FileNotFoundError only when the
+    product has no reachable knowledge/merged/ directory at all (a genuine
+    error, distinct from "merged/ exists but individual files are absent",
+    which degrades gracefully to empty lists per _load_knowledge above).
+    """
+    root = repo_root or _REPO_ROOT
+    merged_dir = root / "knowledge" / family / platform / "merged"
+    if not merged_dir.exists():
+        raise FileNotFoundError(
+            f"knowledge/{family}/{platform}/merged/ not found at {merged_dir} — "
+            f"run knowledge bootstrap (S-54) before triage-confirm"
+        )
+
+    knowledge = _load_knowledge(family, platform, root)
+
+    if files:
+        pages = [Path(f) for f in files]
+    else:
+        sys.path.insert(0, str(root / "scripts" / "pipeline" / "lib"))
+        from content_discovery import discover_content  # noqa: E402  (import here: only needed for this path)
+        pages = discover_content(family, platform, skip_drafts=True)
+
+    results = []
+    stale_count = 0
+    error_count = 0
+    unknown_count = 0
+    for page in pages:
+        result = triage_confirm(page, knowledge)
+        result["page_path"] = str(page)
+        results.append(result)
+        if result.get("verdict") == "read_error":
+            error_count += 1
+        elif result.get("verdict") == "unknown":
+            unknown_count += 1
+        elif result.get("stale"):
+            stale_count += 1
+
+    return {
+        "family": family,
+        "platform": platform,
+        "pages_checked": len(pages),
+        "stale_count": stale_count,
+        "error_count": error_count,
+        "unknown_count": unknown_count,
+        "results": results,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "triage_confirm — S-92 Layer 2 body-prose staleness scanner. "
+            "Real CLI (RPR-F-03) replacing the previously-documented-but-nonexistent invocation."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py pdf net
+  PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/lib/triage_confirm.py pdf net --json
+
+Exit codes:
+  0 = confirmed (no page scored stale)
+  1 = unresolved (>=1 page scored stale — the caller should re-run the relevant content update step)
+  2 = error (knowledge/{family}/{platform}/merged/ not found)
+        """,
+    )
+    parser.add_argument("family", help="Product family (e.g. pdf, 3d)")
+    parser.add_argument("platform", help="Platform (e.g. net, java)")
+    parser.add_argument("--files", nargs="*", help="Specific page paths to check (default: all discovered English pages)")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON summary")
+    args = parser.parse_args(argv)
+
+    try:
+        summary = run(args.family, args.platform, files=args.files)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 2
+
+    out_dir = _REPO_ROOT / "reports" / "refresh_review" / args.family / args.platform
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "triage_verdict.yaml"
+    try:
+        import yaml
+        out_path.write_text(yaml.dump(summary, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    except ImportError:
+        out_path.with_suffix(".json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    if args.json:
+        print(json.dumps(summary, indent=2))
+    else:
+        print(f"triage_confirm: {args.family}/{args.platform}")
+        print(f"  pages checked : {summary['pages_checked']}")
+        print(f"  stale         : {summary['stale_count']}")
+        print(f"  read errors   : {summary['error_count']}")
+        print(f"  unknown       : {summary['unknown_count']}")
+        if summary["stale_count"]:
+            print("  STALE PAGES:")
+            for r in summary["results"]:
+                if r.get("stale"):
+                    print(f"    - {r['page_path']}: {'; '.join(r['reasons'])}")
+
+    if summary["stale_count"]:
+        return 1
+    if summary["error_count"] or summary["unknown_count"]:
+        return 3
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

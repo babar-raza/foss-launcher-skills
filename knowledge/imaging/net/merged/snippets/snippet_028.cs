@@ -1,0 +1,1 @@
+public static byte[] TruncatedJpeg() => new byte[] { 0xFF, 0xD8, 0xFF };

@@ -1,0 +1,1 @@
+public void Dispose() => _workspace.Dispose();

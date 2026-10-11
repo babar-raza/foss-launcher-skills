@@ -1,0 +1,9 @@
+{
+  "run_id": "test-zero-proposals",
+  "subdomain": "reference",
+  "adapters_activated": ["reference", "clone-cache"],
+  "adapters_NOT_activated": ["docs", "kb", "products", "blog"],
+  "proposals_generated": 0,
+  "zero_proposal_reason": "All api_surface classes have corresponding reference pages. Coverage is 100%.",
+  "zero_proposal_validation": "PASS"
+}

@@ -1,0 +1,106 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "🚀 Quick start",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/SimpleTable.one"}
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "📄 Export to PDF",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/FormattedRichText.one"}
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "📝 Extract all text from an MS OneNote document",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/FormattedRichText.one"}
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "🖼️ Save all images from an MS OneNote document to disk",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/3ImagesWithDifferentAlignment.one"}
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "🏷️📄 Export an MS OneNote document to PDF",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/TagSizes.one"}
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "📦 Load an MS OneNote document from a binary stream",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/SimpleTable.one"}
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "🧭 Traverse MS OneNote document structure (DOM) and print a simple outline",
+    "disposition": "excluded",
+    "excluded_reason": "Redundant with the Traverse Tables example, which already demonstrates the same GetChildNodes traversal pattern, plus the API Reference's Document Structure section, which fully documents Page/Outline/OutlineElement.",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/SimpleTable.one"}
+  },
+  {
+    "unit_id": "s0008",
+    "heading": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/3ImagesWithDifferentAlignment.one"}
+  },
+  {
+    "unit_id": "s0009",
+    "heading": "🔗 Extract hyperlinks from formatted text in an MS OneNote document",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/FormattedRichText.one"}
+  },
+  {
+    "unit_id": "s0010",
+    "heading": "🏷️ Inspect MS OneNote tags (NoteTag) across the document",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/TagSizes.one"}
+  },
+  {
+    "unit_id": "s0011",
+    "heading": "🧱 Work with tables in an MS OneNote document (rows/cells)",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/SimpleTable.one"}
+  },
+  {
+    "unit_id": "s0012",
+    "heading": "📎 Extract attached files from an MS OneNote document",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/OnePageWithFile.one"}
+  },
+  {
+    "unit_id": "s0013",
+    "heading": "🔢 Inspect numbered lists in an MS OneNote document",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "claimed_paths": [],
+    "verification": {"status": "verified_against_source", "evidence_type": "clone_cache_path", "evidence_ref": "testfiles/NumberedListWithTags.one"}
+  }
+]

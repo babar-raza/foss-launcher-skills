@@ -1,9 +1,9 @@
 """provenance.py — Read and write provenance metadata in YAML frontmatter.
 
-Ported from aspose.org scripts/pipeline/lib/provenance.py.
 Tracks the origin, translation mechanism, and overwrite eligibility of .md
-content files. Only the provenance block is touched; everything else is
-preserved byte-for-byte.
+content files.  Follows the same style-preserving regex surgery pattern as
+evidence/writer.py and grade_writer.py: only the provenance block is touched;
+everything else is preserved byte-for-byte.
 
 Provenance fields (all inside a ``provenance:`` YAML block):
 
@@ -32,24 +32,34 @@ Provenance fields (all inside a ``provenance:`` YAML block):
     auto_updatable        Whether automated systems may overwrite without
                           review (true/false).
 
+    reviewed              REMOVED. Was: whether the content has been explicitly
+                          approved (true/false). No longer written by any code path.
+                          Use auto_updatable: false to protect files from automated
+                          overwrite.
+
     content_hash          First 32 hex chars of SHA-256 of the page body text
                           (everything after the closing frontmatter fence).
                           Updated whenever the content body changes.
+                          Used to detect body drift from the recorded grade/evidence.
 
     content_created_at    ISO-8601 UTC timestamp when the page body was first created.
-                          Set once; MUST NOT be updated by grade-writer, evidence-attach,
-                          or fixer.
+                          Set once by the content-creating operation (skill or agent).
+                          MUST NOT be updated by grade-writer, evidence-attach, or fixer.
 
 Lifecycle rules
 ---------------
 - Evidence attachment and grade writing MUST NOT call ``update_mechanism()``
-  and MUST NOT change ``last_mechanism``. Only content-changing operations
+  and MUST NOT change ``last_mechanism``.  They have their own timestamps
+  (``graded_at``, evidence ``model_sha``).  Only content-changing operations
+  (``skill``, ``agent-edit``, ``human-edit``, ``translator``, ``content-fixer``)
   should call ``update_mechanism()``.
 - Metadata-only fixer runs (frontmatter field corrections) use mechanism
-  ``metadata-fixer`` but MUST NOT change body content.
+  ``metadata-fixer`` via ``update_mechanism()`` but MUST NOT change body content.
+- They MUST NOT change ``auto_updatable`` or ``translation_origin``.
 - Only explicit human or agent content edits change ``auto_updatable``.
-- ``content_created_at`` is set once at page creation. MUST NOT be changed
-  by any subsequent operation.
+- ``source_sha`` mismatch against current English content signals staleness.
+- ``content_created_at`` is set once at page creation.  MUST NOT be changed
+  by any subsequent operation (grade writes, evidence attaches, fixers, translator).
 """
 from __future__ import annotations
 
@@ -61,17 +71,11 @@ from typing import Any
 
 import yaml
 
-# ---------------------------------------------------------------------------
-# Dependency resolution (handles both package and direct-script imports)
-# ---------------------------------------------------------------------------
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
 
-try:
-    from scripts.pipeline.core.fs import atomic_write
-except ImportError:  # pragma: no cover
-    _ROOT = Path(__file__).resolve().parents[3]
-    if str(_ROOT) not in sys.path:
-        sys.path.insert(0, str(_ROOT))
-    from scripts.pipeline.core.fs import atomic_write  # type: ignore[no-redef]
+from core.fs import atomic_write  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -96,6 +100,9 @@ class ProtectedPageError(Exception):
 
 CONTENT_ORIGINS = frozenset({
     "skill-generated", "agent-drafted", "human-authored", "unknown",
+    # manual-remediation: content under active manual quality intervention;
+    # temporarily exempt from evidence completeness checks in the validator.
+    # Transient state — files should be re-graded and origin updated after remediation.
     "manual-remediation",
 })
 
@@ -117,9 +124,7 @@ MECHANISMS = frozenset({
 # Regex patterns
 # ---------------------------------------------------------------------------
 
-# Captures: group(1)=opening fence "---\n", group(2)=frontmatter content,
-# group(3)=closing fence "\n---\n"
-_FRONTMATTER_WRITER_RE = re.compile(r"^(---\n)(.*?)(\n---\n)", re.DOTALL)
+from core.markdown import _FRONTMATTER_WRITER_RE as _FRONTMATTER_RE
 
 # Matches the provenance: key and all its indented child lines.
 _PROVENANCE_BLOCK_RE = re.compile(
@@ -144,13 +149,15 @@ def read_provenance(filepath: Path) -> dict[str, Any] | None:
     """Parse the ``provenance:`` block from *filepath*'s frontmatter.
 
     Returns the provenance dict or *None* if the block is absent.
+    Only the provenance sub-block is parsed via ``yaml.safe_load`` —
+    the full frontmatter is never round-tripped.
     """
     try:
         text = filepath.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return None
 
-    fm = _FRONTMATTER_WRITER_RE.match(text)
+    fm = _FRONTMATTER_RE.match(text)
     if not fm:
         return None
 
@@ -171,6 +178,7 @@ def read_provenance(filepath: Path) -> dict[str, Any] | None:
 def is_auto_updatable(filepath: Path) -> bool:
     """Return whether *filepath* is safe for automated overwrite.
 
+    Reads only ``auto_updatable`` via regex — no full YAML parse.
     Returns ``True`` when:
     - ``auto_updatable: true`` is set explicitly, OR
     - no provenance block exists (migration default: overwritable).
@@ -178,7 +186,7 @@ def is_auto_updatable(filepath: Path) -> bool:
     try:
         text = filepath.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
-        return True  # Cannot read → assume safe
+        return True  # Cannot read → assume safe (caller handles missing file)
 
     m = _AUTO_UPDATABLE_RE.search(text)
     if m:
@@ -193,7 +201,13 @@ _MANUAL_MECHANISMS = frozenset({"manual-edit-skill", "human-edit", "agent-edit"}
 
 
 def is_manually_curated(filepath: Path) -> bool:
-    """Return whether *filepath* was last modified by a human-curation mechanism."""
+    """Return whether *filepath* was last modified by a human-curation mechanism.
+
+    Reads only ``last_mechanism`` via regex — no full YAML parse.
+    Returns ``True`` when ``last_mechanism`` is one of the manual-curation
+    values (``manual-edit-skill``, ``human-edit``, ``agent-edit``).
+    Returns ``False`` for batch/automated mechanisms or missing provenance.
+    """
     try:
         text = filepath.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -216,7 +230,7 @@ def _resolve_audit_log_dir() -> Path:
     """Return the directory for the write-audit log, creating it if needed."""
     global _AUDIT_LOG_DIR
     if _AUDIT_LOG_DIR is None:
-        _AUDIT_LOG_DIR = Path(__file__).resolve().parents[3] / "reports" / "write_audit"
+        _AUDIT_LOG_DIR = _HERE.parents[1] / "reports" / "write_audit"
     _AUDIT_LOG_DIR.mkdir(parents=True, exist_ok=True)
     return _AUDIT_LOG_DIR
 
@@ -234,14 +248,36 @@ def safe_content_write(
     If the file already exists and has ``auto_updatable: false``, the write
     is blocked unless *force* is True.
 
-    Returns True if the file was written.
-    Raises ProtectedPageError if the file is protected and *force* is False.
+    Parameters
+    ----------
+    filepath : Path
+        Target content page path.
+    content : str
+        Full page content to write.
+    mechanism : str
+        The mechanism performing the write (e.g. ``"batch-reference"``).
+    force : bool
+        If True, override the protection and log an audit entry.
+    reason : str
+        Required when *force* is True — explains why the override was needed.
+
+    Returns
+    -------
+    bool
+        True if the file was written, False if skipped (non-existent files
+        are always written — there is nothing to protect).
+
+    Raises
+    ------
+    ProtectedPageError
+        If the file is protected and *force* is False.
     """
     import json
     from datetime import datetime, timezone
 
     if filepath.exists() and not is_auto_updatable(filepath):
         if force:
+            # Log the override for auditability
             log_dir = _resolve_audit_log_dir()
             entry = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -260,12 +296,13 @@ def safe_content_write(
         else:
             raise ProtectedPageError(filepath, mechanism)
 
+    # Write the file atomically
     atomic_write(filepath, content)
     return True
 
 
 # ---------------------------------------------------------------------------
-# Source SHA / Content Hash
+# Source SHA
 # ---------------------------------------------------------------------------
 
 def compute_source_sha(english_source_path: Path) -> str:
@@ -279,19 +316,56 @@ def _normalize_body(body: str) -> str:
     return "\n".join(line.rstrip() for line in body.replace("\r\n", "\n").splitlines())
 
 
+_CONTENT_HASH_LINE_RE = re.compile(r"^[ \t]*content_hash:[^\n]*\n?", re.MULTILINE)
+
+
 def compute_content_hash(filepath: Path) -> str:
-    """Return first 32 hex chars of SHA-256 of the normalized page body (after frontmatter)."""
+    """Return first 32 hex chars of SHA-256 of the normalized page body (after frontmatter).
+
+    Normalization ensures CRLF/LF differences and trailing whitespace do not
+    produce different hashes for logically identical content.
+
+    RC-tex-python-07 (MT037 blind-spot audit, adversarial review): whole-frontmatter
+    page types (e.g. products.aspose.org "plugin" layout pages, whose real content --
+    plugin_description, overview, content.block[], etc. -- lives entirely inside the
+    frontmatter YAML with no body markdown at all) always hashed to the same constant
+    value, since only the always-empty body was ever hashed. Real content edits to
+    these pages were structurally undetectable by any content-hash-based staleness
+    or skip check. When the normalized body is empty but a frontmatter block exists,
+    fall back to hashing the frontmatter text itself, so real changes to
+    whole-frontmatter pages are actually detected. Pages with real body content are
+    completely unaffected -- the fallback only activates when body is empty.
+
+    Found live 2026-08-27 committing a whole-frontmatter products.aspose.org page:
+    the frontmatter-fallback text captured by _FRONTMATTER_RE includes the page's
+    OWN `content_hash:` line, so hashing it verbatim is self-referential -- writing
+    a new hash changes the frontmatter text, which changes the computed hash again,
+    which never converges (every `provenance_normalize_hash.py --apply` run reports
+    the file freshly "stale" no matter how many times it's re-run). Strip the
+    content_hash line itself from the fallback-hashed text so the fixed point
+    actually exists. Only affects the whole-frontmatter fallback path -- pages with
+    real body content hash the body only and were never affected.
+    """
     try:
         text = filepath.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return ""
-    fm = _FRONTMATTER_WRITER_RE.match(text)
+    fm = _FRONTMATTER_RE.match(text)
     body = text[fm.end():] if fm else text
-    return hashlib.sha256(_normalize_body(body).encode("utf-8")).hexdigest()[:32]
+    normalized = _normalize_body(body)
+    if fm and not normalized.strip():
+        fm_text_no_hash = _CONTENT_HASH_LINE_RE.sub("", fm.group(2))
+        normalized = _normalize_body(fm_text_no_hash)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
 
 
 def is_stale(locale_path: Path, english_path: Path) -> bool:
-    """Return True if locale file's ``source_sha`` differs from English content."""
+    """Return True if locale file's ``source_sha`` differs from English content.
+
+    Returns True (stale) when:
+    - provenance has ``source_sha`` and it doesn't match current English, OR
+    - locale file has no provenance (unknown → treat as stale).
+    """
     prov = read_provenance(locale_path)
     if not prov or not prov.get("source_sha"):
         return True  # No provenance → stale by default
@@ -305,7 +379,7 @@ def is_stale(locale_path: Path, english_path: Path) -> bool:
 
 def _read_provenance_from_text(text: str) -> dict[str, Any] | None:
     """Parse the provenance block from an already-read file text string."""
-    fm = _FRONTMATTER_WRITER_RE.match(text)
+    fm = _FRONTMATTER_RE.match(text)
     if not fm:
         return None
     fm_text = fm.group(2)
@@ -334,6 +408,7 @@ def _build_provenance_yaml(prov_dict: dict[str, Any]) -> str:
 def write_provenance(filepath: Path, prov_dict: dict[str, Any]) -> bool:
     """Insert or replace the ``provenance:`` block in *filepath*'s frontmatter.
 
+    Follows the same surgery pattern as evidence/writer.py.
     Returns True on success, False on error.
     """
     try:
@@ -341,7 +416,8 @@ def write_provenance(filepath: Path, prov_dict: dict[str, Any]) -> bool:
     except (OSError, UnicodeDecodeError):
         return False
 
-    # Write-once guard: preserve existing content_created_at
+    # Write-once guard: preserve existing content_created_at if the caller
+    # omits or changes it.  This field must never be overwritten once set.
     existing_prov = _read_provenance_from_text(text)
     if existing_prov and "content_created_at" in existing_prov:
         existing_val = existing_prov["content_created_at"]
@@ -351,12 +427,12 @@ def write_provenance(filepath: Path, prov_dict: dict[str, Any]) -> bool:
         elif incoming_val != existing_val:
             print(
                 f"WARN: preserving existing content_created_at for {filepath} "
-                f"(attempted change: {existing_val!r} -> {incoming_val!r})"
+                f"(attempted change: {existing_val!r} → {incoming_val!r})"
             )
             prov_dict = {**prov_dict, "content_created_at": existing_val}
 
     prov_yaml = _build_provenance_yaml(prov_dict)
-    fm_match = _FRONTMATTER_WRITER_RE.match(text)
+    fm_match = _FRONTMATTER_RE.match(text)
 
     if fm_match:
         open_fence = fm_match.group(1)
@@ -365,6 +441,10 @@ def write_provenance(filepath: Path, prov_dict: dict[str, Any]) -> bool:
         body = text[fm_match.end():]
 
         if _PROVENANCE_BLOCK_RE.search(fm_text):
+            # Use a lambda so the replacement string is never interpreted for
+            # backreferences.  Provenance values (e.g. source_file on Windows)
+            # can contain backslash sequences such as \d that Python 3.12+
+            # rejects as invalid escape sequences in re.sub replacement strings.
             _prov_replacement = prov_yaml.rstrip("\n")
             new_fm = _PROVENANCE_BLOCK_RE.sub(
                 lambda m: _prov_replacement, fm_text, count=1
@@ -373,12 +453,18 @@ def write_provenance(filepath: Path, prov_dict: dict[str, Any]) -> bool:
             new_fm = fm_text.rstrip("\n") + "\n" + prov_yaml
         new_text = f"{open_fence}{new_fm}{close_fence}{body}"
     else:
-        # Guard against malformed frontmatter
+        # Regex did not match.  Before prepending a new block, guard against
+        # the case where the file already starts with --- (valid frontmatter
+        # whose closing fence lacked a trailing newline, or otherwise
+        # malformed).  Prepending in that case would create double frontmatter,
+        # which Hugo silently ignores — a silent data-loss corruption.
         if text.lstrip().startswith("---"):
             raise ValueError(
                 f"Frontmatter regex failed on {filepath} but file starts with "
-                "'---'. The file likely has malformed frontmatter. "
-                "Fix the source file and retry."
+                "'---'.  The file likely has malformed frontmatter (e.g. missing "
+                "trailing newline after closing fence).  Refusing to prepend a "
+                "new block to avoid double-frontmatter corruption.  Fix the "
+                "source file and retry."
             )
         # Genuinely no frontmatter — prepend minimal one
         new_text = f"---\n{prov_yaml}---\n\n{text}"
@@ -392,6 +478,9 @@ def update_mechanism(filepath: Path, mechanism: str, content_hash: str = "") -> 
 
     If no provenance block exists, creates a minimal one with
     ``last_mechanism`` and ``auto_updatable: true``.
+
+    When *content_hash* is provided (non-empty), also stores it as
+    ``content_hash`` in the provenance block.
 
     IMPORTANT: This function MUST NOT change ``auto_updatable``,
     ``translation_origin``, ``content_origin``, or any other field.

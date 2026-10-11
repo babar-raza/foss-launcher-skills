@@ -1,0 +1,1 @@
+def test_amp_inside_macro_body_raises_at_invocation(self) -> None:

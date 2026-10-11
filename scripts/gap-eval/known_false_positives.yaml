@@ -1,0 +1,157 @@
+# known_false_positives.yaml — Gap-eval false positive suppression registry
+#
+# Findings matching any entry here are marked status: "suppressed" before
+# verdict computation.  Suppressed findings do not affect the verdict and are
+# excluded from the M/S counts in the report.
+#
+# Schema per entry:
+#   id               — unique bug ID (BUG-{scope}-{seq})
+#   reason           — human-readable explanation of why this is a false positive
+#   retracted_at     — ISO date the false positive was identified and retracted
+#   matches:
+#     family         — (optional) restrict to a product family, e.g. "email"
+#     platform       — (optional) restrict to a platform, e.g. "net"
+#     type           — (optional) finding type string to match
+#     description_contains — (optional) substring that must appear in description
+#
+# All match fields are ANDed.  Omit a field to match any value.
+# ---------------------------------------------------------------------------
+
+false_positives:
+  - id: BUG-3dts-001
+    reason: >
+      Tier 3 LLM incorrectly flags JSON.stringify (standard JavaScript built-in global)
+      as a library API token in 3d/typescript documentation. JSON.stringify is used
+      correctly in code examples as a JS standard global, not claimed as a library API.
+      Retracted 2026-04-10 after file inspection confirmed no erroneous library claim.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "JSON.stringify"
+
+  - id: BUG-3dts-002
+    reason: >
+      Tier 3 LLM incorrectly identifies common English words ("is", "all", "file") in
+      TypeScript code comments and prose as package declarations. These words appear in
+      contextually correct documentation; they are not package names. Retracted 2026-04-10
+      after inspection confirmed all flagged lines contain correct technical prose.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration with value"
+
+  - id: BUG-3dts-003
+    reason: >
+      Tier 3 LLM incorrectly identifies Node.js variable/type names ("buffer", "Buffer")
+      as package declarations in 3d/typescript documentation. Buffer is a Node.js built-in
+      type used correctly as a type annotation and variable name. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration named"
+
+  - id: BUG-3dts-004
+    reason: >
+      Tier 3 LLM incorrectly identifies "magic" (from "magic bytes", standard file format
+      detection terminology) in 3d/typescript docs as a package-level declaration. "Magic
+      bytes" is correct technical vocabulary for binary format signatures. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "magic"
+
+  - id: BUG-3dts-005
+    reason: >
+      Tier 3 LLM incorrectly identifies the format abbreviation "GLB" (binary glTF)
+      used in code comments as a package or module declaration in 3d/typescript docs.
+      GLB is a standard file format name. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package or module named"
+
+  - id: BUG-3dts-006
+    reason: >
+      Tier 3 LLM incorrectly identifies technical terms ("binary" from "binary magic
+      numbers") in prose as package declarations in 3d/typescript documentation.
+      Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package named"
+
+  - id: BUG-3dts-007
+    reason: >
+      Tier 3 LLM incorrectly identifies common English words ("all", "file") appearing
+      near TypeScript package imports as package declaration values. These are standard
+      English words in prose/comments — "all" in iteration context, "file" in load
+      description. All match "package declaration with the value" or "let alone one with
+      the value" LLM phrasing patterns. Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration with the value"
+
+  - id: BUG-3dts-008
+    reason: >
+      Tier 3 LLM incorrectly identifies the word "file" in TypeScript how-to documentation
+      prose ("load an existing file") as a package declaration. The description uses the
+      phrasing "package declaration, let alone one with the value 'file'". Content is correct.
+      Retracted 2026-04-10.
+    retracted_at: "2026-04-10"
+    matches:
+      family: 3d
+      platform: typescript
+      description_contains: "package declaration, let alone"
+
+  - id: BUG-enet-001
+    reason: >
+      knowledge/email/net/merged/limitations.md incorrectly claimed that
+      `new CfbDocument(root)` does not compile with a single root argument.
+      Retracted 2026-04-10 after source-code verification confirmed the
+      constructor overload exists and compiles correctly.
+    retracted_at: "2026-04-10"
+    matches:
+      family: email
+      platform: net
+      description_contains: "CfbDocument"
+
+  - id: BUG-cnet-001
+    reason: >
+      Gap-eval Tier 1 wrong-package check flags C# 'using Aspose.Cells_FOSS;' namespace
+      declarations in cells/net content as mismatches against the NuGet PackageId
+      'Aspose.Cells.FOSS'. These are different artefacts: the C# source namespace is
+      'Aspose.Cells_FOSS' (confirmed in aspose_cells_net clone cache
+      src/Aspose.Cells_FOSS/*.cs) while the .csproj PackageId is 'Aspose.Cells.FOSS'.
+      Content using 'using Aspose.Cells_FOSS;' is correct; the install command
+      'dotnet add package Aspose.Cells.FOSS' is the only place where the dot form is
+      required. Retracted 2026-05-22 after source verification confirmed namespace.
+    retracted_at: "2026-05-22"
+    matches:
+      family: cells
+      platform: net
+      type: wrong-package
+      description_contains: "Aspose.Cells_FOSS"
+
+  - id: BUG-cnet-002
+    reason: >
+      Gap-eval Tier 1 extracts 'Aspose.Cells' from C# string literals such as
+      'sheet.Cells["A1"].PutValue("Hello from Aspose.Cells FOSS")' and expected-output
+      blocks containing 'Hello from Aspose.Cells FOSS'. The regex matches 'Aspose.Cells'
+      as a package candidate inside a string literal. The C# suppression rule checks
+      expected_pkg.replace("_"," ") which is 'Aspose.Cells.FOSS' (no underscores), so
+      the space-form check never triggers for this product. These are purely string
+      literal / output text occurrences, not package references. Retracted 2026-05-22.
+    retracted_at: "2026-05-22"
+    matches:
+      family: cells
+      platform: net
+      type: wrong-package
+      description_contains: "'Aspose.Cells'"

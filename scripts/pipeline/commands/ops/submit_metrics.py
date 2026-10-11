@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """CLI entry point for Agent Metrics API submission.
 
 Usage:

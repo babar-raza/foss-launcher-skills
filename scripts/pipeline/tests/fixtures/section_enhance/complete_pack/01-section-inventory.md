@@ -1,0 +1,1 @@
+# Section Inventory (fixture stub)

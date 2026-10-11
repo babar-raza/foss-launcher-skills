@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Violation-driven learning: generate learning examples from violations.
 
 This module generates learning examples from compliance violations

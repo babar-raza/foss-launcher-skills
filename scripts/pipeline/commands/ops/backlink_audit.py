@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """backlink_audit.py — Full English content backlink compliance audit (TC-BL-003).
 
 Walks all in-scope English content across docs, kb, reference, products, and blog
@@ -27,19 +26,30 @@ import sys
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-import os
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 from lib.backlink_targets import (
+    FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE,
+    WRONG_ANCHOR_TEXT,
+    DUPLICATE_LINK,
+    DUPLICATE_SUBDOMAIN,
     PageType,
     classify_compliance,
     classify_page_type,
     count_qualifying_com_links,
+    extract_qualifying_com_links,
     load_target_map,
     resolve_backlink,
 )
+# TC14 (2026-08-21): reuse the exact same anchor-text/display-map logic the
+# insertion engine itself uses, so the audit's WRONG_ANCHOR_TEXT expectation
+# can never drift from what backfill would actually write -- not a second,
+# independently-maintained copy of this logic. Dotted import (not a bare
+# sibling import) so this works whether backlink_audit.py is run directly
+# or imported as commands.ops.backlink_audit by another module/test.
+from commands.ops.backlink_backfill import _expected_anchor_text, _load_display_maps  # noqa: E402
 
 SCRIPT_VERSION = "1.0.0"
 
@@ -69,6 +79,17 @@ STATUS_WRONG_TARGET   = "WRONG_TARGET"
 STATUS_OVER_LIMIT     = "OVER_LIMIT"
 STATUS_BLOCKED_TARGET = "BLOCKED_TARGET"
 STATUS_SKIPPED        = "SKIPPED"
+STATUS_FAMILY_FALLBACK = FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE
+# TC14 (2026-08-21): these 3 statuses were already returned by
+# classify_compliance() (added TC2/TC10) but audit_file() never surfaced
+# them -- DUPLICATE_LINK/DUPLICATE_SUBDOMAIN needed no new inputs (the
+# unconditional part of classify_compliance() already computes them from
+# existing_urls alone); WRONG_ANCHOR_TEXT needed the opt-in
+# existing_links/expected_anchor_text kwargs, which audit_file() never
+# passed, so it could never fire even though the detection logic existed.
+STATUS_WRONG_ANCHOR_TEXT = WRONG_ANCHOR_TEXT
+STATUS_DUPLICATE_LINK    = DUPLICATE_LINK
+STATUS_DUPLICATE_SUBDOMAIN = DUPLICATE_SUBDOMAIN
 
 
 @dataclass
@@ -97,8 +118,12 @@ class AuditTotals:
     wrong_target: int = 0
     over_limit: int = 0
     blocked_target: int = 0
+    family_fallback: int = 0
     skipped: int = 0
     errors: int = 0
+    wrong_anchor_text: int = 0    # TC14 (2026-08-21)
+    duplicate_link: int = 0       # TC14 (2026-08-21)
+    duplicate_subdomain: int = 0  # TC14 (2026-08-21)
 
 
 def _read_body_text(file_path: Path, subdomain: str) -> str:
@@ -156,8 +181,32 @@ def audit_file(
     file_path: Path,
     repo_root: Path,
     target_map: dict,
+    canonical_overrides: dict | None = None,
+    families_map: dict | None = None,
+    platforms_map: dict | None = None,
+    exact_deep_match_enabled: bool = False,
+    authority: dict | None = None,
 ) -> AuditRecord:
-    """Audit a single file and return an AuditRecord."""
+    """Audit a single file and return an AuditRecord.
+
+    families_map/platforms_map: (TC14, 2026-08-21) display-name maps from
+    _load_display_maps(), used to compute the expected anchor text for
+    WRONG_ANCHOR_TEXT detection. Optional -- omitting either (the prior
+    call shape) disables anchor-text checking but keeps every other status
+    exactly as before, matching classify_compliance()'s own opt-in contract.
+
+    exact_deep_match_enabled/authority: (BL-AUDIT-DEEP-WIRE, 2026-08-24) the
+    CLI's --deep/--authority flags were parsed but never actually threaded
+    into resolve_backlink() -- this function always resolved against the
+    shallow family/platform target only, so any reference.aspose.org page
+    correctly deep-linked to its exact class URL (by backlink_backfill.py
+    --deep, or pre-existing) was misclassified WRONG_TARGET (confirmed live:
+    471 of 497 WRONG_TARGET results on a post-backfill reference.aspose.org
+    audit were pages just written with a correct, deliberate deep link).
+    Threading these through (matching backlink_backfill.py's own
+    resolve_backlink() call) fixes it; omitting both preserves the exact
+    prior (shallow-only) resolution for every existing caller.
+    """
     rel = file_path.relative_to(repo_root).as_posix()
 
     # Classify page type
@@ -191,6 +240,10 @@ def audit_file(
         platform=platform,
         source_subdomain=subdomain or "",
         target_map=target_map,
+        canonical_overrides=canonical_overrides,
+        exact_deep_match_enabled=exact_deep_match_enabled,
+        authority=authority,
+        source_file=rel,
     )
 
     # Read body text and count qualifying links
@@ -203,9 +256,29 @@ def audit_file(
 
     link_count, link_urls = count_qualifying_com_links(body_text)
 
-    # Determine compliance status (pass family/platform for full fallback chain check)
+    # TC14 (2026-08-21): (anchor_text, url) pairs + the governed expected
+    # anchor text, enabling WRONG_ANCHOR_TEXT detection -- both are opt-in
+    # on classify_compliance() (omitting either preserves prior URL-only
+    # behavior exactly), so this only activates when a real target and
+    # display maps are available.
+    existing_links = extract_qualifying_com_links(body_text)
+    expected_anchor_text = None
+    if chosen_url and family and families_map is not None and platforms_map is not None:
+        try:
+            expected_anchor_text = _expected_anchor_text(
+                chosen_url, family, platform, families_map, platforms_map,
+                target_type=chosen_type, source_subdomain=subdomain,
+            )
+        except Exception:
+            expected_anchor_text = None
+
+    # Determine compliance status (A2 P0: pass chosen_target_type/subdomain for FAMILY_FALLBACK detection)
     status = classify_compliance(link_count, link_urls, chosen_url,
-                                  family=family, platform=platform)
+                                  family=family, platform=platform,
+                                  chosen_target_type=chosen_type,
+                                  chosen_target_subdomain=chosen_sd,
+                                  existing_links=existing_links,
+                                  expected_anchor_text=expected_anchor_text)
 
     # Build resolution evidence string
     if chosen_url:
@@ -265,17 +338,28 @@ def run_audit(
     subdomains: list[str] | None = None,
     family_filter: str | None = None,
     platform_filter: str | None = None,
+    canonical_overrides: dict | None = None,
+    exact_deep_match_enabled: bool = False,
+    authority: dict | None = None,
 ) -> tuple[list[AuditRecord], AuditTotals]:
     """Run audit across all matching content files. Returns (records, totals)."""
     files = walk_content(repo_root, subdomains, family_filter, platform_filter)
     print(f"  Scanning {len(files)} files...", file=sys.stderr)
+
+    # TC14 (2026-08-21): loaded once for the whole run, not per file --
+    # needed for WRONG_ANCHOR_TEXT's expected-anchor-text computation.
+    families_map, platforms_map = _load_display_maps(repo_root)
 
     records: list[AuditRecord] = []
     totals = AuditTotals(scanned=len(files))
 
     for fpath in files:
         try:
-            rec = audit_file(fpath, repo_root, target_map)
+            rec = audit_file(
+                fpath, repo_root, target_map, canonical_overrides=canonical_overrides,
+                families_map=families_map, platforms_map=platforms_map,
+                exact_deep_match_enabled=exact_deep_match_enabled, authority=authority,
+            )
         except Exception as exc:
             rel = fpath.relative_to(repo_root).as_posix()
             rec = AuditRecord(
@@ -296,7 +380,11 @@ def run_audit(
         elif s == STATUS_WRONG_TARGET: totals.wrong_target += 1
         elif s == STATUS_OVER_LIMIT:   totals.over_limit += 1
         elif s == STATUS_BLOCKED_TARGET: totals.blocked_target += 1
+        elif s == STATUS_FAMILY_FALLBACK: totals.family_fallback += 1
         elif s == STATUS_SKIPPED:      totals.skipped += 1
+        elif s == STATUS_WRONG_ANCHOR_TEXT: totals.wrong_anchor_text += 1
+        elif s == STATUS_DUPLICATE_LINK:    totals.duplicate_link += 1
+        elif s == STATUS_DUPLICATE_SUBDOMAIN: totals.duplicate_subdomain += 1
 
     return records, totals
 
@@ -312,12 +400,20 @@ def build_report(
 
     def _counter() -> dict:
         return {"missing": 0, "compliant": 0, "wrong_target": 0,
-                "over_limit": 0, "blocked_target": 0, "skipped": 0}
+                "over_limit": 0, "blocked_target": 0,
+                "family_fallback": 0, "skipped": 0,
+                "wrong_anchor_text": 0, "duplicate_link": 0,
+                "duplicate_subdomain": 0}
 
     key_map = {
         STATUS_MISSING: "missing", STATUS_COMPLIANT: "compliant",
         STATUS_WRONG_TARGET: "wrong_target", STATUS_OVER_LIMIT: "over_limit",
-        STATUS_BLOCKED_TARGET: "blocked_target", STATUS_SKIPPED: "skipped",
+        STATUS_BLOCKED_TARGET: "blocked_target",
+        STATUS_FAMILY_FALLBACK: "family_fallback",
+        STATUS_SKIPPED: "skipped",
+        STATUS_WRONG_ANCHOR_TEXT: "wrong_anchor_text",
+        STATUS_DUPLICATE_LINK: "duplicate_link",
+        STATUS_DUPLICATE_SUBDOMAIN: "duplicate_subdomain",
     }
 
     for rec in records:
@@ -343,6 +439,14 @@ def build_report(
         {"file": r.file, "count": r.existing_com_link_count, "urls": r.existing_com_links}
         for r in records if r.status == STATUS_OVER_LIMIT
     ]
+    wrong_anchor = [
+        {"file": r.file, "existing_urls": r.existing_com_links, "target_url": r.chosen_target_url}
+        for r in records if r.status == STATUS_WRONG_ANCHOR_TEXT
+    ]
+    duplicates = [
+        {"file": r.file, "urls": r.existing_com_links}
+        for r in records if r.status in (STATUS_DUPLICATE_LINK, STATUS_DUPLICATE_SUBDOMAIN)
+    ]
 
     return {
         "schema_version": "1.0",
@@ -355,6 +459,8 @@ def build_report(
         "blocked_targets": blocked,
         "wrong_targets": wrong,
         "over_limit": over,
+        "wrong_anchor_text": wrong_anchor,
+        "duplicates": duplicates,
         "records": [asdict(r) for r in records],
     }
 
@@ -379,6 +485,9 @@ def write_markdown_summary(report: dict, out_path: Path) -> None:
         f"| WRONG_TARGET | {t['wrong_target']} |",
         f"| OVER_LIMIT | {t['over_limit']} |",
         f"| BLOCKED_TARGET | {t['blocked_target']} |",
+        f"| WRONG_ANCHOR_TEXT | {t['wrong_anchor_text']} |",
+        f"| DUPLICATE_LINK | {t['duplicate_link']} |",
+        f"| DUPLICATE_SUBDOMAIN | {t['duplicate_subdomain']} |",
         f"| SKIPPED | {t['skipped']} |",
         f"| Errors | {t['errors']} |",
         "",
@@ -422,9 +531,21 @@ def write_markdown_summary(report: dict, out_path: Path) -> None:
         for ol in report["over_limit"]:
             lines.append(f"- `{ol['file']}` — {ol['count']} qualifying links")
 
+    if report.get("wrong_anchor_text"):
+        lines += ["", "## WRONG_ANCHOR_TEXT (correct URL, wrong wording)", ""]
+        for wa in report["wrong_anchor_text"]:
+            existing = ", ".join(wa["existing_urls"]) if wa["existing_urls"] else "(none)"
+            lines.append(f"- `{wa['file']}` existing: {existing} (target: {wa['target_url']})")
+
+    if report.get("duplicates"):
+        lines += ["", "## DUPLICATE_LINK / DUPLICATE_SUBDOMAIN", ""]
+        for dup in report["duplicates"]:
+            lines.append(f"- `{dup['file']}` — {', '.join(dup['urls'])}")
+
     lines += [
         "", "---",
-        "*Gate: 0 MISSING + 0 WRONG_TARGET + 0 OVER_LIMIT + 0 BLOCKED_TARGET required for push.*",
+        "*Gate: 0 MISSING + 0 WRONG_TARGET + 0 OVER_LIMIT + 0 BLOCKED_TARGET + "
+        "0 WRONG_ANCHOR_TEXT + 0 DUPLICATE_LINK + 0 DUPLICATE_SUBDOMAIN required for push.*",
         "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -453,6 +574,20 @@ def main() -> int:
         "--show-compliant", action="store_true",
         help="Include COMPLIANT records in console output (verbose)",
     )
+    parser.add_argument(
+        "--deep", action="store_true", default=False,
+        help="Enable deep authority lookup (reads backlink_authority.json if present)",
+    )
+    parser.add_argument(
+        "--authority", default=None,
+        help="Path to backlink_authority.json (default: data/backlinks/workspace/backlink_authority.json)",
+    )
+    parser.add_argument(
+        "--kb-anchor-mode",
+        choices=["LEGACY_COMPAT_MODE", "CANONICAL_POST_P0_MODE"],
+        default="LEGACY_COMPAT_MODE",
+        help="KB anchor compliance mode (default: LEGACY_COMPAT_MODE)",
+    )
     args = parser.parse_args()
 
     repo_root = _REPO_ROOT
@@ -471,6 +606,16 @@ def main() -> int:
 
     target_map_hash = target_map.get("provenance", {}).get("output_hash", "unknown")
 
+    # Load canonical platform overrides (A2 P0 — same as backfill tool)
+    canonical_overrides: dict | None = None
+    _overrides_path = repo_root / "data" / "backlinks" / "platform_canonical_overrides.yaml"
+    if _overrides_path.exists():
+        try:
+            import yaml as _yaml_ovr
+            canonical_overrides = _yaml_ovr.safe_load(_overrides_path.read_text(encoding="utf-8"))
+        except Exception as _exc:
+            print(f"  WARN: Could not load canonical overrides: {_exc}", file=sys.stderr)
+
     # Determine output paths
     reports_dir = repo_root / "reports" / "backlinks"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -482,6 +627,20 @@ def main() -> int:
         json_out = reports_dir / f"backlink_audit_{ts}.json"
         md_out = reports_dir / f"backlink_audit_{ts}.md"
 
+    # Load deep authority if --deep (BL-AUDIT-DEEP-WIRE, 2026-08-24: mirrors
+    # backlink_backfill.py's own --deep loading -- previously args.deep/
+    # args.authority were parsed but never used anywhere in this file).
+    authority_data = None
+    if args.deep:
+        authority_path = (Path(args.authority) if args.authority
+                          else repo_root / "data" / "backlinks" / "workspace" / "backlink_authority.json")
+        if authority_path.exists():
+            authority_data = json.loads(authority_path.read_text(encoding="utf-8"))
+            print(f"  --deep: loaded authority from {authority_path} "
+                  f"({len(authority_data.get('authority', {}))} records)", file=sys.stderr)
+        else:
+            print(f"WARNING: --deep but authority not found: {authority_path}", file=sys.stderr)
+
     # Run audit
     print(f"Running backlink audit (generator v{SCRIPT_VERSION})...", file=sys.stderr)
     records, totals = run_audit(
@@ -490,6 +649,9 @@ def main() -> int:
         subdomains=args.subdomain,
         family_filter=args.family,
         platform_filter=args.platform,
+        canonical_overrides=canonical_overrides,
+        exact_deep_match_enabled=bool(args.deep and authority_data),
+        authority=authority_data,
     )
 
     # Build and write report
@@ -508,6 +670,9 @@ def main() -> int:
     print(f"  WRONG_TARGET:   {t.wrong_target}", file=sys.stderr)
     print(f"  OVER_LIMIT:     {t.over_limit}", file=sys.stderr)
     print(f"  BLOCKED_TARGET: {t.blocked_target}", file=sys.stderr)
+    print(f"  WRONG_ANCHOR_TEXT:   {t.wrong_anchor_text}", file=sys.stderr)
+    print(f"  DUPLICATE_LINK:      {t.duplicate_link}", file=sys.stderr)
+    print(f"  DUPLICATE_SUBDOMAIN: {t.duplicate_subdomain}", file=sys.stderr)
     print(f"  SKIPPED:        {t.skipped}", file=sys.stderr)
     print(f"  Errors:         {t.errors}", file=sys.stderr)
     print(f"{'='*60}", file=sys.stderr)
@@ -516,7 +681,9 @@ def main() -> int:
 
     for rec in records:
         if rec.status in (STATUS_MISSING, STATUS_WRONG_TARGET,
-                          STATUS_OVER_LIMIT, STATUS_BLOCKED_TARGET):
+                          STATUS_OVER_LIMIT, STATUS_BLOCKED_TARGET,
+                          STATUS_WRONG_ANCHOR_TEXT, STATUS_DUPLICATE_LINK,
+                          STATUS_DUPLICATE_SUBDOMAIN):
             print(f"  [{rec.status}] {rec.file}", file=sys.stderr)
         elif rec.status == STATUS_COMPLIANT and args.show_compliant:
             print(f"  [COMPLIANT] {rec.file}", file=sys.stderr)

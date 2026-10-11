@@ -1,0 +1,16 @@
+# Shared dependencies for all governance CI workflows.
+# Update this file when adding imports to any module tested by these workflows.
+# All .github/workflows/*-governance.yml files install from here.
+pyyaml>=6.0
+pytest
+python-dotenv>=1.0
+requests>=2.28
+# Pillow: required by scripts/pipeline/commands/ops/optimize_media_assets.py
+# (imported transitively by scripts/ci/checks/check_media_asset_size.py, Step 31
+# of pre-commit-audit.sh). Missing here since Step 31 was added (2026-08-07) --
+# worked locally only because Pillow happened to already be present in dev
+# .venv installs from an unrelated source, masking the gap until CI ran fresh.
+# Confirmed broken on skill-governance.yml's enforce-venv-python job across at
+# least 3 unrelated commits (2026-08-08 CI rules audit, workflow-harden Part 4
+# remote verification).
+Pillow>=10.0

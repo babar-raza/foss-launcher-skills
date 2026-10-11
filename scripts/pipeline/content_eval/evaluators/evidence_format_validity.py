@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Evidence format validity evaluator — detects false-positive format extensions in evidence blocks.
 
 CV2-003 guard: When formats.json is cleaned of false positives (CV2-001), existing content

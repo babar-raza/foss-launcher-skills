@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "family": "fake",
+  "platform": "python",
+  "display_name": "Fake",
+  "stale": false,
+  "has_conflicts": false,
+  "api_confidence": "high",
+  "forbidden_claims": [
+    "supports Node.get_bounding_box",
+    "supports Scene.broken_method"
+  ],
+  "truth_gaps": [],
+  "api_coverage": {
+    "surface_tier": 1,
+    "method_pct": 90.0,
+    "property_pct": 80.0
+  }
+}

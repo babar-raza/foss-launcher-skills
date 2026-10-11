@@ -1,0 +1,25 @@
+feat(example-verification): C3 checkpoint 2 -- language-agnostic fixture staging (acquire.py)
+
+Continues taskcard C3 (checkpointed once already at 21c1281ead --
+toolchain.py). Adds acquire.py: stage_fixtures()/readme_fixture_names(),
+a faithful port of S-120's _stage_readme_fixtures/_readme_fixture_names
+(readme_refresh_run.py:4874-4923) -- the language-agnostic half of
+"acquiring" a disposable environment, already shared unchanged between
+S-120's real python and typescript runners today for the same reason.
+
+10 tests, including 2 direct parity checks that import the real,
+unmodified S-120 functions (readme_refresh_run.rr._readme_fixture_names /
+rr._stage_readme_fixtures) and assert byte-identical output against this
+port for the same inputs -- the "legacy-adapter equality" the stage's own
+promotion gate calls for.
+
+readme_refresh_run.py and test_readme_refresh_run.py remain untouched;
+C3 stays IN_PROGRESS. Remaining scope: runners/base.py, runners/python.py,
+runners/typescript.py (the language-specific acquire/execute/classify
+logic -- real subprocess/pip/npm calls, ~600 more lines to port faithfully
+-- deliberately not rushed into this same commit).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

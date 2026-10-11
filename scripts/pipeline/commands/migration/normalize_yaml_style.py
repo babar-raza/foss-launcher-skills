@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """normalize_yaml_style.py — Restore | literal block scalar style for product pages.
 
@@ -24,7 +23,7 @@ unexpected leading whitespace, or blank lines may be lost/added.
 
 STRATEGY
 --------
-For every file in content/products/:
+For every file in content/products.aspose.org/:
 
 1. Parse the frontmatter with yaml.safe_load to recover the actual string values.
 2. Re-serialize with a custom LiteralDumper that forces | style for any string
@@ -34,7 +33,7 @@ For every file in content/products/:
 4. Validate that the parsed content of each multi-line field is semantically
    identical before and after normalization.
 
-IMPORTANT: This script only touches content/products/. It must NOT be
+IMPORTANT: This script only touches content/products.aspose.org/. It must NOT be
 run on blog, docs, kb, or reference content — single blank lines in those files are
 legitimate Python/Java style and must be preserved.
 
@@ -47,12 +46,11 @@ USAGE
     python scripts/pipeline/commands/migration/normalize_yaml_style.py
 
     # Apply to a specific file:
-    python scripts/pipeline/commands/migration/normalize_yaml_style.py content/products/en/cells/python/_index.md
+    python scripts/pipeline/commands/migration/normalize_yaml_style.py content/products.aspose.org/en/cells/python/_index.md
 """
 from __future__ import annotations
 
 import argparse
-import os
 import re
 import sys
 import textwrap
@@ -67,7 +65,7 @@ from core.fs import atomic_write  # noqa: E402
 from core.markdown import split_frontmatter  # noqa: E402
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
-_PRODUCTS_DIR = Path(os.environ.get("PRODUCTS_DIR", str(_REPO_ROOT / "content" / "products")))
+_PRODUCTS_DIR = _REPO_ROOT / "content" / "products.aspose.org"
 
 # Matches the evidence block (to extract and re-apply separately)
 _EVIDENCE_BLOCK_RE = re.compile(
@@ -271,7 +269,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "paths",
         nargs="*",
         help="Specific files or directories to normalize. "
-             "Defaults to content/products/.",
+             "Defaults to content/products.aspose.org/.",
     )
     p.add_argument(
         "--dry-run",

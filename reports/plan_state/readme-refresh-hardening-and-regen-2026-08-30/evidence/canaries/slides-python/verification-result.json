@@ -1,0 +1,82 @@
+{
+  "runner": "python_verification_runner_v1",
+  "blocks_found": 17,
+  "block_statuses": [
+    {
+      "index": 0,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 1,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 2,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 3,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_3.py\", line 5, in <module>\n    with slides.Presentation(\"input.pptx\") as prs:\n         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Presentation.py\", line 108, in __init__\n    self._opc_package = OpcPackage.open(source)\n                        ~~~~~~~~~~~~~~~^^^^^^^^\n  File \"<local-plan-cache>/opc_package.py\", line 52, in open\n    raise FileNotFoundError(f\"Package file not found: {source}\")\nFileNotFoundError: Package file not found: input.pptx"
+    },
+    {
+      "index": 4,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 5,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 6,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 7,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 8,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 9,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 10,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 11,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 12,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 13,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 14,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 15,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_15.py\", line 4, in <module>\n    with slides.Presentation(\"input.pptx\") as prs:\n         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Presentation.py\", line 108, in __init__\n    self._opc_package = OpcPackage.open(source)\n                        ~~~~~~~~~~~~~~~^^^^^^^^\n  File \"<local-plan-cache>/opc_package.py\", line 52, in open\n    raise FileNotFoundError(f\"Package file not found: {source}\")\nFileNotFoundError: Package file not found: input.pptx"
+    },
+    {
+      "index": 16,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    }
+  ],
+  "all_named": true
+}

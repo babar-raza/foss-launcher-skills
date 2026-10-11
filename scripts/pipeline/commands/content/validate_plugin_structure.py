@@ -1,18 +1,75 @@
 #!/usr/bin/env python3
-"""Validate layout: plugin product-page structure."""
+"""validate_plugin_structure.py — Structural gate for layout: plugin product pages.
+
+Checks every product page with ``layout: plugin`` for structural correctness
+against the Hugo ``plugin.html`` template requirements.  The template reads
+all content sections via ``.Params.*`` which is populated exclusively from
+YAML frontmatter — content placed in the page body is invisible to Hugo.
+
+Checks
+------
+1. **BODY_LEAK** (FATAL): ``overview:``, ``content:``, ``single:``, or
+   ``faq:`` patterns found in the page body (after the closing ``---``
+   delimiter) instead of inside frontmatter.  This is the primary defect
+   this validator was created to catch.
+
+2. **MISSING_KEY** (FATAL): A required frontmatter key (consumed by
+   ``plugin.html``) is absent.
+
+3. **MISSING_ENABLE** (ERROR): A section is present but missing its
+   ``enable: true`` flag, so the template will silently skip it.
+
+4. **EMPTY_SECTION** (WARN): A required section has no content or blocks.
+
+Usage
+-----
+    # Check all plugin product pages:
+    python scripts/pipeline/commands/content/validate_plugin_structure.py
+
+    # Check specific files:
+    python scripts/pipeline/commands/content/validate_plugin_structure.py --files path/to/file.md
+
+    # Strict mode — also exit 1 on WARN:
+    python scripts/pipeline/commands/content/validate_plugin_structure.py --strict
+
+Exit codes
+----------
+    0 — All checks passed
+    1 — One or more FATAL or ERROR findings
+    2 — Internal error
+"""
 from __future__ import annotations
 
 import argparse
 import re
+import sys
+import textwrap
 from pathlib import Path
 
 import yaml
 
-_FRONTMATTER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+_PRODUCTS_DIR = _REPO_ROOT / "content" / "products.aspose.org"
+
+_PIPELINE_ROOT = Path(__file__).resolve().parent.parent.parent  # commands/content/ -> commands/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
+
+from core.markdown import extract_frontmatter_body, _FRONTMATTER_READER_RE  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Body-leak detection patterns — these are YAML top-level keys that belong
+# in frontmatter, not in the page body.
+# ---------------------------------------------------------------------------
 _BODY_LEAK_PATTERNS = re.compile(
     r"^(overview|content|single|faq|supportandlearning|more_formats|back_to_top):",
     re.MULTILINE,
 )
+
+# ---------------------------------------------------------------------------
+# Required frontmatter keys for layout: plugin pages.
+# Derived from themes/products/layouts/_default/plugin.html template analysis.
+# ---------------------------------------------------------------------------
 _REQUIRED_TOP_KEYS = [
     "layout",
     "family_name",
@@ -24,15 +81,130 @@ _REQUIRED_TOP_KEYS = [
     "description",
     "github_url",
 ]
-_REQUIRED_SECTIONS_WITH_ENABLE = ["submenu", "overview", "content", "single"]
-_DISPLAY_SECTIONS_WITH_ENABLE = ["supportandlearning", "more_formats", "back_to_top"]
+
+# Core structural sections — FATAL if missing (content won't render)
+_REQUIRED_SECTIONS_WITH_ENABLE = [
+    "submenu",
+    "overview",
+    "content",
+    "single",
+]
+
+# Display-control sections — ERROR if missing on English pages (S-61 post-conditions
+# require these); WARN for locale translations which legitimately omit them.
+_OPTIONAL_SECTIONS_WITH_ENABLE = [
+    "supportandlearning",
+    "more_formats",
+    "back_to_top",
+]
+
 _SECTIONS_WITH_CONTENT = {
     "overview": ["title", "content"],
     "content": ["block"],
     "single": ["block"],
 }
 
+_FENCE_RE = re.compile(r"^[\s]*```(\w*)")
 
+
+# ---------------------------------------------------------------------------
+# Code-block blank-line helpers
+# ---------------------------------------------------------------------------
+
+
+def _extract_yaml_string_fields_for_code(fm: dict) -> list[tuple[str, str]]:
+    """Return (key_path, value) pairs for string fields likely to contain code fences."""
+    results: list[tuple[str, str]] = []
+    ov = fm.get("overview") or {}
+    if isinstance(ov, dict) and isinstance(ov.get("content"), str):
+        results.append(("overview.content", ov["content"]))
+    ct = fm.get("content") or {}
+    for i, block in enumerate(ct.get("block") or []):
+        if not isinstance(block, dict):
+            continue
+        for side in ("content_left", "content_right"):
+            if isinstance(block.get(side), str):
+                results.append((f"content.block[{i}].{side}", block[side]))
+    sg = fm.get("single") or {}
+    for i, block in enumerate(sg.get("block") or []):
+        if not isinstance(block, dict):
+            continue
+        if isinstance(block.get("content"), str):
+            results.append((f"single.block[{i}].content", block["content"]))
+    return results
+
+
+def _scan_code_fences_for_blanks(text: str, key_path: str, severity: str) -> list[Finding]:
+    """Scan a YAML string value for blank lines at fence boundaries or inside short snippets."""
+    findings: list[Finding] = []
+    lines = text.splitlines()
+    n = len(lines)
+    i = 0
+    while i < n:
+        m = _FENCE_RE.match(lines[i])
+        if m and lines[i].strip().startswith("```") and len(lines[i].strip()) >= 3:
+            # Opening fence — collect code lines until closing fence
+            j = i + 1
+            code_lines: list[str] = []
+            while j < n:
+                stripped_j = lines[j].strip()
+                if stripped_j == "```" or (stripped_j.startswith("```") and len(stripped_j) == 3):
+                    break
+                code_lines.append(lines[j])
+                j += 1
+            closing_idx = j
+
+            non_empty_code = [ln for ln in code_lines if ln.strip()]
+
+            if code_lines and code_lines[0].strip() == "":
+                findings.append(Finding(
+                    severity,
+                    "CODE_BLOCK_BLANK_LINES",
+                    f"{key_path} has blank line immediately after opening code fence "
+                    f"(near field line {i + 1}) — produces unwanted spacing in <pre><code>",
+                ))
+
+            if code_lines and code_lines[-1].strip() == "":
+                findings.append(Finding(
+                    severity,
+                    "CODE_BLOCK_BLANK_LINES",
+                    f"{key_path} has blank line immediately before closing code fence "
+                    f"(near field line {closing_idx}) — produces unwanted spacing in <pre><code>",
+                ))
+
+            if len(non_empty_code) <= 8:
+                for k, line in enumerate(code_lines):
+                    if line.strip() == "" and 0 < k < len(code_lines) - 1:
+                        prev_nonempty = any(code_lines[p].strip() for p in range(k))
+                        next_nonempty = any(code_lines[p].strip() for p in range(k + 1, len(code_lines)))
+                        if prev_nonempty and next_nonempty:
+                            findings.append(Finding(
+                                severity,
+                                "CODE_BLOCK_BLANK_LINES",
+                                f"{key_path} short snippet ({len(non_empty_code)} code lines) "
+                                f"has internal blank line near field line {i + 1 + k} — "
+                                f"produces unwanted spacing in <pre><code>",
+                            ))
+                            break
+
+            i = closing_idx + 1
+        else:
+            i += 1
+    return findings
+
+
+def _check_code_block_blank_lines(fm: dict, is_english: bool) -> list[Finding]:
+    """Check for blank lines at code fence boundaries or inside short code snippets."""
+    severity = "ERROR" if is_english else "WARN"
+    findings: list[Finding] = []
+    for key_path, value in _extract_yaml_string_fields_for_code(fm):
+        findings.extend(_scan_code_fences_for_blanks(value, key_path, severity))
+    return findings
+
+
+# ---------------------------------------------------------------------------
+# Finding dataclass
+# ---------------------------------------------------------------------------
 class Finding:
     __slots__ = ("severity", "check_id", "message")
 
@@ -45,40 +217,58 @@ class Finding:
         return f"  {self.severity}: [{self.check_id}] {self.message}"
 
 
-def _split_frontmatter(text: str) -> tuple[str, str] | None:
-    match = _FRONTMATTER_RE.match(text)
-    if not match:
-        return None
-    return match.group(2), text[match.end():]
+# ---------------------------------------------------------------------------
+# Core check logic
+# ---------------------------------------------------------------------------
 
 
 def _is_english_page(filepath: Path) -> bool:
+    """Return True if the page is under the English content directory."""
     parts = filepath.parts
-    for index, part in enumerate(parts):
-        if part == "products.aspose.org" and index + 1 < len(parts):
-            return parts[index + 1] == "en"
+    # English pages live under content/products.aspose.org/en/
+    for i, part in enumerate(parts):
+        if part == "products.aspose.org" and i + 1 < len(parts):
+            return parts[i + 1] == "en"
     return False
 
 
+def _extract_body(text: str) -> str:
+    """Return the page body (everything after the closing --- fence)."""
+    m = _FRONTMATTER_READER_RE.match(text)
+    if not m:
+        return text
+    # Body starts after the match
+    return text[m.end():]
+
+
 def check_file(filepath: Path) -> list[Finding]:
+    """Run all structural checks on a single file. Returns list of findings."""
+    findings: list[Finding] = []
+
     try:
         text = filepath.read_text(encoding="utf-8")
-    except OSError as exc:
-        return [Finding("FATAL", "READ_ERROR", str(exc))]
+    except OSError as e:
+        findings.append(Finding("FATAL", "READ_ERROR", str(e)))
+        return findings
 
-    split = _split_frontmatter(text)
-    if split is None:
-        return [Finding("FATAL", "NO_FRONTMATTER", "file has no YAML frontmatter")]
-    fm_text, body = split
+    # Parse frontmatter
+    fm_raw = extract_frontmatter_body(text)
+    if fm_raw is None:
+        findings.append(Finding("FATAL", "NO_FRONTMATTER", "file has no YAML frontmatter"))
+        return findings
 
     try:
-        fm = yaml.safe_load(fm_text) or {}
-    except yaml.YAMLError as exc:
-        return [Finding("FATAL", "BAD_YAML", f"YAML parse error: {exc}")]
-    if fm.get("layout") != "plugin":
-        return []
+        fm = yaml.safe_load(fm_raw) or {}
+    except yaml.YAMLError as e:
+        findings.append(Finding("FATAL", "BAD_YAML", f"YAML parse error: {e}"))
+        return findings
 
-    findings: list[Finding] = []
+    # Only check layout: plugin pages
+    if fm.get("layout") != "plugin":
+        return findings
+
+    # --- Check 1: Body content leak ---
+    body = _extract_body(text)
     body_stripped = body.strip()
     if body_stripped:
         leaked = _BODY_LEAK_PATTERNS.findall(body_stripped)
@@ -86,57 +276,100 @@ def check_file(filepath: Path) -> list[Finding]:
             findings.append(Finding(
                 "FATAL",
                 "BODY_LEAK",
-                "content sections found in page body instead of frontmatter: " + ", ".join(leaked),
+                f"content sections found in page body instead of frontmatter: "
+                f"{', '.join(leaked)}. Hugo reads .Params.* only from frontmatter.",
             ))
-        else:
-            findings.append(Finding("WARN", "NONEMPTY_BODY", "page body is not empty"))
+        elif body_stripped:
+            findings.append(Finding(
+                "WARN",
+                "NONEMPTY_BODY",
+                "page body is not empty (plugin layout expects all content in frontmatter)",
+            ))
 
+    # --- Check 2: Required top-level keys ---
     for key in _REQUIRED_TOP_KEYS:
-        value = fm.get(key)
-        if value is None or (isinstance(value, str) and not value.strip()):
+        if key not in fm or fm[key] is None or (isinstance(fm[key], str) and not fm[key].strip()):
             findings.append(Finding("FATAL", "MISSING_KEY", f"required key '{key}' is missing or empty"))
 
+    # --- Check 3: Required sections with enable: true ---
     for section_name in _REQUIRED_SECTIONS_WITH_ENABLE:
         section = fm.get(section_name)
         if section is None:
             findings.append(Finding("FATAL", "MISSING_KEY", f"required section '{section_name}' is missing"))
             continue
         if not isinstance(section, dict):
-            findings.append(Finding("FATAL", "MISSING_KEY", f"'{section_name}' must be a mapping"))
+            findings.append(Finding("FATAL", "MISSING_KEY", f"'{section_name}' must be a mapping, got {type(section).__name__}"))
             continue
         if not section.get("enable"):
             findings.append(Finding("ERROR", "MISSING_ENABLE", f"'{section_name}.enable' is not true"))
 
-    display_severity = "ERROR" if _is_english_page(filepath) else "WARN"
-    for section_name in _DISPLAY_SECTIONS_WITH_ENABLE:
+    # --- Check 3b: Display-control sections (ERROR for English, WARN for locale) ---
+    is_english = _is_english_page(filepath)
+    display_sev = "ERROR" if is_english else "WARN"
+    for section_name in _OPTIONAL_SECTIONS_WITH_ENABLE:
         section = fm.get(section_name)
         if section is None:
-            findings.append(Finding(display_severity, "MISSING_DISPLAY", f"display section '{section_name}' is missing"))
+            findings.append(Finding(display_sev, "MISSING_DISPLAY", f"display section '{section_name}' is missing"))
         elif isinstance(section, dict) and not section.get("enable"):
-            findings.append(Finding(display_severity, "MISSING_ENABLE", f"'{section_name}.enable' is not true"))
+            findings.append(Finding(display_sev, "MISSING_ENABLE", f"'{section_name}.enable' is not true"))
 
+    # --- Check 4: Sections with required sub-keys ---
     for section_name, sub_keys in _SECTIONS_WITH_CONTENT.items():
         section = fm.get(section_name)
         if not isinstance(section, dict):
-            continue
+            continue  # Already flagged above
         for sub_key in sub_keys:
-            value = section.get(sub_key)
-            if value is None:
+            val = section.get(sub_key)
+            if val is None:
                 findings.append(Finding("WARN", "EMPTY_SECTION", f"'{section_name}.{sub_key}' is missing"))
-            elif isinstance(value, list) and not value:
+            elif isinstance(val, list) and len(val) == 0:
                 findings.append(Finding("WARN", "EMPTY_SECTION", f"'{section_name}.{sub_key}' is an empty list"))
-            elif isinstance(value, str) and not value.strip():
+            elif isinstance(val, str) and not val.strip():
                 findings.append(Finding("WARN", "EMPTY_SECTION", f"'{section_name}.{sub_key}' is empty"))
 
-    provenance_severity = "FATAL" if _is_english_page(filepath) else "WARN"
+    # --- Check 5: Code block blank lines ---
+    findings.extend(_check_code_block_blank_lines(fm, is_english))
+
+    # --- Check 5b: YAML scalar style — multi-line content must use | block scalars ---
+    # Detect single-quoted flow scalars or double-quoted \n-escaped strings wrapping
+    # content fields.  These are produced by yaml.dump round-trips that destroy the
+    # original | block scalar style.
+    # Scoped to content/overview keys only — FAQ answer fields legitimately use
+    # single quotes for strings containing apostrophes (e.g., Microsoft's).
+    _style_sev = "ERROR" if is_english else "WARN"
+    _CONTENT_KEY_RE = r"(?:content|content_left|content_right|plugin_description)"
+    # Double-quoted with \n escape (content: "...\n...")
+    if re.search(_CONTENT_KEY_RE + r':\s*"[^"]*\\n[^"]*"', fm_raw):
+        findings.append(Finding(
+            _style_sev, "YAML_FLOW_SCALAR",
+            "multi-line content field uses double-quoted \\n-escaped format "
+            "instead of | block scalar — likely caused by yaml.dump round-trip",
+        ))
+    # Single-quoted multi-line flow scalar (content: '...\n  continuation')
+    if re.search(_CONTENT_KEY_RE + r":\s*'[^\n]*\n\s+\S", fm_raw, re.MULTILINE):
+        findings.append(Finding(
+            _style_sev, "YAML_FLOW_SCALAR",
+            "multi-line content field uses single-quoted flow scalar format "
+            "instead of | block scalar — likely caused by yaml.dump round-trip",
+        ))
+
+    # --- Check 6: Provenance and evidence (required for English, warn for locale) ---
+    sev = "FATAL" if is_english else "WARN"
     if "provenance" not in fm:
-        findings.append(Finding(provenance_severity, "MISSING_KEY", "required key 'provenance' is missing"))
+        findings.append(Finding(sev, "MISSING_KEY", "required key 'provenance' is missing"))
     if "evidence" not in fm:
-        findings.append(Finding(provenance_severity, "MISSING_KEY", "required key 'evidence' is missing"))
+        findings.append(Finding(sev, "MISSING_KEY", "required key 'evidence' is missing"))
+
     return findings
 
 
-def _collect_files(targets: list[Path]) -> list[Path]:
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def _collect_plugin_pages(targets: list[Path]) -> list[Path]:
+    """Collect all .md files from targets, filtering to layout: plugin pages."""
     files: list[Path] = []
     for target in targets:
         if target.is_file():
@@ -147,37 +380,80 @@ def _collect_files(targets: list[Path]) -> list[Path]:
 
 
 def validate_paths(targets: list[Path], strict: bool = False) -> int:
-    fatal = error = warn = checked = 0
-    for filepath in _collect_files(targets):
+    """Validate files. Returns exit code."""
+    files = _collect_plugin_pages(targets)
+
+    fatal_count = 0
+    error_count = 0
+    warn_count = 0
+    checked = 0
+
+    for filepath in files:
         findings = check_file(filepath)
-        if findings:
-            print(filepath)
+        if not findings:
+            checked += 1
+            continue
+
+        # Only count if this was actually a plugin page (findings exist)
         checked += 1
-        for finding in findings:
-            print(finding)
-            if finding.severity == "FATAL":
-                fatal += 1
-            elif finding.severity == "ERROR":
-                error += 1
-            elif finding.severity == "WARN":
-                warn += 1
-    print(f"\nvalidate_plugin_structure: checked={checked} fatal={fatal} error={error} warn={warn}")
-    if fatal or error:
-        return 1
-    if strict and warn:
-        return 1
-    return 0
+        try:
+            rel = filepath.relative_to(_REPO_ROOT)
+        except ValueError:
+            rel = filepath
+
+        for f in findings:
+            if f.severity == "FATAL":
+                fatal_count += 1
+            elif f.severity == "ERROR":
+                error_count += 1
+            else:
+                warn_count += 1
+            print(f"  {rel}: {f}")
+
+    # Summary
+    has_failures = fatal_count > 0 or error_count > 0 or (strict and warn_count > 0)
+    status = "FAIL" if has_failures else "PASS"
+    print(
+        f"\n[{status}] Checked {checked} plugin pages. "
+        f"{fatal_count} fatal, {error_count} errors, {warn_count} warnings."
+    )
+
+    return 1 if has_failures else 0
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--files", nargs="+")
-    parser.add_argument("--strict", action="store_true")
-    parser.add_argument("--content-root", default="content/products.aspose.org")
-    args = parser.parse_args(argv)
-    targets = [Path(item) for item in args.files] if args.files else [Path(args.content_root)]
+def _build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        description=textwrap.dedent(__doc__ or ""),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument(
+        "--files",
+        nargs="+",
+        help="Specific files to check. Defaults to all product pages.",
+    )
+    p.add_argument(
+        "--strict",
+        action="store_true",
+        help="Also exit 1 on WARN-level findings.",
+    )
+    return p
+
+
+def main(argv=None) -> int:
+    args = _build_parser().parse_args(argv)
+
+    targets: list[Path] = []
+    if args.files:
+        for p in args.files:
+            path = Path(p)
+            if not path.is_absolute():
+                path = Path.cwd() / path
+            targets.append(path)
+    else:
+        targets = [_PRODUCTS_DIR]
+
     return validate_paths(targets, strict=args.strict)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

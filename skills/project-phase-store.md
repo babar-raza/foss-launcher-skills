@@ -1,80 +1,59 @@
----
-name: project-phase-store
-id: S-10
-description: >
-  Record the project scope and planning context for a new page creation task.
-  Stores intent, target audience, and knowledge state for downstream skills.
-args: "{family} {platform} {site-type} {slug} \"{purpose}\""
----
-
-# S-10: Project Phase Store — Record Page Creation Intent
+# S-10: Project Phase Store — Track Generation Phase State
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} {site-type} {slug} "{purpose}"`
-- `{site-type}`: one of `docs`, `blog`, `kb`, `reference`
-- `{purpose}`: quoted string describing why this page is needed
-
-Example: `3d python docs installation "Getting started guide for installing Aspose.3D for Python"`
-
-> **Configuration**: Target content paths are defaults for the aspose.org repo. See `config.yaml` for your project's path configuration.
+Expected format: `{family} {platform} [get|set {phase}]`
 
 ## Purpose
-Record the project scope and planning context for a new page creation task. This ensures downstream skills (S-18 page-plan, S-19 page-draft) have consistent context about what to create and why.
+Track the current generation phase for a product. Reads or writes a phase marker to `reports/phase_state.json` so that downstream skills know which stage the product is in (e.g., knowledge-bootstrap, initial-generation, maintenance, enhancement).
 
 ## Pre-conditions
-1. Knowledge model must exist: `knowledge/{family}/{platform}/merged/index.json`
-2. Knowledge must not be stale
+1. `reports/` directory exists (create if missing)
+2. Arguments contain at least `{family}` and `{platform}`
 
 ## Steps
 
-1. **Parse arguments**: Extract family, platform, site-type, slug, and purpose from $ARGUMENTS
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-10 --scope "*"
+> ```
 
-2. **Validate site-type**: Must be one of: `docs`, `blog`, `kb`, `reference`
 
-3. **Verify knowledge exists**:
-   - Read `knowledge/{family}/{platform}/merged/index.json`
-   - If not found → STOP with "Knowledge model missing — run /repo-scout and /truth-merge first"
-   - If `stale: true` → STOP with "Knowledge is stale — run /knowledge-update first"
-   - Record `repo_sha` from model.yaml
+1. **Parse arguments**: Extract `{family}`, `{platform}`, and optional `[get|set {phase}]` from $ARGUMENTS.
+   - If no action specified, default to `get`.
 
-4. **Determine target path** based on site-type:
-   - `docs` → `content/docs.aspose.org/en/{family}/{platform}/` (section determined by S-18)
-   - `blog` → `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
-   - `kb` → `content/kb.aspose.org/en/{family}/{platform}/{slug}.md`
-   - `reference` → `content/reference.aspose.org/en/{family}/{platform}/{slug}.md`
+2. **Load state file**: Read `reports/phase_state.json` if it exists. Initialize as empty `{}` if missing.
 
-5. **Check target does not exist**: If the target file already exists:
-   - STOP with "Target file already exists — use /page-update (S-20) to modify existing content"
+3. **Get phase** (if action is `get`):
+   - Look up key `"{family}/{platform}"` in the state file
+   - Print current phase and timestamp, or `"none"` if not set
+   - Valid phases: `bootstrap`, `scout`, `merge`, `plan`, `draft`, `review`, `enhance`, `heal`, `maintenance`, `complete`
 
-6. **Write plan file** to `reports/plans/{family}-{platform}-{slug}.yaml`:
-   ```yaml
-   family: {family}
-   platform: {platform}
-   site_type: {site-type}
-   slug: {slug}
-   purpose: "{purpose}"
-   knowledge_sha: {repo_sha}
-   target_path: {determined path}
-   created_at: {ISO-8601 timestamp}
-   status: planned
-   ```
+4. **Set phase** (if action is `set {phase}`):
+   - Validate that `{phase}` is one of the valid phases listed above
+   - Update `reports/phase_state.json` with:
+     ```json
+     {
+       "{family}/{platform}": {
+         "phase": "{phase}",
+         "updated_at": "YYYY-MM-DDTHH:MM:SS",
+         "updated_by": "agent"
+       }
+     }
+     ```
+   - Write the file back
 
-## Output
+5. **Report**: Print the current phase state for the product.
 
-```
-PHASE STORE — {family}/{platform}
-Site type: {site-type}
-Slug:      {slug}
-Purpose:   {purpose}
-Target:    {target-path}
-Knowledge: sha {repo_sha}
-Status:    PLANNED
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-10 --status completed
+> ```
 
-Plan file: reports/plans/{family}-{platform}-{slug}.yaml
-Next step: Run /page-plan {family} {platform} {site-type} {slug}
-```
+## Post-conditions
+- `reports/phase_state.json` exists and is valid JSON
+- If `set` was used, the product's phase is updated with a timestamp
+- Phase value is one of the valid phases
 
 ## Error handling
-- Invalid site-type → list valid options and abort
-- Knowledge missing → instruct to run knowledge pipeline first
-- Target exists → suggest S-20 page-update instead
+- If an invalid phase name is given, list valid phases and abort
+- If the state file is corrupted JSON, back it up and reinitialize

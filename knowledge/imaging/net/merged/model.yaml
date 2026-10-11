@@ -1,0 +1,37 @@
+family: imaging
+platform: net
+product_name: Aspose.Imaging.Foss
+version: ''
+license: ''
+repo_url: https://github.com/aspose-imaging-foss/Aspose.Imaging-Foss-for-.NET.git
+repo_sha: f2cf68fd64545bfb704c45ee756af3125103fd74
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-09-12T07:14:12.190910+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542
+generator_semver: 2.0.0
+bundle_id: f070aa78-eb01-49a5-822a-06b4cc8263de
+bundle_generated_at: '2026-09-12T07:14:12.141649+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: e24f998c0d721fd3
+  scout_claims_sha: 95b4cd25471a15115e181adb3e5107e6902f6bc5039517af2230ff36a4d6a39a
+  scout_api_surface_sha: 38fd86365d65045ff2e7ae991e094ccf6d94bbe04ac5186b130d6c76511a3b4d
+  enriched_claims_sha: 69c5e93cf4dcaac0a448d8a0fd1317fe004bbc902c2c691f913993d32f3f265a
+  products_json_entry_sha: 220dcbf9264b331994f4b6979c7088328a6a31dd65e5fc90d557b5c93c4395ba
+stats:
+  scout_claims: 60
+  enriched_claims: 8
+  supplemental_claims: 0
+  total_claims: 68
+  class_count: 3
+  classes:
+    total_declared: 3
+    public_documented: 3
+    raw_entries_including_non_class: 3
+  forbidden_count: 0
+  snippet_count: 50

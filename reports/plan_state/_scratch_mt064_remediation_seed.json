@@ -1,0 +1,28 @@
+[
+  {
+    "task_id": "SEO-KEYWORDS-SILENT-REVERT-REMEDIATION",
+    "status": "READY",
+    "priority": "P0",
+    "wave": 3,
+    "dependencies": [],
+    "allowed_paths": ["keywords/tex.json", "keywords/page.json", "keywords/font.json", "keywords/note.json", "keywords/html.json"],
+    "stage_limit": "CLOSED",
+    "title": "Repair 5 families silently reverted by commit 55586b637c (ST-191 Part A)",
+    "source": "SEO-PER-PRODUCT-COMMIT-REVIEW findings, it-0005-20260905T114038Z, ST-191",
+    "notes": "keywords/{tex,page,font,note,html}.json were fixed by b68089586a (2026-08-02) then silently reverted by 55586b637c (2026-08-07, no (seo) commit-message token). Restore each file's post-fix, pre-revert content (git show b68089586a -- keywords/<file>.json is the known-good target for the entries that commit touched) OR regenerate fresh via the Schema A pipeline if a cleaner baseline is preferred -- either way, verify against real page content afterward the same way the reviewers did (sourcePath vs keywords topical relevance), not just a byte-diff. Also check whether 55586b637c's other touched keywords files (kb.aspose.org, docs.aspose.org, products.aspose.org, reference.aspose.org, blog.aspose.org, websites.aspose.org, www.aspose.org -- Schema B site files, not Schema A family files) show a similar revert pattern; named as an open gap in ST-191, not yet checked. Each family needs a fresh independent-reviewer-agent pass after remediation before its product_review_log.jsonl entry can flip to CLEARED.",
+    "evidence_refs": []
+  },
+  {
+    "task_id": "SEO-SCHEMA-A-GENERATION-CONTAMINATION-REMEDIATION",
+    "status": "READY",
+    "priority": "P0",
+    "wave": 3,
+    "dependencies": [],
+    "allowed_paths": ["keywords/barcode.json", "keywords/cells.json"],
+    "stage_limit": "CLOSED",
+    "title": "Fix off-topic Schema A keyword contamination in barcode + cells (ST-191 Part B)",
+    "source": "SEO-PER-PRODUCT-COMMIT-REVIEW findings, it-0005-20260905T114038Z, ST-191",
+    "notes": "Distinct from the silent-revert issue: barcode.json (9/23 entries, 39%) and cells.json (70/142 entries, 49%) have generic ASP.NET/.NET-Core keyword sets baked in at ORIGINAL Schema A LLM generation (commits 74eb89b112e5 and 04ae5a3dcf3b respectively), unrelated to any revert -- byte-identical to the original generation, never remediated since. Needs either a targeted regeneration pass for the affected sourcePaths (get_keywords.py re-run scoped to the contaminated entries) or a manual correction pass; verify with the same topical-relevance check the reviewers used (sourcePath platform vs keyword content), not just entry-count parity. Each family needs a fresh independent-reviewer-agent pass after remediation before its product_review_log.jsonl entry can flip to CLEARED.",
+    "evidence_refs": []
+  }
+]

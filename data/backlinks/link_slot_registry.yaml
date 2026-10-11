@@ -1,0 +1,75 @@
+# Link Slot Registry
+# Defines all valid backlink slot types for the aspose.org pipeline
+# Version: 1.1.0 (anchor_template removed — see anchor_text_registry.yaml)
+# Enforced by: backlink_backfill.py, backlink_audit.py, backlink_targets.py
+
+schema_version: "1.1.0"
+
+slots:
+  enterprise_deep_primary:
+    description: "Primary enterprise API/KB/docs deep link for this page"
+    insertion_section: "## See Also"
+    max_per_page: 1
+    eligible_page_types:
+      - REF_CLASS
+      - REF_NESTED_CLASS
+      - KB_ARTICLE
+      - DOCS_ARTICLE
+    eligible_target_types:
+      - reference_class
+      - reference_namespace
+      - kb_article
+      - platform_landing
+    # anchor_registry_template_id: derived from target_subdomain + target_type at render time
+    fallback_slot: enterprise_platform_landing
+    enabled: true
+
+  enterprise_platform_landing:
+    description: "Platform-level enterprise landing page"
+    insertion_section: "## See Also"
+    max_per_page: 1
+    eligible_page_types:
+      - REF_FAMILY_INDEX
+      - REF_PLATFORM_INDEX
+      - KB_FAMILY_INDEX
+      - KB_PLATFORM_INDEX
+      - DOCS_FAMILY_INDEX
+      - DOCS_PLATFORM_INDEX
+      - DOCS_CATEGORY_TOC
+      - PRODUCTS_FAMILY
+      - PRODUCTS_PLUGIN
+    eligible_target_types:
+      - platform_landing
+      - family_landing
+    # anchor_registry_template_id: derived from target_subdomain + target_type at render time
+    fallback_slot: enterprise_family_landing
+    enabled: true
+
+  enterprise_family_landing:
+    description: "Family-level enterprise landing page (broadest fallback)"
+    insertion_section: "## Related Resources"
+    max_per_page: 1
+    eligible_page_types:
+      - REF_FAMILY_INDEX
+      - KB_FAMILY_INDEX
+      - DOCS_FAMILY_INDEX
+      - PRODUCTS_FAMILY
+    eligible_target_types:
+      - family_landing
+    # anchor_registry_template_id: derived from target_subdomain + target_type at render time
+    fallback_slot: null
+    enabled: true
+
+# Global limits
+global:
+  max_enterprise_links_per_page: 2
+  insertion_sections:
+    - "## See Also"
+    - "## Related Resources"
+  blocked_page_types:
+    - BLOG_ARCHIVE
+    - BLOG_UTILITY
+    - SUBDOMAIN_ROOT
+    - LOCALE_FILE
+    - LOCALE_DIR
+    - UNKNOWN_PATTERN

@@ -1,43 +1,39 @@
-"""session_identity.py -- Shared caller-identity resolution.
-
-Ported near-verbatim from aspose.org's production concurrency redesign
-(2026-08-01 there; ported into this repo 2026-08-29). The source file has
-zero Aspose-specific content -- it resolves agent-harness identity from
-environment variables, nothing about content, products, or site layout --
-so this port changes nothing except the module's new home in this repo.
+"""session_identity.py — Shared caller-identity resolution (production
+concurrency redesign, 2026-08-01; extracted from skill_context.py's
+_derive_session_id, RC1/RC2 hardening, 2026-07-31).
 
 Precedence: explicit > ``AGENT_SESSION_ID`` env > ``CODEX_THREAD_ID`` env >
 ``CLAUDE_CODE_SESSION_ID`` env > ``None``.
 
 ``CODEX_THREAD_ID`` is Codex's own per-thread identity, present for every
-Codex-driven call -- treating it as a stable identity prevents Codex callers
+Codex-driven call — treating it as a stable identity prevents Codex callers
 from silently falling back to a shared legacy single-slot state file.
 
-``CLAUDE_CODE_SESSION_ID`` is the harness's own per-conversation identifier --
+``CLAUDE_CODE_SESSION_ID`` is the harness's own per-conversation identifier —
 inherited into every tool-call subprocess automatically, unlike
 ``AGENT_SESSION_ID``/an explicit id, which the caller must remember to
-re-supply on every single call. It is a LAST-RESORT fallback, not a
+re-supply on every single call (this harness's Bash tool does not persist
+shell state across invocations). It is a LAST-RESORT fallback, not a
 replacement for explicit identity: it is shared by a conversation with any
-subagents it spawns, so parallel subagents from one conversation are not
-distinguished from each other by this tier alone. What it does fix is the
-common case of two genuinely independent, separately-initiated
-sessions/conversations, which the harness assigns *different*
-``CLAUDE_CODE_SESSION_ID`` values, so a scope-overlap conflict check
-correctly compares two distinct identities instead of both silently falling
-to a coarser, identity-less path.
+subagents it spawns (verified empirically), so parallel subagents from one
+conversation are not distinguished from each other by this tier alone. What
+it does fix is the common case this repo actually hit in production: two
+genuinely independent, separately-initiated sessions/conversations, which the
+harness assigns *different* ``CLAUDE_CODE_SESSION_ID`` values, so a
+scope-overlap conflict check correctly compares two distinct identities
+instead of both silently falling to a coarser, identity-less path. An earlier
+design used session_ledger.py's shared, mutable reports/session-state/ACTIVE
+pointer file as this fallback instead; live-tested against a genuinely
+concurrent second session, it collided (both processes read the same file and
+believed it was their own identity) and was reverted in full.
 
 Every consumer of this module must independently decide whether wiring the
 ``CLAUDE_CODE_SESSION_ID`` tier into ITS OWN default-identity-generation path
-(not just its resolution/lookup path) is safe for its own storage model --
+(not just its resolution/lookup path) is safe for its own storage model —
 resolving to an id that nothing is ever filed under is a no-op, and wiring
 generation to match resolution can introduce new collision classes specific
-to that consumer's data shape. See scripts/pipeline/commands/ops/session_ledger.py
-for a concrete example of this decision: it deliberately keeps its own
-timestamp+random session-ID generation for init_session() (so that a second
-`init` call within the same conversation always gets a fresh, distinct
-ledger rather than silently overwriting the manifest an earlier `init` call
-in the same conversation created) and uses this module only for an
-additive, informational `caller_identity` field.
+to that consumer's data shape (see session_ledger.py's own file-touch-ledger
+commingling risk, deliberately NOT addressed by this module alone).
 """
 from __future__ import annotations
 
@@ -69,7 +65,8 @@ def sanitize(value: str, max_len: int = 64) -> str:
 
 
 def resolve_sanitized(explicit: "str | None" = None, max_len: int = 64) -> "str | None":
-    """resolve() + sanitize() -- the common case for callers that use the
-    resolved identity as a filename component or a stored, non-secret label."""
+    """resolve() + sanitize() — the common case for callers that use the
+    resolved identity as a filename component (e.g. reports/skill-context/
+    active/{session_id}.json)."""
     value = resolve(explicit)
     return sanitize(value, max_len) if value else None

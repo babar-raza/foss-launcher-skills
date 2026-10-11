@@ -1,110 +1,162 @@
----
-name: page-enhance
-id: S-21
-description: >
-  Enhance a content page to meet quality bar based on the gap analysis from
-  S-17 rubric-align. Applies targeted improvements per dimension.
-args: "{content-file-path}"
----
-
-# S-21: Page Enhance — Quality Improvement
+# S-21: Page Enhance — Enhance Page to Meet Quality Bar
 
 **Arguments**: $ARGUMENTS
-Expected format: `{content-file-path}`
+Expected format: `{relative-file-path}` — e.g. `content/docs.aspose.org/en/3d/python/developer-guide/rendering.md`
 
 ## Purpose
-Enhance a content page to meet the quality bar based on the gap analysis produced by S-17 (rubric-align). Applies targeted improvements dimension by dimension.
+Enhance a page that scores below the quality bar (grade C or below from S-17/S-25). Consumes evaluation output, identifies weak dimensions, and improves content without changing already-accurate material.
 
 ## Pre-conditions
-1. S-17 rubric report must exist for this page in `reports/rubric/`
-2. Content file must exist
-3. Knowledge model must exist and not be stale
-4. If Freshness dimension scored D or F → run S-14 (knowledge-update) first, then re-run S-17
-5. If Golden conformance dimension scored below B → load `golden/_index.json` and the matching golden `.md` file for conformance-guided healing (step 4g)
+1. S-25 (eval-page) or S-17 (rubric-align) has been run for this page — evaluation results are available
+2. The page exists at `{relative-file-path}`
+3. Detect `{family}` and `{platform}` from the file path
+4. `knowledge/{family}/{platform}/merged/` exists with `claims.json`, `api_surface.json`, `formats.json`
+5. Knowledge freshness is auto-checked via `refresh_knowledge.py` in Step 2
 
 ## Steps
 
-1. **Read the rubric report** from S-17 (most recent for this file in `reports/rubric/`)
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-21 --scope "*"
+> ```
 
-2. **Read the content file**
 
-3. **Load knowledge**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`, `snippets/`
 
-4. **Enhance each dimension below B**:
+0. **Blog folder slug preflight** (blog posts only): If the target file is under `content/blog.aspose.org/`, check the folder slug quality before proceeding.
 
-   a. **Completeness below B**:
-      - Identify uncovered claims from claims.json that are relevant to this page
-      - Add new subsections or paragraphs covering high-confidence claims (confidence >= 0.7)
-      - Use verified snippets for supporting code examples
-      - Do NOT add claims with confidence < 0.5 or provenance = "llm_fallback"
+   ```python
+   from pathlib import Path
+   import sys
+   sys.path.insert(0, "scripts/pipeline")
+   from lib.blog_slug_policy import classify_folder_slug_quality
+   index_path = Path("{relative-file-path}")
+   folder_slug = index_path.parent.name
+   # Infer family and platform from path: content/blog.aspose.org/{family}/{platform}/{slug}/index.md
+   parts = list(index_path.parts)
+   blog_idx = next((i for i, p in enumerate(parts) if "blog.aspose.org" in p), None)
+   if blog_idx is not None and len(parts) > blog_idx + 3:
+       family = parts[blog_idx + 1]
+       platform = parts[blog_idx + 2]
+       import re
+       text = index_path.read_text(encoding="utf-8")
+       m = re.search(r"^title:\s*[\"']?([^\"'
+]+)[\"']?", text, re.MULTILINE)
+       title = m.group(1).strip() if m else folder_slug
+       classification = classify_folder_slug_quality(folder_slug, title, family, platform)
+       if classification in ("BAD_GENERIC", "BAD_FALLBACK", "BAD_NO_PLATFORM"):
+           print(f"SLUG WARNING: folder slug '{folder_slug}' classified as {classification}. "
+                 f"Run blog_folder_migrate.py to repair before enhancing content.")
+   ```
 
-   b. **Evidence density below B**:
-      - Identify factual sections not represented in the YAML `evidence:` frontmatter block
-      - Match each to the closest claim in claims.json
-      - Prepare for S-24 (evidence-cite) to attach proper citations
-      - Rewrite vague paragraphs to be more specific and citable
+   - **Do not block enhancement** — print the warning and continue.
+   - **Do not silently rename** the folder.
+   - **Do not add** `slug:` or `aliases:` to frontmatter.
+   - If the file is NOT under `content/blog.aspose.org/`, skip this step entirely.
 
-   c. **Code quality below B**:
-      - Add language identifiers to bare code blocks (e.g., ` ```python `)
-      - Replace unverified code with snippets from `snippets/` where available
-      - Fix incorrect class/method names using api_surface.json
-      - Remove placeholder code (`// TODO`, `...`)
+1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
-   d. **Structure below B**:
-      - Fix frontmatter: add missing required fields, correct date formats
-      - Fix heading hierarchy: no skipped levels
-      - Add missing template sections for the page type
-      - Add section dividers where expected
+2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
+   ```
+   - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
+   - If it prints "current": no action needed.
+   - If clone cache is missing: warn but continue with existing knowledge artifacts.
 
-   e. **API accuracy below B**:
-      - Replace incorrect class/method names with verified ones from api_surface.json
-      - Remove references to classes/methods not in the API surface
-      - Update import statements if api_surface.json specifies canonical imports
+3. **Load evaluation results**: Retrieve S-25 or S-17 output for this page. If not available, run S-25 first:
+   ```bash
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+   ```
 
-   f. **Freshness below B**:
-      - Remove orphaned citations (claim_ids no longer in claims.json)
-      - Update references to renamed API methods
-      - If knowledge is stale, abort and instruct to run S-14 first
+4. **Load knowledge artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md`
+   - Read `knowledge/{family}/{platform}/snippets/` for available code examples
 
-   g. **Golden conformance below B** (if rubric includes this dimension):
-      - Load `golden/_index.json` and find the matching golden page for this page's role and variant
-      - Read the golden file at `source_path`
-      - If section_coverage low → add missing golden sections
-      - If section_order low → reorder sections to match golden sequence
-      - If depth_proportionality low → expand thin sections or trim bloated ones toward golden proportions
-      - If block_type_coverage low → add missing block types (code, list, table) per golden structural contract
-      - If code_density_alignment low → adjust code-to-prose ratio toward golden target
+5. **Read the current page content**.
 
-5. **Update frontmatter**: Set `lastmod` to today's date
+6. **Identify weak areas** from evaluation findings, prioritized by impact:
+   - **FAIL findings**: Must fix (API errors, forbidden claims, wrong platform code)
+   - **WARN findings**: Should fix (missing evidence, weak structure, risk language)
+   - **Low-scoring dimensions**: Improve (evidence depth, code quality, coverage)
 
-6. **Write enhanced content** back to the file
+7. **Apply enhancements** — for each weak area:
 
-## Output
+   **API Accuracy issues**:
+   - Replace incorrect API tokens with correct ones from `api_surface.json`
+   - Update code blocks using verified snippets from `snippets/`
 
-```
-PAGE ENHANCE — {content-file-path}
-Rubric report: {report-path}
+   **Structure issues**:
+   - Add missing sections required by page type
+   - Fix heading hierarchy
+   - Add code language identifiers to bare code fences
 
-Improvements applied:
-  Completeness:       {n} claims added
-  Evidence:           {n} paragraphs prepared for citation
-  Code quality:       {n} blocks fixed
-  Structure:          {n} fixes applied
-  API accuracy:       {n} references corrected
-  Freshness:          {n} orphaned cites removed
-  Golden conformance: {n} sections aligned to golden template
+   **Evidence gaps**:
+   - Add claims backing for unsupported statements
+   - Remove statements that cannot be backed by any claim in `claims.json`
 
-Previous grade: {grade from S-17}
-Estimated new grade: {grade}
-```
+   **Prose truth issues**:
+   - Correct format claims to match `formats.json`
+   - Remove or reword forbidden claims (from `limitations.md`)
+
+   **Risk language**:
+   - Replace superlatives ("best", "fastest") with factual statements
+   - Remove speculative claims not backed by evidence
+
+   **Coverage gaps**:
+   - Add sections for important API capabilities missing from the page
+   - Use claims and snippets from knowledge to fill gaps
+
+8. **Preserve accurate content**: Do NOT rewrite paragraphs that scored well. Only modify sections with findings.
+
+9. **Update evidence frontmatter**: Add new claim IDs and API references for added content.
+
+10. **Run ground-check**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
+   ```
+
+11. **Re-evaluate** to confirm improvement:
+    ```bash
+    .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json
+    ```
+
+12. **Update provenance**: After writing enhanced content, update the provenance mechanism:
+    ```python
+    from provenance import update_mechanism
+    from pathlib import Path
+    update_mechanism(Path("{relative-file-path}"), "page-enhance")
+    ```
+    The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
+
+13. **Report**:
+    ```
+    PAGE ENHANCE — {file-path}
+    Before: Grade [X] ([score]/100)
+    After:  Grade [Y] ([score]/100)
+
+    Enhancements applied:
+      - [dimension]: [what was changed]
+      ...
+
+    Audit result: PASS/FAIL
+    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-21 --status completed
+> ```
 
 ## Post-conditions
-- After enhancement, run:
-  1. S-23 (ground-check) — verify enhanced content passes truth gate
-  2. S-01 (path-guard) — validate write path
-  3. Then write
+- Page grade has improved (target: at least one letter grade up)
+- All FAIL findings from evaluation are resolved
+- Ground-check (audit.py) passes
+- Accurate content is preserved unchanged
+- Evidence frontmatter is updated
 
 ## Error handling
-- If rubric report not found → run S-17 first
-- If knowledge is stale → abort, instruct to run S-14
-- If no improvements can be made (all gaps require human judgment) → escalate
+- If no evaluation data exists, run S-25 first before enhancing
+- If grade doesn't improve after enhancement, flag for human review. The operator may then
+  invoke **S-73 (manual-edit)** to apply a specific targeted fix they can specify precisely.
+- If knowledge is stale, abort and instruct to run S-14 first

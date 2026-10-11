@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "bundle_id": "3ec0454f-4658-4a9d-9b47-77dddc76e1de",
+  "family": "email",
+  "platform": "cpp",
+  "repo_sha": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+  "generated_at": "2026-09-10T11:07:25.324824+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
+  "generator_semver": "2.0.0",
+  "members": {
+    "model.yaml": {
+      "sha256": "5e5069b72ed04081823b5c55a123dd8cd4f21d6de4d4fc405376a9fe9abffcd3",
+      "bytes": 1339
+    },
+    "api_surface.json": {
+      "sha256": "52fef55678aa8bd1ac6bd363bf07a96f4041bef282e1d6ba30b85df4a6c3d7eb",
+      "bytes": 72424
+    },
+    "api_surface.md": {
+      "sha256": "c1cb67ca5394b147d4ccad4fae6e126b0f2eee083bffd3bdf1cea7fa75158bfd",
+      "bytes": 11664
+    },
+    "formats.json": {
+      "sha256": "28e443b62a7170f3e52a75912ca3c8e4620afa789ae79e1344fdda9cce291fea",
+      "bytes": 1220
+    },
+    "formats.md": {
+      "sha256": "0be271aa19acbf8d36e86af98ef1d06085adb6388083f71e408ee3885d60ccbb",
+      "bytes": 380
+    },
+    "claims.json": {
+      "sha256": "ff252e2831624da30ba1d6c2963f678b72439ce102de0a002820f7235d50dfe1",
+      "bytes": 85129
+    },
+    "limitations.md": {
+      "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
+      "bytes": 78
+    },
+    "install.md": {
+      "sha256": "bb022357c31f9a901c2d611408e350231027f8f185f2478e376be8f366502e41",
+      "bytes": 88
+    },
+    "merge_report.md": {
+      "sha256": "cb246b6abba7e36b77bbf11ee8de9dddcfe2871ec72a56c8c5ab406a32e6cd99",
+      "bytes": 554
+    },
+    "snippets/snippet_001.cpp": {
+      "sha256": "facc36673517abafd56feb2ce233965cbadcd5b2632d78883c56c317b92a9584",
+      "bytes": 3351
+    },
+    "snippets/snippet_002.cpp": {
+      "sha256": "9fd01622c13cfaec6cdbdc340e9c528afc95729e99bb92d59ab6da75ee50d397",
+      "bytes": 751
+    },
+    "snippets/snippet_003.cpp": {
+      "sha256": "8872ac5e0d52d38d49cef01b22a1e15c54155ef93e2b2826dec34acae22cd9d7",
+      "bytes": 5113
+    },
+    "snippets/snippet_004.cpp": {
+      "sha256": "0e39b18f399a3f9860d6ca218e2946f31225baac7fd3a02b5668492ec12206c5",
+      "bytes": 297
+    },
+    "snippets/snippet_005.cpp": {
+      "sha256": "a547661e68670482ee753dcd349c80243cd491792eac5ec209ec18276c622cf8",
+      "bytes": 625
+    },
+    "snippets/snippets_index.json": {
+      "sha256": "a0ae693469a4bb93c0093c3b70074bc06ff9a2f6d82f285430cddf7d588d3d5e",
+      "bytes": 3689
+    }
+  },
+  "promote_run_id": "promote-20260910T110725Z",
+  "status": "COMPLETE"
+}

@@ -1,0 +1,4482 @@
+[
+  {
+    "claim_id": "CLM-gis-e9a40330",
+    "kind": "api_method",
+    "text": "WktWriter.WktWriter(writer, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1892c7cb",
+    "kind": "api_method",
+    "text": "WktWriter.TextWriter property of type TextWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-936ecf3c",
+    "kind": "api_method",
+    "text": "WktWriter.Options property of type WktWriterOptions",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-bb464a44",
+    "kind": "api_method",
+    "text": "WktWriter.WriteCompositeStart(compositeValueName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fe408fd4",
+    "kind": "api_method",
+    "text": "WktWriter.WriteCompositeEnd() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c57291f7",
+    "kind": "api_method",
+    "text": "WktWriter.WriteKeyword(keyword) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0f53778c",
+    "kind": "api_method",
+    "text": "WktWriter.WriteNumber(number) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 100
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-cce01e",
+    "kind": "api_method",
+    "text": "WktWriter.WriteNumber(number) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c4bf7150",
+    "kind": "api_method",
+    "text": "WktWriter.WriteString(@string) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 134
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0aad3fc1",
+    "kind": "api_method",
+    "text": "WktWriter.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 171
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-07e92b",
+    "kind": "api_class",
+    "text": "Class WktWriter defined in Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-34310a5b",
+    "kind": "api_method",
+    "text": "WktWriterOptions.UseSquareBrackets property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1165ea8e",
+    "kind": "api_method",
+    "text": "WktWriterOptions.ForceUppercaseKeywords property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8c98eb75",
+    "kind": "api_method",
+    "text": "WktWriterOptions.DisposeWriter property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d4fe45",
+    "kind": "api_class",
+    "text": "Class WktWriterOptions defined in Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-38f4651f",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystemTransformation.SpatialReferenceSystemTransformation(sourceSrs, targetSrs) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-be5ee583",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystemTransformation.Source property of type SpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-282e7867",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystemTransformation.Target property of type SpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8c3385a4",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystemTransformation.Transform(geometry) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-186231",
+    "kind": "api_class",
+    "text": "Class SpatialReferenceSystemTransformation defined in Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2f127d",
+    "kind": "api_class",
+    "text": "Class Class1 defined in Aspose.GIS.FOSS/Class1.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Class1.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-43397fc6",
+    "kind": "api_method",
+    "text": "NumberOperations.NearlyEqual(a, b, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f2e36356",
+    "kind": "api_method",
+    "text": "NumberOperations.NearlyEqualOrLess(a, b, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3a296302",
+    "kind": "api_method",
+    "text": "NumberOperations.NearlyEqualOrMore(a, b, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-aa88192a",
+    "kind": "api_method",
+    "text": "NumberOperations.StrictlyMore(a, b, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f9735764",
+    "kind": "api_method",
+    "text": "NumberOperations.StrictlyLess(a, b, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b3dcba12",
+    "kind": "api_method",
+    "text": "NumberOperations.Clamp(value, min, max) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-dd28b07f",
+    "kind": "api_method",
+    "text": "NumberOperations.WrapLongitude(longitudeInRadians, tolerance) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f7e75d9f",
+    "kind": "api_method",
+    "text": "NumberOperations.DegreesToRadians(degrees) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 154
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-09be8f",
+    "kind": "api_method",
+    "text": "NumberOperations.DegreesToRadians(degrees) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 155
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d091683f",
+    "kind": "api_method",
+    "text": "NumberOperations.RadiansToDegrees(radians) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 156
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f3b2db05",
+    "kind": "api_field",
+    "text": "NumberOperations.Epsilon constant of type double",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2043cf",
+    "kind": "api_class",
+    "text": "Class NumberOperations defined in Aspose.GIS.FOSS/Common/NumberOperations.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a8ea7b71",
+    "kind": "api_method",
+    "text": "DataSet.Convert(sourcePath, destinationPath) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/DataSet.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9ef3cd",
+    "kind": "api_method",
+    "text": "DataSet.Convert(sourcePath, destinationPath, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/DataSet.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7535ef",
+    "kind": "api_class",
+    "text": "Class DataSet defined in Aspose.GIS.FOSS/DataSet.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/DataSet.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1ca525db",
+    "kind": "api_method",
+    "text": "Drivers.GeoJson property of type GeoJsonDriver",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Drivers.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1693b9",
+    "kind": "api_class",
+    "text": "Class Drivers defined in Aspose.GIS.FOSS/Drivers.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Drivers.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3be1549a",
+    "kind": "api_method",
+    "text": "FileDriver.SupportsSpatialReferenceSystem(spatialReferenceSystem) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-370df3d4",
+    "kind": "api_method",
+    "text": "FileDriver.CanCreateLayers property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-30f8721a",
+    "kind": "api_method",
+    "text": "FileDriver.CanOpenLayers property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-79b5841a",
+    "kind": "api_method",
+    "text": "FileDriver.OpenLayer(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6e192d",
+    "kind": "api_method",
+    "text": "FileDriver.OpenLayer(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2bc71a",
+    "kind": "api_method",
+    "text": "FileDriver.OpenLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d11a2cc4",
+    "kind": "api_method",
+    "text": "FileDriver.CreateLayer(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 111
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-74afb4",
+    "kind": "api_method",
+    "text": "FileDriver.CreateLayer(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 125
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-da3330",
+    "kind": "api_method",
+    "text": "FileDriver.CreateLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 141
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0aa7bc",
+    "kind": "api_method",
+    "text": "FileDriver.CreateLayer(path, spatialReferenceSystem) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 175
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1e623b",
+    "kind": "api_method",
+    "text": "FileDriver.CreateLayer(path, options, spatialReferenceSystem) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 214
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6d8eb55a",
+    "kind": "api_method",
+    "text": "FileDriver.EditLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 253
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3ecbf5",
+    "kind": "api_method",
+    "text": "FileDriver.EditLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 274
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1793b708",
+    "kind": "api_method",
+    "text": "FileDriver.CanOpenDatasets property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 327
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6bad1280",
+    "kind": "api_method",
+    "text": "FileDriver.CanCreateDatasets property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 335
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3b83dffb",
+    "kind": "api_method",
+    "text": "FileDriver.OpenDataset(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-bf56fd",
+    "kind": "api_method",
+    "text": "FileDriver.OpenDataset(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 360
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-82cf6a",
+    "kind": "api_method",
+    "text": "FileDriver.OpenDataset(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 376
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-bfd0ceee",
+    "kind": "api_method",
+    "text": "FileDriver.CreateDataset(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 413
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-28c98f",
+    "kind": "api_method",
+    "text": "FileDriver.CreateDataset(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 428
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-cd68aa",
+    "kind": "api_method",
+    "text": "FileDriver.CreateDataset(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 445
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4f73e6",
+    "kind": "api_class",
+    "text": "Class FileDriver defined in Aspose.GIS.FOSS/FileDriver.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/FileDriver.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b37ac8e8",
+    "kind": "api_method",
+    "text": "Ensure.OfType(arg, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-637362c8",
+    "kind": "api_method",
+    "text": "Ensure.NotNull(arg, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-19930b50",
+    "kind": "api_method",
+    "text": "Ensure.Equal(arg0, arg1, arg0Name, arg1Name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-83808932",
+    "kind": "api_method",
+    "text": "Ensure.NotEqual(arg0, arg1, arg0Name, arg1Name) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5bb30a85",
+    "kind": "api_method",
+    "text": "Ensure.InRange(arg, min, maxExclusive, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-115fe4",
+    "kind": "api_method",
+    "text": "Ensure.InRange(arg, min, maxExclusive, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d307a4a7",
+    "kind": "api_method",
+    "text": "Ensure.InRangeInclusive(arg, min, maxInclusive, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1955446b",
+    "kind": "api_method",
+    "text": "Ensure.Greater(arg, min, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c3ce06bc",
+    "kind": "api_method",
+    "text": "Ensure.GreaterOrEqual(arg, min, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-039ef78e",
+    "kind": "api_method",
+    "text": "Ensure.Smaller(arg, max, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 191
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-963b8dde",
+    "kind": "api_method",
+    "text": "Ensure.NotSpecialDouble(arg, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 207
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c4050eff",
+    "kind": "api_method",
+    "text": "Ensure.MultiplesTo(arg, multiplier, parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 223
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-81ff75",
+    "kind": "api_class",
+    "text": "Class Ensure defined in Aspose.GIS.FOSS/Formats/Ensure.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Ensure.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3104e597",
+    "kind": "api_method",
+    "text": "IdentifiableObject.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9c0111e7",
+    "kind": "api_method",
+    "text": "IdentifiableObject.EpsgCode property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-421f0d07",
+    "kind": "api_method",
+    "text": "IdentifiableObject.Identifier property of type Identifier",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d2e665b1",
+    "kind": "api_method",
+    "text": "IdentifiableObject.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-758363",
+    "kind": "api_class",
+    "text": "Class IdentifiableObject defined in Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/IdentifiableObject.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7ab7f0c5",
+    "kind": "api_method",
+    "text": "Identifier.Epsg(epsgCode) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7b3e986f",
+    "kind": "api_method",
+    "text": "Identifier.Identifier(authorityName, authorityUniqueIdentifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ed791100",
+    "kind": "api_method",
+    "text": "Identifier.AuthorityName property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-88fcd400",
+    "kind": "api_method",
+    "text": "Identifier.AuthorityUniqueIdentifier property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-93c282ec",
+    "kind": "api_method",
+    "text": "Identifier.GetEpsgCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d2acb5c2",
+    "kind": "api_method",
+    "text": "Identifier.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 133
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9d4b8c",
+    "kind": "api_method",
+    "text": "Identifier.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 141
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-54e84262",
+    "kind": "api_method",
+    "text": "Identifier.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9da598",
+    "kind": "api_class",
+    "text": "Class Identifier defined in Aspose.GIS.FOSS/Formats/Identifier.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Identifier.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f05acba6",
+    "kind": "api_method",
+    "text": "WktCompositeValue.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7f7752ef",
+    "kind": "api_method",
+    "text": "WktCompositeValue.Count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-02d1c558",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetString(index) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8b5f7f35",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetDouble(index) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ab7271b2",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetInteger(index) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3c9b9d70",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetOrDefaultInteger(index, defaultValue) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-66890c96",
+    "kind": "api_method",
+    "text": "WktCompositeValue.NearlyEqual(left, right, epsilon) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5e6bd50f",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetKeyword(index) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 111
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1777bf",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetCompositeValue(regularName, otherName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 126
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-51ca05",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetCompositeValue(otherNames) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 142
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f6941436",
+    "kind": "api_method",
+    "text": "WktCompositeValue.TryGetDouble(index, output) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 161
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a7f540",
+    "kind": "api_method",
+    "text": "WktCompositeValue.TryGetCompositeValue(valueName, value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 185
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0dbd6e17",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetCompositeValueIndex(valueName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 201
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-94d699d8",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetCompositeValue(index) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 211
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-877746",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetCompositeValue(index, expectedName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 228
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-67bcf1",
+    "kind": "api_method",
+    "text": "WktCompositeValue.TryGetCompositeValue(index, output) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 250
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b1d414f2",
+    "kind": "api_method",
+    "text": "WktCompositeValue.TryGetCompositeValue(index, expectedName, output) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 274
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ab7a94d3",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetEnumerator() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 286
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-aae9e387",
+    "kind": "api_method",
+    "text": "WktCompositeValue.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 298
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9f5247",
+    "kind": "api_method",
+    "text": "WktCompositeValue.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 339
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-db21ca7e",
+    "kind": "api_method",
+    "text": "WktCompositeValue.Equals(composite) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 344
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ddbd225f",
+    "kind": "api_method",
+    "text": "WktCompositeValue.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 367
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e2b8ee",
+    "kind": "api_method",
+    "text": "WktCompositeValue.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 372
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8ccd2d",
+    "kind": "api_class",
+    "text": "Class WktCompositeValue defined in Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktCompositeValue.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8e2920d9",
+    "kind": "api_method",
+    "text": "WktDateTime.WktDateTime(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktDateTime.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-771251",
+    "kind": "api_class",
+    "text": "Class WktDateTime defined in Aspose.GIS.FOSS/Formats/Wkt/WktDateTime.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktDateTime.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-eb006dee",
+    "kind": "api_method",
+    "text": "WktKeyword.WktKeyword(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktKeyword.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4051f5",
+    "kind": "api_class",
+    "text": "Class WktKeyword defined in Aspose.GIS.FOSS/Formats/Wkt/WktKeyword.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktKeyword.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9fc43787",
+    "kind": "api_method",
+    "text": "WktNumber.WktNumber(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktNumber.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fd5f7b",
+    "kind": "api_class",
+    "text": "Class WktNumber defined in Aspose.GIS.FOSS/Formats/Wkt/WktNumber.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktNumber.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1e43d9f4",
+    "kind": "api_method",
+    "text": "WktSingleValue.Value property of type T",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-77a1838a",
+    "kind": "api_method",
+    "text": "WktSingleValue.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2d2edd2d",
+    "kind": "api_method",
+    "text": "WktSingleValue.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e0e11429",
+    "kind": "api_method",
+    "text": "WktSingleValue.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5c8638",
+    "kind": "api_method",
+    "text": "WktSingleValue.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0a1755",
+    "kind": "api_class",
+    "text": "Class WktSingleValue defined in Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktSingleValue.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-80080a22",
+    "kind": "api_method",
+    "text": "WktString.WktString(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktString.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-68d09c",
+    "kind": "api_class",
+    "text": "Class WktString defined in Aspose.GIS.FOSS/Formats/Wkt/WktString.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktString.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-cc7017c4",
+    "kind": "api_method",
+    "text": "WktToken.WktToken(type, text, position) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0479660b",
+    "kind": "api_method",
+    "text": "WktToken.Type property of type WktTokenType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ae839fe3",
+    "kind": "api_method",
+    "text": "WktToken.Text property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a8d569b9",
+    "kind": "api_method",
+    "text": "WktToken.Position property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3be676ba",
+    "kind": "api_method",
+    "text": "WktToken.IsKeywordWithText(text) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-36405edb",
+    "kind": "api_method",
+    "text": "WktToken.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a0dc2e",
+    "kind": "api_method",
+    "text": "WktToken.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4345be4c",
+    "kind": "api_method",
+    "text": "WktToken.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7c388f",
+    "kind": "api_class",
+    "text": "Class WktToken defined in Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktToken.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-dddc19",
+    "kind": "api_class",
+    "text": "Class WktTokenType defined in Aspose.GIS.FOSS/Formats/Wkt/WktTokenType.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktTokenType.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9866b105",
+    "kind": "api_method",
+    "text": "WktTokenizer.WktTokenizer(text) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktTokenizer.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-52e7a9b8",
+    "kind": "api_method",
+    "text": "WktTokenizer.CurrentToken property of type WktToken",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktTokenizer.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-edbea72f",
+    "kind": "api_method",
+    "text": "WktTokenizer.ExtractNextToken() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktTokenizer.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ba93a7",
+    "kind": "api_class",
+    "text": "Class WktTokenizer defined in Aspose.GIS.FOSS/Formats/Wkt/WktTokenizer.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktTokenizer.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-65727729",
+    "kind": "api_method",
+    "text": "WktValue.Create(wkt) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a5e347",
+    "kind": "api_method",
+    "text": "WktValue.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3668d90f",
+    "kind": "api_method",
+    "text": "WktValue.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-846be17d",
+    "kind": "api_method",
+    "text": "WktValue.Equals(o) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-da7e0d3c",
+    "kind": "api_method",
+    "text": "WktValue.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d894cfb5",
+    "kind": "api_method",
+    "text": "WktValue.Parent property of type WktCompositeValue",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0cb7ea",
+    "kind": "api_class",
+    "text": "Class WktValue defined in Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktValue.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e0b2101a",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.SupportsSpatialReferenceSystem(spatialReferenceSystem) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8ca4b7d3",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CanCreateLayers property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-119c49ee",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CanOpenLayers property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1968c9c4",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CanCreateDatasets property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-06be1239",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.OpenLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a6e48e",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.OpenLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d27debd0",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.OpenAsGeoJsonLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7f0646",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.OpenAsGeoJsonLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a36ca7b3",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CreateLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-babbdf",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CreateLayer(path, options) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8f665f",
+    "kind": "api_method",
+    "text": "GeoJsonDriver.CreateLayer(path, options, spatialReferenceSystem) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 133
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-84ee5b",
+    "kind": "api_class",
+    "text": "Class GeoJsonDriver defined in Aspose.GIS.FOSS/GeoJsonDriver.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9a466481",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-01b4a2c7",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.AsGeographic property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-81cd8cee",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.AsProjected property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8acd5dd2",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.IsCompound property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-104c8370",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.AsCompound property of type CompoundSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-dbc25b67",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.Head property of type SpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e522f8c5",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.Tail property of type SpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8eaf04cc",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b80614ff",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-82d897ea",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 104
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6e64766e",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 125
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-747a514d",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.GeographicDatum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 132
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3c484a93",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.GetAxis(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 158
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-74e39006",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.GetUnit(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 175
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4b7a4601",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.Validate(errorMessage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 189
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b4159162",
+    "kind": "api_method",
+    "text": "CompoundSpatialReferenceSystem.IsEquivalent(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 207
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5c5adc",
+    "kind": "api_class",
+    "text": "Class CompoundSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/CompoundSpatialReferenceSystem.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6fb7847f",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.LinearUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-27b68cd7",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.AxisesOrder property of type GeocentricAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c143d808",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f1b86ac9",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.AsGeocentric property of type GeocentricSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-66c217eb",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6099ad2f",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 91
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a5fdca9d",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.GeographicDatum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 96
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fbbc3a07",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-21482f9c",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 106
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-470836c5",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.GetAxis(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 116
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2b40469a",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.GetUnit(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 130
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d4f12c50",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystem.Validate(errorMessage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 141
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-896fa3",
+    "kind": "api_class",
+    "text": "Class GeocentricSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystem.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7bd193fc",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-07606eaf",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.Datum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-46352298",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fa1b6b34",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.LinearUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6480b326",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.XAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4ec9808b",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.YAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c10a2f64",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.ZAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 94
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1ff238b1",
+    "kind": "api_method",
+    "text": "GeocentricSpatialReferenceSystemParameters.AxisesOrder property of type GeocentricAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 112
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7f8ea2",
+    "kind": "api_class",
+    "text": "Class GeocentricSpatialReferenceSystemParameters defined in Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeocentricSpatialReferenceSystemParameters.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a091b9d7",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5a653a26",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.AsGeographic property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 91
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4ebca133",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 98
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4c25f90b",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 103
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ec8bbbf9",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c158f873",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.AngularUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 117
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-136a6f28",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystem.AxisesOrder property of type GeographicAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 123
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-992014",
+    "kind": "api_class",
+    "text": "Class GeographicSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystem.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-27191d70",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1aa25df4",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.Datum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b99ed672",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d3ef7182",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.AngularUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-81bac952",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.LongitudeAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-bd47c08e",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.LatitudeAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-32ffceae",
+    "kind": "api_method",
+    "text": "GeographicSpatialReferenceSystemParameters.AxisesOrder property of type GeographicAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 92
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-561b86",
+    "kind": "api_class",
+    "text": "Class GeographicSpatialReferenceSystemParameters defined in Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/GeographicSpatialReferenceSystemParameters.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1f14c7",
+    "kind": "api_method",
+    "text": "IdentifiableObject.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-323780",
+    "kind": "api_method",
+    "text": "IdentifiableObject.EpsgCode property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-784f25",
+    "kind": "api_method",
+    "text": "IdentifiableObject.Identifier property of type Identifier",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9d7b86",
+    "kind": "api_method",
+    "text": "IdentifiableObject.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ba35df",
+    "kind": "api_class",
+    "text": "Class IdentifiableObject defined in Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/IdentifiableObject.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fc710c58",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-32eabd64",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.AsLocal property of type LocalSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-bc362e84",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.LocalDatum property of type LocalDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e6457e5e",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.Unit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b7079225",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1ec98eec",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-452420b3",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f53d3173",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-882a0341",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.GeographicDatum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-88c59706",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.Validate(errorMessage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ff345ad3",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.GetAxis(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9121317a",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.GetUnit(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 96
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-df9dbf5e",
+    "kind": "api_method",
+    "text": "LocalSpatialReferenceSystem.IsEquivalent(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f4fbe0",
+    "kind": "api_class",
+    "text": "Class LocalSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/LocalSpatialReferenceSystem.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-cc09b998",
+    "kind": "api_method",
+    "text": "PrimeMeridian.Greenwich property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/PrimeMeridian.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-898881b7",
+    "kind": "api_method",
+    "text": "PrimeMeridian.PrimeMeridian(name, longitude, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/PrimeMeridian.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2aab6b55",
+    "kind": "api_method",
+    "text": "PrimeMeridian.Longitude property of type double",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/PrimeMeridian.cs",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f2aec3",
+    "kind": "api_class",
+    "text": "Class PrimeMeridian defined in Aspose.GIS.FOSS/SpatialReferencing/PrimeMeridian.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/PrimeMeridian.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b5463444",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6ee526f5",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.AsProjected property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e01035d6",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f41b684b",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d11edce5",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6da7a1b5",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.Base property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-97316678",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.Projection property of type Projection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0223e4c5",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.LinearUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-051fdcdd",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.AngularUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c1ae89af",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystem.AxisesOrder property of type ProjectedAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-8b4fd9",
+    "kind": "api_class",
+    "text": "Class ProjectedSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystem.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d622f167",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.ProjectedSpatialReferenceSystemParameters() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-b06568b4",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c6d2aec3",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.LinearUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-47c4e304",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.Base property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-72700503",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.XAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-829a3787",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.YAxis property of type Axis",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-029f6459",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.AxisesOrder property of type ProjectedAxisesOrder",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6b25ec97",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.ProjectionMethodName property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 113
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f95c9e67",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.ProjectionMethodIdentifier property of type Identifier",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 124
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-83606813",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.AddProjectionParameter(parameterName, value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5c587df9",
+    "kind": "api_method",
+    "text": "ProjectedSpatialReferenceSystemParameters.GetProjectionParameter(parameterName) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 152
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-493942",
+    "kind": "api_class",
+    "text": "Class ProjectedSpatialReferenceSystemParameters defined in Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/ProjectedSpatialReferenceSystemParameters.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0ec2f6fd",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Wgs84 property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d14d53c1",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.WebMercator property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9d1cb0f5",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Wgs72 property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a4a05713",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Nad83 property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5363c47d",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Etrs89 property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0a96e004",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Etrs89LambertConformalConic property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3f6a145a",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Etrs89LambertAzimuthalEqualArea property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ef9febc3",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Osgb36 property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-14e74820",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Osgb36BritishNationalGrid property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-7c20b5",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.IsEquivalent(srs1, srs2) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-947592de",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.TryCreateFromWkt(wkt, value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5c2e8fe5",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateFromWkt(wkt) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 136
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-af617598",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateFromEpsg(epsg) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-79c7dcae",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.TryCreateFromEpsg(epsg, value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-1478ffc0",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateGeographic(parameters, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 183
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-51d8b8a7",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateGeocentric(parameters, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 218
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-25b74b9c",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateProjected(parameters, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 284
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f5b6bde4",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateVertical(name, verticalDatum, verticalUnit, verticalAxis, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 341
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-db0a75f9",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateCompound(name, head, tail, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 375
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0097d930",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateLocal(name, datum, unit, axises, identifier) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 407
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0d00f812",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Validate(errorMessage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 493
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-fd282cac",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.IsValid property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 499
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0e79ef3f",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 504
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0ff1b822",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.IsCompound property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 516
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-56b66812",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.IsSingle property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 524
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-728c82b8",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsGeographic property of type GeographicSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 533
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-dfa954f0",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsProjected property of type ProjectedSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 543
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ac4eae14",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsGeocentric property of type GeocentricSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 553
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-9a2727b5",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsVertical property of type VerticalSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 563
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4167ed4b",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsLocal property of type LocalSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 573
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-281f31a9",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.AsCompound property of type CompoundSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 583
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-69b2feab",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 589
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-919931fa",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.GetAxis(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 599
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6300098d",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.GetUnit(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 609
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ac8e7cc8",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 615
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-3f17d544",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 623
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-62ce5cbe",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 629
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-d6a06c87",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.GeographicDatum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 637
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-e4039480",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.ExportToWkt() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 647
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-704f4714",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.TryCreateTransformationTo(targetSrs, value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 674
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-6d1ba85c",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.CreateTransformationTo(targetSrs) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 714
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-a1d4895c",
+    "kind": "api_method",
+    "text": "SpatialReferenceSystem.IsEquivalent(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 724
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-f64e9d",
+    "kind": "api_class",
+    "text": "Class SpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystem.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5e633c",
+    "kind": "api_class",
+    "text": "Class SpatialReferenceSystemType defined in Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemType.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemType.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2a2422bb",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.VerticalUnit property of type Unit",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-570e92e8",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.VerticalDatum property of type VerticalDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-72a7a684",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.Type property of type SpatialReferenceSystemType",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-0f8ace4f",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.AsVertical property of type VerticalSpatialReferenceSystem",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-cf337922",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.DimensionsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-ccb5af09",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.GetAxis(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-64ce8ac9",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.GetUnit(dimension) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-2b2eeb98",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.HasGeographicDatum property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 69
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-634d6585",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.GeographicDatum property of type GeographicDatum",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-56e7ab4d",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.HasPrimeMeridian property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 80
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-75fa7784",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.PrimeMeridian property of type PrimeMeridian",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-c940fefa",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.Validate(errorMessage) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 93
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-4f4c1d28",
+    "kind": "api_method",
+    "text": "VerticalSpatialReferenceSystem.IsEquivalent(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 110
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5793fe",
+    "kind": "api_class",
+    "text": "Class VerticalSpatialReferenceSystem defined in Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/SpatialReferencing/VerticalSpatialReferenceSystem.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-23c145",
+    "kind": "format_support",
+    "text": "export support for Wkt via WktWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-5f318b",
+    "kind": "format_support",
+    "text": "export support for WktOptions via WktWriterOptions",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriterOptions.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-gis-67460f",
+    "kind": "format_support",
+    "text": "import support for GeoJson via GeoJsonDriver",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  }
+]

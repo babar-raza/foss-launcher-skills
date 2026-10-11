@@ -1,0 +1,40 @@
+  cells/rust: 213 classes, 2035 claims, confidence=high
+  3d/java: 266 classes, 4147 claims, confidence=high
+  3d/net: 292 classes, 3368 claims, confidence=high
+  3d/python: 329 classes, 3561 claims, confidence=high
+  3d/typescript: 148 classes, 2362 claims, confidence=high
+  WARNING: barcode/python surface_tier=3 (methods=19%). Content verification will be weak.
+  barcode/python: 26 classes, 313 claims, confidence=medium
+  cells/cpp: 199 classes, 2611 claims, confidence=high
+  cells/go: 14 classes, 113 claims, confidence=medium
+  cells/java: 182 classes, 4876 claims, confidence=high
+  cells/net: 98 classes, 1332 claims, confidence=high
+  cells/python: 129 classes, 1313 claims, confidence=high
+  WARNING: cells/typescript surface_tier=3 (methods=26%). Content verification will be weak.
+  cells/typescript: 101 classes, 1177 claims, confidence=high
+  email/cpp: 26 classes, 237 claims, confidence=high
+  email/net: 29 classes, 221 claims, confidence=high
+  email/python: 30 classes, 605 claims, confidence=high
+  font/python: 267 classes, 4826 claims, confidence=high
+  html/python: 244 classes, 2300 claims, confidence=high
+  note/python: 39 classes, 721 claims, confidence=high
+  WARNING: page/python surface_tier=3 (methods=37%). Content verification will be weak.
+  page/python: 139 classes, 1200 claims, confidence=high
+  pdf/cpp: 316 classes, 3049 claims, confidence=high
+  pdf/go: 215 classes, 4457 claims, confidence=high
+  pdf/java: 1115 classes, 15728 claims, confidence=high
+  pdf/net: 863 classes, 7717 claims, confidence=high
+  pdf/python: 260 classes, 3110 claims, confidence=high
+  WARNING: pdf/typescript surface_tier=3 (methods=13%). Content verification will be weak.
+  pdf/typescript: 1002 classes, 8341 claims, confidence=medium
+  slides/cpp: 234 classes, 5471 claims, confidence=high
+  slides/java: 238 classes, 5995 claims, confidence=high
+  slides/net: 264 classes, 3873 claims, confidence=high
+  WARNING: slides/python surface_tier=3 (methods=35%). Content verification will be weak.
+  slides/python: 517 classes, 6526 claims, confidence=high
+  tex/python: 83 classes, 613 claims, confidence=high
+  words/net: 618 classes, 5294 claims, confidence=high
+  words/python: 189 classes, 2041 claims, confidence=high
+
+_index.json: 32 product(s)
+TRUTH-INDEX: PASS

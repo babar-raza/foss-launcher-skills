@@ -1,0 +1,41 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "Encrypted PDFs",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/document.ts",
+      "evidence_note": "carried verbatim under its new heading 'Open Encrypted PDFs' in Additional Examples"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Split and merge",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/document.ts",
+      "evidence_note": "carried verbatim under its new heading 'Split and Merge Documents' in Additional Examples | evidence_ref corrected from a circular README.md self-citation to the real source file this claim is verifiable against"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Content streams",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/grayconvert.ts",
+      "evidence_note": "carried verbatim under its new heading 'Parse and Serialize Content Streams' in Additional Examples | evidence_ref corrected from a circular README.md self-citation to the real source file this claim is verifiable against"
+    }
+  }
+]

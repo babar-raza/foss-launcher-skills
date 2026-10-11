@@ -1,0 +1,1190 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Cells FOSS for C++ is a free, open-source, MIT-licensed C++ library for creating, loading,\nediting, and saving Excel `.xlsx` workbooks without requiring Microsoft Excel. It exposes an\nAspose.Cells-compatible API surface for common XLSX scenarios — the same `Workbook`, `Worksheet`,\nand `Cell` object shape used by Aspose's commercial spreadsheet products — built as a\ndependency-free, header-and-source C++17 library with no external runtime dependencies.",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- **Create or load `.xlsx` workbooks**: construct a blank `Workbook`, or load an existing file\n  from a path or an in-memory `std::vector<std::uint8_t>` stream via one of `Workbook`'s\n  constructors, then save back out to either form with `Workbook.Save()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- **Read and write cell values and formulas**: `Cell.PutValue()` accepts strings, integers,\n  doubles, bools, and `DateTime`; `Cell.GetValue()` returns a variant-typed `CellValue`, and\n  `Cell.SetFormula()`/`Cell.GetFormula()` handle Excel formula text with or without a leading `=`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- **Apply cell styles**: `Cell.GetStyle()`/`Cell.SetStyle()` return and apply a `Style`, which\n  bundles `Font` (bold, color), fill (`FillPattern`, foreground/background `Color`), `Borders`,\n  alignment, and text wrap into one cloneable value.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- **Merge cell ranges and apply number formats**: `Cells.Merge()` creates merged regions tracked\n  as `MergeRegion`s, and `Style.SetNumberFormat()`/`NumberFormat` apply and parse Excel\n  display-format patterns, rendered through `DisplayTextFormatter` with locale-directive support.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cells.h"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- **Control worksheet view and protection settings**: per-sheet `VisibilityType` (visible, hidden,\n  very hidden), zoom, gridline and header visibility, right-to-left (RTL) layout, and\n  `WorksheetProtection` are all exposed directly on `Worksheet`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Worksheet.h"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- **Apply conditional formatting and data validation**: `Worksheet.GetConditionalFormattings()`\n  manages rule-driven cell formatting through `FormatCondition`, and\n  `Worksheet.GetValidations()` manages input constraints through `Validation`, both scoped to\n  one or more `CellArea` ranges.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- **Manage hyperlinks and defined names**: `Worksheet.GetHyperlinks()` attaches external, internal,\n  or `mailto:` links to a cell range via `Hyperlink`, and `Workbook.GetDefinedNames()` manages\n  workbook- or sheet-scoped named ranges through `DefinedNameCollection`, each of which can carry\n  its own descriptive comment string.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/HyperlinkCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- **Configure page setup and print settings**: `Worksheet.GetPageSetup()` returns a `PageSetup` for\n  paper size, orientation, margins, scaling, print area/titles, headers/footers, and page breaks.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/PageSetup.h"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- **Read and write document properties**: `Workbook.GetProperties()` and\n  `Workbook.GetDocumentProperties()` expose core and extended metadata through\n  `WorkbookProperties`/`DocumentProperties`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Aspose.Cells FOSS for C++ is published on NuGet as `Aspose.Cells.Cpp.FOSS`, but the package\nships prebuilt static libraries for **Windows only** (`lib/win_x86`, `lib/win_x86_64`) built with\nthe MSVC `v14x` toolset — its own bundled `aspose.cells.cpp.foss.targets` file errors the build\nfor any other toolset or platform. There are no Linux/macOS binaries in the package.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "In an MSBuild-based Visual Studio project:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "Or in a CMake project on Windows, point at the package's own bundled config, which defines an\n`Aspose.Cells.Cpp.FOSS` imported target:",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "On Linux, macOS, or with a non-MSVC toolchain, build from source instead — the library itself is\na plain, dependency-free CMake target and targets C++17 on MSVC, GCC, and Clang alike:",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Create a workbook, populate cells with values and a formula, apply header styling, and save:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "More real, grounded snippets are collected below.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "`Workbook` also has a constructor that loads from an in-memory\n`std::vector<std::uint8_t>` stream instead of a file path, for scenarios that read the source\nbytes from somewhere other than the filesystem.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "The library's public types live in the `Aspose::Cells_FOSS` namespace, with `Workbook` as the\nroot entry point and `Worksheet`/`Cells`/`Cell` forming the primary object graph beneath it. The\nfull public surface — 197 public types — is listed below, grouped exactly as\n`reference.aspose.org` organizes them.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AlignmentValue` | Represents alignment value. |\n| `AutoFilter` | Represents auto filter. |\n| `AutoFilterColorFilter` | Represents auto filter color filter. |\n| `AutoFilterColorFilterModel` | Represents auto filter color filter model. |\n| `AutoFilterCustomFilter` | Represents auto filter custom filter. |\n| `AutoFilterCustomFilterCollection` | Represents a collection of auto filter custom filter objects. |\n| `AutoFilterCustomFilterCollection_Iterator` | Class in the Cells CPP API. |\n| `AutoFilterCustomFilterModel` | Represents auto filter custom filter model. |\n| `AutoFilterDynamicFilter` | Represents auto filter dynamic filter. |\n| `AutoFilterDynamicFilterModel` | Represents auto filter dynamic filter model. |\n| `AutoFilterModel` | Represents auto filter model. |\n| `AutoFilterSortCondition` | Represents auto filter sort condition. |\n| `AutoFilterSortConditionCollection` | Represents a collection of auto filter sort condition objects. |\n| `AutoFilterSortConditionCollection_Iterator` | Class in the Cells CPP API. |\n| `AutoFilterSortConditionModel` | Represents auto filter sort condition model. |\n| `AutoFilterSortState` | Represents auto filter sort state. |\n| `AutoFilterSortStateModel` | Represents auto filter sort state model. |\n| `AutoFilterSupport` | Internal helper methods for auto-filter operations. |\n| `AutoFilterTop10` | Represents auto filter top10. |\n| `AutoFilterTop10Model` | Represents auto filter top10 model. |\n| `BitReader` | Internal bit-level reader used while inflating DEFLATE-compressed ZIP entry data. |\n| `Border` | Represents border. |\n| `BorderSideValue` | Represents border side value. |\n| `Borders` | Represents borders. |\n| `BordersValue` | Represents borders value. |\n| `CalculationProperties` | Represents calculation properties. |\n| `CalculationPropertiesModel` | Represents calculation properties model. |\n| `Cell` | Represents a single worksheet cell and exposes value, formula, and style operations. |\n| `CellAddress` | Represents cell address. |\n| `CellArea` | Represents cell area. |\n| `CellFormatValue` | Represents cell format value. |\n| `CellRecord` | Represents cell record. |\n| `CellValue` | Variant-typed scalar cell value wrapper over `monostate`/`int`/`double`/`bool`/`std::string`/`DateTime`. |\n| `Cells` | Provides access to worksheet cells, rows, columns, and merged ranges. |\n| `CellsException` | Represents an error that occurs during cells. |\n| `Column` | Represents column. |\n| `ColumnCollection` | Represents a collection of column objects. |\n| `ColumnRangeModel` | Represents column range model. |\n| `ConditionalFormattingCollection` | Represents a collection of conditional formatting objects. |\n| `ConditionalFormattingModel` | Represents conditional formatting model. |\n| `CoreDocumentProperties` | Represents core document properties. |\n| `CoreDocumentPropertiesModel` | Represents core document properties model. |\n| `DateSerialConverter` | Provides date serial converter operations. |\n| `DateTime` | DateTime provides component accessors such as GetYear(), GetMonth(), GetDay(), GetHour(), GetMinute(), and GetSecond() to retrieve individual parts of a date‑time value. |\n| `DefinedName` | Represents defined name. |\n| `DefinedNameCollection` | Represents a collection of defined name objects. |\n| `DefinedNameModel` | Represents defined name model. |\n| `DefinedNameUtility` | Provides normalization and validation helpers for defined names. |\n| `DiagnosticBag` | Represents diagnostic bag. |\n| `DiagnosticEntry` | Represents diagnostic entry. |\n| `DisplayFormatSectionInfo` | Represents display format section info. |\n| `DisplayTextDateFormatSupport` | Internal helper methods for formatting date/time display text. |\n| `DisplayTextFormatter` | Internal static helper for formatting display text of cell values. |\n| `DisplayTextFormatterSupport` | Internal helper methods for display-text formatting of numeric, text, and date/time values. |\n| `DisplayTextLocaleSupport` | Internal helper for parsing and applying locale directives (e.g. `[$-0409]`, `[$-F800]`) embedded in Excel format strings. |\n| `DocumentProperties` | Represents document properties. |\n| `DocumentPropertiesModel` | Represents document properties model. |\n| `ExtendedDocumentProperties` | Represents extended document properties. |\n| `ExtendedDocumentPropertiesModel` | Represents extended document properties model. |\n| `FillValue` | Represents fill value. |\n| `FilterColumn` | Represents filter column. |\n| `FilterColumnCollection` | Represents a collection of filter column objects. |\n| `FilterColumnCollection_Iterator` | Class in the Cells CPP API. |\n| `FilterColumnModel` | Represents filter column model. |\n| `FilterValueCollection` | Represents a collection of filter value objects. |\n| `Font` | Represents font. |\n| `FontValue` | Represents font value. |\n| `FormatCondition` | Represents format condition. |\n| `FormatConditionCollection` | Represents a collection of format condition objects. |\n| `FormatConditionModel` | Represents format condition model. |\n| `FormulaException` | Represents an error that occurs during formula. |\n| `HeaderFooterModel` | Represents header footer model. |\n| `Hyperlink` | Represents hyperlink. |\n| `HyperlinkCollection` | Encapsulates the hyperlinks defined for a worksheet. |\n| `HyperlinkModel` | Represents hyperlink model. |\n| `InvalidFileFormatException` | Represents an error that occurs during invalid file format. |\n| `LoadDiagnostics` | Represents load diagnostics. |\n| `LoadIssue` | Represents load issue. |\n| `LoadOptions` | Specifies how a workbook should be loaded. |\n| `MergeRegion` | Represents merge region. |\n| `MissingPartException` | Represents an error that occurs during missing part. |\n| `NumberFormat` | Provides number format operations. |\n| `NumberFormatValue` | Represents number format value. |\n| `PackageLoadContext` | Represents package load context. |\n| `PackageModel` | Represents package model. |\n| `PackagePartDescriptor` | Represents package part descriptor. |\n| `PackageStructureException` | Represents an error that occurs during package structure. |\n| `PackagingConventions` | Provides packaging conventions operations. |\n| `PageMarginsModel` | Represents page margins model. |\n| `PageSetup` | Represents worksheet print and page-layout settings. |\n| `PageSetupModel` | Represents page setup model. |\n| `PrintOptionsModel` | Represents print options model. |\n| `ProtectionValue` | Represents protection value. |\n| `RelationshipDescriptor` | Represents relationship descriptor. |\n| `RelationshipResolutionException` | Represents an error that occurs during relationship resolution. |\n| `Row` | Represents row. |\n| `RowCollection` | Represents a collection of row objects. |\n| `RowModel` | Represents row model. |\n| `SaveOptions` | Specifies how a workbook should be saved. |\n| `SharedStringRepository` | Represents shared string repository. |\n| `SharedStringTableXmlMapper` | Represents shared string table xml mapper. |\n| `Style` | Represents a mutable cell style facade that can be applied to one or more cells. |\n| `StyleException` | Represents an error that occurs during style. |\n| `StyleRepository` | Represents style repository. |\n| `StyleValue` | Represents style value. |\n| `StyleValueSanitizer` | Provides normalization helpers for style integer values. |\n| `StylesheetLoadContext` | Internal context used during stylesheet loading to accumulate cell formats, differential formats, date style indexes, and the default cell style. |\n| `StylesheetSaveContext` | Internal context used during stylesheet saving to hold the built stylesheet document together with style index maps and format counts. |\n| `StylesheetXmlMapper` | Represents stylesheet xml mapper. |\n| `UnsupportedFeatureException` | Represents an error that occurs during unsupported feature. |\n| `Validation` | Represents validation. |\n| `ValidationCollection` | Represents a collection of validation objects. |\n| `ValidationMessage` | Represents validation message. |\n| `ValidationModel` | Represents validation model. |\n| `WarningInfo` | Represents warning info. |\n| `Workbook` | Represents the root spreadsheet object used to create, load, modify, and save an XLSX workbook. |\n| `WorkbookLoadException` | Represents an error that occurs during workbook load. |\n| `WorkbookModel` | Represents workbook model. |\n| `WorkbookProperties` | Represents workbook properties. |\n| `WorkbookPropertiesModel` | Represents workbook properties model. |\n| `WorkbookPropertySupport` | Internal helpers that normalize workbook-level property strings to their canonical XML attribute values, throwing CellsException on unsupported input. |\n| `WorkbookProtection` | Represents workbook protection. |\n| `WorkbookProtectionModel` | Represents workbook protection model. |\n| `WorkbookSaveException` | Represents an error that occurs during workbook save. |\n| `WorkbookSettings` | Represents workbook-level settings that affect date handling and display formatting. |\n| `WorkbookSettingsModel` | Represents workbook settings model. |\n| `WorkbookValidator` | Represents workbook validator. |\n| `WorkbookView` | Represents workbook view. |\n| `WorkbookViewModel` | Represents workbook view model. |\n| `WorkbookXmlMapper` | Represents workbook xml mapper. |\n| `Worksheet` | Encapsulates a single worksheet and its supported v0.1 worksheet features. |\n| `WorksheetCollection` | Encapsulates the workbook's worksheets and active-sheet state. |\n| `WorksheetDefinedNamesState` | Stores the defined names state for a worksheet (print area, title rows, title columns). |\n| `WorksheetModel` | Represents worksheet model. |\n| `WorksheetProtection` | Represents worksheet protection. |\n| `WorksheetProtectionModel` | Represents worksheet protection model. |\n| `WorksheetViewModel` | Represents worksheet view model. |\n| `WorksheetXmlMapper` | Represents worksheet xml mapper. |\n| `XNamespace` | Represents an XML namespace, used to construct qualified element names. |\n| `XlsxDocumentProperties` | Provides static methods for building and loading XLSX document properties (core and extended) from/to a ZIP archive. |\n| `XlsxWorkbookArchiveHelpers` | Internal helper methods for reading XLSX workbook parts from a ZIP archive. |\n| `XlsxWorkbookAutoFilter` | Provides static methods for building and loading auto-filter XML elements. |\n| `XlsxWorkbookConditionalFormatting` | Provides static methods for building and loading conditional formatting XML elements. |\n| `XlsxWorkbookDefinedNames` | Provides static methods for building and loading workbook-level defined names. |\n| `XlsxWorkbookHyperlinks` | Provides static methods for building and loading worksheet hyperlink data. |\n| `XlsxWorkbookPageSetup` | Provides static methods for building and loading page-setup XML elements. |\n| `XlsxWorkbookProperties` | Provides static methods for building and loading workbook-level metadata. |\n| `XlsxWorkbookSerializer` | Serializes and deserializes workbook models in XLSX format. |\n| `XlsxWorkbookSerializerCommon` | Constants and helpers shared across the XLSX workbook serializer. |\n| `XlsxWorkbookStyles` | Provides static methods for building and loading workbook stylesheets. |\n| `XlsxWorkbookStylesValueHelpers` | Provides helper methods for workbook style value conversions and comparisons. |\n| `XlsxWorkbookStylesXml` | Provides XML read/write methods for the workbook styles part. |\n| `XlsxWorkbookValidations` | Provides static methods for building and loading worksheet data validation elements in the XLSX workbook serializer. |\n| `XlsxWorkbookWorksheetProtection` | Provides static methods for building and loading worksheet-protection XML elements. |\n| `XlsxWorkbookWorksheetViews` | Provides static methods for building and loading worksheet view settings (sheet properties, sheet views) in the XLSX workbook serializer. |\n| `XmlAttribute` | Lightweight handle to an XML attribute. |\n| `XmlDocument` | Represents a parsed XML document. |\n| `XmlElement` | Lightweight handle to an XML element. |\n| `XmlParser` | Internal recursive-descent XML parser used to build an `XmlDocument`'s node tree. |\n| `XmlParsingException` | Represents an error that occurs during xml parsing. |\n| `ZipArchive` | In-memory representation of a ZIP archive, used to read and write the `.xlsx` package's parts. |\n| `ZipArchiveEntry` | Represents an entry in a ZipArchive. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/core/AlignmentValue.h"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `CaseInsensitiveEqual` | Case-insensitive equality functor for `std::string` keys, paired with `CaseInsensitiveHash`. |\n| `CaseInsensitiveHash` | Case-insensitive hash functor for `std::string` keys, used as a package part-name lookup key. |\n| `Color` | Represents color. |\n| `ColorValue` | Represents color value. |\n| `HuffmanTable` | Struct with 2 methods and 4 properties. |\n| `ParsedNumericFormat` | Struct with 10 properties. |\n| `Workbook_Impl` | Struct with 1 method and 7 properties. |\n| `XmlNodeData` | Internal node representation shared between XML types. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BorderStyle` | Specifies border style. |\n| `BorderStyleType` | Specifies border style type. |\n| `CellValueKind` | Specifies cell value kind. |\n| `CellValueType` | Specifies cell value type. |\n| `DateSystem` | Specifies date system. |\n| `DiagnosticSeverity-Aspose_Cells_FOSS` | Specifies diagnostic severity. |\n| `DiagnosticSeverity-Aspose_Cells_FOSS_Core` | Specifies diagnostic severity. |\n| `FillPattern` | Specifies fill pattern. |\n| `FillPatternKind` | Specifies fill pattern kind. |\n| `FilterOperatorType` | Specifies filter operator type. |\n| `FormatConditionType` | Specifies format condition type. |\n| `HorizontalAlignment` | Specifies horizontal alignment. |\n| `HorizontalAlignmentType` | Specifies horizontal alignment type. |\n| `LoadFormat` | Specifies load format. |\n| `OperatorType` | Specifies operator type. |\n| `PageOrientation` | Specifies page orientation. |\n| `PageOrientationType` | Specifies page orientation type. |\n| `PaperSizeType` | Specifies paper size type. |\n| `SaveFormat` | Specifies save format. |\n| `SheetVisibility` | Specifies sheet visibility. |\n| `TargetModeType` | Specifies target mode type. |\n| `ValidationAlertType` | Specifies validation alert type. |\n| `ValidationMessageSeverity` | Specifies validation message severity. |\n| `ValidationType` | Specifies validation type. |\n| `VerticalAlignment` | Specifies vertical alignment. |\n| `VerticalAlignmentType` | Specifies vertical alignment type. |\n| `VisibilityType` | Specifies visibility type. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/BorderStyleType.h"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `Workbook`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- `Workbook()`, `Workbook(fileName)`, `Workbook(fileName, LoadOptions)`, `Workbook(stream, LoadOptions)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `Save(fileName)`, `Save(fileName, SaveFormat)`, `Save(fileName, SaveOptions)`, `Save(stream, SaveFormat)`, `Save(stream, SaveOptions)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- Properties: `Worksheets: WorksheetCollection`, `Settings: WorkbookSettings`, `Properties: WorkbookProperties`, `DocumentProperties: DocumentProperties`, `DefinedNames: DefinedNameCollection`, `LoadDiagnostics: LoadDiagnostics`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `Worksheet`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Worksheet.h"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- `Protect()`, `Unprotect()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Worksheet.h"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- Properties: `Name: string`, `VisibilityType: VisibilityType`, `TabColor: Color`, `ShowGridlines/ShowRowColumnHeaders/ShowZeros/RightToLeft: bool`, `Zoom: int`, `Cells: Cells`, `Hyperlinks: HyperlinkCollection`, `Validations: ValidationCollection`, `ConditionalFormattings: ConditionalFormattingCollection`, `PageSetup: PageSetup`, `Protection: WorksheetProtection`, `AutoFilter: AutoFilter`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Worksheet.h"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `Cells`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cells.h"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `operator[](cellName)`, `operator()(row, column)`, `Merge(firstRow, firstColumn, totalRows, totalColumns)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cells.h"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- Properties: `Rows: RowCollection`, `Columns: ColumnCollection`, `MergedCells: vector<CellArea>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cells.h"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `Cell`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `PutValue(value)` (string/int/double/bool/`DateTime` overloads), `GetValue()`, `SetValue(CellValue)`, `GetStringValue()`, `GetDisplayStringValue()`, `SetFormula(text)`, `GetFormula()`, `GetStyle()`, `SetStyle(Style)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- Properties: `Row: int`, `Column: int`, `Type: CellValueType`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `Style`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Style.h"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `GetFont()`/`SetFont(Font)`, `GetBorders()`/`SetBorders(Borders)`, `GetPattern()`/`SetPattern(FillPattern)`, `GetForegroundColor()`/`SetForegroundColor(Color)`, `GetBackgroundColor()`/`SetBackgroundColor(Color)`, `GetNumberFormat()`/`SetNumberFormat(text)`, `GetHorizontalAlignment()`/`SetHorizontalAlignment(...)`, `GetWrapText()`/`SetWrapText(bool)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Style.h"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `ConditionalFormattingCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Add()`, `RemoveAt(index)`, `RemoveArea(startRow, startColumn, totalRows, totalColumns)`, `operator[](index) -> FormatConditionCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `FormatConditionCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormatConditionCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `operator[](index) -> FormatCondition`, `AddArea(CellArea)`, `AddCondition(FormatConditionType, OperatorType, formula1, formula2)`, `RemoveArea(CellArea)`, `RemoveCondition(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormatConditionCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- Properties: `Count: int`, `RangeCount: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormatConditionCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `FormatCondition`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormatCondition.h"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- Properties: `Priority: int`, `StopIfTrue: bool`, `Style: Style`, `Formula1: string`, `Formula2: string`, `Type: FormatConditionType`, `Operator: OperatorType`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormatCondition.h"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `ValidationCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ValidationCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `Add(CellArea)`, `operator[](index) -> Validation`, `RemoveACell(row, column)`, `RemoveArea(CellArea)`, `GetValidationInCell(row, column)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ValidationCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ValidationCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `Validation`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Validation.h"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `AddArea(CellArea)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Validation.h"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- Properties: `Type: ValidationType`, `Operator: OperatorType`, `Formula1: string`, `Formula2: string`, `ShowError: bool`, `ErrorTitle: string`, `ErrorMessage: string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Validation.h"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `HyperlinkCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/HyperlinkCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `Add(cellName, totalRows, totalColumns, address)`, `RemoveAt(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/HyperlinkCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/HyperlinkCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `Hyperlink`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Hyperlink.h"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- Properties: `Area: string`, `Address: string`, `TextToDisplay: string`, `ScreenTip: string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Hyperlink.h"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `DefinedNameCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/DefinedNameCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `Add(name, formula)`, `Add(name, formula, localSheetIndex)`, `RemoveAt(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/DefinedNameCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/DefinedNameCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `DefinedName`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/DefinedName.h"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- Properties: `Comment: string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/DefinedName.h"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `PageSetup`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/PageSetup.h"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `SetOrientation(PageOrientationType)`, `SetPaperSize(PaperSizeType)`, `SetFitToPagesWide/Tall(int)`, `SetPrintArea(range)`, `SetPrintTitleRows/Columns(range)`, `SetLeftHeader/CenterFooter(text)`, `AddHorizontalPageBreak(row)`, `AddVerticalPageBreak(column)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/PageSetup.h"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- Properties: `LeftMargin/RightMargin: double`, `Scale: optional<int>`, `PrintGridlines/CenterHorizontally: bool`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/PageSetup.h"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- Exceptions",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/CellsException.h"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `CellsException` — base error type for invalid indices, ranges, and arguments",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/CellsException.h"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `WorkbookLoadException` / `WorkbookSaveException` — load/save-specific failures",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/WorkbookLoadException.h"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `InvalidFileFormatException` — the loaded bytes are not a readable OOXML package",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/InvalidFileFormatException.h"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `UnsupportedFeatureException` — a requested operation (e.g. non-XLSX save) is not implemented",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/UnsupportedFeatureException.h"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `FormulaException` / `StyleException` — invalid formula text or style value",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/FormulaException.h"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/cpp/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/cpp/)** — task-focused answers for common spreadsheet questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/cpp/)** — the complete, browsable reference for all public types (the [API reference](#api-reference) section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- **[Contributor guide](AGENTS.md)** — architecture, technology assumptions, and conventions for contributors.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "To keep this edition free, this library implements a focused subset of Excel spreadsheet features:",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- **Only `.xlsx` (OOXML) is supported for load and save.** `LoadFormat` and `SaveFormat` each\n  declare a single `Xlsx` member; saving to any other format throws\n  `UnsupportedFeatureException(\"Only XLSX save is supported.\")`. There is no `.xls`, `.xlsb`,\n  `.ods`, or `.csv` read/write support.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- **Legacy SpreadsheetML (the pre-OOXML Excel 2003 XML dialect) is not implemented.** The mapper\n  classes for it (`WorkbookXmlMapper`, `WorksheetXmlMapper`, `StylesheetXmlMapper`,\n  `SharedStringTableXmlMapper`) exist in source but their read/write methods unconditionally\n  throw `UnsupportedFeatureException`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- **Cell-level comments/notes are not modeled as a distinct object.** The only `Comment` field in\n  the public API belongs to `DefinedName` — a description string on a named range, not an Excel\n  cell note or threaded comment.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Cell.h"
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- **Some advanced conditional-formatting rule types are recognized on load but not preserved.**\n  An unsupported rule type is dropped with a `WarningInfo` diagnostic rather than failing the\n  load outright.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- **AutoFilter date-group filters using certain patterns are rejected as unsupported during\n  load** rather than approximated.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Validation.h"
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "For workflows that need broader spreadsheet format coverage — legacy XLS/XLSB, CSV, ODS, PDF\nrendering, or full-fidelity conditional-formatting and AutoFilter round-tripping — see\n[Aspose.Cells for C++ — Enterprise Edition](https://products.aspose.com/cells/cpp/), the\ncommercial product line this FOSS edition's API is modeled on, with the wider format matrix and\nrule coverage included.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "Clone the repository and run the GTest-based test suite from the dedicated test project:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "This links the `aspose_cells_foss` library from `Aspose.Cells.Foss.Cpp` as a CMake subdirectory\nand uses `FetchContent` to download GoogleTest v1.14.0 during configure; pass\n`-DASPOSE_CELLS_FOSS_TESTS_USE_SYSTEM_GTEST=ON` to use an installed GTest package instead. See\n[`Aspose.Cells.Foss.Cpp.Tests/README.md`](Aspose.Cells.Foss.Cpp.Tests/README.md) for that option.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "The `samples/` directory builds a standalone executable against the same library:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "This project is licensed under the [MIT License](License/LICENSE.txt). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "License/LICENSE.txt"
+    }
+  }
+]

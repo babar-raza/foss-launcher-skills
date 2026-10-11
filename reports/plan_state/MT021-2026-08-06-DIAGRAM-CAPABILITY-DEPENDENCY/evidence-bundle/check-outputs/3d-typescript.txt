@@ -1,0 +1,1 @@
+PASS: reports/repo-presenter/3d/typescript/readme.md -- no orphaned capability nodes

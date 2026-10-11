@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """section_enhance_validator.py — S-96 section-enhance Phase 1 audit output validator.
 
 CONTRACT: pure library module — no CLI, no __main__, no subprocess, no os.system,

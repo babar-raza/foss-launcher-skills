@@ -1,0 +1,2 @@
+# CI check scripts: check-blog-slugs.py, check_plugin_platform.py
+pyyaml>=6.0

@@ -1,0 +1,98 @@
+[
+  {
+    "format": "Unknown",
+    "enum": "ImageFormat",
+    "value": "0",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Png",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Gif",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Bmp",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "WebP",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Ico",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Tiff",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Psd",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Emf",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Wmf",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  },
+  {
+    "format": "Dicom",
+    "enum": "ImageFormat",
+    "value": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "direction": "detect"
+  }
+]

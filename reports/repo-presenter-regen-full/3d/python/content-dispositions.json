@@ -1,0 +1,1177 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.3D FOSS for Python is a free, open-source, pure-Python library for building, reading, and\nwriting 3D scenes through an Aspose.3D-compatible API. It models a scene graph of nodes, meshes,\ncameras, lights, and materials, and moves that graph in and out of OBJ, STL, glTF, COLLADA, and\n3MF files with no native dependencies to compile or install.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/__init__.py"
+    },
+    "salient_tokens": [
+      "FOSS",
+      "OBJ",
+      "STL",
+      "glTF",
+      "COLLADA"
+    ]
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [API reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Documentation & resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Scope and limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Development and testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- Build 3D scenes programmatically with `Scene`, `Node`, `Mesh`, `Camera`, and `Light` in a\n  hierarchical node graph.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/Scene.py"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.dae`),\n  and 3MF files into a common `Scene` model with `Scene.open(...)`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(...)`\n  (COLLADA import is supported; COLLADA export is not currently reachable through the public\n  API — see [Scope and limitations](#scope-and-limitations)).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Assign Lambert, Phong, or PBR (metallic-roughness) materials to nodes, including glTF material\n  properties such as `albedo`, `metallic_factor`, and `roughness_factor`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Convert built-in parametric primitives (`Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`,\n  `Dish`, ...) into triangulated `Mesh` objects with `to_mesh()`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/entities/Box.py"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Animate scene properties with keyframe sequences (`AnimationClip`, `KeyframeSequence.add(time,\n  value, interpolation)`, `KeyFrame`) bound to node/material properties via\n  `AnimationNode`/`BindPoint`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/animation/AnimationClip.py"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Work with `Vector2`/`Vector3`/`Vector4`, `Matrix4`, `Quaternion`, and `BoundingBox` utilities\n  for transforms and spatial queries.",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Vector2`, `Vector3`, `Vector4`, `Matrix4`, `Quaternion`, and `BoundingBox` all already appear as their own rows in the candidate's comprehensive API Reference table; the recomposed Key Capabilities section does not carry a dedicated math-utilities highlight bullet, but the underlying types and their real methods are not lost -- cross-checked present via a real grep index against the API Reference section.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Vector2",
+      "Vector3",
+      "Vector4",
+      "Matrix4",
+      "Quaternion",
+      "BoundingBox"
+    ]
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "A PyPI package has not been published yet. Install directly from a local clone:",
+    "classification": "1_narrative_cta",
+    "disposition": "corrected",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "package_registry_field",
+      "evidence_ref": "3d.python.verification.evidence_url",
+      "evidence_note": "data/package_registry.json 3d.python.verification (published: true, evidence_url https://pypi.org/pypi/aspose-3d-foss/json, applied f3184918fe after the live probe + wheel==HEAD verification)"
+    },
+    "correction_reason": "the old sentence 'A PyPI package has not been published yet' was true when written but false since 2026-08-29: aspose-3d-foss 26.1.0 is live on PyPI (live probe https://pypi.org/pypi/aspose-3d-foss/json, wheel == repo HEAD d9f3bfe); Installation now leads with `python3 -m pip install aspose-3d-foss` and keeps the from-checkout path as the source option"
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "The package declares support for Python 3.7 through 3.12 and has no required third-party\ndependencies.",
+    "classification": "5_dependency_claim",
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "setup.py"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Load an OBJ scene and inspect its meshes:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "Convert the same kind of scene to a binary glTF (GLB):",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "The snippets below cover building meshes from scratch, applying materials, and working with\nadditional formats, without cluttering the primary quick-start path above.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "<details>\n<summary>View additional examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "The public entry points are organized under `aspose.threed` (core scene graph),\n`aspose.threed.entities` (meshes, primitives, cameras, lights), `aspose.threed.shading`\n(materials), `aspose.threed.formats` (load/save options, format detection, and the plugin\nregistry), and `aspose.threed.utilities` (vector, matrix, and quaternion math). Format-specific\nimporter and exporter classes (`ObjImporter`, `ColladaExporter`, `GltfExporter`, ...) live in\ninternal per-format submodules such as `aspose.threed.formats.gltf`; the documented way to move\ndata in and out of a scene is `Scene.open()` / `Scene.save()` with the matching `*LoadOptions` /\n`*SaveOptions` class.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "> **Import from the format submodule, not the top-level package.** `aspose.threed.formats`\n> re-exports `ObjLoadOptions`/`ObjSaveOptions`, `StlLoadOptions`/`StlSaveOptions`,\n> `GltfLoadOptions`/`GltfSaveOptions`, and `ColladaLoadOptions`/`ColladaSaveOptions`, but those\n> top-level names resolve to stub classes that don't inherit from the base `LoadOptions` /\n> `SaveOptions` types, so `Scene.open()`/`Scene.save()` silently ignore them (for loading) or raise\n> `AttributeError` (for saving). Import from the submodule instead — `from aspose.threed.formats.obj\n> import ObjLoadOptions`, `from aspose.threed.formats.gltf import GltfSaveOptions`, and so on — which\n> is also what this project's own Quick Start does. `ColladaLoadOptions`/`ColladaSaveOptions` need a\n> fully-qualified import (`from aspose.threed.formats.collada.ColladaLoadOptions import\n> ColladaLoadOptions`) because the `collada` submodule has no `__init__.py`. `ThreeMfLoadOptions` /\n> `ThreeMfSaveOptions` and `FbxLoadOptions`/`FbxSaveOptions` are unaffected and work fine imported\n> from the top-level package as shown elsewhere in this README.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/__init__.py"
+    },
+    "salient_tokens": [
+      "aspose.threed.formats"
+    ]
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "<details>\n<summary>View the supported public API surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- `Scene`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Scene` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Scene"
+    ]
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `open(file_or_stream, options)`, `save(file_or_stream, format_or_options)`, `from_file(file_name)`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- `root_node`, `sub_scenes`, `asset_info`, `animation_clips`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `create_animation_clip(name)`, `clear()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `Node`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Node` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Node"
+    ]
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `create_child_node(node_name, entity, material) -> 'Node'`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `add_entity(entity)`, `add_child_node(node)`, `merge(node)`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- `entity`, `entities`, `material`, `materials`, `child_nodes`, `parent_node`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `transform`, `global_transform`, `visible`, `excluded`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- `evaluate_global_transform(with_geometric_transform)`, `get_bounding_box()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `Entity` (base of `Mesh` and the primitive shapes)",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Entity`, `Mesh` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Entity",
+      "Mesh"
+    ]
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- `get_bounding_box()`, `parent_node`, `parent_nodes`, `excluded`, `name`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `Transform` / `GlobalTransform`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Transform`, `GlobalTransform` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Transform",
+      "GlobalTransform"
+    ]
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `translation`, `scaling`, `rotation`, `euler_angles`, `transform_matrix`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `set_translation(tx, ty, tz)`, `set_scale(sx, sy, sz)`, `set_rotation(rw, rx, ry, rz)`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `Mesh(name)`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Mesh` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Mesh"
+    ]
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `control_points: ArrayListAdapter[Vector4]`, `polygon_count`, `polygons`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `create_polygon(*indices)`, `triangulate()`, `get_bounding_box()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`, `Dish`, `Circle`, `Ellipse`, `Frustum`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`, `Dish`, `Circle`, `Ellipse`, `Frustum` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Box",
+      "Cylinder",
+      "Sphere",
+      "Torus",
+      "Pyramid",
+      "Dish",
+      "Circle",
+      "Ellipse",
+      "Frustum"
+    ]
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- each exposes `to_mesh() -> 'Mesh'` to convert the parameterized primitive into a concrete mesh",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `Camera`, `Light`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Camera`, `Light` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Camera",
+      "Light"
+    ]
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `near_plane`, `far_plane`, `field_of_view`, `direction`, `target`, `up`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Material` (base) — `get_texture(slot_name)`, `set_texture(slot_name, texture)`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Material` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Material"
+    ]
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `LambertMaterial` — `emissive_color`, `ambient_color`, `diffuse_color`, `transparent_color`, `transparency`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`LambertMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "LambertMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `PhongMaterial(LambertMaterial)` — adds `specular_color`, `specular_factor`, `shininess`, `reflection_color`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`PhongMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "PhongMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `PbrMaterial` — `albedo`, `metallic_factor`, `roughness_factor`, `albedo_texture`, `normal_texture`, `occlusion_texture`, `emissive_texture`, `emissive_color`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`PbrMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "PbrMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `ObjLoadOptions` — `flip_coordinate_system`, `enable_materials`, `scale`, `normalize_normal`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`ObjLoadOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "ObjLoadOptions"
+    ]
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `ObjSaveOptions` — `apply_unit_scale`, `point_cloud`, `verbose`, `serialize_w`,\n  `enable_materials`, `flip_coordinate_system`, `axis_system`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`ObjSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "ObjSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `StlLoadOptions` / `StlSaveOptions` — `binary_mode` (save only), `scale`, `flip_coordinate_system`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`StlLoadOptions`, `StlSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "StlLoadOptions",
+      "StlSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `GltfLoadOptions` / `GltfSaveOptions` — `binary_mode` (save only), `flip_tex_coord_v`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`GltfLoadOptions`, `GltfSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "GltfLoadOptions",
+      "GltfSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `ColladaLoadOptions` / `ColladaSaveOptions` — `flip_coordinate_system`, `enable_materials`\n  (save only), `indented` (save only)",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`ColladaLoadOptions`, `ColladaSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "ColladaLoadOptions",
+      "ColladaSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `ThreeMfLoadOptions` / `ThreeMfSaveOptions` — `flip_coordinate_system`, `enable_compression`\n  (save only), `build_all` (save only), `pretty_print` (save only), `unit` (save only)",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`ThreeMfLoadOptions`, `ThreeMfSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "ThreeMfLoadOptions",
+      "ThreeMfSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `FbxLoadOptions` / `FbxSaveOptions` — `compatible_mode`, `export_textures`, `embed_textures` (see [Scope and limitations](#scope-and-limitations))",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`FbxLoadOptions`, `FbxSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "FbxLoadOptions",
+      "FbxSaveOptions"
+    ]
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `FileFormat` — `detect(stream, file_name)`, `get_format_by_extension(extension_name)`, `can_import`, `can_export`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`FileFormat` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "FileFormat"
+    ]
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `Vector2`, `Vector3`, `Vector4` — `x`/`y`/`z`/`w`, `length`, `normalize()`, `dot()`, `cross()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Vector2`, `Vector3`, `Vector4` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Vector2",
+      "Vector3",
+      "Vector4"
+    ]
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `Matrix4` — `translate()`, `scale()`, `rotate()`, `decompose()`, `inverse()`, `get_identity()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Matrix4` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Matrix4"
+    ]
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `Quaternion` — `slerp(t, v1, v2)`, `to_matrix()`, `from_euler_angle()`, `from_angle_axis()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`Quaternion` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "Quaternion"
+    ]
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `BoundingBox` — `minimum`, `maximum`, `center`, `size`, `merge()`, `contains()`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`BoundingBox` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "BoundingBox"
+    ]
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `AnimationClip` — `create_animation_node(name) -> AnimationNode`, `animations`, `start`, `stop`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`AnimationClip` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "AnimationClip"
+    ]
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `AnimationNode` — `create_bind_point(obj, prop_name)`, `get_keyframe_sequence(target, prop_name,\n  channel_name, create)`, `bind_points`, `sub_animations`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`AnimationNode` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "AnimationNode"
+    ]
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `AnimationChannel` (extends `KeyframeSequence`) — `component_type`, `default_value`,\n  `keyframe_sequence`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`AnimationChannel`, `KeyframeSequence` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "AnimationChannel",
+      "KeyframeSequence"
+    ]
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `KeyframeSequence` — `add(time, value, interpolation)`, `key_frames`, `pre_behavior`/\n  `post_behavior` (`Extrapolation`)",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`KeyframeSequence`, `Extrapolation` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "KeyframeSequence",
+      "Extrapolation"
+    ]
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `KeyFrame` — `time`, `value`, `interpolation` (`Interpolation`), tangent/weight fields\n  (`tangent_weight_mode`, `step_mode`, `tension`, `continuity`, `bias`)",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`KeyFrame`, `Interpolation` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "KeyFrame",
+      "Interpolation"
+    ]
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `BindPoint`, `Interpolation`, `Extrapolation`/`ExtrapolationType`, `StepMode`, `WeightedMode`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`BindPoint`, `Interpolation`, `Extrapolation`, `ExtrapolationType`, `StepMode`, `WeightedMode` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "BindPoint",
+      "Interpolation",
+      "Extrapolation",
+      "ExtrapolationType",
+      "StepMode",
+      "WeightedMode"
+    ]
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `ImportException`, `ExportException`, `ParseException`, `InvalidOperationException`",
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "excluded_reason": "`ImportException`, `ExportException`, `ParseException`, `InvalidOperationException` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "salient_tokens": [
+      "ImportException",
+      "ExportException",
+      "ParseException",
+      "InvalidOperationException"
+    ]
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/3d/python/)** — installation, key capabilities,\n  and links to detailed developer guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "",
+      "evidence_note": "relabelled merged_reframed 2026-09-02: the candidate's bullet keeps the link and its role but restates the description"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — task-focused how-to guides for\n  loading, converting, and manipulating 3D files with the pip-installable library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "",
+      "evidence_note": "relabelled merged_reframed 2026-09-02: the candidate's bullet keeps the link and its role but restates the description"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/3d/python/)** — the complete, browsable\n  reference for all 303 public types (the [API reference](#api-reference) section above covers\n  the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "corrected",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/fbx/binary_tokenizer.py",
+      "evidence_note": "Token and TokenType are defined here and listed on reference.aspose.org/3d/python (content/reference.aspose.org/en/3d/python/Token.md, TokenType.md); the table count 305 follows"
+    },
+    "correction_reason": "the old bullet counted 303 public types; the README's own API Reference table now lists 305 because Token and TokenType (real classes on reference.aspose.org/3d/python, FBX tokenizer) were missing from the Core API table -- the two candidate-authored numbers must agree"
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "This project focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF format\npipelines. The `aspose.threed.render` module (`Renderer`, `IRenderWindow`, `IBuffer`,\n`ICommandList`, `ITexture2D`, and related classes) is not implemented — this library reads,\nbuilds, and writes 3D scene data, it does not render or rasterize scenes. `Mesh` boolean\noperations (`union`, `difference`, `intersect`, `do_boolean`) and NURBS curve/surface evaluation\n(`NurbsCurve.evaluate`, `NurbsSurface.to_mesh`) also raise `NotImplementedError`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/render/Renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "FBX support is more limited than the other formats: the FBX tokenizer and parser are exercised by\nthe test suite, but `FbxExporter.save()` and `FbxExporter.save_to_stream()` raise\n`NotImplementedError`, and full round-trip FBX import/export is not covered by the bundled tests\nthe way OBJ, STL, glTF, COLLADA, and 3MF are. Treat FBX as experimental and prefer the other\nformats when round-trip fidelity matters.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/fbx/FbxExporter.py"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "COLLADA import works, but COLLADA export is not currently reachable through the public\n`Scene.save()` API — the exporter dispatcher registers `FbxExporter` ahead of the Collada plugin\nand raises `NotImplementedError` before the real Collada exporter is ever reached, even though a\nworking implementation exists in the source tree.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "For workflows that need scene rendering, complete FBX read/write support, or additional formats\nsuch as PDF, USD, JT, or RVM, see\n[Aspose.3D for Python — Enterprise Edition](https://products.aspose.com/3d/python-net/).",
+    "classification": "3_branding_positioning",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations closing Enterprise Edition paragraph"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "Install the repository in editable mode and run the test suite:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "Run a single test file:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "The optional `dev` extra (`pip install -e \".[dev]\"`) installs `pytest`, though the bundled test\nsuite itself is written against the standard-library `unittest` framework.",
+    "classification": "5_dependency_claim",
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "setup.py"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

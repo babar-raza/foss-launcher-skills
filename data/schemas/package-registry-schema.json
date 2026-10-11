@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PackageRegistry",
+  "description": "Unified single source of truth for FOSS package-manager identity (name/coordinates/owner) across all registries in actual use (pypi, nuget, maven, npm, go_modules, cargo). Consolidates data/foss_packages.json (Maven-only) and data/cargo_packages.json (Cargo-only) per Mission MT015-2026-07-30-PACKAGE-REGISTRY. vcpkg and Conan are deliberately excluded -- confirmed never implemented in practice; C++ ships via NuGet under its own package ID distinct from .NET's. Keyed {family}.{platform}, one entry per product. Machine-written only: `candidate`/`scouted_at` populated by scout-time extraction (package_manifest.py), `verification`/`owner_match` populated by a live registry check (a scheduled watcher or a publish skill). Never hand-edit `verification.published`/`verification.verified_owner` without independent live evidence.",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/PlatformMap"
+  },
+  "definitions": {
+    "PlatformMap": {
+      "type": "object",
+      "description": "Maps platform (e.g. 'java', 'net', 'python') to its PackageEntry for this family.",
+      "additionalProperties": {
+        "$ref": "#/definitions/PackageEntry"
+      }
+    },
+    "PackageEntry": {
+      "type": "object",
+      "required": ["registry_type", "candidate", "candidate_owner", "verification", "owner_match"],
+      "additionalProperties": false,
+      "properties": {
+        "registry_type": {
+          "type": "string",
+          "enum": ["pypi", "nuget", "maven", "npm", "go_modules", "cargo"],
+          "description": "Which package-manager ecosystem this entry targets. vcpkg/conan are not valid values -- never implemented in practice."
+        },
+        "candidate": {
+          "description": "Registry-appropriate coordinate shape. Discriminated by registry_type.",
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "maven",
+              "required": ["group_id", "artifact_id"],
+              "additionalProperties": false,
+              "properties": {
+                "group_id": {"type": "string"},
+                "artifact_id": {"type": "string"},
+                "version": {"type": ["string", "null"]},
+                "repo_sha": {"type": ["string", "null"]}
+              }
+            },
+            {
+              "type": "object",
+              "description": "go_modules",
+              "required": ["module_path"],
+              "additionalProperties": false,
+              "properties": {
+                "module_path": {"type": "string"},
+                "version": {"type": ["string", "null"]},
+                "repo_sha": {"type": ["string", "null"]}
+              }
+            },
+            {
+              "type": "object",
+              "description": "pypi, nuget, npm, cargo -- flat name/package_id",
+              "required": ["name"],
+              "additionalProperties": false,
+              "properties": {
+                "name": {"type": "string"},
+                "version": {"type": ["string", "null"]},
+                "repo_sha": {"type": ["string", "null"]}
+              }
+            }
+          ]
+        },
+        "candidate_owner": {
+          "type": ["string", "null"],
+          "description": "Expected publisher org/namespace (e.g. 'org.aspose', 'asposefoss'). Null if not yet determined."
+        },
+        "scouted_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "When package_manifest.py extraction populated `candidate`. Null if never scouted."
+        },
+        "scout_source": {
+          "type": ["string", "null"],
+          "description": "Which manifest file/mechanism produced `candidate`, e.g. 'package_manifest.py:.csproj'."
+        },
+        "verification": {
+          "type": "object",
+          "required": ["published", "verified_at", "verified_owner", "evidence_url", "method"],
+          "additionalProperties": false,
+          "properties": {
+            "published": {"type": "boolean"},
+            "verified_at": {"type": ["string", "null"], "format": "date-time"},
+            "verified_owner": {
+              "type": ["string", "null"],
+              "description": "Publisher org/namespace actually observed live on the registry. Null until a live check succeeds."
+            },
+            "evidence_url": {"type": ["string", "null"]},
+            "evidence_note": {
+              "type": ["string", "null"],
+              "description": "Free-text evidence description, mirroring foss_packages.json's confirmed_evidence field."
+            },
+            "method": {
+              "type": ["string", "null"],
+              "description": "How verification was performed, e.g. 'maven-central-poll', 'nuget-api-v3', 'migrated-from-foss_packages.json'."
+            },
+            "consecutive_checks_agreeing": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Debounce counter -- a watcher must not flip published:false->true until this reaches 2, to avoid flapping on transient API errors."
+            },
+            "identity_basis": {
+              "type": ["string", "null"],
+              "enum": [null, "manifest-extracted", "foss-convention-match", "corroborated-non-convention-match"],
+              "description": "Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE: how this candidate was confirmed to be the genuine FOSS package, not decided ad hoc. 'manifest-extracted': read directly from the product's own Cargo.toml/pyproject.toml/package.json (mandatory fields, high confidence). 'foss-convention-match': the candidate name itself contains 'foss' in some form. 'corroborated-non-convention-match': the name has no 'foss' substring, but the registry's own project_url/homepage exactly matches the product's known FOSS GitHub org/repo (e.g. PyPI's `aspose-note`, confirmed via project_urls pointing to github.com/aspose-note-foss/...). Null only when verification.published is false and no live check has ever been attempted. A published:true entry with a non-foss-substring candidate.name MUST carry 'corroborated-non-convention-match' with a non-null evidence_note explaining the corroboration -- never silently accepted on name alone."
+            }
+          }
+        },
+        "owner_match": {
+          "type": ["boolean", "null"],
+          "description": "verification.verified_owner == candidate_owner. Null until verification.published is true and an owner check has actually run -- distinct from false (checked and mismatched)."
+        },
+        "conflict": {
+          "type": ["object", "null"],
+          "description": "Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION: non-null only when candidate discovery found multiple plausible, mutually-exclusive identity hits (or a suspected rename) that is_corroborated_match() could not safely resolve on its own. Always human-reviewed -- no shortcode renders package-manager content while this is non-null, regardless of `verification.published`. Written rarely (only on a genuine conflict), never on every check, unlike the reports/-based observation ledger.",
+          "required": ["candidates", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "candidates": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The competing candidate names/coordinates discovery found, verbatim."
+            },
+            "note": {
+              "type": "string",
+              "description": "Free-text explanation of why none of the candidates could be safely auto-accepted."
+            }
+          }
+        }
+      }
+    }
+  }
+}

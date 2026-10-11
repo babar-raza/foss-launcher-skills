@@ -1,0 +1,74 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Extract Plain Text",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Convert Every Input Format to PDF",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Preserve a UTF-8 BOM in Markdown Output",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Pretty-Print DOCX XML",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Set DOCX Compression Level",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  }
+]

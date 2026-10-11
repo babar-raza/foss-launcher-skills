@@ -1,0 +1,86 @@
+[
+  {
+    "task_id": "MT069-TC-01-BASELINE-ORG-STATE-RECONCILIATION",
+    "status": "IN_PROGRESS",
+    "title": "Baseline/org-state reconciliation",
+    "description": "Root-pointer liveness snapshot; full inventory of current .github/workflows/*.yml plus git-history deleted/renamed workflows; aspose.org-workflows inventory (5 SEO templates + 7 site-build workflows); record known access gaps (missing read:org/admin:org, deprecated legacy billing endpoint, branch-protection blocked by plan tier).",
+    "dependencies": []
+  },
+  {
+    "task_id": "MT069-TC-02-DISABLED-VS-RUNNING-ANOMALY",
+    "status": "READY",
+    "title": "Disabled-vs-running anomaly documentation",
+    "description": "Write up the disabled_manually-vs-recent-successful-runs finding as a confirmed, user-attributed intentional emergency cost stopgap (confirmed 2026-09-16, this session) rather than an unexplained anomaly. Record at reports/plan_state/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE/inventory/disabled_vs_running_anomaly.md.",
+    "dependencies": ["MT069-TC-01-BASELINE-ORG-STATE-RECONCILIATION"]
+  },
+  {
+    "task_id": "MT069-TC-03-INVENTORY-DATASET",
+    "status": "TODO",
+    "title": "Structured inventory dataset + workflow-harden delegation",
+    "description": "Build the structured per-workflow dataset (triggers, runners, jobs, permissions). Delegate the static-review/CI-weight half to /workflow-harden (S-115) and cite its reports/sprint/workflow-harden-{date}/ bundle rather than re-deriving the same 8-dimension probe results. Incorporate check_workflow_drift.py's IN_SYNC/DIVERGED/DEPLOYED_UNAPPROVED classification for the SEO templates.",
+    "dependencies": ["MT069-TC-01-BASELINE-ORG-STATE-RECONCILIATION"]
+  },
+  {
+    "task_id": "MT069-TC-04-USAGE-BILLING-COLLECTION",
+    "status": "TODO",
+    "title": "Usage/billing collection and reconciliation",
+    "description": "Reconstruct historical (pre-disable) per-workflow minutes from gh api runs/jobs data (ceil to billing minute, apply OS multiplier). Reconcile against the org Billing UI export the user will supply directly (no read:org/admin:org token grant needed).",
+    "dependencies": ["MT069-TC-02-DISABLED-VS-RUNNING-ANOMALY"]
+  },
+  {
+    "task_id": "MT069-TC-05-FAILURE-SIGNATURE-ANALYSIS",
+    "status": "TODO",
+    "title": "Failure-signature analysis",
+    "description": "Per-workflow failure rate/pattern from run history; distinguish product defects, workflow defects, dependency outages, flaky tests, etc.",
+    "dependencies": ["MT069-TC-03-INVENTORY-DATASET"]
+  },
+  {
+    "task_id": "MT069-TC-06-IMPORTANCE-MATRIX",
+    "status": "TODO",
+    "title": "Importance matrix",
+    "description": "Criticality x frequency x consumer-impact-if-absent classification per workflow (P0_CRITICAL..RETIREMENT_CANDIDATE per the mission brief's taxonomy).",
+    "dependencies": ["MT069-TC-03-INVENTORY-DATASET", "MT069-TC-05-FAILURE-SIGNATURE-ANALYSIS"]
+  },
+  {
+    "task_id": "MT069-TC-07-DESTINATION-DECISION-MATRIX",
+    "status": "TODO",
+    "title": "Destination-decision matrix + threat assessment",
+    "description": "13-value destination enum per workflow plus public/private data-boundary threat model (secrets exposure, credential scope). Includes the open question on the 4 auto-commit watcher bots (convert to PR-gated merge vs. stay closed-loop private).",
+    "dependencies": ["MT069-TC-04-USAGE-BILLING-COLLECTION", "MT069-TC-06-IMPORTANCE-MATRIX"]
+  },
+  {
+    "task_id": "MT069-TC-08-SELF-HOSTED-ARCHITECTURE-DESIGN",
+    "status": "TODO",
+    "title": "Self-hosted architecture design (design-only)",
+    "description": "WSL2-hosted runner + persistent listener with fresh Docker container per job, targeting this session's own Windows 11 Pro dev machine, reserved only for push-gated native workflows. Design only -- no runner registered/brought online in this mission. Genuine capability gap beyond S-115 -- covered by the gap-escalation report.",
+    "dependencies": ["MT069-TC-07-DESTINATION-DECISION-MATRIX"]
+  },
+  {
+    "task_id": "MT069-TC-09-PUBLIC-EXECUTION-BOUNDARY-DESIGN",
+    "status": "TODO",
+    "title": "Public-execution boundary design",
+    "description": "Reuse the proven SEO-template pattern (checkout via scoped token, push results back via PR, drift-checked). Explicit MT066 coordination note before any Phase-B canary PR targets Aspose/aspose.org-workflows.",
+    "dependencies": ["MT069-TC-07-DESTINATION-DECISION-MATRIX"]
+  },
+  {
+    "task_id": "MT069-TC-10-PER-WORKFLOW-DOSSIERS",
+    "status": "TODO",
+    "title": "Per-workflow dossiers",
+    "description": "~20 dossiers (one per current workflow, plus any found deleted/renamed) citing TC-03 through TC-09, each with a cited destination decision -- none left at INSUFFICIENT_EVIDENCE without a stated reason.",
+    "dependencies": ["MT069-TC-07-DESTINATION-DECISION-MATRIX", "MT069-TC-08-SELF-HOSTED-ARCHITECTURE-DESIGN", "MT069-TC-09-PUBLIC-EXECUTION-BOUNDARY-DESIGN"]
+  },
+  {
+    "task_id": "MT069-TC-11-INDEPENDENT-REVIEW",
+    "status": "TODO",
+    "title": "Independent review",
+    "description": "Separate review pass validates dossiers, destination decisions, and threat assessment. No open CONFIRMED findings before Phase A is marked plan-ready.",
+    "dependencies": ["MT069-TC-10-PER-WORKFLOW-DOSSIERS"]
+  },
+  {
+    "task_id": "MT069-TC-12-MASTER-REPORT-PLAN-READY",
+    "status": "TODO",
+    "title": "Master report + plan-ready declaration",
+    "description": "Synthesis report; run check_plan_taskcard_completeness.py against the governing plan and this mission's taskcards.jsonl; outstanding-human-decision ledger for anything still open before Phase B can be requested.",
+    "dependencies": ["MT069-TC-11-INDEPENDENT-REVIEW"]
+  }
+]

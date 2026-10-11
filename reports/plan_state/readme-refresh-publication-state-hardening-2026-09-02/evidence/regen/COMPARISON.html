@@ -1,0 +1,240 @@
+<title>3d/python README Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#F4F5F7; --paper-2:#EAECF0; --rule:#D3D7DE; --ink:#1A1D23; --ink-2:#4A505B; --ink-3:#7A8290;
+  --live:#5B6371; --live-bg:#E6E8EC;
+  --cand:#2F4E8C; --cand-bg:#E1E7F3;
+  --bad:#A2472A; --bad-bg:#F4E6DF;
+  --warn:#9A7B1A; --warn-bg:#F5EFD8;
+  --code-bg:#EAECF0;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161A; --paper-2:#1C1F25; --rule:#2E323A; --ink:#E5E8EE; --ink-2:#B2B8C3; --ink-3:#7F8792;
+    --live:#A9B0BC; --live-bg:#23272E;
+    --cand:#8FB0F0; --cand-bg:#1B2740;
+    --bad:#E38562; --bad-bg:#3A231A;
+    --warn:#D9B24C; --warn-bg:#352D14;
+    --code-bg:#1C1F25;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14161A; --paper-2:#1C1F25; --rule:#2E323A; --ink:#E5E8EE; --ink-2:#B2B8C3; --ink-3:#7F8792;
+  --live:#A9B0BC; --live-bg:#23272E;
+  --cand:#8FB0F0; --cand-bg:#1B2740;
+  --bad:#E38562; --bad-bg:#3A231A;
+  --warn:#D9B24C; --warn-bg:#352D14;
+  --code-bg:#1C1F25;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+.page{max-width:1080px;margin:0 auto;padding:40px 28px 80px}
+h1,h2,h3{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4vw,42px);font-variation-settings:"opsz" 144}
+h2{font-size:24px;margin-top:56px;padding-top:18px;border-top:2px solid var(--ink)}
+h3{font-size:18px;margin-top:28px}
+p{max-width:68ch;margin:12px 0}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{background:var(--code-bg);padding:12px 14px;overflow-x:auto;border-radius:4px;font-size:13px;line-height:1.45;margin:10px 0}
+pre code{background:none;padding:0}
+a{color:var(--cand)}
+.head{display:grid;grid-template-columns:1fr;gap:22px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.subjects{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.subjects{grid-template-columns:1fr}}
+.subject{border:1px solid var(--rule);padding:14px 16px;border-radius:4px;background:var(--paper-2)}
+.subject .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:8px}
+.tag.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live)}
+.tag.cand{background:var(--cand-bg);color:var(--cand);border:1px solid var(--cand)}
+.subject dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+.subject dt{color:var(--ink-3)}
+.subject dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.stat{padding:12px 14px;border-left:3px solid var(--rule);background:var(--paper-2)}
+.stat.good{border-left-color:var(--cand)}
+.stat.bad{border-left-color:var(--bad)}
+.stat.warn{border-left-color:var(--warn)}
+.stat b{display:block;font-family:Fraunces,serif;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+.tablewrap{overflow-x:auto}
+th{text-align:left;font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--ink)}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+th.live{color:var(--live)} th.cand{color:var(--cand)}
+td.d{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:1px 7px;border-radius:2px;white-space:nowrap}
+.pill.ok{background:var(--cand-bg);color:var(--cand)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.mute{background:var(--live-bg);color:var(--live)}
+details{border:1px solid var(--rule);border-radius:4px;padding:0 14px;margin:12px 0;background:var(--paper-2)}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+summary:focus-visible{outline:2px solid var(--cand);outline-offset:2px}
+details[open] summary{border-bottom:1px solid var(--rule);margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.two > div{min-width:0}
+.two .col-h{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+ul{padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+.note{font-size:14px;color:var(--ink-2);border-left:3px solid var(--warn);padding:8px 12px;background:var(--warn-bg);margin:14px 0;max-width:none}
+.note.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+.small{font-size:13.5px;color:var(--ink-2)}
+.footer{margin-top:60px;font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px}
+</style>
+
+<div class="page">
+<header class="head">
+  <div>
+    <div class="eyebrow">Aspose.3D FOSS for Python · README review · measured 2026-09-02</div>
+    <h1>3d/python: live README vs. the candidate regenerated by the hardened skill</h1>
+    <p>The question that opened this work: the package went to PyPI on 2026-08-29 — does the README skill notice, and does it act on it? Before today: no on both counts. This page is the review of what the hardened skill produced, measured with the same instruments on both documents, including installing the real published wheel and running every example in each README against it.</p>
+  </div>
+  <div class="subjects">
+    <div class="subject">
+      <span class="tag live">Live</span>
+      <dl>
+        <dt>Where</dt><dd>aspose-3d-foss/Aspose.3D-FOSS-for-Python · master</dd>
+        <dt>README blob</dt><dd>4e4a2642 · 17,983 B · 436 lines</dd>
+        <dt>Last README edit</dt><dd>ee05c1ba · 2026-08-14 (3 upstream edits after our PR of 08-04)</dd>
+        <dt>Installation says</dt><dd>"A PyPI package has not been published yet"</dd>
+        <dt>vs clone cache</dt><dd>identical modulo CRLF</dd>
+      </dl>
+    </div>
+    <div class="subject">
+      <span class="tag cand">Candidate</span>
+      <dl>
+        <dt>Where</dt><dd>reports/repo-presenter-regen-full/3d/python/readme.md</dd>
+        <dt>Run</dt><dd>rr-20260902T144200Z-b2ad89dcc424 · AWAITING_REVIEW</dd>
+        <dt>Plan said</dt><dd>PUBLISHED aspose-3d-foss 26.1.0 on pypi (2026-08-29) [bdist_wheel] — live probe</dd>
+        <dt>Gates</dt><dd>0 hard-gate findings / 117 checks</dd>
+        <dt>Size</dt><dd>47,715 B · 793 lines</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="stat good"><b>26.1.0</b><span>detected live at plan time; Installation leads with <code>pip install aspose-3d-foss</code>; examples verified against the real wheel</span></div>
+    <div class="stat good"><b>6 / 6</b><span>self-contained candidate examples run clean on the published package</span></div>
+    <div class="stat bad"><b>1</b><span>real product defect found by running examples on the wheel: OBJ export raises <code>TypeError</code></span></div>
+    <div class="stat good"><b>23 / 23</b><span>live code blocks accounted for — 18 verbatim, 4 with every API call surviving, 1 diagram, 0 excluded (was 12 excluded before)</span></div>
+  </div>
+</header>
+
+<h2>1. What the hardened skill did with the publication</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Question</th><th class="live">Before (skill on 2026-09-01)</th><th class="cand">After (this run)</th></tr></thead>
+<tbody>
+<tr><td>Detects that the package is on PyPI</td><td>No — read <code>data/package_registry.json</code> only (backfilled "unpublished" 2026-08-01); no registry call anywhere</td><td>Yes — <code>plan</code> probes PyPI: <span class="pill ok">PUBLISHED aspose-3d-foss 26.1.0 (2026-08-29)</span>, pinned in the manifest, printed for the composer</td></tr>
+<tr><td>Installation section</td><td>Kept "A PyPI package (<code>aspose-3d-foss</code>) has not yet been published" — and the only gate reading the flag was advisory and would have <em>approved</em> it</td><td><code>python3 -m pip install aspose-3d-foss</code> first, checkout second; the stale sentence is now a <b>hard-gate</b> failure (<code>installation_matches_live_publication</code>, proven on the old candidate)</td></tr>
+<tr><td>Badges</td><td>License · Python 3.7+ · Contributors</td><td>+ PyPI version badge (the probe made <code>package_version</code> available)</td></tr>
+<tr><td>Example verification</td><td>Would have <code>pip install -e</code> the clone — never the artifact users get</td><td>Installed <code>aspose-3d-foss==26.1.0</code> from PyPI (<code>environment.install_source: pypi</code>); every block ran against it</td></tr>
+<tr><td>Registry metadata</td><td>Not looked at</td><td>3 defects surfaced (wrong homepage repo, no license metadata, no sdist) → upstream-issues.md, never README</td></tr>
+<tr><td>If the state changes again</td><td>Nothing would notice</td><td><code>approve</code> re-probes; a change since <code>plan</code> forces re-plan (tested)</td></tr>
+<tr><td>Registry record</td><td>Stale; watcher proposals #67/#70/#72/#74 open since 08-29</td><td>Applied via the watcher's own <code>apply_proposal</code> after independent verification (wheel == HEAD, 358/358 files); issues closed</td></tr>
+</tbody></table></div>
+
+<h2>2. What actually runs — both documents on the real wheel</h2>
+<div class="two">
+  <div>
+    <div class="col-h" style="color:var(--live)">Live · 11 fences</div>
+    <div class="tablewrap"><table>
+      <tr><td>Ran clean</td><td class="n">4</td><td><span class="pill ok">COMPILED+RAN CLEAN</span></td></tr>
+      <tr><td>Need a user file (<code>model.obj</code>, <code>mesh.stl</code>, <code>model.dae</code>)</td><td class="n">3</td><td><span class="pill mute">FIXTURE-UNAVAILABLE</span></td></tr>
+      <tr><td>pip/git-only bash</td><td class="n">3</td><td><span class="pill mute">NOT-A-PRODUCT-COMMAND</span></td></tr>
+      <tr><td>mermaid</td><td class="n">1</td><td><span class="pill mute">TOOLCHAIN-UNAVAILABLE</span></td></tr>
+    </table></div>
+    <p class="small">The live README never exports to OBJ, so it never hits the defect below.</p>
+  </div>
+  <div>
+    <div class="col-h" style="color:var(--cand)">Candidate · 18 fences</div>
+    <div class="tablewrap"><table>
+      <tr><td>Ran clean</td><td class="n">6</td><td><span class="pill ok">COMPILED+RAN CLEAN</span></td></tr>
+      <tr><td>Need a user file (<code>model.obj</code> ×3, <code>model.gltf</code>, <code>model.dae</code>)</td><td class="n">5</td><td><span class="pill mute">FIXTURE-UNAVAILABLE</span></td></tr>
+      <tr><td>"Position a Node With Transform" → <code>scene.save("post.obj")</code></td><td class="n">1</td><td><span class="pill bad">RUNTIME-ERROR</span></td></tr>
+      <tr><td>pip/git-only bash</td><td class="n">5</td><td><span class="pill mute">NOT-A-PRODUCT-COMMAND</span></td></tr>
+      <tr><td>mermaid</td><td class="n">1</td><td><span class="pill mute">TOOLCHAIN-UNAVAILABLE</span></td></tr>
+    </table></div>
+  </div>
+</div>
+<div class="note bad"><b>Product defect, reproduced independently:</b> on the published 26.1.0 and at HEAD, <code>Scene.save("anything.obj")</code> raises <code>TypeError: a bytes-like object is required, not 'str'</code> — <code>ObjExporter._write_obj</code> writes text into the binary stream the save path opens; STL, glTF, GLB and 3MF all succeed on the same scene. No test covers OBJ export to a path. Recorded in <code>upstream-issues.md</code>. The candidate keeps <code>scene.save("post.obj")</code> as correct API usage (the transient-defect rule) — <b>your call</b> whether that example should target a working format until upstream fixes it.</div>
+<p class="small">The repository ships no sample <code>.obj/.gltf/.dae</code> files (its tests build scenes in code), so the five "user file" blocks are honest placeholders, not defects; the earlier runner would have reported all of them as generic runtime errors.</p>
+
+<h2>3. Headline measurements</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Measure</th><th class="live">Live</th><th class="cand">Candidate</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>Size</td><td class="n">17,983 B · 436 lines · 1,413 words</td><td class="n">47,715 B · 793 lines · 4,895 words</td><td class="d">2.6× — mostly the API table</td></tr>
+<tr><td>H2 sections</td><td class="n">11 (sentence case)</td><td class="n">12 (title case; + Dependencies)</td><td class="d">template</td></tr>
+<tr><td>Worked examples (H3)</td><td class="n">5 + Quick Start</td><td class="n">9 + Quick Start (2)</td><td class="d">all 5 live ones restored verbatim</td></tr>
+<tr><td>Code fences</td><td class="n">11 (7 py · 3 bash · 1 mermaid)</td><td class="n">18 (11 py · 6 bash · 1 mermaid)</td><td class="d">+7</td></tr>
+<tr><td>Real classes used in Python examples</td><td class="n">14</td><td class="n">18</td><td class="d">+Cylinder, LambertMaterial, PolygonModifier, Sphere</td></tr>
+<tr><td>API reference</td><td class="n">59 classes named in prose bullets</td><td class="n">305-row table · 305 of 305 real · 0 invented</td><td class="d">+Token, TokenType (were missing)</td></tr>
+<tr><td>Badges</td><td class="n">3</td><td class="n">4 (+ PyPI version)</td><td class="d"></td></tr>
+<tr><td>Internal links</td><td class="n">1 (LICENSE)</td><td class="n">10 · all exist</td><td class="d">+ releasing.md, publish.yml (were unlinked → hard gate)</td></tr>
+<tr><td>External links</td><td class="n">5</td><td class="n">6 · all HTTP 200 today</td><td class="d">+ banner</td></tr>
+</tbody></table></div>
+
+<h2>4. Retention against the live README</h2>
+<p>Every unit of the live README (which includes three upstream edits made after our August PR) is accounted for. The pre-mission candidate had <b>excluded four whole worked examples</b> ("Build a mesh and export it to STL", "Import a COLLADA file", "Convert a parametric primitive to a mesh", "Build a cube and export it to 3MF") plus the single-test invocation, each with "not reproduced" as its reason — the same pattern the tex/python review caught. All were executed against the wheel first, then restored verbatim.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Kind</th><th>Verbatim</th><th>Reframed / API-survived</th><th>Corrected</th><th>Excluded</th><th>Total</th></tr></thead>
+<tbody>
+<tr><td>Prose units</td><td class="n">17</td><td class="n">21</td><td class="n">2</td><td class="n">46</td><td class="n">86</td></tr>
+<tr><td>Code blocks</td><td class="n">18</td><td class="n">4 (every API call present)</td><td class="n">—</td><td class="n">0 <span class="small">(was 12)</span></td><td class="n">23 (+1 diagram)</td></tr>
+<tr><td>Badges</td><td class="n">3</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">3</td></tr>
+<tr><td>Headings</td><td colspan="4">16 present · 1 absorbed · 7 names gone (see below)</td><td class="n">24</td></tr>
+</tbody></table></div>
+<details>
+<summary>The 46 excluded prose units — all one thing</summary>
+<p>Every one is a per-class bullet from the live README's prose API section ("`Scene` — …", "`LambertMaterial` — …", "`Vector2`, `Vector3`, `Vector4` …"), each excluded with the reason that the named member appears with an equivalent or fuller description in the candidate's 305-row API Reference table. That is a structural reframing (prose bullets → table), not a loss of facts; it also explains 6 of the 7 "absent" headings (<code>Scene graph (aspose.threed)</code>, <code>Meshes and primitives</code>, <code>Materials</code>, <code>Format load/save options</code>, <code>Math utilities</code>, <code>Animation</code>). The seventh absent heading is "Assign a PBR material and export to glTF", whose code is present verbatim under "Build a Mesh From Control Points and Export It to glTF".</p>
+</details>
+<details>
+<summary>The 2 corrected units</summary>
+<ul>
+<li><b>u0019</b> Installation — "A PyPI package has not been published yet" was true when written, false since 2026-08-29; evidence: registry field <code>3d.python.verification.evidence_url</code> (applied after the live probe + wheel == HEAD).</li>
+<li><b>u0077</b> "reference for all 303 public types" → 305: the table was missing <code>Token</code> and <code>TokenType</code>, both real (FBX tokenizer) and both on reference.aspose.org; the two candidate-authored numbers must agree.</li>
+</ul>
+</details>
+<details>
+<summary>Lowest-fidelity reframes (retained prose, mean 0.82)</summary>
+<div class="tablewrap"><table>
+<thead><tr><th>Unit · fidelity</th><th class="live">Live</th><th>Where it went</th></tr></thead>
+<tbody>
+<tr><td class="n">u0015 · 0.50</td><td>"Assign Lambert, Phong, or PBR (metallic-roughness) materials … including <code>metallic_factor</code> …"</td><td>Key Capabilities bullet naming <code>LambertMaterial</code>/<code>PhongMaterial</code>/<code>PbrMaterial</code> and the albedo/metallic/roughness properties</td></tr>
+<tr><td class="n">u0018 · 0.53</td><td>"Animate scene properties with keyframe sequences (<code>AnimationClip</code>, … <code>BindPoint</code>, interpolation …)"</td><td>Key Capabilities bullet: <code>AnimationClip</code>, <code>AnimationNode</code>, <code>KeyframeSequence</code>, <code>Skeleton</code>, <code>Bone</code>, <code>Pose</code> — <code>BindPoint</code>/interpolation wording not restated (both in the API table)</td></tr>
+<tr><td class="n">u0079–u0082 · 0.62–0.68</td><td>Scope paragraphs: render module, FBX limits, COLLADA export dispatch</td><td>Scope and Limitations bullets carry each fact; prose phrasing differs</td></tr>
+</tbody></table></div>
+</details>
+
+<h2>5. Advisories left for the reviewer (none blocking)</h2>
+<ul>
+<li><code>badge_available_fact_not_shown</code> — a CI/build badge for <code>publish.yml</code> is "available", but that workflow has never run (no tag, no Release) and would render "no status"; deliberately not added.</li>
+<li><code>development_testing_collapse</code> — the section now has two code blocks and three linked artifacts without a <code>&lt;details&gt;</code> wrapper; an editorial choice.</li>
+<li><code>capability_scope_contradiction</code> (pre-existing) — <code>Mesh</code> is a working capability while <code>Mesh.do_boolean()</code> raises <code>NotImplementedError</code>; both statements are true and both stay.</li>
+<li><code>published_readme_current</code> — the live README no longer matches what we last published (upstream edited it three times); expected, and those edits are what the ledger now preserves.</li>
+<li>21 diagram format hints, 24 classification-plausibility prompts, 15 evidence-supports-claim prompts, 8 uncorrelated-drop prompts — unchanged from the pre-mission candidate.</li>
+</ul>
+
+<h2>6. Upstream issues recorded (never README content)</h2>
+<ul>
+<li><b>OBJ export broken</b> in 26.1.0 and at HEAD (<code>ObjExporter</code> writes <code>str</code> to a binary stream); no test covers it.</li>
+<li><b>PyPI metadata</b>: <code>Home-page</code> → <code>aspose-3d/Aspose.3D-for-Python</code> (HTTP 404; <code>setup.py url=</code> is wrong), no license metadata, wheel-only release.</li>
+<li><b>Release process</b>: <code>docs/releasing.md</code> names trusted-publisher owner/repo <code>aspose-3d</code> / <code>Aspose.3D-for-Python</code> — not this repository; PEP 740 will reject the next workflow release as documented. No <code>v26.1.0</code> tag or GitHub Release exists; 26.1.0 was uploaded manually.</li>
+</ul>
+
+<h2>7. Not done, and open decisions</h2>
+<div class="note"><b>Not pushed.</b> The run stops at AWAITING_REVIEW; PR creation needs your instruction.</div>
+<div class="note"><b>content/ literal install text</b> for 3d/python (392 files flagged by the watcher) is untouched — the operator-gated <code>package_install_migrator.py</code> step, outside this skill.</div>
+<div class="note"><b>words/net</b> shows the same live-vs-record drift (NuGet <code>Aspose.Words.FOSS</code> live, record says false — the case first documented on 2026-08-12) but did not clear the watcher's owner-corroboration bar; its README already shows the right command, so nothing blocks, but the record is still wrong.</div>
+<div class="note"><b>The OBJ example.</b> Correct usage that fails today. Keep it (documents the capability; defect tracked upstream) or retarget it to STL until fixed — a content decision, not a gate.</div>
+
+<div class="footer">
+Sources: GitHub API (README blob 4e4a2642 on master, commit history), PyPI JSON API (aspose-3d-foss), <code>python_verification_runner_v2</code> with <code>install_source: pypi</code> on both documents, <code>retention-report 3d python --json</code>, <code>audit-portfolio</code>. Evidence: <code>reports/plan_state/readme-refresh-publication-state-hardening-2026-09-02/evidence/</code> (investigation/, regen/, publication-drift-report.txt). Commits: 854e08a5b5 (hardening), f3184918fe (registry flip), 46e9535e28 (title-case fix).
+</div>
+</div>

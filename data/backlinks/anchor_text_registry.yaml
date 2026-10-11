@@ -1,0 +1,210 @@
+# Anchor Text Registry
+# Defines all valid anchor text templates for enterprise backlinks
+# Separate from link_slot_registry.yaml (slot placement) per A6 separation of concerns
+# Version: 1.0.0
+# Enforced by: backlink_approve_authority.py (renders at approval time)
+#              backlink_backfill.py (reads rendered_anchor_text from authority record only)
+
+schema_version: "1.0.0"
+
+# config_hash: auto-computed at runtime using canonical JSON algorithm (A7-06)
+# sha256 of yaml.safe_load -> pop config_hash -> json.dumps(sort_keys=True) -> sha256
+# Do NOT manually set this field — it is computed and checked at runtime.
+
+# Variables: {fam} = families_map[family], {plat} = platforms_map[platform]
+# {plat} ALWAYS uses canonical platform display name (e.g., "Python" not "python-net")
+# Bridge slugs (python-net, go-cpp, etc.) are NEVER used as {plat}
+
+templates:
+  docs-platform:
+    template_id: "docs-platform"
+    suffix: "Enterprise Documentation"
+    anchor_text: "{fam} for {plat} — Enterprise Documentation"
+    fallback_to: "docs-family"
+    applies_to:
+      target_subdomain: docs.aspose.com
+      target_type: platform
+    enabled: true
+
+  docs-family:
+    template_id: "docs-family"
+    suffix: "Enterprise Documentation"
+    anchor_text: "{fam} — Enterprise Documentation"
+    fallback_to: null
+    applies_to:
+      target_subdomain: docs.aspose.com
+      target_type: family
+    enabled: true
+
+  kb-platform:
+    template_id: "kb-platform"
+    suffix: "Enterprise Knowledge Base"
+    anchor_text: "{fam} for {plat} — Enterprise Knowledge Base"
+    fallback_to: "kb-family"
+    applies_to:
+      target_subdomain: kb.aspose.com
+      target_type: platform
+    enabled: true
+
+  kb-family:
+    template_id: "kb-family"
+    suffix: "Enterprise Knowledge Base"
+    anchor_text: "{fam} — Enterprise Knowledge Base"
+    fallback_to: null
+    applies_to:
+      target_subdomain: kb.aspose.com
+      target_type: family
+    enabled: true
+
+  reference-platform:
+    template_id: "reference-platform"
+    suffix: "Enterprise API Reference"
+    anchor_text: "{fam} for {plat} — Enterprise API Reference"
+    fallback_to: "reference-family"
+    applies_to:
+      target_subdomain: reference.aspose.com
+      target_type: platform
+    enabled: true
+    note: "plat uses canonical display name even when target URL uses bridge slug (python-net -> Python)"
+
+  reference-family:
+    template_id: "reference-family"
+    suffix: "Enterprise API Reference"
+    anchor_text: "{fam} — Enterprise API Reference"
+    fallback_to: null
+    applies_to:
+      target_subdomain: reference.aspose.com
+      target_type: family
+    enabled: true
+
+  products-platform:
+    template_id: "products-platform"
+    suffix: "Enterprise Product"
+    anchor_text: "{fam} for {plat} — Enterprise Product"
+    fallback_to: "products-family"
+    applies_to:
+      target_subdomain: products.aspose.com
+      target_type: platform
+    enabled: true
+
+  products-family:
+    template_id: "products-family"
+    suffix: "Enterprise Product Family"
+    anchor_text: "{fam} — Enterprise Product Family"
+    fallback_to: null
+    applies_to:
+      target_subdomain: products.aspose.com
+      target_type: family
+    enabled: true
+
+  blog-products-platform:
+    template_id: "blog-products-platform"
+    suffix: "Enterprise Product"
+    anchor_text: "{fam} for {plat} — Enterprise Product"
+    fallback_to: "blog-products-family"
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: products.aspose.com
+      target_type: platform
+    enabled: true
+    deprecated: true
+
+  blog-products-family:
+    template_id: "blog-products-family"
+    suffix: "Enterprise Product Family"
+    anchor_text: "{fam} — Enterprise Product Family"
+    fallback_to: null
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: products.aspose.com
+      target_type: family
+    enabled: true
+    deprecated: true
+
+  blog-platform:
+    template_id: "blog-platform"
+    suffix: "Enterprise Blog"
+    anchor_text: "{fam} for {plat} — Enterprise Blog"
+    fallback_to: "blog-family"
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: blog.aspose.com
+      target_type: platform
+    enabled: true
+
+  blog-family:
+    template_id: "blog-family"
+    suffix: "Enterprise Blog"
+    anchor_text: "{fam} — Enterprise Blog"
+    fallback_to: null
+    applies_to:
+      source_subdomain: blog.aspose.org
+      target_subdomain: blog.aspose.com
+      target_type: family
+    enabled: true
+
+# Sentence wrappers: PRODUCTS YAML overview.content ONLY
+# Canonical form: SHORT only. Long forms deprecated.
+# Only products-platform and products-family wrappers are invoked by the current pipeline.
+sentence_wrappers:
+  products-platform:
+    template_id: "wrap-products-platform"
+    text: "For enterprise features and support, see {anchor}."
+    deprecated_long_form: "Developers requiring enterprise features and production support can use {anchor} alongside these open-source libraries."
+
+  products-family:
+    template_id: "wrap-products-family"
+    text: "For the enterprise product family, see {anchor}."
+    deprecated_long_form: null
+
+  docs-platform:
+    template_id: "wrap-docs-platform"
+    text: "For enterprise documentation, see {anchor}."
+    deprecated_long_form: "Developers requiring enterprise documentation and production support can reference {anchor} alongside these open-source libraries."
+
+  reference-platform:
+    template_id: "wrap-reference-platform"
+    text: "For the enterprise API reference, see {anchor}."
+    deprecated_long_form: "Developers requiring the enterprise API reference can use {anchor} alongside these open-source libraries."
+
+  kb-platform:
+    template_id: "wrap-kb-platform"
+    text: "For the enterprise knowledge base, see {anchor}."
+    deprecated_long_form: "Developers requiring enterprise knowledge base resources can reference {anchor} alongside these open-source libraries."
+
+  blog-platform:
+    template_id: "wrap-blog-platform"
+    text: "For enterprise blog posts and tutorials, see {anchor}."
+
+  blog-family:
+    template_id: "wrap-blog-family"
+    text: "For enterprise tutorials, see {anchor}."
+
+# Fallback lookup order:
+#   1. Match (source_subdomain, target_subdomain, target_type)
+#   2. Match (target_subdomain, target_type)
+#   3. safe_fallback
+safe_fallback:
+  template_id: "products-platform"
+  note: "Matches current build_enterprise_anchor_suffix() unknown-domain fallback -> Enterprise Product"
+
+# Policy for resolving platform display names (A7-12)
+# platform arg to render_anchor_text() MUST be canonical key (e.g., "python"), NEVER bridge slug
+display_platform_policy:
+  lookup_key_type: "canonical"
+  bridge_slug_behavior: "reject"
+  canonical_resolution: "platforms_map_lookup"
+  fallback_when_key_absent: "title_case"
+  known_bridge_slugs:
+    - python-net
+    - python-java
+    - python-cpp
+    - nodejs-net
+    - nodejs-java
+    - nodejs-cpp
+    - go-cpp
+    - androidjava
+    - javascript-cpp
+    - rust-cpp
+    - jasperreports
+    - php-java

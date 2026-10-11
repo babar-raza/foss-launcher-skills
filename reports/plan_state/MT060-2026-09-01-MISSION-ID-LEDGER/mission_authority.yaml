@@ -1,0 +1,96 @@
+mission_authority:
+  mission_id: MT060-2026-09-01-MISSION-ID-LEDGER
+  mission_summary: 'Fix ST-157 (backlog/inbox.md:94, filed by commit 874f30481edf,
+    filing-only): mission-ID allocation has no protection mechanism at all -- every
+    MT0NN id is chosen by an agent grepping several directories and picking "highest
+    + 1" by eye, which already produced a confirmed on-disk duplicate (MT018 issued
+    to two unrelated missions, plans/master-plan.md:29,31) and a second, entirely
+    separate MT0NN-shaped numbering track run by /readme-refresh (docs/readme-refresh/plan-system-forensic-reconciliation.md,
+    independently reaching MT056) that the main track has zero visibility into. Root-cause
+    assessment and hardened execution plan: <local-plan-cache>/inherited-baking-goose.md.
+    Fix: a new scripts/pipeline/lib/mission_id_ledger.py (FileLock-protected, append-only,
+    modeled on baseline_ledger.py) at scripts/pipeline/config/mission-ids.jsonl, a
+    new `mission_authority.py allocate` verb, a backfill seeding every historical
+    MT0NN id from both tracks plus any hand-authored reports/plan_state/ record, an
+    archive_mission() collision guard, a list-coverage cross-check, and a new CI regression
+    gate -- scoped explicitly to the numeric MT0NN track only.
+
+    '
+  governing_plan_path: <local-plan-cache>/inherited-baking-goose.md
+  in_scope_outcomes:
+  - scripts/pipeline/lib/mission_id_ledger.py built, tested (incl. an N-concurrent-allocate()
+    regression test that fails unlocked and passes fixed -- the literal MT018 replay),
+    registered in scripts/pipeline/config/registry.yaml
+  - 'scripts/pipeline/config/mission-ids.jsonl seeded via backfill from: MISSION_AUTHORITY.yaml
+    git history, direct scan of local reports/plan_state/*/mission_authority.yaml,
+    and docs/readme-refresh/plan-system-forensic-reconciliation.md''s Track B table
+    -- diffed against the live mission_authority.py list output before enforcement
+    begins'
+  - 'mission_authority.py: new `allocate --track --slug [--date]` verb wired to the
+    ledger; archive_mission() collision guard (MissionIdCollisionError) added with
+    a regression test; `list` extended with a ledger-coverage cross-check scoped to
+    MT0NN-shaped ids only'
+  - new scripts/ci/checks/check_mission_id_ledger_coverage.py, wired using this repo's
+    real, confirmed check-invocation convention (not just dropped in the directory)
+    and proven to actually run
+  - evidence bundle assembled at reports/evidence/ST-157-mission-id-ledger/ with an
+    absolute path reported
+  out_of_scope_items:
+  - Editing docs/governance/planning-methodology.md or the /readme-refresh skill's
+    own mission-start instructions directly -- both sit under path_guard.py FORBIDDEN_PREFIXES
+    tied to AGENTS.md's human-maintainer-only authority boundary; drafted as proposed
+    diffs in the evidence bundle instead, flagged for human application
+  - Collision protection for non-numeric, free-text mission ids (e.g. backlink-governance-redesign)
+    -- this fix closes the MT018/MT056-vs-MT059-class numeric-counter defect only,
+    disclosed as a named limitation, not silently assumed away
+  - Retroactively un-colliding the historical MT018 duplicate -- left as a documented
+    incident; only a cosmetic cross-reference note considered, non-blocking
+  - ST-056/ST-057 (identical root cause on the backlog's own ST-xxx id sequence) --
+    flagged as a fast-follow backlog row, not fixed here, to match this repo's one-defect-per-row
+    convention
+  mandatory_acceptance_criteria:
+  - test_mission_id_ledger.py's concurrency test fails against the pre-fix (unlocked)
+    allocate path and passes against the shipped fix -- the literal MT018 regression
+    proof
+  - path_guard.py --stdin over every file this mission touches returns all-ALLOW
+  - test_master_plan_index.py and test_taskcard_store.py still pass unchanged, proving
+    the fix is additive
+  - backfill output is diffed against live mission_authority.py list / plans/master-plan.md
+    / docs/readme-refresh table and every known historical MT0NN id is accounted for,
+    or any gap is explicitly named
+  - the new CI check is proven to actually execute via this repo's real check-invocation
+    path, not merely present on disk
+  - commit uses git_plumb_commit.py given the live multi-session concurrency on this
+    shared working tree (16 active sessions per mission_authority.py status --json
+    at mission-open time); push to origin/main only if the tool's own stale-file-regression
+    check and a live re-check both come back clean
+  human_authority_boundaries:
+  - Applying the drafted docs/governance/planning-methodology.md and /readme-refresh
+    skill-instruction diffs (path_guard-forbidden for direct agent edit)
+  - Filing the ST-056/ST-057 fast-follow backlog row generalizing this fix to backlog
+    ids (deliberately left as a recommendation, not filed here, per one-defect-per-row
+    convention)
+  conflicts_found:
+  - 'Root MISSION_AUTHORITY.yaml is currently held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING
+    (unrelated mission, status open per mission_authority.py list at mission-open
+    time) -- this mission does not take over the root slot; it hand-authors this archive
+    record directly instead, matching the exact shape mission_authority.py''s own
+    open/archive_mission() function produces. Precedent: reports/plan_state/readme-refresh-trackb-and-followon-2026-09-01/mission_authority.yaml,
+    opened the same day for the identical reason (its own conflicts_found records
+    the same root-slot-occupied rationale).'
+  - 'Live pre-flight overlap check (mission-open time): grep of every reports/plan_state/*/taskcards.jsonl
+    for mission_id_ledger/MissionIdLedger/mission_authority.py allocate found zero
+    matches; mission_authority.py status --json showed 16 sessions status=active but
+    none with an uncommitted local change to any of this mission''s target files (scripts/pipeline/lib/mission_id_ledger.py
+    [new], scripts/pipeline/lib/advisory_lock.py, scripts/pipeline/lib/master_plan_index.py,
+    scripts/pipeline/lib/baseline_ledger.py, scripts/pipeline/commands/governance/mission_authority.py,
+    scripts/pipeline/config/registry.yaml, scripts/ci/checks/check_mission_id_ledger_coverage.py
+    [new]) per git status --porcelain at mission-open time -- confirmed clean to proceed.'
+  - Working tree carries 171 pre-existing dirty entries from other concurrent sessions
+    at mission-open time (keywords/*.json, data/*.json, static/media/*, scripts/seo/workflows/*)
+    -- none overlapping this mission's target files; this mission's own commit will
+    stage exact target paths only, never a broad add, so this foreign state is never
+    at risk.
+  mission_locked: false
+  _archive_status: closed
+  _closed_at: '2026-09-01T07:43:06Z'

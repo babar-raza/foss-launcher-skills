@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """Shared constants for the skill sync ecosystem.
 
 Single source of truth for sets that must stay consistent across

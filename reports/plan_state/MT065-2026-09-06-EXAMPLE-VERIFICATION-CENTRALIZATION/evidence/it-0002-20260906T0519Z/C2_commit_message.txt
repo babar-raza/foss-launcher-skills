@@ -1,0 +1,52 @@
+feat(example-verification): C2 -- shared schema/policy/registry/cache + tree-sitter loader unification
+
+Add result.py (BlockIdentity/BlockResult/VerificationReport + the status/
+reason vocabulary + to_legacy_s120()/to_smoke() adapters, matching the
+exact dict shapes test_readme_refresh_run.py already asserts), policy.py
+(Policy/Timeouts/ProductContext), registry.py (PLATFORM_CONTRACT/
+RUNNABLE_LANGS_BY_PLATFORM/NON_EXECUTABLE_LANGS), and cache.py (ResultCache
+with a stable content-keyed cache_key(), a hit/miss/stale matrix, and a
+never-cache list enforced by test for TOOLCHAIN-UNAVAILABLE/TIMEOUT/
+BUDGET-EXHAUSTED). None of these have a live caller yet -- library-only,
+per this stage's own pilot scope -- C3/C7 wire the first real consumer.
+
+Add syntax.py, the ONE shared tree-sitter loader: RC17 found smoke_test.py
+and content_eval's code_syntax_check.py each carried an independent copy
+that disagreed on which languages got a tree_sitter_language_pack fallback
+when the standalone wheel was absent (confirmed live in this repo's own
+venv: code_syntax_check's copy only ever resolved rust that way,
+smoke_test's resolved java/csharp/typescript/cpp/rust too) -- a Java page
+could get a real parse in one subsystem and a silent skip in the other.
+check_syntax() reports PASS (tier 1) / SYNTAX-ERROR / a loud
+GRAMMAR-UNAVAILABLE, never a silent PASS.
+
+Wire smoke_test.py onto the shared loader (its own ~90-line duplicate
+deleted) and fix its silent-PASS-on-missing-grammar bug (:424-434,
+pre-fix) to the same loud GRAMMAR-UNAVAILABLE WARN. Public function names
+kept intact for test_smoke_test.py's existing imports (outside this
+taskcard's allowed_paths; C4's CLI rebuild is where that file's remaining
+internals move onto the package).
+
+content_eval/evaluators/code_syntax_check.py is deliberately NOT wired to
+the shared loader in this commit -- that requires bumping
+EVALUATOR_LOGIC_VERSION/EVALUATOR_FREEZE_VERSION in content_eval/__init__.py,
+which is outside this taskcard's allowed_paths (it's C8's). A real
+portfolio-wide corpus measurement (59,180 java/typescript/cpp content
+files, 31,555 blocks) found code_syntax_check.py currently performs ZERO
+real tree-sitter parses for these three languages today (100% WARN-only
+bracket-heuristic fallback); wiring the shared loader would surface 533
+new real FAILs -- but two sampled examples are false positives from
+distinct root causes (an intentional "..." ellipsis-placeholder doc
+convention; a CMake snippet mislabeled with a cpp fence tag), so this
+delta needs triage before it's switched live, not a same-commit flip.
+Full writeup and data in
+reports/plan_state/MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/evidence/it-0002-20260906T0519Z/.
+
+109 new tests (registry/syntax/result/cache/policy/smoke_test-integration)
+plus the existing smoke_test/rust-platform-maps/platform-capability-matrix
+suites (367 tests) all green -- no regression.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C2
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

@@ -1,0 +1,1 @@
+def test_undefined_active_char_raises(self) -> None:

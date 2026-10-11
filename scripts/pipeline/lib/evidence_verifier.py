@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """evidence_verifier.py — Evidence frontmatter validation.
 
 Extracted from knowledge_core.py (R-3a). Validates the evidence: frontmatter
@@ -25,6 +24,7 @@ if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 
 from token_ops import Finding  # noqa: E402
+from knowledge_tiers import is_tier2_claim_id  # noqa: E402
 
 if TYPE_CHECKING:
     from knowledge_core import Knowledge  # pragma: no cover
@@ -38,10 +38,10 @@ def verify_evidence(
     """Validate the evidence: frontmatter block against the knowledge model.
 
     Returns a list of Finding objects.
-    - Missing evidence block         -> WARN
-    - Stale model_sha                -> WARN
-    - Invalid claim_id               -> FAIL  (only when claim index is populated)
-    - Invalid api class/member       -> FAIL
+    - Missing evidence block         → WARN
+    - Stale model_sha                → WARN
+    - Invalid claim_id               → FAIL  (only when claim index is populated)
+    - Invalid api class/member       → FAIL
     """
     findings = []
     evidence = frontmatter.get("evidence")
@@ -67,16 +67,32 @@ def verify_evidence(
             f"evidence references {ev_sha[:8]} — rerun attach_evidence.py",
         ))
 
-    # Claim ID validation
+    # Claim ID validation — only possible when claim index is populated.
+    # An empty claim_ids set can mean either "no claims.json" or "empty claims.json";
+    # in both cases we cannot distinguish valid from invalid IDs, so skip FAILs.
     can_validate_claims = bool(knowledge.claim_ids)
     if can_validate_claims:
         for claim_id in (evidence.get("claims") or []):
             if claim_id and claim_id not in knowledge.claim_ids:
-                findings.append(Finding(
-                    "FAIL", filepath, 0,
-                    f"`evidence.claims` references unknown claim_id `{claim_id}`",
-                    "Check merged/claims.json for valid IDs",
-                ))
+                # RPR-J-07: a missing Tier-2 (ERC-* / LLM-enriched) claim_id is
+                # expected churn -- capability-mode enriched claims are still
+                # content-hash-keyed (RPR-J-16 only stabilized the member-doc
+                # majority) and legitimately re-key across a knowledge rebuild.
+                # A missing Tier-1 (CLM-* / scout, deterministic) claim_id is a
+                # real signal and must still block.
+                if is_tier2_claim_id(claim_id):
+                    findings.append(Finding(
+                        "WARN", filepath, 0,
+                        f"`evidence.claims` references unknown claim_id `{claim_id}` "
+                        "(Tier-2/enriched — non-blocking, RPR-J-07)",
+                        "Check merged/claims.json for valid IDs",
+                    ))
+                else:
+                    findings.append(Finding(
+                        "FAIL", filepath, 0,
+                        f"`evidence.claims` references unknown claim_id `{claim_id}`",
+                        "Check merged/claims.json for valid IDs",
+                    ))
     elif evidence.get("claims"):
         findings.append(Finding(
             "WARN", filepath, 0,
@@ -100,6 +116,10 @@ def verify_evidence(
         elif member and not knowledge.has_method(cls_name, member) \
                 and not knowledge.has_property(cls_name, member) \
                 and not knowledge.has_enum_member(cls_name, member):
+            # Tier-gate: when extraction coverage is incomplete (surface_tier >= 2),
+            # the member may exist but was not extracted by the scout — emit WARN,
+            # not FAIL.  Mirrors token_ops.verify_tokens which skips strict checks
+            # for high-tier (low-coverage) knowledge models.
             tier = getattr(knowledge, "surface_tier", 1)
             severity = "FAIL" if tier == 1 else "WARN"
             findings.append(Finding(

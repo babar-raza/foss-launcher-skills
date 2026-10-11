@@ -1,0 +1,1 @@
+def test_constant_group_pop_when_first_defined_inside(self) -> None:

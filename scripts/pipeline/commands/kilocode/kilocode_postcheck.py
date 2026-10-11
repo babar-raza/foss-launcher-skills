@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Post-skill validation: verify outputs against repository rules.
 
 This script provides post-execution validation for Kilo Code to ensure

@@ -1,14 +1,20 @@
+<!-- CONTRACT: agent-executed
+     purpose: governed diagnostic for skill/pipeline failures with structured classification
+     preconditions: error message or unexpected output from a failed skill
+     postcondition: failure classified (CONFIG/DATA/CODE/GOVERNANCE/REGRESSION); resolution path identified or escalated
+     idempotent: yes — same failure input produces same classification and diagnostic steps
+     verified: 2026-04-11
+-->
 ---
 name: diagnose-skill-failure
-id: S-72
 description: >
-  Governed diagnostic procedure for skill or pipeline failures. Classifies
-  failure as CONFIG/DATA/CODE/GOVERNANCE/REGRESSION and routes to resolution
-  or AGENTS.md §8 escalation.
+  Governed diagnostic procedure for skill or pipeline failures; classifies failure as CONFIG/DATA/CODE/GOVERNANCE/REGRESSION and routes to resolution or §8 escalation
 args: "{skill-id} {error-summary}"
 ---
 
-# S-72: Diagnose Skill Failure — Governed Diagnostic Procedure
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-67: Diagnose Skill Failure — Governed Diagnostic Procedure
 
 **Arguments**: $ARGUMENTS
 Expected format: `{skill-id} {error-summary}` — e.g., `S-26 "audit.py FAIL on cells/python"`
@@ -30,6 +36,12 @@ None. This skill can be invoked at any point when a skill or pipeline step fails
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-67 --scope "*"
+> ```
+
+
 ### Step 1: Capture the failure context
 
 Record exactly:
@@ -43,65 +55,68 @@ Record exactly:
 
 | Class | Indicators | Example |
 |-------|-----------|---------|
-| **CONFIG** | Missing file, wrong path, environment not set up | Python not found; script not found; `CONTENT_REPO_PATH` unset |
-| **DATA** | Bad input — malformed frontmatter, unknown API tokens, missing knowledge model | `model.yaml` not found; evidence block invalid |
+| **CONFIG** | Missing file, wrong path, environment not set up | `.venv` not active; script not found |
+| **DATA** | Bad input — malformed frontmatter, unknown API tokens, missing knowledge model | `model.yaml` not found; provenance block invalid |
 | **CODE** | Script raises exception not related to input data | Python traceback from library; assertion error |
-| **GOVERNANCE** | Forbidden path, missing registry entry, internal skill invoked directly | `path-guard` DENY; skill not in registry |
+| **GOVERNANCE** | Forbidden path, override token missing or expired, DAR precondition not met | `override_manager.py` DENY; DAR entry missing |
 | **REGRESSION** | A previously-passing check now fails after a content or code change | Grade downgraded; audit.py findings increased |
 
 ### Step 3: Run targeted diagnostics by class
 
 **CONFIG failures:**
 ```bash
-# Check Python version
-python --version
+# Check Python environment
+.venv/Scripts/python --version   # Windows
+.venv/bin/python --version        # Unix
 
 # Check script existence
 ls scripts/pipeline/{failed-script}.py
 
 # Check knowledge model
 ls knowledge/{family}/{platform}/merged/model.yaml
-
-# Check CONTENT_REPO_PATH is set
-python scripts/check_setup.py
 ```
 
 **DATA failures:**
 ```bash
-# Check evidence block
-python scripts/pipeline/commands/content/audit.py --files {filepath}
-
 # Validate frontmatter structure
-python -c "import yaml; yaml.safe_load(open('{filepath}').read())"
+.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py --files {filepath}
+
+# Check evidence block
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {filepath}
+
+# Check for unknown API tokens
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {filepath} --dry-run
 ```
 
 **CODE failures:**
 ```bash
 # Run the script's own unit tests
-python -m pytest tests/ -v -k "{script-name}"
+PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/ -v -k "{script-name}"
 
 # Check for import errors
-python -c "import scripts.pipeline.{module}"
+.venv/Scripts/python -c "import scripts.pipeline.{module}"
 ```
 
 **GOVERNANCE failures:**
 ```bash
-# Check skill registry
-python scripts/validate_skills.py
+# Check override token status
+.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py list
 
-# Check sync status
-python scripts/sync_commands.py --check
-python scripts/sync_agents.py --check
+# Check DAR coverage
+.venv/Scripts/python scripts/ci/checks/check_dar_coverage.py
+
+# Check skill sync parity
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 ```
 
 **REGRESSION failures:**
 ```bash
+# Check grade trajectory
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py --files {filepath} --check-only
+
 # Check what changed
 git diff HEAD~1 -- {filepath}
 git diff HEAD~1 -- knowledge/{family}/{platform}/
-
-# Re-run eval
-python scripts/pipeline/content_eval/__main__.py --files {filepath}
 ```
 
 ### Step 4: Attempt resolution
@@ -112,8 +127,8 @@ For CODE failures: run the script's unit tests to determine if this is a known b
 environment issue. Do not modify the script to work around the failure — that requires a
 separate code change with human review.
 
-For GOVERNANCE failures: satisfy the registry/sync/path-guard precondition before proceeding.
-Do not skip governance checks.
+For GOVERNANCE failures: obtain the required override token or satisfy the DAR precondition
+before proceeding. Do not skip governance checks.
 
 For REGRESSION failures: determine whether the regression is in the content (acceptable to
 fix via the appropriate skill) or in the pipeline scripts (requires human review).
@@ -130,6 +145,11 @@ If the failure cannot be resolved via Steps 3–4, write to
 **Date:** {ISO date}
 **Reported by:** {agent or human}
 
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-67 --status completed
+> ```
+
 ## Failure summary
 {One sentence: what failed, where, with what input}
 
@@ -137,7 +157,9 @@ If the failure cannot be resolved via Steps 3–4, write to
 {CONFIG | DATA | CODE | GOVERNANCE | REGRESSION}
 
 ## Exact error
+```
 {verbatim error output}
+```
 
 ## Diagnostics run
 {list of diagnostic commands and their output}

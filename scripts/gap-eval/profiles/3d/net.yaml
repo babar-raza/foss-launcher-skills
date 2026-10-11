@@ -1,0 +1,32 @@
+family: 3d
+platform: net
+version: 1
+
+discovery_hints:
+  package_source_file: src/main/Aspose.ThreeD/Aspose.ThreeD.csproj
+  package_extraction: "xpath://PackageId"
+  language: csharp
+  format_source_glob: "src/**/Formats/**/*.cs"
+  stub_search_hints:
+    - "throw new NotImplementedException"
+    - "// TODO"
+  runtime_requirement_source: src/main/Aspose.ThreeD/Aspose.ThreeD.csproj
+
+discovered_actuals:
+  package_name: "Aspose.3D"
+  import_path: "Aspose.ThreeD"
+  package_source_actual: src/main/Aspose.ThreeD/Aspose.ThreeD.csproj
+  format_files_found: null
+  last_baseline_sha: 5257b01390b17aee0644d4ffce119e6cc7125141
+
+language_conventions:
+  method_naming: PascalCase
+  enum_values: PascalCase
+  pass_by: value
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Check that AGENTS.md skill registry matches canonical skills/ directory.
 
 Detects:
@@ -22,11 +21,10 @@ from __future__ import annotations
 import json
 import logging
 import re
-import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 AGENTS_MD = _REPO_ROOT / "AGENTS.md"
 SKILLS_CHILD_DOC = _REPO_ROOT / "docs" / "registries" / "skills.md"
 SKILLS_DIR = _REPO_ROOT / "skills"
@@ -40,11 +38,11 @@ PROVIDER_TREES = {
 
 # Regex for AGENTS.md §12 table rows: | slug | S-XX | description |
 _REGISTRY_ROW_RE = re.compile(
-    r"^\|\s*([\w-]+)\s*\|\s*(S-\d+)\s*\|", re.MULTILINE
+    r"^\|\s*([\w-]+)\s*\|\s*(S-[A-Z0-9-]+)\s*\|", re.MULTILINE
 )
 
 # Regex for S-XX in skill file headers: # S-XX: Name or # S-XX — Name
-_SKILL_ID_RE = re.compile(r"#\s*(S-\d+)")
+_SKILL_ID_RE = re.compile(r"#\s*(S-[A-Z0-9-]+)")
 
 
 def _load_skills_source() -> str:

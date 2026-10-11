@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """refresh_harness.py — TC-PROD-006: Forced validation harness for the refresh architecture.
 
 Runs the refresh decision engine against real or synthetic state and produces
@@ -61,12 +60,53 @@ from reconciliation_ledger import (
     load_tc_closure_conditions,
 )
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 
-_VALID_MODES = frozenset({"dry-run", "validate-only", "force-reconcile", "synthetic-input-change"})
+_VALID_MODES = frozenset({"dry-run", "validate-only", "force-reconcile", "synthetic-input-change", "auto"})
 
 _REGISTRY_PATH = _REPO_ROOT / "data" / "refresh-dependencies.json"
 _FEATURE_FLAGS_PATH = _REPO_ROOT / "data" / "refresh-feature-flags.json"
+
+
+# ---------------------------------------------------------------------------
+# configure() seam — T1/T2 compliance (AGENTS.md §16.2)
+# ---------------------------------------------------------------------------
+
+_cfg_registry_path = None
+_cfg_load_registry_fn = None
+_cfg_load_manifest_fn = None
+_cfg_inspect_output_state_fn = None
+_cfg_collect_fingerprints_fn = None
+_cfg_validate_for_fresh_fn = None
+_cfg_load_feature_flags_fn = None
+_cfg_write_manifest_gated_fn = None
+_cfg_dispatch_content_write_fn = None
+
+
+def configure(
+    registry_path=None,
+    load_registry_fn=None,
+    load_manifest_fn=None,
+    inspect_output_state_fn=None,
+    collect_fingerprints_fn=None,
+    validate_for_fresh_fn=None,
+    load_feature_flags_fn=None,
+    write_manifest_gated_fn=None,
+    dispatch_content_write_fn=None,
+) -> None:
+    """Inject test dependencies. Call configure() with no args to reset to production defaults."""
+    global _cfg_registry_path, _cfg_load_registry_fn, _cfg_load_manifest_fn
+    global _cfg_inspect_output_state_fn, _cfg_collect_fingerprints_fn, _cfg_validate_for_fresh_fn
+    global _cfg_load_feature_flags_fn, _cfg_write_manifest_gated_fn, _cfg_dispatch_content_write_fn
+    _cfg_registry_path = registry_path
+    _cfg_load_registry_fn = load_registry_fn
+    _cfg_load_manifest_fn = load_manifest_fn
+    _cfg_inspect_output_state_fn = inspect_output_state_fn
+    _cfg_collect_fingerprints_fn = collect_fingerprints_fn
+    _cfg_validate_for_fresh_fn = validate_for_fresh_fn
+    _cfg_load_feature_flags_fn = load_feature_flags_fn
+    _cfg_write_manifest_gated_fn = write_manifest_gated_fn
+    _cfg_dispatch_content_write_fn = dispatch_content_write_fn
 
 
 # ---------------------------------------------------------------------------
@@ -128,11 +168,7 @@ def _collect_fingerprints_with_overrides(
     import sys as _sys
     collection_errors = []
     try:
-        try:
-            from fingerprint_collector import collect_input_fingerprints
-        except ImportError:
-            collection_errors.append("fingerprint_collector not available in foss")
-            return fingerprints
+        from fingerprint_collector import collect_input_fingerprints
         fp_set = collect_input_fingerprints(product, subdomain, registry)
         fingerprints = fp_set.to_dict()
         if fp_set.collection_errors:
@@ -201,6 +237,105 @@ def _inspect_output_state(product: str, subdomain: str, registry) -> OutputState
 
 _STATE_ROOT = _REPO_ROOT / "runs" / "state"
 
+# Verdicts that allow Phase 5 content writes (semantic guard exit_code == 0).
+_PHASE5_PASSING_VERDICTS = frozenset({
+    "BODY_UPDATED_VERIFIED",
+    "EXISTING_IMPACTED_PAGES_UPDATED_VERIFIED",
+    "SEMANTIC_NOOP_PROVEN",
+    "GRADING_REMEDIATION_REQUIRED",
+    "INITIAL_REFRESH_ALLOWED",
+})
+# Verdicts that require aborting the run entirely (exit_code == 2).
+_PHASE5_ABORT_VERDICTS = frozenset({
+    "CLAIM_EXTRACTION_MISSED_DELTA",
+    "PAGE_MAPPING_MISSED_IMPACT",
+})
+
+
+def _dispatch_content_write(
+    product: str,
+    subdomain: str,
+    decision: str,
+    flags: dict,
+    no_write: bool,
+) -> "tuple[bool, str]":
+    """Dispatch a content regeneration for a REGENERATE_UPSTREAM or REGENERATE_GENERATOR decision.
+
+    Gate 3b: Called when refresh_content_write_enabled=True and the decision is a
+    REGENERATE_* type. Reads the semantic_refresh_verdict.json produced by
+    semantic_refresh_guard.py for this product to determine whether writes are safe.
+
+    Pre-conditions (caller must ensure):
+      - decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR")
+      - refresh_content_write_enabled == True
+      - no_write == False
+
+    Verdicts and behaviour:
+      - Exit 0 verdicts (PASSING) → block direct mutation and route to refresh_run.py
+      - Exit 1 verdicts (BLOCKING) → skip with BLOCKED note; run continues
+      - Exit 2 verdicts (ABORT) → raise RuntimeError; caller must stop the run
+      - No verdict file → skip with advisory note
+
+    Returns:
+        (written: bool, note: str) where:
+          written=False → skipped or routed to the run-bound orchestrator
+
+    Raises:
+        RuntimeError: If verdict is an abort-class (exit_code 2).
+    """
+    import sys as _sys
+
+    family, platform = product.split("/", 1)
+    verdict_path = (
+        _REPO_ROOT / "reports" / "refresh_review" / family / platform
+        / "semantic_refresh_verdict.json"
+    )
+
+    if not verdict_path.is_file():
+        print(
+            f"[PHASE5-SKIP] No semantic_refresh_verdict.json for {product}/{subdomain} — "
+            "content write skipped (run semantic_refresh_guard.py first)",
+            file=_sys.stderr,
+        )
+        return False, "content write skipped (no semantic_refresh_verdict.json found)"
+
+    try:
+        verdict_data = json.loads(verdict_path.read_text(encoding="utf-8"))
+        verdict_name = verdict_data.get("verdict", "UNKNOWN")
+    except Exception as exc:
+        print(
+            f"[PHASE5-SKIP] Failed to read verdict for {product}/{subdomain}: {exc}",
+            file=_sys.stderr,
+        )
+        return False, f"content write skipped (verdict read failed: {exc})"
+
+    # Exit 2 class: abort the run — manual investigation required.
+    if verdict_name in _PHASE5_ABORT_VERDICTS:
+        raise RuntimeError(
+            f"PHASE5_ABORT: semantic guard verdict={verdict_name!r} for "
+            f"{product}/{subdomain} requires manual investigation before content writes."
+        )
+
+    # Exit 1 class: blocked — skip write, continue run.
+    if verdict_name not in _PHASE5_PASSING_VERDICTS:
+        print(
+            f"[PHASE5-BLOCKED] Semantic guard verdict={verdict_name!r} for "
+            f"{product}/{subdomain} — content write blocked",
+            file=_sys.stderr,
+        )
+        return False, f"content write blocked (semantic guard verdict={verdict_name!r})"
+
+    # Exit 0 class: this legacy harness is diagnostic only. Production writes
+    # require the run-bound S-84 control plane; silently inventing a run ID here
+    # would recreate the cross-run attribution defect.
+    print(
+        f"[PHASE5-BLOCKED] Direct content dispatch is disabled for "
+        f"{product}/{subdomain}; start refresh_run.py with an explicit mode, "
+        "scope, and session identity",
+        file=_sys.stderr,
+    )
+    return False, "content write blocked (use run-bound refresh_run.py)"
+
 
 def _restore_backup(manifest_path: Path, backup_path: Path) -> None:
     """Restore manifest from pre-Gate-3 backup using os.replace.
@@ -239,6 +374,8 @@ def _write_manifest_gated(
     flags: dict,
     no_write: bool,
     state_root: Optional[Path] = None,
+    _save_fn=None,
+    _load_fn=None,
 ) -> "tuple[bool, str]":
     """Attempt a gated manifest write after a confirmed FRESH decision.
 
@@ -249,7 +386,6 @@ def _write_manifest_gated(
     Pre-conditions (caller must ensure):
       - d.decision == "FRESH"
       - validate_for_fresh() returned [] (no violations)
-      - refresh_content_write_enabled == False (hard-blocked by caller too)
 
     Args:
         product: Product slug "family/platform".
@@ -267,24 +403,17 @@ def _write_manifest_gated(
           written=True  -> manifest written and verified successfully
           written=False -> skipped (note explains why) or FAILED (note contains "FAILED")
 
-    Raises:
-        RuntimeError: If refresh_content_write_enabled=True (HARD_BLOCK).
     """
     import sys as _sys
     import datetime
     import shutil
     from freshness_manifest import FreshnessManifest as _FM
-    from freshness_manifest import save as _fm_save
-    from freshness_manifest import load as _fm_load
+    from freshness_manifest import save as _fm_save_default
+    from freshness_manifest import load as _fm_load_default
+    _fm_save = _save_fn if _save_fn is not None else _fm_save_default
+    _fm_load = _load_fn if _load_fn is not None else _fm_load_default
 
     effective_state_root: Path = state_root if state_root is not None else _STATE_ROOT
-
-    # HARD_BLOCK: content writes are never permitted — defense-in-depth (caller also checks).
-    if flags.get("refresh_content_write_enabled", False):
-        raise RuntimeError(
-            "HARD_BLOCK: refresh_content_write_enabled=True is not permitted. "
-            "This flag must remain false throughout Gate 3."
-        )
 
     # Guard: manifest write flag must be enabled.
     if not flags.get("refresh_manifest_write_enabled", False):
@@ -436,8 +565,9 @@ def run_harness(
     if mode not in _VALID_MODES:
         raise ValueError(f"Invalid mode {mode!r}. Must be one of: {sorted(_VALID_MODES)}")
 
-    if not _REGISTRY_PATH.is_file():
-        raise ValueError(f"Registry not found: {_REGISTRY_PATH}")
+    _eff_registry_path = _cfg_registry_path if _cfg_registry_path is not None else _REGISTRY_PATH
+    if not _eff_registry_path.is_file():
+        raise ValueError(f"Registry not found: {_eff_registry_path}")
 
     synthetic_overrides = synthetic_overrides or {}
 
@@ -445,7 +575,8 @@ def run_harness(
     if not run_id:
         run_id = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
 
-    registry = load_registry(_REGISTRY_PATH)
+    _eff_load_registry = _cfg_load_registry_fn if _cfg_load_registry_fn is not None else load_registry
+    registry = _eff_load_registry(_eff_registry_path)
     tc_conditions = load_tc_closure_conditions(repo_root=_REPO_ROOT)
 
     # Determine which subdomains to evaluate
@@ -473,12 +604,13 @@ def run_harness(
             continue
 
         # Collect fingerprints (with in-memory overrides for synthetic mode)
+        _eff_collect = _cfg_collect_fingerprints_fn if _cfg_collect_fingerprints_fn is not None else _collect_fingerprints_with_overrides
         if mode == "synthetic-input-change":
-            fingerprints = _collect_fingerprints_with_overrides(
+            fingerprints = _eff_collect(
                 product, subdomain, registry, synthetic_overrides
             )
-        elif mode in ("dry-run", "validate-only", "force-reconcile"):
-            fingerprints = _collect_fingerprints_with_overrides(
+        elif mode in ("dry-run", "validate-only", "force-reconcile", "auto"):
+            fingerprints = _eff_collect(
                 product, subdomain, registry, {}
             )
         else:
@@ -492,10 +624,12 @@ def run_harness(
         if mode == "force-reconcile":
             stored = None
         else:
-            stored = load_manifest(product, subdomain)
+            _eff_load_manifest = _cfg_load_manifest_fn if _cfg_load_manifest_fn is not None else load_manifest
+            stored = _eff_load_manifest(product, subdomain)
 
         # Inspect output state
-        current_outputs = _inspect_output_state(product, subdomain, registry)
+        _eff_inspect = _cfg_inspect_output_state_fn if _cfg_inspect_output_state_fn is not None else _inspect_output_state
+        current_outputs = _eff_inspect(product, subdomain, registry)
 
         # Compute decision
         d = decide(product, subdomain, fingerprints, current_outputs, stored)
@@ -507,7 +641,8 @@ def run_harness(
         if d.decision == "FRESH":
             output_hash = current_outputs.output_content_hash if current_outputs else None
             generator_path = getattr(surface, "backing_generator", None)
-            violations = validate_for_fresh(
+            _eff_validate = _cfg_validate_for_fresh_fn if _cfg_validate_for_fresh_fn is not None else validate_for_fresh
+            violations = _eff_validate(
                 fingerprints,
                 output_hash,
                 generator_path=generator_path,
@@ -532,20 +667,18 @@ def run_harness(
                     changed_input_fingerprints=[],
                 )
 
+        # Gate 3: load feature flags once for both Gate 3a and Gate 3b.
+        _eff_load_ff = _cfg_load_feature_flags_fn if _cfg_load_feature_flags_fn is not None else load_feature_flags
+        _gate3_flags = _eff_load_ff()
+
         # Gate 3a: gated manifest write (refreshes manifest timestamp on confirmed FRESH decision).
-        # Only executes when refresh_manifest_write_enabled=True, refresh_reconciliation_enforced=True,
-        # refresh_content_write_enabled=False, decision==FRESH, and no_write=False.
+        # Executes when refresh_manifest_write_enabled=True, refresh_reconciliation_enforced=True,
+        # decision==FRESH, and no_write=False.
         manifest_write_note = ""
         if d.decision == "FRESH":
-            _gate3_flags = load_feature_flags()
-            # HARD_BLOCK: content writes are never permitted — halt entire run if detected.
-            if _gate3_flags.get("refresh_content_write_enabled", False):
-                raise RuntimeError(
-                    "HARD_BLOCK: refresh_content_write_enabled=True detected in Gate 3 path. "
-                    "This flag must remain false. Halting run."
-                )
             if not no_write and _gate3_flags.get("refresh_manifest_write_enabled", False):
-                _written, manifest_write_note = _write_manifest_gated(
+                _eff_wmg = _cfg_write_manifest_gated_fn if _cfg_write_manifest_gated_fn is not None else _write_manifest_gated
+                _written, manifest_write_note = _eff_wmg(
                     product=product,
                     subdomain=subdomain,
                     fingerprints=fingerprints,
@@ -568,6 +701,22 @@ def run_harness(
                         changed_input_fingerprints=[],
                     )
 
+        # Gate 3b: content write dispatch for REGENERATE decisions (Phase 5).
+        # Executes when refresh_content_write_enabled=True, decision is REGENERATE_UPSTREAM
+        # or REGENERATE_GENERATOR, and no_write=False. Reads semantic_refresh_verdict.json
+        # to determine whether the write is safe. Exit-2 verdicts raise RuntimeError.
+        content_write_note = ""
+        if d.decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR"):
+            if not no_write and _gate3_flags.get("refresh_content_write_enabled", False):
+                _eff_dcw = (
+                    _cfg_dispatch_content_write_fn
+                    if _cfg_dispatch_content_write_fn is not None
+                    else _dispatch_content_write
+                )
+                _wrote_content, content_write_note = _eff_dcw(
+                    product, subdomain, d.decision, _gate3_flags, no_write
+                )
+
         # Determine outcome for this mode
         # In dry-run: no action taken, outcome = SKIP (decision captured only)
         # In validate-only / synthetic: outcome mirrors decision (no writes)
@@ -578,6 +727,11 @@ def run_harness(
             outcome = BLOCKED
         elif d.decision == "FRESH":
             outcome = "SKIP"
+        elif d.decision in ("REGENERATE_UPSTREAM", "REGENERATE_GENERATOR"):
+            if content_write_note and "SUCCEEDED" in content_write_note:
+                outcome = "CONTENT_WRITTEN"
+            else:
+                outcome = "SKIP"  # write skipped or not enabled
         else:
             outcome = "SKIP"  # shadow mode: observe, don't act
 
@@ -586,12 +740,14 @@ def run_harness(
             # In a real run this would point to the manifest file
             manifest_proof_path = f"runs/state/{product}/{subdomain}/freshness-manifest.json"
 
-        # Build explanation: append collection errors and manifest write notes.
+        # Build explanation: append collection errors, manifest write notes, and content write notes.
         explanation = d.explanation
         if fp_collection_errors:
             explanation = (explanation + " | collection_errors: " + "; ".join(fp_collection_errors)).lstrip(" | ")
         if manifest_write_note:
             explanation = (explanation + " | " + manifest_write_note).lstrip(" | ")
+        if content_write_note:
+            explanation = (explanation + " | " + content_write_note).lstrip(" | ")
 
         record = SurfaceRecord(
             product=product,

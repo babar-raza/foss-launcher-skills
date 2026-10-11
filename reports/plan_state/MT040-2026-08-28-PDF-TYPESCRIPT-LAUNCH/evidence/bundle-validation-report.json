@@ -1,0 +1,61 @@
+{
+  "bundle_path": "reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/MT040-evidence-20260831-1051.zip",
+  "zip_size_bytes": 92950,
+  "zip_sha256": "11bb5375a78d0ec1d7140586010fa88dfd7141b0138ad5e64e6d423df56dd05e",
+  "checks": [
+    {
+      "check": "zip_readable",
+      "status": "PASS",
+      "detail": "ZIP is valid"
+    },
+    {
+      "check": "manifest_exists",
+      "status": "PASS",
+      "detail": "Found: ['evidence/evidence-manifest.json']"
+    },
+    {
+      "check": "bundle_validation_exists",
+      "status": "PASS",
+      "detail": "Found: ['evidence/bundle-validation.json']"
+    },
+    {
+      "check": "manifest_files_present",
+      "status": "PASS",
+      "detail": "All manifest files present in ZIP"
+    },
+    {
+      "check": "head_consistency",
+      "status": "FAIL",
+      "detail": "Multiple HEAD SHAs found: {'1ace625a02c505578d1b9e818e48960eebb5cdb4': ['evidence/00-final-verdict.md', 'evidence/bundle-validation.json', 'evidence/commit-log-segment.txt'], 'e69005b9b5cc5499ae1616f5f8db2bb8802da572': ['evidence/00-final-verdict.md', 'evidence/bundle-validation.json', 'evidence/evidence-manifest.json'], '267b24004b497780af6106140bea3761b96435fc': ['evidence/00-final-verdict.md', 'evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '3b3cfcb61fb9ba6a04b9075210358bde5349a7b1': ['evidence/baseline/plan-at-start.md', 'evidence/bundle-validation.json', 'evidence/evidence-manifest.json'], 'fb90faa894c9247f50c30084e8604dcf01275165': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '17ef0ae75b0c8fd0c99bfed2ba451c3f6d6bec9c': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '069204d5a79f4e7033c3a1abed7025bd59bc5e52': ['evidence/bundle-validation.json', 'evidence/commit-log-segment.txt'], '9165890e846dc1d752b90bb1f7577c432d0b1416': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], 'c95f9fd588551b3e59a2d0fd3f7164d02f6dd555': ['evidence/bundle-validation.json', 'evidence/commit-log-segment.txt'], 'be0a420a1069025284f24d895958fa810b2197a0': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '202e4a7b97f0e4963fedf598ac47ed22bce22181': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '5cc134cb2b1c53709f4746f23dcbd378950e7287': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '63a35c3391c037013b104bdb36045e23cc96f8b5': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '5ba28490ecd47162ecde78aad84d477b21bdd810': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '48ac9c28322378216a056fa8801ebf425ddf40db': ['evidence/bundle-validation.json', 'evidence/commit-log-segment.txt'], '04042af3918003e031bcdd72bd39acbb76021dd9': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '7338acf497a846bd40e9cba6fd73c3ba21b92b06': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], 'c8e92b66bf660ad285557046d19377aa1939f055': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '8cf9f738e30b284cf74763609317b1bb9a416f9f': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], 'f26e8b3951cbe17f178f53fa54a8ad2169a2a7cb': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '13a4b247d3f4c06785a666c517db49998c8c50eb': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '2a166368cee8f053ed49c25e4c9d61629ae2178f': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '9e10df0f0b5b5a119ed0e1f79c3314ae8af7ed22': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '7a4172cf910736ac9718e9b698a341f66f7944aa': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '0143e78538b22ce96a9ab2ab229cd237cf220f6d': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '95e6c0ff17de0b577d787beb404ff32e985b5295': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '9b0f5e1a558ad9f28a4ff1b6514254e0740eb65b': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json'], '0dacc8eb8ea43d6b45516098eebda015b39b0cc9': ['evidence/bundle-validation.json', 'evidence/taskcard-state.json']}"
+    },
+    {
+      "check": "no_open_taskcards",
+      "status": "PASS",
+      "detail": "No PROPOSED/IN_PROGRESS taskcards"
+    },
+    {
+      "check": "final_verdict_exists",
+      "status": "PASS",
+      "detail": "Found: ['evidence/00-final-verdict.md']"
+    },
+    {
+      "check": "zip_stats_consistent",
+      "status": "PASS",
+      "detail": "ZIP stats absent in bundle-validation.json (sidecar pattern) \u2014 external verification required"
+    },
+    {
+      "check": "checksums_file_exists",
+      "status": "PASS",
+      "detail": "Found: ['evidence/evidence-checksums.sha256']"
+    },
+    {
+      "check": "taskcard_terminal_status",
+      "status": "PASS",
+      "detail": "All taskcards have terminal statuses"
+    }
+  ],
+  "overall": "FAIL",
+  "pass_count": 9,
+  "fail_count": 1,
+  "total_checks": 10
+}

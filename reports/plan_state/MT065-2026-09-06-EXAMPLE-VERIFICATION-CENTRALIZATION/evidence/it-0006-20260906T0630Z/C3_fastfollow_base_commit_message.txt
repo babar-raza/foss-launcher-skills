@@ -1,0 +1,44 @@
+feat(example-verification): C3 fast-follow -- runners/base.py tier-ladder abstraction
+
+Independent review of C3's runner-extraction work (commits 21c1281ead,
+dae315b99b, 270edb6740/da6a01e593, 7f9b12e17d) returned ACCEPT but flagged
+a real gap: runners/base.py is one of C3's five deliverables per the
+governing plan's own rollout section, and C5 (the Go/.NET runners) is
+explicitly instructed to "Implement on runners/base.py, not as triads
+inside readme_refresh_run.py" -- a real, concrete dependency, not just an
+abstract design nicety. Building it now rather than leaving it for later.
+
+Adds runners/base.py: a runtime-checkable LanguageRunner Protocol
+(starts_chain/acquire/compile/execute/classify + canonical_lang/
+ceiling_tier) and BaseRunner, which climbs the shared tier ladder once
+(syntax -> cache -> acquire -> chain grouping -> compile -> execute) so a
+future concrete runner (C5 Go/.NET, C11-C14 Java/Rust/C++) implements only
+the 5-method protocol instead of reinventing this orchestration a third
+and fourth time.
+
+Deliberately NOT retrofitted onto runners/python.py/typescript.py in this
+same commit -- those are faithful, parity-proven ports of already-live
+production code; retrofitting proven code onto a brand-new, only
+synthetically-tested abstraction in the same commit risks exactly the
+regression this taskcard's own promotion gate exists to catch. A future
+taskcard can retrofit both once 3+ concrete runners exist to derive the
+real shared shape from, rather than guessing it from 2.
+
+Also deliberately does NOT implement Round 3 F's single-execution-chain-
+with-sentinel-markers redesign -- that's explicit Phase 2 scope (not yet
+its own taskcard); chain grouping here uses the same n^2-per-chain
+re-execution already proven in runners/python.py/typescript.py, keeping
+this "behind parity" rather than silently committing every future runner
+to an untested new chain strategy.
+
+16 tests, using a synthetic toy LanguageRunner (real tier-1 syntax
+checking via the real "python" tree-sitter grammar, but fully scripted
+acquire/compile/execute so nothing here spawns a real subprocess/venv/
+network call) covering the full tier ladder, chain grouping
+(DEPENDS-ON-FAILED-BLOCK, continues_example), and cache hit/miss
+(including a real cache-key invalidation test on clone_head change).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

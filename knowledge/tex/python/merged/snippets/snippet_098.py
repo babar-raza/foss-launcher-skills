@@ -1,0 +1,1 @@
+def test_chardef_value_as_integer_via_parse_integer(self) -> None:

@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_test_post_limit.py — CI gate: enforce test row count limits.
 
 Counts test_submit posted markers in reports/metrics/posted/ and verifies they
@@ -9,6 +8,8 @@ do not exceed:
 Identification: posted markers with mode == "test_submit".
 Ignores production_submit markers. No network calls.
 
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
+TC-GS-CONTROL-001: scanner path and detection fix (2026-05-08).
 
 Usage:
     python scripts/ci/checks/check_metrics_test_post_limit.py
@@ -25,12 +26,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_POSTED_DIR = _REPO_ROOT / "reports" / "metrics" / "posted"
 
 DEFAULT_MAX_PER_SPRINT = 2

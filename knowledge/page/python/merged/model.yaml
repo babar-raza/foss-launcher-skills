@@ -1,0 +1,38 @@
+bundle_generated_at: '2026-09-19T11:54:45.860310+00:00'
+bundle_id: 29a68c2b-e3e0-4e2d-ac62-b29de12dc73e
+config_sha: e24f998c0d721fd3
+enrichment_status: full
+extractor_hash: eac3c140f21ca3ff
+family: page
+generator_fingerprint: d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 946a3458bd1880d41b548cfb7b97fed918a6f8a1bd284dea93d6bc6ebc23d772
+  extractor_config_sha: e24f998c0d721fd3
+  products_json_entry_sha: 3eaf3e955e9df1a6ea7a3ac71c69b6978f5efa3959681b8d5b1fab3f2df6ba66
+  scout_api_surface_sha: b48ad6bbc9789cb1f50d01cb5ab873a3f7f0f510c3dddb77c39f67e0d3322c34
+  scout_claims_sha: 6412c55bcaaee85b4fa1f611141012d06a2f8e9de2fdd221db4b56130f641b68
+license: ''
+module_assignment_version: 1
+platform: python
+product_name: aspose-page-foss
+promoted_at: '2026-09-19T11:54:45.991366+00:00'
+repo_sha: 46d0eed09d4dda349a1bad27fd1dfd20682ca514
+repo_url: https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 139
+  classes:
+    public_documented: 139
+    raw_entries_including_non_class: 235
+    total_declared: 139
+  enriched_claims: 345
+  forbidden_count: 0
+  scout_claims: 1050
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 1392
+version: ''

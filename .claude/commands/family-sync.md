@@ -1,63 +1,67 @@
-# S-58: Family Sync — Update Family Page for All Launched Platforms
+# S-48: Family Sync — Update Family Page for All Launched Platforms
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family}` — e.g. `email` or `3d`
 
 ## Purpose
 
-Update the family-level `_index.md` at `$CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/_index.md`
+Update the family-level `_index.md` at `content/products.aspose.org/en/{family}/_index.md`
 so its `head_description`, `description`, and `overview.content` fields accurately reflect
 all currently launched platforms. Reads knowledge from each platform, computes shared
 capabilities, and rewrites the three text fields to be platform-agnostic.
 
 ## Pre-conditions
 
-1. Run `/knowledge-bootstrap {family} {platform}` for each platform in the family
-2. Family page must exist at the target path with `layout: family`. If missing, create it manually.
-3. At least one platform product page (`layout: plugin`) must exist for the family
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` for each platform
+   in the family and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
+2. Family page must exist at `content/products.aspose.org/en/{family}/_index.md` with `layout: family`.
+   If missing, it is a structural page that must be created manually — `/new-products-page` creates
+   platform product pages (`layout: plugin`), not family pages. Use the existing family page from
+   another product as a template, stripping platform-specific content.
+3. At least 1 platform subdirectory with `_index.md` (layout: plugin) must exist
+4. Each platform should have merged knowledge at `knowledge/{family}/{platform}/merged/`
 
 ## Steps
 
-1. **Parse arguments**: Extract `{family}`.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-48 --scope "*"
+> ```
 
-2. **Discover launched platforms**: Find all `content/products.aspose.org/en/{family}/{platform}/_index.md`
-   files with `layout: plugin`. These are the launched platforms.
 
-3. **Load knowledge for each platform**:
-   - Read `knowledge/{family}/{platform}/merged/claims.json`
-   - Read `knowledge/{family}/{platform}/merged/model.yaml`
-   - Extract `version`, `canonical_import`, `description` for each platform
+1. **Discover platforms** — scan family directory for platform subdirs with plugin pages and knowledge
+2. **Build platform list** — .NET first if present, then alphabetical; Oxford comma formatting
+3. **Compute unified features** — aggregate feature claims across platforms; shared (all) vs partial (>=50%); exclude limitations
+4. **Read existing family page** — preserve all fields NOT being rewritten
+5. **Rewrite** `head_description`, `description`, `overview.content` using shared claims and platform list
+6. **No-downgrade guard** — invoke before write; halt on BLOCK
+7. **Write** updated `_index.md` — use read-modify-write via `yaml.safe_load` + `yaml.dump`; wrap `overview.content` in a `_Literal` helper before serializing so `yaml.dump` emits it as a `|` block scalar; reconstruct as `"---\n{serialized_fm}---\n\n{body}"` ending with `\n`; never prepend a new FM block to the existing file (causes double frontmatter); verify single FM block after write
+7b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink (idempotent):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --subdomain products.aspose.org --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
+8. **Attach evidence** — `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}`
+9. **Audit** — `python scripts/pipeline/commands/content/audit.py --files {path}` — must exit 0 FAIL
 
-4. **Compute shared capabilities**: Find claims with `confidence >= 0.8` present across ALL
-   launched platforms. These become the family-level feature bullets.
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-48 --status completed
+> ```
 
-5. **Build updated fields**:
-   - `head_description`: Platform-agnostic 160-char SEO summary
-   - `description`: 2-3 sentence overview covering all platforms
-   - `overview.content`: 2-3 paragraphs covering shared capabilities
+## Hard Constraints
 
-6. **Invoke no-downgrade-guard** (S-56): Check if existing family page has a higher quality grade.
-   If BLOCK → do not write; report to user.
+- All claims from knowledge `claims.json` only — no fabrication
+- No format claims unless confirmed in `formats.json` OR in `enriched_claims.json` feature/format claims
+- No limitation denials
+- Overview must NOT name individual platforms — describes the suite generically
+- .NET always first in platform list
+- Idempotent — running twice produces same result
 
-7. **Write** only the three fields (`head_description`, `description`, `overview.content`)
-   in the family page frontmatter. Do NOT modify `layout`, `family_name`, `plugin_platform`,
-   `content.block[]`, `single.block[]`, `faq.list[]`, or any platform-specific sections.
+## Integration
 
-8. **Reattach evidence**:
-   ```bash
-   python scripts/pipeline/commands/content/attach_evidence.py \
-     --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/_index.md
-   ```
-
-9. **Run audit**:
-   ```bash
-   python scripts/pipeline/commands/content/audit.py \
-     --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/_index.md
-   ```
-   Must exit with 0 FAIL.
-
-## Post-conditions
-
-- Family page `head_description`, `description`, `overview.content` updated
-- All platform-specific sections unchanged
-- Evidence block updated; audit passes
+- Standalone: `/family-sync {family}`
+- From `launch-product`: Stage 1.5 — after products page, when family has >= 2 platforms

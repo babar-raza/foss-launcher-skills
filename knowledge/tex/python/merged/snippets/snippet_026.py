@@ -1,0 +1,1 @@
+def test_alignment_body_name_dispatches_through_primitives(self, name: str) -> None:

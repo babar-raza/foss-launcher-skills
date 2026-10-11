@@ -165,6 +165,18 @@ def enrich_doxygen(classes: list[dict], repo_dir: Path) -> int:
                 mname = md.get("name", "")
                 if not mname:
                     continue
+                # Prefer the method's own line number to avoid cross-overload
+                # doc leaking (same overload-name, different signatures).
+                md_line = md.get("line")
+                if md_line is not None:
+                    idx = md_line - 1  # 1-based → 0-based
+                    if 0 <= idx < len(lines):
+                        doc = _extract_doxygen_comment(lines, idx)
+                        if doc:
+                            md["doc"] = doc
+                            enriched += 1
+                    continue
+                # Fallback for records without line info (legacy)
                 for ml in method_lines.get(mname, []):
                     doc = _extract_doxygen_comment(lines, ml)
                     if doc:

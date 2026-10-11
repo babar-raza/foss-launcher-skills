@@ -1,0 +1,105 @@
+mission_authority:
+  mission_id: MT061-2026-09-01-TRACKB-FOLLOWON-2
+  mission_summary: 'Follow-on to the CLOSED mission readme-refresh-trackb-and-followon-2026-09-01
+    (verdict ACCEPTED_VERIFIED, closed 2026-09-01T13:24:35Z). That mission left 5
+    taskcards PAUSED with real, live-tested, disclosed evidence -- none were in its
+    mandatory bar, all are genuine remaining work. This mission re-investigated each
+    from live repo state before binding (per feedback_reverify_before_acting discipline)
+    and found TC-27''s stated blocker no longer holds: the "phase6b critique/determination"
+    document it could not find actually exists at
+    reports/plan_state/readme-refresh-forensic-trust-audit-2026-08-25/phase6b-production-hardening-design.md
+    and gives a concrete, code-verified corrected mechanism (S3.VII) -- confirmed live
+    against readme_refresh_run.py that the exact anti-pattern it warns against (push()
+    marking a product "published" the moment a PR is opened, with zero human-merge
+    verification) is currently shipping. This mission builds one new shared-infrastructure
+    taskcard (TC-41) plus resumes 4 of the 5 paused taskcards under their original IDs
+    (TC-27, TC-17, TC-18, TC-14); TC-B-04 (pdf/python upstream-drift remediation) is
+    explicitly deferred to its own future mission, per user decision. No push to any
+    external product repo without a fresh, explicit, per-PR human go-ahead -- unchanged
+    from both prior missions.
+
+    '
+  governing_plan_path: <local-plan-cache>/investigate-and-plan-the-gentle-stearns.md
+  in_scope_outcomes:
+  - 'TC-41 (NEW): scripts/pipeline/lib/publication_reconciler.py -- record published_blob_sha256
+    fingerprint at reconciliation time (the missing piece TC-17''s own pause evidence
+    named); add a merged_by identity check via gh api confirming the merging actor is
+    not the pipeline''s own bot/token identity, recorded as merged_by_verified_human +
+    merged_by_login. Shared infrastructure both TC-27 and TC-17 depend on.'
+  - 'TC-27 (resume): approve/push gate, PR-merge-based publication gate per phase6b S3.VII
+    -- remove push()''s direct _record_publication() call (readme_refresh_run.py ~line
+    4270); data/readme_published_state.json''s "published" status becomes exclusively
+    reconciler-derived (TC-41''s merged_by_verified_human + IN_SYNC/UNRECORDED_PUBLICATION
+    classification), never a side effect of push()/approve() succeeding.'
+  - 'TC-17 (resume): check_live_published_regression comparing the current live README
+    blob against the recorded published_blob_sha256 (TC-41), not the current local candidate
+    -- the exact conflation that made the naive hard-gate promotion regress 23/28 products
+    when tested live in the parent mission. Plus RC-registry-drift-requeue-trigger using
+    the same recorded-baseline discipline, reusing TC-13''s existing entry_sha256 machinery.'
+  - 'TC-18 (resume): SUPPORT-tier disposition schema migration -- split salient_tokens
+    into literal_tokens (identifier-shaped, safe for literal matching) vs descriptive_tokens
+    (prose, never used for literal matching), per user decision (schema migration over
+    LLM-graded judgment, to preserve the deterministic/offline check-battery design boundary).
+    ACCESSIBILITY tier stays OUT_OF_SCOPE (blocked on Phase 2''s RC-cpp-scout-visibility-signal,
+    S-34/knowledge-enrich-owned, a different skill''s scope).'
+  - 'TC-14 (resume): package-version currency gate, manifest-parsing scope only per user
+    decision -- resolve_manifest_version(family, platform, clone_cache) per language (.csproj,
+    package.json, pyproject.toml/setup.py, pom.xml, Cargo.toml, plus C++/Go once surveyed),
+    wired as an input_manifest.py (TC-13) extension; new check against the README''s own
+    Installation-section version claim. Live-registry (npm/PyPI/NuGet/Maven) comparison
+    stays a disclosed, separate follow-on, not attempted.'
+  out_of_scope_items:
+  - 'TC-B-04 (pdf/python: 122 excerpt-mismatch findings root-caused to genuine independent
+    upstream drift, +145 real new lines of capability) -- per user decision, deferred to
+    its own future mission, effort-comparable to pdf/net''s Batch D. That future mission
+    should consult phase6c-upstream-drift-hardening-assessment.md''s BEHIND_FAST_FORWARD
+    design (re-scout + hand the live-published README to the composer as a required second
+    input) as the production-grade mechanism this case motivates.'
+  - ACCESSIBILITY tier of TC-18 (blocked on Phase 2''s C++ scout is_public field, a different
+    skill''s scope -- not readme-refresh''s)
+  - Live-registry half of TC-14 (npm/PyPI/NuGet/Maven version comparison)
+  - Any push/approve/merge to an external product GitHub repository without a fresh,
+    explicit, per-PR human go-ahead (unchanged from both prior missions -- font/python
+    must never be published)
+  - Re-litigating or re-verifying anything the two prior missions already closed
+  mandatory_acceptance_criteria:
+  - 'TC-41: unit test proves a genuine human-merged PR (3d/net PR #3, babar-raza) classifies
+    merged_by_verified_human: true, and font/python''s already-REVERTED PR #1 classification
+    is unchanged by the new fields'
+  - 'TC-27: unit test proves an agent calling push() end-to-end, including a successful
+    PR-open, cannot cause data/readme_published_state.json to read "published" without
+    a separate, real, human-merged-and-reconciled event -- the exact criterion the parent
+    mission''s TC-16 met for target-authority classification, applied here to publication
+    status itself'
+  - 'TC-17: check_live_published_regression fires zero false positives across a live audit-portfolio
+    --all sweep of the 28 currently-IN_SYNC products before being promoted to a hard gate'
+  - 'TC-18: cells/typescript''s SUPPORT-tier false-positive rate (60% under literal/near-literal
+    matching against the full salient_tokens field) drops to ~0 on the literal_tokens
+    subset after the schema split'
+  - 'TC-14: resolve_manifest_version(''pdf'', ''net'', ...) reproduces the already-manually-verified
+    v26.8.0 from the parent mission''s TC-31, before being trusted on any other product'
+  - Every taskcard closed under this mission meets the same repair-loop standard as both
+    prior missions -- build -> reproduce failing -> fix -> regression-test -> re-verify
+    against real portfolio data, not just unit tests
+  human_authority_boundaries:
+  - Any push/approve/merge to an external product repository
+  - Any decision authorizing font/python republication (unchanged, unresolved upstream
+    GitLab-canonical question)
+  conflicts_found:
+  - 'Root MISSION_AUTHORITY.yaml is currently held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING
+    (unrelated mission, status open, mission_locked: false) -- per the immediate parent
+    mission''s own established precedent, this mission does not take over the root slot;
+    it hand-authors this archive record directly, matching the exact shape mission_authority.py''s
+    own open()/archive_mission() function produces.'
+  - 'Parent mission readme-refresh-trackb-and-followon-2026-09-01 is CLOSED (_archive_status:
+    closed, _closed_at 2026-09-01T13:24:35Z) -- this is a genuinely new mission continuing
+    its disclosed deferred scope, not a reopening of the closed one, per this repo''s own
+    norm that closed missions stay closed and follow-on work gets its own mission id.'
+  - '16 other agent sessions were active at this session''s start (SessionStart hook warning)
+    -- taskcards.jsonl rows for this mission are written via the real TaskcardStore.append()
+    module (FileLock + schema validation), never hand-edited JSONL, per this repo''s own
+    ST-021 concurrent-session-hazard discipline.'
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-09-01T13:35:00Z'
+  _closed_at: '2026-09-01T16:25:39Z'

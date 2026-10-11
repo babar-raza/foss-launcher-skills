@@ -1,16 +1,4 @@
----
-name: truth-audit
-id: S-47
-description: >
-  Line-by-line verification of every API claim in content files against
-  api_surface.json. Extracts class names, method names, property names,
-  constructor signatures, enum values, types, install commands, and format
-  claims, then verifies each against the knowledge model. Produces a
-  structured FAIL/WARN/PASS report.
-args: "{family} {platform}"
----
-
-# S-47: Truth Audit — Member-Level API Verification
+# S-38: Truth Audit — Member-Level API Verification
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` — e.g. `3d java`
@@ -18,6 +6,14 @@ Expected format: `{family} {platform}` — e.g. `3d java`
 ## Purpose
 
 Verify every API claim in content files against `api_surface.json` at the **member level** — not just class existence but individual methods, properties, constructor signatures, enum values, and types. This catches fabricated APIs that pass class-level checks (S-32, S-33, content-check).
+
+## Quick Reference — Verdict Summary
+
+| Verdict | Trigger | Action Required |
+|---------|---------|-----------------|
+| **FAIL** | Method/property/class not in `api_surface.json`, wrong type, wrong install command, contradicted format claim, forbidden claim | Must fix before commit |
+| **WARN** | Unverifiable member (empty methods array), not-implemented feature used without caveat, inherited member on child class | Flag for review; advisory only |
+| **PASS** | Member confirmed in `api_surface.json` or parent class via `class_graph`; format claim matches `formats.md` | No action |
 
 ## Pre-conditions
 
@@ -55,6 +51,19 @@ Adjust verification behavior by tier:
 - **Tier 1** (method_pct ≥ 70%): FAIL on missing methods, properties, and enum values
 - **Tier 2** (method_pct 40–69%): FAIL on missing methods; WARN on missing properties and enum values
 - **Tier 3** (method_pct < 40%): WARN on everything (no FAIL for member-level claims); note that results are unreliable
+
+When `surface_tier == 3` and `{platform}` is `cpp`, print this explicit advisory:
+```
+⚠ WARNING: C++ empty-body stubs are NOT reliably detected by the API surface
+  scanner unless P2-1 (scout.py _detect_cpp_stubs) has been applied and
+  /repo-scout has been re-run. The limitations.md for this product may be
+  INCOMPLETE. Manual review of the FOSS repo source is required before
+  publishing any C++ content:
+    - Check $REPO/include/ and $REPO/src/ for functions returning false/nullptr
+      unconditionally or with empty bodies {}.
+    - Re-run /repo-scout {family} cpp to refresh limitations.md if not done.
+  Do NOT publish C++ content until this advisory is resolved.
+```
 
 ## Content Files to Scan
 
@@ -131,9 +140,19 @@ For each extracted token, verify against knowledge:
 When a method/property is not found directly on a class:
 1. Look up the class in `class_graph` (from index.json or api_surface bases)
 2. Check parent class for the member
-3. If found on parent → PASS (but note inheritance)
-4. If not found on parent either → continue up the chain
+3. If found on parent → PASS (but note inheritance in the report)
+4. If not found on parent either → continue up the chain (repeat steps 1–3 for the parent's parent)
 5. If not found anywhere in hierarchy → FAIL
+
+**Deep inheritance (>2 levels)**: Walk the full chain up to a maximum of 5 levels. If the
+`class_graph` entry for a class is empty (`[]`) or the class does not appear in `class_graph`,
+stop traversal at that point. Do NOT assume a member exists simply because the traversal
+was incomplete — treat unresolvable deep chains as WARN (UNVERIFIABLE), not FAIL, since the
+api_surface extraction may be incomplete for deeply nested hierarchies.
+
+**Circular inheritance**: If the same class appears twice during traversal (circular reference
+in `class_graph`), stop immediately and emit WARN: "Circular inheritance detected for
+{ClassName} — manual review required."
 
 ## Output Format
 
@@ -192,7 +211,7 @@ Files checked: {N}
 
 | Skill | Layer | What it catches |
 |-------|-------|----------------|
-| **S-47 truth-audit** | Member-level | Fabricated methods, properties, wrong types, wrong signatures |
+| **S-38 truth-audit** | Member-level | Fabricated methods, properties, wrong types, wrong signatures |
 | S-32 content-audit | Claim-level | Claims that contradict known facts in claims.json |
 | S-33 change-guard | Block-level | Pre-write check for single text blocks |
 | content-check | Structure-level | Frontmatter, file paths, class-name existence |
@@ -202,3 +221,20 @@ Files checked: {N}
 ## Re-run Policy
 
 This skill is designed to be re-run. After fixing FAILs, re-run to confirm all fixes and check for regressions. A clean run (0 FAILs) is the gate for commit readiness.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

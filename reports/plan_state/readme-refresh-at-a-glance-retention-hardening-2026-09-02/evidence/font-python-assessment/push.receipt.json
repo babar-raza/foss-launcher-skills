@@ -1,0 +1,18 @@
+{
+  "branch": "readme-refresh/2026-09-02",
+  "default_branch": "main",
+  "commit_sha": "8f268f8794101c95c57491581d41f09834a3fcbd",
+  "declared_files": [
+    "README.md"
+  ],
+  "dry_run": false,
+  "prepared_at": "2026-09-02T13:27:40.687809Z",
+  "pr_url": "https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python/pull/2",
+  "target_authority": "mirror",
+  "target_authority_signals": {
+    "zero_parent_head": true,
+    "orphan_root_count": 12,
+    "mirror_text_hit": true
+  },
+  "acknowledge_mirror_target": "User instruction 2026-09-02 to create and merge a PR at this repo; classify_target_authority reports a weekly GitLab re-snapshot mirror -- the user accepts that a later snapshot may overwrite the README; publication is recorded in data/readme_published_state.json either way"
+}

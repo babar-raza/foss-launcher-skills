@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stage3-quality-scoring-rubric.schema.json",
+  "title": "Stage 3 quality scoring rubric (controlled execution)",
+  "description": "Derived verbatim from .supervisor/prompts/prompt3-controlled-execution.md — its Phase 5 list of 15 scoring dimensions, the hard acceptance rule (any required dimension below 4/5 means the item is not accepted), the reroute rule, and the Prompt 3 Verdicts enum. Authored 2026-08-05 under MT021 TC-MT021-07 (backlog ST-060).",
+  "type": "object",
+  "required": ["mission_id", "items", "verdict"],
+  "properties": {
+    "mission_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "verdict": {
+      "type": "string",
+      "enum": ["EXECUTION_COMPLETE_VERIFIED", "EXECUTION_COMPLETE_WITH_LIMITATIONS",
+               "EXECUTION_REROUTED_REWORK_REQUIRED", "PLAN_NOT_READY_HEALED_ONLY",
+               "BLOCKED_BY_FAILED_GATE", "BLOCKED_BY_REPO_SAFETY", "BLOCKED_EXTERNAL",
+               "NEEDS_HUMAN_DECISION"]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["taskcard_id", "scores", "accepted"],
+        "properties": {
+          "taskcard_id": { "type": "string" },
+          "accepted": { "type": "boolean" },
+          "rerouted": { "type": "boolean" },
+          "reroute_reason": { "type": "string" },
+          "scores": {
+            "type": "object",
+            "description": "All 15 dimensions from prompt3 Phase 5. Any required dimension below 4 means the item is not accepted.",
+            "required": [
+              "requirement_correctness", "implementation_correctness",
+              "integration_completeness", "pipeline_compatibility",
+              "governance_compliance", "evidence_completeness", "test_coverage",
+              "validator_coverage", "repeatability", "idempotency",
+              "downstream_consumer_readiness", "agentic_consumption_quality",
+              "rollback_safety_quality", "documentation_skill_agent_sync_quality",
+              "production_readiness"
+            ],
+            "properties": {
+              "requirement_correctness": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "implementation_correctness": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "integration_completeness": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "pipeline_compatibility": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "governance_compliance": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "evidence_completeness": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "test_coverage": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "validator_coverage": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "repeatability": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "idempotency": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "downstream_consumer_readiness": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "agentic_consumption_quality": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "rollback_safety_quality": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "documentation_skill_agent_sync_quality": { "type": "integer", "enum": [1, 2, 3, 4, 5] },
+              "production_readiness": { "type": "integer", "enum": [1, 2, 3, 4, 5] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

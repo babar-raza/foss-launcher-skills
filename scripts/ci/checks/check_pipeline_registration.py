@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """check_pipeline_registration.py — Registry-backed pipeline script governance.
 
@@ -29,6 +28,9 @@ Usage:
     python scripts/ci/checks/check_pipeline_registration.py --dry-run        # exit 0 always
     python scripts/ci/checks/check_pipeline_registration.py --fail-test-gaps # CHECK 4b blocking
     python scripts/ci/checks/check_pipeline_registration.py --warn-test-gaps # CHECK 4b warns (default)
+    python scripts/ci/checks/check_pipeline_registration.py --staged-files <path> [<path> ...]
+        # Scope CHECK 1 to only the given paths (pre-commit use) -- pre-existing
+        # unregistered debt elsewhere on disk is never reported in this mode.
 
 Exit codes:
     0 — all blocking checks pass
@@ -37,11 +39,10 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 REGISTRY_PATH = REPO_ROOT / "scripts" / "pipeline" / "config" / "registry.yaml"
 
 
@@ -56,7 +57,7 @@ def load_registry() -> list[dict]:
     return data.get("scripts", [])
 
 
-def run_checks(dry_run: bool, fail_test_gaps: bool) -> int:
+def run_checks(dry_run: bool, fail_test_gaps: bool, staged_files: "list[str] | None" = None) -> int:
     if not REGISTRY_PATH.exists():
         print(f"ERROR: registry not found at {REGISTRY_PATH}", file=sys.stderr)
         return 1
@@ -103,7 +104,15 @@ def run_checks(dry_run: bool, fail_test_gaps: bool) -> int:
     core_knowledge = pipeline_root / "core" / "knowledge.py"
     if core_knowledge.exists():
         disk_scripts.add("scripts/pipeline/core/knowledge.py")
-    for unregistered in sorted(disk_scripts - registry_paths):
+    unregistered_all = disk_scripts - registry_paths
+    # Staged-scope mode (pre-commit): only report unregistered files that are actually
+    # being staged in this commit -- pre-existing unregistered debt elsewhere on disk
+    # must never block an unrelated commit (same design as check_skill_mirror_parity.py's
+    # and check_knowledge_stats_consistency.py's --staged-files/--staged scoping).
+    unregistered_to_report = (
+        unregistered_all & set(staged_files) if staged_files is not None else unregistered_all
+    )
+    for unregistered in sorted(unregistered_to_report):
         errors.append(f"  [CHECK 1] UNREGISTERED: {unregistered} exists on disk but has no registry entry")
 
     # Every registry entry must exist on disk
@@ -208,8 +217,13 @@ def main() -> int:
                         help="Make CHECK 4 (test coverage) blocking instead of advisory")
     parser.add_argument("--warn-test-gaps", action="store_true",
                         help="CHECK 4 is advisory (default, explicit flag for clarity)")
+    parser.add_argument("--staged-files", nargs="*", default=None,
+                        help="Scope CHECK 1 (unregistered-file completeness) to only these "
+                             "paths -- pre-existing unregistered debt elsewhere is not "
+                             "reported. Omit to run the full, unscoped sweep (CI default).")
     args = parser.parse_args()
-    return run_checks(dry_run=args.dry_run, fail_test_gaps=args.fail_test_gaps)
+    return run_checks(dry_run=args.dry_run, fail_test_gaps=args.fail_test_gaps,
+                       staged_files=args.staged_files)
 
 
 if __name__ == "__main__":

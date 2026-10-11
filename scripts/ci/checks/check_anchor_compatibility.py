@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Verify that all §-references to AGENTS.md resolve to defined sections.
 
 Scans CLAUDE.md, CODEX.md, governance.md (kilocode), skill files, docs/,
@@ -19,11 +17,10 @@ from __future__ import annotations
 
 import json
 import re
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 # Files and directories to scan for §-references

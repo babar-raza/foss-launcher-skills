@@ -1,0 +1,63 @@
+# Workflow cost + CI-health circuit breaker budgets
+# MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE, PHB-03.
+# See scripts/pipeline/lib/workflow_cost_circuit_breaker.py for how these are used.
+
+# --- Cost circuit breaker (magnitude-cap, alert-only) ---
+
+# PROVISIONAL (MT069 HC-05, 2026-09-18): both caps below were set against the
+# PRE-migration baseline and are NOT tuned. After the migrations (and once the
+# private workflows run again) real weekly usage should be far lower, which makes
+# these caps far too loose to catch anything. Re-derive them from a valid
+# post-migration measurement window (MT069 PHB-08) -- do not treat them as calibrated.
+
+# Length, in days, of the collection period the two caps below are defined for.
+# The CLI scales the caps when run with a different --period-days: a 30-day run
+# once compared 2,950 minutes against these WEEKLY caps and "exceeded" them --
+# unlike quantities. Change this only together with the caps.
+cap_period_days: 7
+
+# Static ceiling on total minutes across all workflows in one collection
+# period (weekly). Set well above the real 2026-09-01..18 baseline (1,494
+# min over ~18 days -> ~580 min/week) to avoid noisy false alarms while
+# still catching a genuine multi-x regression.
+max_total_minutes_per_period: 1500
+
+# Static ceiling on any single workflow's minutes in one period. The real
+# top driver (content-governance-checks.yml, 546 min/18 days -> ~212/week)
+# sets the scale; capped higher to leave headroom for legitimate growth.
+max_minutes_per_workflow_per_period: 500
+
+# Rolling-baseline anomaly check: how many periods of real history are
+# required before the anomaly check activates (vs. INACTIVE during warm-up).
+warmup_periods: 3
+
+# Anomaly ceiling = rolling mean * this multiplier. 2.0 catches a doubling,
+# matching the conservative-but-real-signal intent of the design doc.
+anomaly_multiplier: 2.0
+
+# --- CI-health extension (a required check failing continuously) ---
+
+# A workflow needs at least this many scored (success/failure) runs before
+# its failure rate is evaluated at all.
+ci_health_min_runs: 5
+
+# Failure rate at or above this over the last ci_health_min_runs+ runs trips
+# an alert. 0.9 matches the design doc's own example threshold and the real
+# TC-14 incident shape (100% failure, would have tripped immediately).
+ci_health_failure_rate_threshold: 0.9
+
+# Only runs created within this many days count. Without a window the check reads
+# "the last N runs" however old they are, so a workflow that has been DISABLED or
+# MIGRATED AWAY keeps alerting forever on its final historical failures (real: the
+# first live run alerted on skill-governance.yml at 100% and upstream-monitor.yml at
+# 90% -- both from runs made before their fixes / before the workflows went quiet).
+# Fewer than ci_health_min_runs runs in the window => INACTIVE, not an alert.
+ci_health_window_days: 14
+
+# Workflows whose job is DESIGNED to fail when it finds something. A failed run
+# whose ONLY failing steps are the listed ones counts as a success for health
+# purposes (the workflow did its job); any other failing step is a real failure.
+# Keyed by workflow filename; values are exact step names.
+ci_health_by_design_failing_steps:
+  upstream-monitor.yml:
+    - "Fail the job if drift was found (surfaces in workflow status/notifications)"

@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """CI gate: block PRs where EVALUATOR_LOGIC_VERSION diverges from EVALUATOR_FREEZE_VERSION.
 
 Usage:
@@ -14,15 +13,27 @@ freeze constant will fail CI.  See GRADE_CONTRACT.md for the post-freeze
 change protocol.
 """
 import re
-import os
 import sys
 from pathlib import Path
 
 # Repo-root-relative path to content_eval/__init__.py
-_INIT_PATH = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent))) / "scripts" / "pipeline" / "content_eval" / "__init__.py"
+_INIT_PATH = Path(__file__).resolve().parent.parent.parent / "pipeline" / "content_eval" / "__init__.py"
 
 _RE_LOGIC = re.compile(r'^EVALUATOR_LOGIC_VERSION\s*=\s*"(\d+)"', re.MULTILINE)
-_RE_FREEZE = re.compile(r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*(.+)', re.MULTILINE)
+# PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10): the old pattern's trailing
+# `(.+)` captured everything to end-of-line, including any `# comment` after
+# the value -- confirmed live to be broken against the REAL, currently
+# committed __init__.py (which has always carried a trailing comment on this
+# exact line), not merely a hypothetical: read_versions() on the unmodified
+# file returned freeze_version == '18"  # TC-SFH-003: evidence_depth
+# graduated to CANONICAL', silently failing every comparison against a
+# clean logic_version. Bounded to the value's own literal syntax (None, or a
+# single/double-quoted string) so a same-line trailing comment can never
+# leak into the captured group again.
+_RE_FREEZE = re.compile(
+    r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*(None|"[^"]*"|\'[^\']*\')',
+    re.MULTILINE,
+)
 
 
 def read_versions(init_text: str) -> tuple[str, str | None]:
@@ -81,15 +92,7 @@ def main() -> int:
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-    import argparse as _ap
-    _parser = _ap.ArgumentParser(description="Check evaluator freeze consistency.")
-    _parser.add_argument(
-        "--init-path",
-        default=os.environ.get("EVALUATOR_INIT_PATH", str(_INIT_PATH)),
-        help="Path to content_eval/__init__.py",
-    )
-    _args = _parser.parse_args()
-    init_path = Path(_args.init_path)
+    init_path = _INIT_PATH
     if not init_path.exists():
         print(f"ERROR: file not found: {init_path}", file=sys.stderr)
         return 2

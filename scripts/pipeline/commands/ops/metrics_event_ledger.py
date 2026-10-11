@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Local per-run metrics event ledger for agent metrics capture.
 
 Writes MetricsEvent objects as JSONL to reports/metrics/events/{run_id}.jsonl.

@@ -1,0 +1,90 @@
+{
+  "runner": "python_verification_runner_v1",
+  "blocks_found": 15,
+  "block_statuses": [
+    {
+      "index": 0,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 1,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 2,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 3,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_3.py\", line 2, in <module>\n    from aspose_tex import TeXJob, TeXOptions, PdfDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 4,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_4.py\", line 1, in <module>\n    device = PdfDevice(Path(\"hello.pdf\"))\n             ^^^^^^^^^\nNameError: name 'PdfDevice' is not defined"
+    },
+    {
+      "index": 5,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_5.py\", line 1, in <module>\n    from aspose_tex import TeXJob, TeXOptions, DviDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 6,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_6.py\", line 2, in <module>\n    from aspose_tex import TeXJob, TeXOptions, DviDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 7,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_7.py\", line 1, in <module>\n    from aspose_tex import TeXJob, TeXOptions, SvgDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 8,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_8.py\", line 2, in <module>\n    from aspose_tex import TeXJob, TeXOptions, SvgDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 9,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_9.py\", line 1, in <module>\n    from aspose_tex import TeXJob, TeXOptions, SvgDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 10,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_10.py\", line 1, in <module>\n    from aspose_tex import TeXJob, TeXOptions, PdfDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 11,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_11.py\", line 2, in <module>\n    from aspose_tex import TeXJob, TeXOptions, DviDevice, create_input_source\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\__init__.py\", line 7, in <module>\n    from aspose_tex._input.reader import FileInputSource, InputSource, StringInputSource\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\__init__.py\", line 3, in <module>\n    from aspose_tex._input.catcode import Catcode, CatcodeTable\n  File \"D:\\onedrive\\Documents\\GitHub\\aspose.org\\runs\\.clone_cache\\aspose_tex_python\\src\\aspose_tex\\_input\\catcode.py\", line 66\n    table[c] = Catcode.LETTER\n    ^^^^^\nIndentationError: expected an indented block after 'for' statement on line 65"
+    },
+    {
+      "index": 12,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 13,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 14,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    }
+  ],
+  "all_named": true
+}

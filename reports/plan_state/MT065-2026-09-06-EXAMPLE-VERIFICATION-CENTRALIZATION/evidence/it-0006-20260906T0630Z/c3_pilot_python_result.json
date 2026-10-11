@@ -1,0 +1,47 @@
+{
+  "old": {
+    "runner": "python_verification_runner_v2",
+    "blocks_found": 1,
+    "block_statuses": [
+      {
+        "index": 0,
+        "status": "COMPILED+RAN CLEAN"
+      }
+    ],
+    "fixtures": {
+      "staged": {},
+      "unresolved": [
+        "hello.pdf"
+      ]
+    },
+    "environment": {
+      "install_source": "clone_cache_editable",
+      "package": "aspose-pdf-foss-for-python",
+      "version": "0.1.0"
+    },
+    "all_named": true
+  },
+  "new": {
+    "runner": "python_verification_runner_v2",
+    "blocks_found": 1,
+    "block_statuses": [
+      {
+        "index": 0,
+        "status": "COMPILED+RAN CLEAN"
+      }
+    ],
+    "fixtures": {
+      "staged": {},
+      "unresolved": [
+        "hello.pdf"
+      ]
+    },
+    "environment": {
+      "install_source": "clone_cache_editable",
+      "package": "aspose-pdf-foss-for-python",
+      "version": "0.1.0"
+    },
+    "all_named": true
+  },
+  "identical": true
+}

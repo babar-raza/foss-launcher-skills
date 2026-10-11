@@ -1,0 +1,5 @@
+{
+  "description": "Known Python placement violations as of 2026-04-08. Remove entries as cleanup completes. If this list grows beyond its initial count, the system is failing.",
+  "initial_count": 0,
+  "violations": []
+}

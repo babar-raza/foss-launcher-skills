@@ -1,0 +1,92 @@
+# Loop Decision State Machine -- maps classifications to actions and next stages
+schema_version: "1.0.0"
+
+actions:
+  ACCEPT:
+    description: "Sprint accepted, proceed to adversarial review"
+    terminal: true
+  RETRY:
+    description: "Re-run indicated stage(s)"
+    terminal: false
+  BLOCK:
+    description: "Cannot proceed; contradictory or externally blocked"
+    terminal: true
+  ESCALATE:
+    description: "Retry limit exceeded; human decision required"
+    terminal: true
+
+decision_rules:
+  - classification: MISSING
+    action: RETRY
+    next_stage: "prompt1 -> prompt2 -> prompt3"
+    reason: "No summary exists; full cycle required"
+
+  - classification: PROSE_ONLY
+    action: RETRY
+    next_stage: "prompt2 -> prompt3"
+    reason: "Summary lacks structured data; plan hardening needed"
+
+  - classification: SCORES_MISSING
+    action: RETRY
+    next_stage: "quality_scoring"
+    reason: "Quality scores not computed"
+
+  - classification: EVIDENCE_MISSING
+    action: RETRY
+    next_stage: "evidence_collection"
+    reason: "Evidence bundle incomplete or files missing"
+
+  - classification: TASKCARDS_INCOMPLETE
+    action: RETRY
+    next_stage: "prompt2"
+    reason: "Taskcards missing or incomplete"
+
+  - classification: BLOCKED_EXTERNAL
+    action: BLOCK
+    next_stage: "blocker_packaging"
+    reason: "External dependency prevents progress"
+
+  - classification: CONTRADICTORY
+    action: BLOCK
+    next_stage: null
+    reason: "Evidence contradicts claimed outcome; manual investigation required"
+
+  - classification: STRUCTURED_NOT_GREEN
+    action: RETRY
+    next_stage: "prompt2 -> prompt3"
+    reason: "Sprint not green; plan hardening and re-execution needed"
+
+  - classification: STRUCTURED_ALL_GREEN
+    evidence_complete: true
+    scores_pass: true
+    action: ACCEPT
+    next_stage: "adversarial_review"
+    reason: "All checks pass"
+
+  - classification: STRUCTURED_ALL_GREEN
+    evidence_complete: false
+    action: RETRY
+    next_stage: "evidence_collection"
+    reason: "Outcome green but evidence incomplete"
+
+  - classification: STRUCTURED_ALL_GREEN
+    scores_pass: false
+    action: RETRY
+    next_stage: "prompt3_rework"
+    reason: "Outcome green but quality scores below threshold"
+
+retry_guard:
+  max_retries: 2
+  escalation_action: ESCALATE
+  escalation_reason: "Retry limit exceeded without resolution"
+
+invalid_terminal_states:
+  - NEXT_PROMPT_NEEDED
+  - HUMAN_REVIEW_NEEDED_BEFORE_AGENT_REVIEW
+  - PROSE_ONLY_ACCEPTED
+  - SUMMARY_MISSING_ACCEPTED
+  - SCORE_BELOW_4_ACCEPTED
+  - EVIDENCE_PACKAGE_MISSING_ACCEPTED
+  - PLAN_UPDATED_NOT_EXECUTED
+  - EXECUTED_NOT_EVALUATED
+  - TASKCARDS_MISSING_ACCEPTED

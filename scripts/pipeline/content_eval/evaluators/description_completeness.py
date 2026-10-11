@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
+
+from lib.markdown_tables import parse_markdown_tables as _parse_tables
 
 from ..models import Finding, Page
 from . import BaseEvaluator
@@ -13,6 +14,11 @@ _DESC_HEADERS = {"description", "summary", "returns", "remarks"}
 
 # Minimum data rows to evaluate a table (skip tiny tables)
 _MIN_DATA_ROWS = 3
+
+# Tables below this row count use absolute-count checks only (not percentage).
+# This prevents grade instability where one cell change in a 3-4 row table
+# swings a 67% → FAIL to 33% → no-finding.
+_SMALL_TABLE_ROWS = 6
 
 # Thresholds — tightened from 70/40 to 50/25 to catch majority-empty tables sooner.
 _FAIL_EMPTY_PCT = 50  # >50% empty → FAIL
@@ -26,59 +32,6 @@ _MIN_CELL_LEN = 6
 # still receive FAIL when the percentage threshold is met.
 _FAIL_EMPTY_MIN = 3   # require ≥3 empty cells to fire FAIL
 _WARN_EMPTY_MIN = 2   # require ≥2 empty cells to fire WARN
-
-
-def _parse_tables(body: str, body_offset: int) -> list[dict]:
-    """Parse Markdown tables from body text.
-
-    Returns list of dicts with keys:
-      header_line: int (1-based absolute line number)
-      headers: list[str] (stripped column headers)
-      rows: list[list[str]] (stripped cell values, excluding header + separator)
-    """
-    tables: list[dict] = []
-    lines = body.splitlines()
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        # Detect table start: line with pipes
-        if "|" in line and i + 1 < len(lines):
-            sep_line = lines[i + 1].strip()
-            # Separator row: |---|---|  or  | --- | --- |
-            if re.match(r"^\|[\s:]*-+[\s:]*(\|[\s:]*-+[\s:]*)*\|?$", sep_line):
-                # Parse header
-                headers = [c.strip() for c in line.split("|")]
-                headers = [h for h in headers if h]  # remove empty from leading/trailing |
-
-                # Collect data rows
-                rows: list[list[str]] = []
-                j = i + 2
-                while j < len(lines):
-                    row_line = lines[j].strip()
-                    if not row_line or "|" not in row_line:
-                        break
-                    # Replace escaped pipes (\|) with a placeholder before splitting
-                    # so that type unions like `str \| None` don't misalign columns.
-                    safe_line = row_line.replace("\\|", "\x00")
-                    # Rebuild: split on | gives ['', 'a', 'b', ''] for |a|b|
-                    raw_cells = safe_line.split("|")
-                    if raw_cells and not raw_cells[0].strip():
-                        raw_cells = raw_cells[1:]
-                    if raw_cells and not raw_cells[-1].strip():
-                        raw_cells = raw_cells[:-1]
-                    cells = [c.replace("\x00", "|").strip() for c in raw_cells]
-                    rows.append(cells)
-                    j += 1
-
-                tables.append({
-                    "header_line": i + body_offset + 1,  # 1-based
-                    "headers": headers,
-                    "rows": rows,
-                })
-                i = j
-                continue
-        i += 1
-    return tables
 
 
 class DescriptionCompletenessEvaluator(BaseEvaluator):
@@ -155,7 +108,31 @@ class DescriptionCompletenessEvaluator(BaseEvaluator):
 
             pct = int(100 * empty / total)
 
-            if pct > _FAIL_EMPTY_PCT and empty >= _FAIL_EMPTY_MIN:
+            # For small tables (< _SMALL_TABLE_ROWS), use absolute count
+            # checks only — percentage thresholds are too volatile when one
+            # cell change swings the result by 25-33%.
+            if total < _SMALL_TABLE_ROWS:
+                if empty >= _FAIL_EMPTY_MIN:
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="DC",
+                        filepath=str(page.filepath),
+                        line_no=table["header_line"],
+                        message=f"Table has {empty}/{total} empty description cells — reference content incomplete",
+                        suggestion="Populate description cells with meaningful text for each API member",
+                        evaluator=self.name,
+                    ))
+                elif empty >= _WARN_EMPTY_MIN:
+                    findings.append(Finding(
+                        level="WARN",
+                        category="DC",
+                        filepath=str(page.filepath),
+                        line_no=table["header_line"],
+                        message=f"Table has {empty}/{total} empty description cells",
+                        suggestion="Add descriptions for undocumented API members",
+                        evaluator=self.name,
+                    ))
+            elif pct > _FAIL_EMPTY_PCT and empty >= _FAIL_EMPTY_MIN:
                 findings.append(Finding(
                     level="FAIL",
                     category="DC",

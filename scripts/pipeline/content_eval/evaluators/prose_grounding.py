@@ -6,7 +6,9 @@ entry in claims.json via TF-IDF semantic similarity.
 
 Design constraints:
   - WARN only, never FAIL -- this evaluator is a signal, not a gate.
-  - Conservative 0.30 TF-IDF cosine similarity threshold.
+  - 0.25 TF-IDF cosine similarity threshold (lowered from 0.30 to
+    eliminate the 0.25-0.35 dead zone where knowledge regeneration
+    caused grade instability across reruns).
   - TF-IDF based, no LLM dependency -- fully deterministic.
   - Skips gracefully if knowledge is unavailable.
   - Promoted to DEFAULT_EVALUATORS after calibration (0% FP on 278 pages).
@@ -48,8 +50,10 @@ _ADVERB_RE = re.compile(
 
 _CLAIM_PATTERNS = [_ACTION_VERB_RE, _PROVISION_VERB_RE, _ADVERB_RE]
 
-# Similarity threshold -- below this, the claim is considered ungrounded
-_SIMILARITY_THRESHOLD = 0.30
+# Similarity threshold -- below this, the claim is considered ungrounded.
+# Lowered from 0.30 to 0.25 to eliminate the dead zone where knowledge
+# regeneration shifts TF-IDF term frequencies enough to flip verdicts.
+_SIMILARITY_THRESHOLD = 0.25
 
 # Minimum token count for extracted claim to be worth checking
 _MIN_CLAIM_TOKENS = 3

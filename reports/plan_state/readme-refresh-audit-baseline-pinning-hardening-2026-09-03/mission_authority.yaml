@@ -1,0 +1,58 @@
+mission_authority:
+  mission_id: readme-refresh-audit-baseline-pinning-hardening-2026-09-03
+  mission_summary: >
+    Follow-on hardening mission to readme-refresh-pdf-typescript-scale-hardening-2026-09-03
+    (which filed ST-180/ST-181). A deep first-principles production assessment (this session,
+    2026-09-03; full report at <local-plan-cache>/perform-a-deep-first-principles-sparkling-scroll.md)
+    refuted ST-181's stated root cause (a flaky live-publication network probe) and traced the
+    real mechanism: audit_portfolio's disposition-coverage checks are silently skipped whenever
+    a local, unpinned text-equality check (readme_already_published) reads True against a live
+    clone_cache/README.md, and pin_old_readme_baseline() -- built specifically to anchor this --
+    is never invoked automatically at push. For font/python specifically this compounds with a
+    documented, human-accepted mirror-wipe risk (classify_target_authority, TC-16) that is never
+    persisted for the audit/pin layer to consult. Filed as backlog ST-182 (corrects ST-181 in
+    place). This mission implements the production-grade fix: automatic baseline pinning at push,
+    a persisted mirror-authority verdict, an honest verification_status/fully_verified field
+    (extending the disposition_tracking precedent and live_published_regression_portfolio's
+    already-proven checked:bool pattern), a mirror-aware drift-aware audit path, and a read-only
+    portfolio-wide baseline-coverage survey with reviewed backfill of recoverable products.
+  governing_plan_path: <local-plan-cache>/perform-a-deep-first-principles-sparkling-scroll.md
+  binding_pattern: hand-authored record (root MISSION_AUTHORITY.yaml slot held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING; this mission does not touch the root file or MT058's own state, matching the precedent already set by readme-refresh-pdf-typescript-scale-hardening-2026-09-03's own hand-authored record)
+  in_scope_outcomes:
+    - "pin_old_readme_baseline() invoked automatically at push()'s PUSHED transition, keyed to the manifest's already-drift-checked pinned_inputs.clone_cache_head (never a fresh re-resolve)"
+    - "classify_target_authority's mirror-vs-canonical verdict persisted somewhere the pin/audit layer can consult, instead of computed-and-discarded once inside push()"
+    - "audit_portfolio (and recheck) report an honest, mandatory verification_status/fully_verified field distinguishing verified from skipped_published from indeterminate -- clean alone no longer misleads a caller"
+    - "audit-portfolio/recheck's handling of a PUSHED-but-unpinned product changes from a silent live-read fallthrough to a distinct indeterminate state, with a bounded, mirror-aware retroactive backfill attempt for canonical (non-mirror) targets only"
+    - "a new read-only audit-baseline-coverage CLI verb surveys the full active portfolio and classifies each product: no_push_yet / pinned / recoverable_unpinned / unrecoverable_unpinned"
+    - "the survey's recoverable_unpinned set is backfilled (reviewed, not blind) using the same retroactive-backfill code path"
+    - "backlog ST-182 closed with commit/evidence references once shipped"
+  out_of_scope:
+    - "font/python's and tex/python's actual disposition-ledger content recomposition against the moved clone-cache HEAD -- explicitly deferred in the governing plan's own Tradeoffs/Rejected-alternatives section as a separate, already-known-scale S-120 re-composition mission per product, to be triggered only after this mission's fixes land (doing it first would immediately re-expose the new ledger to the same unpinned hazard)"
+    - "any live push to a real external product GitHub repo -- this mission touches only this repo's own pipeline code, tests, and local state/evidence files"
+    - "committing/pushing the resulting change to origin/main without a fresh, explicit user go-ahead -- matching this specific subsystem's own standing practice (readme_refresh_run.py/readme_refresh_checks.py changes have historically been left uncommitted pending explicit sign-off, per docs/readme-refresh/plan-system-forensic-reconciliation.md's repeated observation of this norm across MT041-MT056)"
+  mandatory_acceptance_criteria:
+    - "New/changed behavior has focused unit test coverage plus at least one integration test reproducing the exact font/python/tex/python incident shape (pin at push, mutate clone_cache/README.md afterward, confirm audit reads the pinned text, not the mutated live text)"
+    - "A rerun of audit_portfolio against an unchanged product is byte-identical in verification_status across two consecutive calls (closes the specific true<->false inconsistency-across-reruns symptom this mission started from)"
+    - "The existing test_audit_portfolio_marks_published_skip_as_disposition_tracking_skipped_published-style tests still pass (disposition_tracking preserved as an alias; skip-when-already-published logic itself untouched)"
+    - "The full scoped test file(s) (test_readme_refresh_run.py, test_readme_refresh_checks.py as applicable) pass with zero regressions against their pre-mission baseline"
+    - "The read-only portfolio survey runs to completion against the real ~30-product portfolio with no writes"
+  human_authority_boundaries:
+    - "Final git commit/push of the implementation to origin/main"
+    - "Whether/when to trigger the separate font/python and tex/python disposition-ledger recomposition missions"
+    - "Any decision to push a live README/PR to an external product repository"
+  conflicts_found:
+    - "root MISSION_AUTHORITY.yaml's mutable slot is currently held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING (status open in mission_authority.py list, mission_locked:false) -- this mission does not call `mission_authority.py open`, to avoid clobbering that slot; registered as a hand-authored record instead, matching the exact precedent already set by readme-refresh-pdf-typescript-scale-hardening-2026-09-03 (recorded_by session-9d8aa2aa) for the identical situation"
+    - "SessionStart hook reported 3 other active sessions at this session's start (8771024d, 9d8aa2aa, bf995473); 9d8aa2aa is the recorded_by of the parent scale-hardening mission and may still be live -- this mission's allowed paths (scripts/pipeline/commands/foss/readme_refresh_run.py, scripts/pipeline/commands/foss/readme_refresh_checks.py, their test files, backlog/inbox.md already edited this session) do not overlap any in-flight work observed in git status at mission-open time (only data/knowledge_state.json, keywords/*.json, and unrelated seo workflow files were dirty)"
+  mission_locked: false
+  recorded_at: 2026-09-03T00:00:00Z
+  recorded_by: session-e8de1af5
+  status: closed
+  closed_at: 2026-09-03T16:45:00Z
+  closure_summary: >
+    All 6 taskcards (RRABP-01..06) CLOSED with independently-verified evidence -- see
+    EVIDENCE.md in this directory for the full record. All 5 mandatory_acceptance_criteria met.
+    Real portfolio validation performed (tex/python and 3d/python backfilled and reverified
+    clean; font/python correctly identified as unresolved, mirror risk, left for a human
+    decision). No regressions (214/214 tests passing). Git commit intentionally withheld per
+    this mission's own human_authority_boundaries -- code, tests, docs, and mirrors are fully
+    prepared and ready to stage/commit on explicit user go-ahead.

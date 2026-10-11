@@ -1,0 +1,6 @@
+{
+  "baseline_commit": "46d0eed09d4dda349a1bad27fd1dfd20682ca514",
+  "reason": "Re-anchored to current upstream HEAD 46d0eed0: the live README (including the owners' own edits since the previous pin) is the baseline the disposition ledger must account for.",
+  "recorded_at": "2026-09-19T11:51:56.180071Z",
+  "recorded_by": "fc3ec89c-a06a-47e6-b846-9e37a8d37fac"
+}

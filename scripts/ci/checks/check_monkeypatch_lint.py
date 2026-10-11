@@ -1,7 +1,6 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_monkeypatch_lint.py — AST-first monkeypatch tier linter.
 
-Enforces tiered monkeypatch policy:
+Enforces AGENTS.md 16 (Tiered Monkeypatch Policy):
   T1  Path constant patching       - BANNED
   T2  Internal function replacement - BANNED
   T3  External I/O boundary mocking - Requires annotation
@@ -25,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# T1 guarded path constants (tiered monkeypatch policy)
+# T1 guarded path constants (AGENTS.md 16.2)
 # ---------------------------------------------------------------------------
 GUARDED_NAMES: frozenset[str] = frozenset({
     "REPO_ROOT", "KNOWLEDGE_ROOT", "CONTENT_ROOT", "_SESSION_DIR",
@@ -38,7 +37,7 @@ GUARDED_NAMES: frozenset[str] = frozenset({
 # Known external/I/O modules whose attributes are T3 when mocked
 _IO_MODULES: frozenset[str] = frozenset({
     "sys", "os", "subprocess", "requests", "urllib", "http", "socket",
-    "shutil", "tempfile",
+    "shutil", "tempfile", "time",
 })
 
 # Known I/O boundary targets (dotted or plain) -> T3
@@ -46,6 +45,14 @@ _IO_TARGETS: frozenset[str] = frozenset({
     "sys.argv", "sys.stdout", "sys.stderr", "sys.stdin",
     "subprocess.run", "subprocess.check_output", "subprocess.Popen",
     "os.environ", "os.path",
+})
+
+# Known external/I/O classes (e.g. pathlib.Path) whose methods are T3 when
+# mocked on the class or an instance — a class name alone can't be resolved
+# to its defining module by AST inspection, so this is a name-based allowlist
+# like _IO_MODULES, not an import-aware check.
+_IO_CLASSES: frozenset[str] = frozenset({
+    "Path", "PosixPath", "WindowsPath",
 })
 
 
@@ -77,8 +84,17 @@ class Violation:
 # Tier classification
 # ---------------------------------------------------------------------------
 
-def classify_target(target_name: str) -> int:
-    """Classify a mock target name into a tier (1-4)."""
+def classify_target(target_name: str, obj_chain: str | None = None) -> int:
+    """Classify a mock target into a tier (1-4).
+
+    ``target_name`` is the attribute-name string being patched (e.g. "replace"
+    from ``monkeypatch.setattr(Path, "replace", ...)``). ``obj_chain`` is the
+    dotted expression of the object the attribute is being patched ON (e.g.
+    "Path" or "fs.time"), when the call site provides one — this is what lets
+    a bare name like "replace" or "sleep" resolve to a real I/O boundary
+    (T3) instead of falling through to the T2 default just because the name
+    itself isn't in the small literal _IO_TARGETS allowlist.
+    """
     base = target_name.rsplit(".", 1)[-1] if "." in target_name else target_name
     if base in GUARDED_NAMES:
         return 1
@@ -87,6 +103,10 @@ def classify_target(target_name: str) -> int:
     parts = target_name.split(".")
     if parts[0] in _IO_MODULES:
         return 3
+    if obj_chain:
+        obj_parts = obj_chain.split(".")
+        if any(p in _IO_MODULES for p in obj_parts) or obj_parts[-1] in _IO_CLASSES:
+            return 3
     return 2
 
 
@@ -218,7 +238,8 @@ def analyze_python_file(filepath: Path) -> list[Violation]:
         if _is_monkeypatch_setattr(node):
             target = _extract_target_from_setattr(node)
             if target:
-                tier = classify_target(target)
+                obj_chain = _get_attr_chain(node.args[0]) if node.args else None
+                tier = classify_target(target, obj_chain)
                 violations.append(Violation(
                     file=rel_path, line=lineno, tier=tier,
                     pattern="monkeypatch.setattr",
@@ -239,7 +260,8 @@ def analyze_python_file(filepath: Path) -> list[Violation]:
         if _is_patch_object(node, patch_names):
             target = _extract_target_from_patch_object(node)
             if target:
-                tier = classify_target(target)
+                obj_chain = _get_attr_chain(node.args[0]) if node.args else None
+                tier = classify_target(target, obj_chain)
                 violations.append(Violation(
                     file=rel_path, line=lineno, tier=tier,
                     pattern="patch.object",
@@ -408,19 +430,32 @@ def generate_baseline(test_dirs: list[str] | None = None) -> dict:
     }
 
 
-def compare_baseline(current: dict, committed_path: Path) -> list[str]:
+def compare_baseline(
+    current: dict, committed_path: Path, scoped_files: list[str]
+) -> list[str]:
+    """Compare tier counts against the committed baseline, scoped to
+    scoped_files (the exact files this invocation actually checked -- staged
+    files in the pre-commit hook, or an explicit file list).
+
+    Comparing global totals instead of a scoped subset means a concurrent
+    session's unrelated, uncommitted edits to some other test file sitting
+    dirty in the same working tree inflate "current" and block a commit that
+    never touched that file at all. Pass every currently-known test file
+    (e.g. via --all-files) to reproduce the old whole-repo comparison.
+    """
     failures: list[str] = []
     try:
         committed = json.loads(committed_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         return [f"Cannot read baseline at {committed_path}: {e}"]
 
-    committed_totals = committed.get("totals", {})
-    current_totals = current.get("totals", {})
+    committed_files = committed.get("files", {})
+    current_files = current.get("files", {})
+    scoped = {f.replace("\\", "/") for f in scoped_files}
 
     for tier in ["T1", "T2"]:
-        cur = current_totals.get(tier, 0)
-        base = committed_totals.get(tier, 0)
+        cur = sum(current_files.get(f, {}).get(tier, 0) for f in scoped)
+        base = sum(committed_files.get(f, {}).get(tier, 0) for f in scoped)
         if cur > base:
             failures.append(
                 f"{tier} regression: {cur} > baseline {base} (+{cur - base})"
@@ -451,6 +486,7 @@ def get_staged_test_files() -> list[Path]:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
             capture_output=True, text=True, check=True,
+            encoding="utf-8", errors="replace",
         )
         paths = []
         for line in result.stdout.splitlines():
@@ -469,7 +505,7 @@ def get_staged_test_files() -> list[Path]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="AST-first monkeypatch tier linter ",
+        description="AST-first monkeypatch tier linter (AGENTS.md 16)",
     )
     parser.add_argument("files", nargs="*", help="Test files to check")
     parser.add_argument("--staged", action="store_true",
@@ -552,7 +588,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.compare_baseline:
         current_baseline = generate_baseline()
         baseline_failures = compare_baseline(
-            current_baseline, Path(args.compare_baseline)
+            current_baseline,
+            Path(args.compare_baseline),
+            scoped_files=[str(fp) for fp in files],
         )
 
     ratchet_failures: list[str] = []
@@ -593,7 +631,7 @@ def main(argv: list[str] | None = None) -> int:
             mode = "ERROR" if args.strict else "WARN"
         print(
             f"[monkeypatch-lint] {mode}: {total_issues} issue(s) in "
-            f"{len(files)} file(s). See governance docs 16 for the tiered policy.",
+            f"{len(files)} file(s). See AGENTS.md 16 for the tiered policy.",
             file=sys.stderr,
         )
         if mode == "ERROR":

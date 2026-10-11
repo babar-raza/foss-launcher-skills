@@ -1,0 +1,89 @@
+{
+  "mission_id": "MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY",
+  "generated_at": "2026-08-06T12:26:00Z",
+  "status": "CLOSED -- full 30-product capability-dependency survey complete",
+  "scope": "Phase 0 (checks infrastructure) + Phase 1 (3-product pilot) + Phase 2 waves 1-3 (27 more products, one dedicated single-product research agent each). All 30 products in reports/repo-presenter/ now have a real, source-verified entry in data/diagram_capability_dependencies.json.",
+  "plan_path": "<local-plan-cache>/d-users-prora-onedrive-documents-github-humble-tome.md",
+  "plan_section": "Hardened design (Readiness audit, 2026-08-06)",
+  "commits": [
+    {
+      "sha": "0738021409cd6eb54c3a33b4d93a02b3df372a3b",
+      "files": [
+        "scripts/pipeline/commands/foss/readme_refresh_checks.py",
+        "scripts/pipeline/tests/test_readme_refresh_checks.py"
+      ],
+      "purpose": "Phase 0: implement check_diagram_matches_capability_dependencies, check_diagram_suspicious_direct_product_edge, check_diagram_capability_unreachable_from_product, check_only_mermaid_block_changed, plus pytest suite (20 cases)"
+    },
+    {
+      "sha": "ad53de8792bf8b3b1776e40123b811f35f1f8ed9",
+      "files": ["data/diagram_capability_dependencies.json"],
+      "purpose": "Phase 1 closeout: durable capability-dependency store, 3 pilot entries (barcode/python, tex/python, email/python)"
+    },
+    {
+      "sha": "40816b85f245f836655f5934578c6942cf8845c6",
+      "files": ["data/diagram_capability_dependencies.json"],
+      "purpose": "Phase 2 wave 1: 8 more entries (5 clean, 3 defective+fixed: email/cpp, email/net, pdf/go)"
+    },
+    {
+      "sha": "a2e50e8516f99f924142c77da31bf118b7c98c17",
+      "files": ["data/diagram_capability_dependencies.json"],
+      "purpose": "Phase 2 wave 2: 8 more entries (7 clean, 1 defective+fixed: slides/cpp)"
+    },
+    {
+      "sha": "bcfbe2e416426ef20acb906ce2236c2dc54b60f8",
+      "files": ["data/diagram_capability_dependencies.json"],
+      "purpose": "Phase 2 wave 3: 11 more entries (10 clean, 1 defective+fixed: page/python) -- completes 30/30"
+    }
+  ],
+  "pytest": {
+    "file": "scripts/pipeline/tests/test_readme_refresh_checks.py",
+    "result": "20 passed",
+    "raw_output": "pytest-output.txt"
+  },
+  "full_portfolio_check": {
+    "description": "Final integrated re-check: every one of the 30 traced products' current diagram vs. its exact store entry",
+    "result": "30/30 clean (0 findings each: connectivity, known-subgraph-ids, capability-dependency-match)",
+    "raw_output": "full-portfolio-check.txt"
+  },
+  "summary": {
+    "total_products_in_portfolio": 30,
+    "total_traced": 30,
+    "confirmed_clean": 22,
+    "real_defects_found_and_fixed": 8,
+    "defect_list": [
+      "barcode/python -- RenderOptions reclassified Input; renderer fed only by encoders, not PRODUCT",
+      "tex/python -- C1->C3->C4 pipeline added; FontManager kept independent, new Output node for font metrics",
+      "email/python -- MSG/EmailMessage conversion split into dependent export / independent import",
+      "email/cpp -- same export/import split as email/python (cross-platform pattern, 1 of 3)",
+      "email/net -- same export/import split as email/python (cross-platform pattern, 2 of 3)",
+      "pdf/go -- redaction split out, wired from content-authoring capability",
+      "slides/cpp -- picture-frame/picture-fill split out, wired from Images capability (C++ port doesn't populate image collection on load, unlike java/net/python)",
+      "page/python -- PDF/raster-writing rewired to depend on render-model-construction (full replacement, not additive)"
+    ],
+    "clean_list": [
+      "cells/cpp", "cells/go", "cells/java", "cells/net", "cells/python", "cells/rust",
+      "pdf/cpp", "pdf/java", "pdf/net", "pdf/python",
+      "slides/python", "slides/java", "slides/net",
+      "words/net", "words/python",
+      "font/python", "html/python", "note/python",
+      "3d/java", "3d/net", "3d/python", "3d/typescript"
+    ],
+    "cross_platform_pattern_confirmed": "email family's export/import bundling defect recurred in 3 of 3 checked platforms (python, cpp, net) -- a real, systemic API-shape issue, not incidental.",
+    "cross_platform_divergence_confirmed": "slides family's picture-frame dependency: cpp is defective (image collection never populated on load), java/net/python are all clean (image collection IS populated on load, or the argument is optional) -- a real, evidenced implementation divergence across ports of the same conceptual product, not a contradiction in the rule."
+  },
+  "methodological_refinement": "Discriminating test (found via slides/python trace, reused successfully in every subsequent wave): when a capability's real entry point takes another object as an argument, ask whether that argument is (a) native, serialized data of the product's own declared Input format -- already present the moment a real Input file is opened, not a defect -- or (b) a derived artifact that exists in NO declared Input format and can only be produced by a specific sibling capability actually running -- a real defect. Same method-signature shape (an object-typed parameter) can resolve either way depending on this distinction; this discriminator correctly separated all 8 real defects from all 22 clean verdicts across the full survey.",
+  "capability_dependency_store": {
+    "path": "data/diagram_capability_dependencies.json",
+    "bundled_copy": "diagram_capability_dependencies.json",
+    "entries": 30
+  },
+  "explicitly_out_of_scope_still": [
+    "MISSION_AUTHORITY.yaml root slot (never claimed)",
+    "plans/master-plan.md / backlog/BACKLOG.md edits (deferred to a later, human-initiated step)",
+    "GitHub push / PR / DAR-table registration (/readme-refresh skill itself not yet built)",
+    "General diagram-quality re-audit beyond the capability-dependency defect class specifically (archetype/node-granularity/etc. rules were already handled in an earlier pass and were explicitly out of scope for every wave of this survey)",
+    "A few incidental non-capability-dependency findings surfaced during tracing were flagged for awareness only, not acted on: slides/net's RelsManager.AddImageRelationship ignoring its image argument (a real correctness bug, uniform across capabilities, not a differential dependency); pdf/python's PdfSignature extraction ergonomics gap; 3d/java's NurbsCurve.evaluate() stub"
+  ],
+  "diffs_dir": "diffs/",
+  "check_outputs_dir": "check-outputs/"
+}

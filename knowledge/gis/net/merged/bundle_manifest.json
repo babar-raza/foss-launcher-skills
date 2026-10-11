@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "bundle_id": "25de5581-27de-4182-b90e-f9eb37c1bccd",
+  "family": "gis",
+  "platform": "net",
+  "repo_sha": "92904d72b7f0a4f6087fad155aa5ec01fbc98309",
+  "generated_at": "2026-09-25T14:59:16.215015+00:00",
+  "generator_fingerprint": "e83b38db090a5a8c4072dde37588a2ad6dfdc947c97043de650a3d3ffc0f1aec",
+  "generator_semver": "2.0.0",
+  "members": {
+    "model.yaml": {
+      "sha256": "15c023c18d4f151fd87e008623f98f73d8ab444fe18a21436d4e5f1d33a697b2",
+      "bytes": 1339
+    },
+    "api_surface.json": {
+      "sha256": "31ea5108b3fd0c823d92738efc2bfcb108ea2c5200e378be6324570c33742c8b",
+      "bytes": 246337
+    },
+    "api_surface.md": {
+      "sha256": "96aeea701ed0427d52a1d9d9b2e8d2afe4cca5966168224d3061610f53819d22",
+      "bytes": 24841
+    },
+    "formats.json": {
+      "sha256": "122c8fccd2f65c404d925fbf6ba154ffd57954cfb63d91f032b3a0f127fd2900",
+      "bytes": 336
+    },
+    "formats.md": {
+      "sha256": "9428b4e16ef2f56fd84c893197f218c2bc5bbd8a0dedc7994fed2fc09ce3c1cb",
+      "bytes": 300
+    },
+    "claims.json": {
+      "sha256": "a6eed09139494d68aa1cc973fcdefe4a6e177ea6b90e786a50b38c53c75c4801",
+      "bytes": 119386
+    },
+    "limitations.md": {
+      "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
+      "bytes": 78
+    },
+    "install.md": {
+      "sha256": "2b30836400066397d7964245d31bd7a860ec511da8b23639dd1a233df9725fa3",
+      "bytes": 17
+    },
+    "merge_report.md": {
+      "sha256": "21f8cecf9d1e1cfb170458921714fbd724941c8ae5df7c9b6871046ac8d0916d",
+      "bytes": 552
+    },
+    "snippets/snippets_index.json": {
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    }
+  },
+  "promote_run_id": "promote-20260925T145916Z",
+  "status": "COMPLETE"
+}

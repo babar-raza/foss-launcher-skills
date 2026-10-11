@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """generate_proof_bundle.py — Create a machine-readable proof bundle for governance events.
 
 Writes a JSON proof bundle to reports/proof-bundles/ and updates reports/proof-index.json.
@@ -25,12 +24,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 BUNDLES_DIR = REPO_ROOT / "reports" / "proof-bundles"
 INDEX_FILE = REPO_ROOT / "reports" / "proof-index.json"
 

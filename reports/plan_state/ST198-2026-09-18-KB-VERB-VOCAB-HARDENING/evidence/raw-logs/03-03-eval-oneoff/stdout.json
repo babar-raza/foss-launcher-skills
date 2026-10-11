@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-23T10:05:19.542176+00:00",
+  "scope": {
+    "target": "files",
+    "files": [
+      "content\\kb.aspose.org\\en\\email\\cpp\\how-to-read-msg-files-cpp.md"
+    ]
+  },
+  "summary": {
+    "total_findings": 1,
+    "pages_evaluated": 1,
+    "evaluators_run": [
+      "topic_grounding"
+    ],
+    "by_severity": {
+      "FAIL": 1,
+      "WARN": 0,
+      "INFO": 0
+    },
+    "by_category": {
+      "TG": 1
+    },
+    "pages_clean": 0,
+    "pages_with_findings": 1
+  },
+  "findings": [
+    {
+      "id": "CE-0c1f731e",
+      "level": "FAIL",
+      "category": "TG",
+      "file": "content\\kb.aspose.org\\en\\email\\cpp\\how-to-read-msg-files-cpp.md",
+      "line": 1,
+      "message": "Topic noun 'msg-files' (from slug/title) has no grounding in the reachable knowledge surface for email/cpp (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty",
+      "suggestion": "Cite real evidence.claims/evidence.apis backing this topic (run attach_evidence.py), or retire the page via /page-retire if the topic does not correspond to any real capability",
+      "evaluator": "topic_grounding"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+Promote: html/python
+  Scout: 2012 claims, 292 api_surface entries
+  Enriched: 288 claims (from enrich.py)
+  Total claims: 2300
+  Claim ID uniqueness: PASS (2300 unique IDs)
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 500 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 292 entries (244 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 244 classes, 491779 bytes
+  Forbidden claims: 14
+  All artifacts written to knowledge\html\python\merged.staging.7f73b8e8-5e3d-42b9-b9d8-e3690e0c6361
+  Format-claims reconciliation: PASS (2 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 7f73b8e8-5e3d-42b9-b9d8-e3690e0c6361 promoted for html/python
+
+PROMOTE: PASS

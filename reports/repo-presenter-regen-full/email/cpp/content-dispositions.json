@@ -1,0 +1,1250 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Email FOSS for C++ is a C++17 library for reading and writing binary email containers and\nmessages — Compound File Binary (CFB) containers, Outlook MSG documents, and RFC 5322 / MIME EML\nfiles — with deterministic, byte-level output and no third-party library dependency of its own. It\nexposes both a low-level container API (`cfb_reader`/`cfb_writer`,\n`msg_reader`/`msg_document`/`msg_writer`) for direct structural access and a high-level\n`mapi_message` API for creating, editing, and reloading messages.",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- **Low-level CFB access** — read, build, and write generic Compound File Binary containers\n  directly through `cfb_reader`, `cfb_storage`/`cfb_stream`, and `cfb_writer`, working with file\n  paths, in-memory streams, or raw byte buffers.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- **Low-level MSG document model** — parse and reconstruct the raw MSG directory/stream structure\n  with `msg_reader`, `msg_document`, and `msg_writer`, including an optional strict-validation mode\n  surfaced through `validation_issues()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- **High-level message authoring** — create, edit, save, and reload Outlook-style messages through\n  `mapi_message`, setting the subject, plain-text and HTML bodies, and sender identity, or reaching\n  arbitrary MAPI properties via `set_property()`/`get_property_value()` with\n  `common_message_property_id` and `property_type_code`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- **Recipients and attachments** — add To/Cc/Bcc recipients with `add_recipient()`, attach regular\n  files from byte buffers or streams with `add_attachment()`, and nest a full `mapi_message` as an\n  embedded-message attachment with `add_embedded_message_attachment()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- **MSG/EML interoperability** — save an in-memory `mapi_message` to `.eml` and load `.eml` back\n  into a `mapi_message`, both through the library's own MIME engine, with no external MIME\n  dependency.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "No NuGet package has been published for this library yet — build it from source with CMake and\neither add it as a subdirectory of your own build, or install it and consume it with\n`find_package(AsposeEmailFoss)`.",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "This uses the repo's own `CMakePresets.json` \"default\" configuration (Ninja generator,\n`RelWithDebInfo`, tests on, examples off). The library target is `AsposeEmailFoss` (alias\n`AsposeEmailFoss::AsposeEmailFoss`); no third-party dependency is fetched to build or test it.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakePresets.json"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "This installs the headers plus a CMake package config (`AsposeEmailFossConfig.cmake`) under the\ngiven prefix, so a downstream project can consume the library with `find_package(AsposeEmailFoss)`\ninstead of vendoring the source tree.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "No required third-party package dependencies.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- CMake 3.26 or later — the version floor set by the project's own `cmake_minimum_required`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- A C++17 compiler — the library target sets `CMAKE_CXX_STANDARD 17` with\n  `CMAKE_CXX_STANDARD_REQUIRED ON`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- Ninja — the generator configured by the repository's own `default` CMake preset\n  (`CMakePresets.json`); any CMake-supported generator works if you configure the project directly\n  instead of through that preset.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakePresets.json"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Read a subject from an MSG file opened as a binary stream:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Create a message and save it as both MSG and EML:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "For a full command-line workflow, see\n[`examples/create_msg_and_eml.cpp`](examples/create_msg_and_eml.cpp),\n[`examples/msg_reader.cpp`](examples/msg_reader.cpp), and\n[`examples/msg_summary.cpp`](examples/msg_summary.cpp) under\n[Additional Examples](#additional-examples) below.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Runnable CLI examples live in the [`examples/`](examples/) directory — turn on\n`ASPOSE_EMAIL_FOSS_BUILD_EXAMPLES` to build them (see\n[Development and Testing](#development-and-testing)); [`examples/README.md`](examples/README.md)\nmaps each one to the specific API calls it exercises.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "`read_option()` (command-line argument parsing) and `to_underlying()` (enum-to-underlying-type\ncast) are small helpers defined earlier in the same file,\n[`examples/create_msg_and_eml.cpp`](examples/create_msg_and_eml.cpp) — this excerpt is its\n`main()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "`build_dump()` is a formatting helper defined earlier in the same file,\n[`examples/msg_reader.cpp`](examples/msg_reader.cpp), that walks the `msg_reader`/`msg_document`\npair and renders their CFB directory/stream structure as text.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "[`examples/msg_summary.cpp`](examples/msg_summary.cpp) is a third example worth knowing about: it\nopens a `.msg` file through `mapi_message` and prints a high-level summary — subject, sender,\nrecipients, attachments, and a body preview — including looking up an arbitrary MAPI property by\nID and type when `--property-id`/`--property-type` are passed on the command line. Its `main()` is\nlonger than is useful to reproduce here; see the file directly.",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_summary.cpp"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "`mapi_message` is the primary high-level entry point for creating, editing, and reloading\nmessages; the lower-level `msg_reader`/`msg_document`/`msg_writer` and\n`cfb_reader`/`cfb_document`/`cfb_writer` classes expose the underlying MSG and CFB container\nstructure directly for callers that need it.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "<details>\n<summary>View the Full API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "| Class | Description |\n|---|---|\n| `cfb_document` | Mutable Compound File Binary (CFB) document — holds the root `cfb_storage` tree and header fields (major/minor version, transaction signature number); built via `from_reader`/`from_file`/`from_stream`/`from_bytes`/`from_buffer`. |\n| `cfb_exception` | Exception type thrown for malformed or unsupported Compound File Binary (CFB) content (a `std::runtime_error` subclass). |\n| `cfb_node` | Abstract base class for CFB tree nodes (`cfb_storage` or `cfb_stream`) — carries name, CLSID, state bits, and creation/modified timestamps common to both. |\n| `cfb_reader` | Reusable reader for parsed Compound File Binary (CFB) containers — exposes the header, FAT/mini-FAT/DIFAT chains, and directory entries, and resolves storage/stream data by ID or path. |\n| `cfb_storage` | Mutable CFB storage node — a directory-like container of child nodes (nested storages and streams), built with `add_storage`/`add_stream`. |\n| `cfb_stream` | Mutable CFB stream node holding a raw byte payload (`data()`). |\n| `cfb_writer` | Static serializer that writes a `cfb_document` to bytes, a file, or an output stream (`to_bytes`/`write_file`/`write_stream`). |\n| `mapi_attachment` | Mutable MAPI attachment — filename, raw `data`, MIME type, content ID, an optional embedded `mapi_message`, and its own MAPI properties; built via `from_bytes`/`from_stream`. |\n| `mapi_message` | Mutable high-level MSG object — creates, loads (`from_file`/`from_stream`/`load_from_eml`), edits, and saves Outlook `.msg` messages, with subject/body, recipients, attachments, and MAPI properties. |\n| `mapi_property` | A single MAPI property — numeric `property_id`, `property_type`, `value`, and `flags`, combined into a `property_tag`. |\n| `mapi_property_collection` | Ordered collection of `mapi_property` entries, keyed by (property ID, property type), with `set`/`add`/`get`/`remove` lookup. |\n| `mapi_recipient` | Mutable MAPI recipient — display name, email address, recipient type, address type, and its own `mapi_property_collection`. |\n| `msg_document` | Mutable MSG document model — wraps a `msg_storage` root, and converts to a `cfb_document` for CFB serialization via `to_cfb_document`. |\n| `msg_exception` | Exception type thrown for malformed or unsupported MSG structures (a `std::runtime_error` subclass). |\n| `msg_reader` | Reader for the MSG-specific container layout, built on top of a `cfb_reader` — validates the top-level MSG structure and records `validation_issues`. |\n| `msg_storage` | Mutable MSG storage node — name, role (`msg_storage_role`), CLSID/timestamps, and child `msg_stream`/`msg_storage` collections, with `add_stream`/`add_storage`/`find_stream`/`find_storage`. |\n| `msg_stream` | Mutable MSG stream node holding a name, raw byte payload, CLSID, and state/timestamp metadata. |\n| `msg_writer` | Static serializer that writes a `msg_document` to bytes, a file, or an output stream (`to_bytes`/`write_file`/`write_stream`). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `directory_entry` | One CFB directory record — name, object type, sibling/child links, CLSID, timestamps, and stream location/size; `is_storage()`/`is_stream()`/`is_root()` classify it. |\n| `header` | The 512-byte CFB file header — signature, CLSID, version, sector-shift fields, and FAT/mini-FAT/DIFAT layout counters. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/directory_entry.hpp"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `common_message_property_id` | Common MAPI property identifiers used by the MSG reader/writer for core message semantics (`message_class`, `subject`, `body`, `sender_email_address`, `attach_filename`, and more). |\n| `directory_color_flag` | Red-black tree color used by a CFB directory entry's sibling links (`red`, `black`). |\n| `directory_object_type` | Classifies a CFB directory entry's payload — `unknown_or_unallocated`, `storage_object`, `stream_object`, or `root_storage_object`. |\n| `msg_storage_role` | Classifies an MSG storage node's role — `generic`, `message`, `recipient`, `attachment`, `embedded_message`, `named_property_mapping`, or `custom_attachment`. |\n| `property_type_code` | MAPI property type codes used in MSG property tags (`ptyp_string`, `ptyp_binary`, `ptyp_integer32`, `ptyp_time`, and more, including their `ptyp_multiple_*` array variants). |\n| `sector_marker` | Special FAT marker values reserved for sector allocation metadata (`difsect`, `fatsect`, `endofchain`, `freesect`). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/common_message_property_id.hpp"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `mapi_message`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- `create(subject, body, unicode_strings) -> mapi_message`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `from_file(path, strict) -> mapi_message` / `from_stream(stream, strict) -> mapi_message`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `load_from_eml(path) -> mapi_message` / `load_from_eml(stream) -> mapi_message`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `subject()`/`set_subject(value)`, `body()`/`set_body(value)`, `html_body()`/`set_html_body(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `sender_name()`/`set_sender_name(value)`, `sender_email_address()`/`set_sender_email_address(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `recipients() -> std::vector<mapi_recipient>`, `attachments() -> std::vector<mapi_attachment>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `add_recipient(email_address, display_name, recipient_type) -> mapi_recipient`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `add_attachment(filename, data, mime_type, content_id) -> mapi_attachment` (byte-buffer or\n    stream overload)",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `add_embedded_message_attachment(message, filename, mime_type) -> mapi_attachment`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `set_property(property_id, property_type, value, flags) -> mapi_property` /\n    `get_property_value(property_id, property_type) -> std::any`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `validation_issues() -> std::vector<std::string>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `save() -> std::vector<std::uint8_t>` / `save(path) -> void` / `save(stream) -> void`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `save_to_eml() -> std::vector<std::uint8_t>` / `save_to_eml(path) -> void` /\n    `save_to_eml(stream) -> void`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `to_msg_document() -> msg_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `msg_reader`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `from_file(path, strict) -> msg_reader` / `from_stream(stream, strict) -> msg_reader`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `cfb() -> cfb::cfb_reader`, `validation_issues() -> std::vector<std::string>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `msg_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `from_reader(reader) -> msg_document`, `from_file(path, strict) -> msg_document`,\n    `from_stream(stream, strict) -> msg_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `root() -> msg_storage`, `to_cfb_document() -> cfb::cfb_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `msg_writer`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_writer.hpp"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `to_bytes(document) -> std::vector<std::uint8_t>`, `write_file(document, path) -> void`,\n    `write_stream(document, stream) -> void`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_writer.hpp"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `msg_storage`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_storage.hpp"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `add_stream(stream) -> msg_stream`, `add_storage(storage) -> msg_storage`,\n    `find_stream(stream_name) -> msg_stream`, `find_storage(storage_name) -> msg_storage`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_storage.hpp"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- properties: `streams: std::vector<msg_stream>`, `storages: std::vector<msg_storage>`,\n    `role: msg_storage_role`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_storage.hpp"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `cfb_reader`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `from_file(path)` / `from_stream(stream)` / `from_bytes(data)` /\n    `from_buffer(data, size) -> cfb_reader`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `header() -> header`, `directory_entries() -> std::vector<directory_entry>`,\n    `root_entry() -> directory_entry`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `get_entry(stream_id) -> directory_entry`,\n    `get_stream_data(stream_id) -> std::vector<std::uint8_t>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `storage_ids()`/`stream_ids() -> std::vector<std::uint32_t>`,\n    `child_ids(storage_stream_id) -> std::vector<std::uint32_t>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `find_child_by_name(storage_stream_id, name) -> std::optional<std::uint32_t>`,\n    `resolve_path(names, start_stream_id) -> std::optional<std::uint32_t>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `cfb_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `root() -> cfb_storage`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `from_reader(reader)` / `from_file(path)` / `from_stream(stream)` / `from_bytes(data)` /\n    `from_buffer(data, size) -> cfb_document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `cfb_writer`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_writer.hpp"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `to_bytes(document) -> std::vector<std::uint8_t>`, `write_file(document, path) -> void`,\n    `write_stream(document, stream) -> void`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_writer.hpp"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `cfb_storage` / `cfb_stream`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_storage.hpp"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `cfb_storage::add_storage(storage) -> cfb_storage`, `cfb_storage::add_stream(stream) -> cfb_stream`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_storage.hpp"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `cfb_stream::data() -> std::vector<std::uint8_t>` / `cfb_stream::set_data(value) -> void`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/cfb/cfb_stream.hpp"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `mapi_attachment`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_attachment.hpp"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `from_bytes(filename, data, mime_type, content_id) -> mapi_attachment` /\n    `from_stream(filename, stream, mime_type, content_id) -> mapi_attachment`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_attachment.hpp"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `is_embedded_message() -> bool`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_attachment.hpp"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- properties: `filename`, `data`, `mime_type`, `content_id`,\n    `embedded_message: std::shared_ptr<mapi_message>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_attachment.hpp"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `mapi_recipient`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_recipient.hpp"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- properties: `display_name`, `email_address`, `recipient_type`, `address_type`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_recipient.hpp"
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `mapi_property_collection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property_collection.hpp"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `set(property) -> mapi_property`, `add(property_id, property_type, value, flags) -> mapi_property`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property_collection.hpp"
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `get(property_id, property_type) -> mapi_property`,\n    `remove(property_id, property_type) -> void`, `items() -> std::map<std::pair<std::uint16_t, std::uint16_t>, mapi_property>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property_collection.hpp"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- `mapi_property`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property.hpp"
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- `property_id() -> std::uint16_t`, `property_type() -> std::uint16_t`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property.hpp"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `value() -> std::any` / `set_value(value) -> void`, `property_tag() -> std::uint32_t`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_property.hpp"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/email/cpp/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/email/cpp/)** — task-focused answers for common MSG/EML/CFB processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/email/cpp/)** — the complete, browsable reference for all 26 public types (the [API reference](#api-reference) section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- **[Public API surface](PUBLIC_API.md)** — the stable public namespaces and headers this library commits to.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "- **[Changelog](CHANGELOG.md)** — release history.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "- No SMTP, IMAP, POP3, or other network mail-protocol support — this library reads and writes MSG,\n  CFB, and EML containers and messages already on disk, in memory, or in a stream; it is not a mail\n  client or transport library.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- No PST (Outlook Personal Folders) archive support — only single MSG-format messages and generic\n  CFB containers are supported, not multi-message PST stores.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_document.hpp"
+    }
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- Only a curated subset of MAPI properties (subject, plain-text and HTML body, message class,\n  sender name/address/address type, and Internet Message-ID) has a dedicated named accessor on\n  `mapi_message`; every other property must be read and written through the generic\n  `get_property_value()`/`set_property()` pair with `common_message_property_id` and\n  `property_type_code`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/common_message_property_id.hpp"
+    }
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "These limitations don't apply to\n[Aspose.Email for C++ — Enterprise Edition](https://products.aspose.com/email/cpp/), which adds\nmail-protocol connectivity, PST archive support, and broader MAPI property and format coverage\nacross the full commercial product line.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "Three test executables are registered with CTest, each written directly against the standard\nlibrary with no external test framework fetched: `aspose_email_foss_cfb_tests` (CFB layer),\n`aspose_email_foss_msg_tests` (MSG/`mapi_message` layer), and `aspose_email_foss_public_tests`\n(checks generated constant/enum values — the version string and CFB/MSG well-known constants —\nagainst expectations); see `tests/CMakeLists.txt`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "Runnable example programs have their own build instructions and a per-file task index in\n[`examples/README.md`](examples/README.md); turn them on with\n`-DASPOSE_EMAIL_FOSS_BUILD_EXAMPLES=ON -DASPOSE_EMAIL_FOSS_BUILD_TESTS=OFF` (they are off by\ndefault in the `default` preset).",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

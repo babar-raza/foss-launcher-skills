@@ -1,0 +1,27 @@
+family: email
+platform: cpp
+version: 1
+
+discovery_hints:
+  package_source_file: CMakeLists.txt
+  package_extraction: "cmake:add_library"
+  language: cpp
+  stub_search_hints:
+    - "// TODO"
+    - "return {};"
+
+discovered_actuals:
+  package_name: "AsposeEmailFoss"
+  last_baseline_sha: c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2
+
+language_conventions:
+  method_naming: snake_case
+  enum_values: snake_case
+  pass_by: value_or_reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

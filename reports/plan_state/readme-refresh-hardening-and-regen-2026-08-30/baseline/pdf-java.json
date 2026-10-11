@@ -1,0 +1,22 @@
+{
+  "products": [
+    {
+      "family": "pdf",
+      "platform": "java",
+      "clean": false,
+      "hard_gate_findings": {
+        "dev_test_artifacts_linked": 11
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    }
+  ],
+  "disposition_verified_count": 0,
+  "clean_count": 0,
+  "dirty_count": 1,
+  "total": 1,
+  "skipped": [],
+  "candidate_tree": "repo-presenter-regen-full",
+  "non_canonical": null
+}

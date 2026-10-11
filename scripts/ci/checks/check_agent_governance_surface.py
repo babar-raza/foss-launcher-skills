@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Audit agent-governance instruction surfaces for cross-provider drift.
 
 Detects repo-local asymmetries that can cause one agent runtime to follow
@@ -23,12 +22,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import os
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_BASELINE = _REPO_ROOT / "scripts" / "ci" / "fixtures" / "agent_governance_surface_baseline.json"
 
 
@@ -212,7 +210,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 title="skills/registry.json does not exist",
                 detail=(
                     "The machine-readable skill registry is missing. Run: "
-                    "the sync_providers script to generate it."
+                    "python scripts/pipeline/commands/ops/sync_providers.py to generate it."
                 ),
                 evidence=[
                     Evidence(path="skills/registry.json", line=None, excerpt="file not found"),
@@ -223,7 +221,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
         try:
             registry = json.loads(registry_path.read_text(encoding="utf-8"))
             # Count canonical skills that have S-XX IDs (matching registry generator logic)
-            _id_re = re.compile(r"^#\s+(S-\d+):")
+            _id_re = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
             canonical_count = 0
             skills_dir = repo_root / "skills"
             if skills_dir.is_dir():
@@ -241,7 +239,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                         title="skills/registry.json skill count does not match canonical skills/",
                         detail=(
                             f"Registry has {registry.get('skill_count')} skills but canonical "
-                            f"has {canonical_count}. Run the sync_providers script"
+                            f"has {canonical_count}. Run: python scripts/pipeline/commands/ops/sync_providers.py"
                         ),
                         evidence=[
                             Evidence(
@@ -274,7 +272,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="CODEX.md does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script provides "
+                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
                     "agent-agnostic pre-write enforcement. CODEX.md should instruct agents to "
                     "run it before every write."
                 ),
@@ -291,7 +289,7 @@ def analyze_repo(repo_root: Path) -> list[Finding]:
                 severity="high",
                 title="Kilo Code governance does not reference the preflight check script",
                 detail=(
-                    "The universal preflight script provides "
+                    "The universal preflight script (scripts/pipeline/commands/launch/preflight.py) provides "
                     "agent-agnostic pre-write enforcement. .kilocode/rules-code/governance.md "
                     "should instruct agents to run it before every write."
                 ),

@@ -1,34 +1,40 @@
-"""advisory_lock.py -- shared advisory file lock.
+"""advisory_lock.py — shared advisory file lock (extracted RPR-C-01 pattern).
 
-Ported near-verbatim from aspose.org (2026-08-29 sync, TASK_BACKLOG.md
-SYNC-1). Source has zero content/product coupling -- pure OS-level file
-locking with PID-liveness checking. One shared, tested lock primitive for
-any read-modify-write over a shared mutable state file.
-
-Improvement over a naive lock file: the lock file payload has always been
-"pid:timestamp"; this module actually uses the pid. A holder that is
-verifiably dead (a liveness probe) is stolen immediately instead of only
-after the stale-timeout window. The mtime-age stale steal remains as the
-fallback for the cannot-determine-liveness case (e.g. pid recycled by an
-unrelated process -- a genuine limit of pid-based liveness on any OS).
-
-Concurrency: O_CREAT|O_EXCL creation is the atomic primitive. Stealing is
-guarded by a stat-signature re-check (mtime+size observed at examination
-time must still match at unlink time) to narrow the window where two
-waiters could both steal, or a waiter could unlink a lock that just
-changed hands. Narrowed, not eliminated -- advisory locking on a plain
-filesystem cannot fully close that window; this is documented, not hidden.
-
-release() compares the exact payload it wrote at acquire() time before
-unlinking (compare-then-unlink): if this instance's own lock was stolen
-(the deadline-branch in acquire() can legitimately steal from a
-still-alive holder past stale_seconds), release() must never blindly
-unlink whatever now occupies self.path -- that would silently destroy the
-new holder's live lock instead of a safe no-op.
-
-Windows note: liveness probing shells out to `tasklist` (native Windows
-executable, also on PATH inside Git Bash / MSYS2). Probes are rate limited
-(once per second of waiting) because tasklist costs ~100-300 ms per call.
+CONTRACT: scripts/pipeline/lib/advisory_lock.py
+  purpose: One shared, tested lock primitive for every read-modify-write over
+           shared mutable state files (session_ledger manifests, skill_context
+           ACTIVE.json, project_phase_store state, baseline ledgers). Extracted
+           from baseline_ledger.py (RPR-C-01), which proved the pattern; named
+           advisory_lock (not filelock) to avoid shadowing the common pip
+           "filelock" package should it ever land in the venv.
+  improvement over the source pattern (HARDEN-A1, 2026-07-22): the lock file
+           payload has always been "pid:timestamp"; this module actually uses
+           the pid. A holder that is verifiably dead (tasklist/ps probe) is
+           stolen immediately instead of only after the stale-timeout window.
+           The mtime-age stale steal remains as the fallback for the
+           cannot-determine-liveness case (e.g. pid recycled by an unrelated
+           process — a genuine limit of pid-based liveness on any OS).
+  concurrency: O_CREAT|O_EXCL creation is the atomic primitive. Stealing is
+           guarded by a stat-signature re-check (mtime+size observed at
+           examination time must still match at unlink time) to narrow the
+           window where two waiters could both steal, or a waiter could unlink
+           a lock that just changed hands. Narrowed, not eliminated — advisory
+           locking on a plain filesystem cannot fully close that window; this
+           is documented, not hidden.
+  improvement (RC1/RC2 hardening, 2026-07-31): the guard above only ever
+           covered the WAITER doing a steal. Nothing covered the original
+           HOLDER's own release() — if this instance's lock was stolen
+           (acquire()'s deadline branch intentionally steals from a still-
+           alive holder once stale_seconds elapses, per the note above),
+           release() used to unconditionally unlink whatever now occupies
+           self.path, silently destroying the new holder's live lock instead
+           of a safe no-op. release() now compares the exact payload it wrote
+           at acquire() time before unlinking (compare-then-unlink), the same
+           narrowing (not elimination) already accepted for the steal path.
+  windows note: liveness probing shells out to `tasklist` (native Windows
+           executable, also on PATH inside Git Bash / MSYS2). Probes are rate
+           limited (once per second of waiting) because tasklist costs
+           ~100-300 ms per call.
 
 Usage::
 
@@ -56,7 +62,7 @@ class LockTimeout(Exception):
     """Raised when the lock could not be acquired within the timeout."""
 
 
-def _pid_alive(pid: int) -> "bool | None":
+def _pid_alive(pid: int) -> bool | None:
     """Best-effort liveness probe. True=alive, False=verifiably dead, None=unknown."""
     if pid <= 0:
         return None
@@ -68,6 +74,7 @@ def _pid_alive(pid: int) -> "bool | None":
             )
             if result.returncode != 0:
                 return None
+            # tasklist prints "INFO: No tasks are running..." when the pid is absent
             return f" {pid} " in f" {result.stdout} ".replace("\r", " ").replace("\n", " ")
         os.kill(pid, 0)
         return True
@@ -84,7 +91,7 @@ class FileLock:
 
     def __init__(
         self,
-        path: "Path | str",
+        path: Path | str,
         *,
         stale_seconds: float = _STALE_LOCK_SECONDS,
         timeout: float = _DEFAULT_TIMEOUT,
@@ -95,17 +102,19 @@ class FileLock:
         self.timeout = timeout
         self.poll = poll
         self._held = False
-        self._observed_sig: "tuple[float, int] | None" = None
-        self._own_payload: "str | None" = None
+        self._observed_sig: tuple[float, int] | None = None
+        self._own_payload: str | None = None
 
-    def _examine_holder(self) -> "tuple[int | None, float, bool]":
+    # ── internals ────────────────────────────────────────────────────────
+
+    def _examine_holder(self) -> tuple[int | None, float, bool]:
         """Read holder pid, lock age, and existence.
 
-        The stat signature (for guarded steal) is captured independently of
-        the pid parse: an empty/torn lock file from a writer killed between
+        The stat signature (for guarded steal) is captured independently of the
+        pid parse (F7): an empty/torn lock file from a writer killed between
         open and write must still get a signature, or _steal would run blind.
         """
-        pid: "int | None" = None
+        pid: int | None = None
         age = 0.0
         try:
             st = self.path.stat()
@@ -118,13 +127,13 @@ class FileLock:
             raw = self.path.read_text(encoding="utf-8", errors="replace")
             pid = int(raw.split(":", 1)[0])
         except (OSError, ValueError):
-            pid = None  # unreadable/empty payload -- liveness unknown, mtime path governs
+            pid = None  # unreadable/empty payload — liveness unknown, mtime path governs
         return pid, age, True
 
     def _steal(self) -> None:
         """Unlink the lock only if it still matches the signature we examined.
 
-        With no observed signature we never steal blind -- the lock either
+        With no observed signature (F7) we never steal blind — the lock either
         vanished (acquire will just retry) or could have changed hands.
         """
         if self._observed_sig is None:
@@ -132,14 +141,21 @@ class FileLock:
         try:
             st = self.path.stat()
             if (st.st_mtime, st.st_size) != self._observed_sig:
-                return  # lock changed hands since we looked -- do not steal
+                return  # lock changed hands since we looked — do not steal
             self.path.unlink()
         except OSError:
             pass  # already gone, or another waiter stole it first
 
+    # ── public API ───────────────────────────────────────────────────────
+
     def acquire(self) -> "FileLock":
         self.path.parent.mkdir(parents=True, exist_ok=True)
         deadline = time.monotonic() + self.timeout
+        # G38: was 0.0, which made the FIRST contention event on every waiter
+        # probe immediately (spawning a ~100-300ms `tasklist` subprocess on
+        # Windows) instead of honoring the documented "once per second of
+        # waiting" rate limit below. Under load this can stack up faster than
+        # the lock timeout across many concurrent waiters.
         next_liveness_probe = time.monotonic() + _LIVENESS_PROBE_INTERVAL
         while True:
             try:
@@ -152,32 +168,20 @@ class FileLock:
                 self._held = True
                 self._own_payload = payload
                 return self
-            except (FileExistsError, PermissionError):
-                # Windows adaptation, found live during this port's own test
-                # suite (flaky ~1-in-5 under 30-way thread contention, never
-                # reproduced on the first few runs): POSIX guarantees
-                # O_CREAT|O_EXCL on an existing path raises FileExistsError.
-                # Windows can instead raise PermissionError (WinError 5) when
-                # this open() races against another thread's unlink() of the
-                # same path (_steal()/release() below) -- the file is
-                # transiently in a delete-pending state, neither cleanly
-                # absent nor cleanly present. Treating PermissionError the
-                # same as FileExistsError here is correct either way: both
-                # mean "something else is going on with this path right now,"
-                # which is exactly what this retry loop already handles.
+            except FileExistsError:
                 now = time.monotonic()
                 if now >= next_liveness_probe:
                     next_liveness_probe = now + _LIVENESS_PROBE_INTERVAL
                     pid, _age, exists = self._examine_holder()
                     if not exists:
-                        continue  # lock vanished -- retry immediately
+                        continue  # lock vanished — retry immediately (F7)
                     if pid is not None and _pid_alive(pid) is False:
                         self._steal()
                         continue
                 if now >= deadline:
                     _pid, age, exists = self._examine_holder()
                     if not exists:
-                        continue  # freed just before the deadline -- retry, not timeout
+                        continue  # freed just before the deadline — retry, not timeout (F7)
                     if age > self.stale_seconds:
                         self._steal()
                         continue
@@ -189,9 +193,22 @@ class FileLock:
 
     def release(self) -> None:
         """Release the lock -- but only if the file at self.path still holds
-        the exact payload THIS instance wrote at acquire() time (see module
-        docstring for why: a stolen lock's release() must be a no-op, never
-        an unconditional unlink of whatever now occupies the path)."""
+        the exact payload THIS instance wrote at acquire() time.
+
+        HARDEN-A1 covers the waiter side: a waiter stealing a stale-but-live
+        lock re-checks a stat signature immediately before unlinking, so it
+        never blindly destroys a lock that changed hands. Nothing previously
+        covered the holder side: if this instance's own lock was stolen
+        (deadline-branch steal in acquire(), which can legitimately steal
+        from a still-alive holder past stale_seconds -- documented,
+        intentional, tested in test_stale_mtime_steal_from_live_pid), this
+        release() would otherwise unconditionally unlink whatever is now at
+        self.path -- silently destroying the NEW holder's live lock instead
+        of a no-op. Comparing the exact payload this instance wrote narrows
+        that to a compare-then-unlink race (same class of narrowing, not
+        elimination, the steal path already documents and accepts for a
+        plain filesystem).
+        """
         if not self._held:
             return
         self._held = False
@@ -200,13 +217,13 @@ class FileLock:
         try:
             current = self.path.read_text(encoding="utf-8", errors="replace")
         except OSError:
-            return  # already gone -- nothing to compare or unlink
+            return  # already gone — nothing to compare or unlink
         if payload is not None and current != payload:
-            return  # stolen since we acquired -- this is no longer OUR lock to release
+            return  # stolen since we acquired — this is no longer OUR lock to release
         try:
             self.path.unlink()
         except OSError:
-            pass  # already released/stolen -- safe to ignore
+            pass  # already released/stolen — safe to ignore
 
     def __enter__(self) -> "FileLock":
         return self.acquire()

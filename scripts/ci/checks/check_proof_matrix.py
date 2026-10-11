@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_proof_matrix.py — verify operator proof matrix completeness (TC-SR-13).
 
 Checks that reports/proofs/INDEX.json contains at least one proof bundle tagged
@@ -28,11 +27,10 @@ Exit codes:
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _INDEX_FILE = _REPO_ROOT / "reports" / "proofs" / "INDEX.json"
 
 REQUIRED_SCENARIOS: dict[int, str] = {

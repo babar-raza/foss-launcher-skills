@@ -1,0 +1,72 @@
+mission_authority:
+  mission_id: readme-refresh-hardening-and-regen-2026-08-30
+  mission_summary: 'Harden /readme-refresh (S-120) per the closed forensic trust audit
+    (readme-refresh-forensic-trust-audit-2026-08-25, 172 confirmed defects/31 products)
+    and the follow-on production-hardening design (phase6b/6c/6d): baseline identity
+    by content not pointer, an Input Manifest with recorded as-of, verification-currency
+    as a dependency edge, content-addressed disposition identity, publication reconciliation
+    and target-authority classification. Then regenerate README.md candidates for
+    tex/python, font/python, pdf/typescript, and fix the 13 products the current audit-portfolio
+    baseline shows dirty. No push to any external product repo without a fresh, explicit,
+    per-PR human go-ahead.
+
+    '
+  governing_plan_path: <local-plan-cache>/regenerate-generate-readme-md-files-for-buzzing-turtle.md
+  in_scope_outcomes:
+  - 'Wave 1 (Phase 1): freshness_guard compliance call, clone-cache directory lock,
+    new check_banner_asset_exists hard gate, doc/registry drift fixes, remaining Wave-1
+    items'
+  - 'Wave 4 core (Phase 3): baseline_ledger tree-SHA identity, freshness_guard HISTORY_REWRITTEN_CONTENT_IDENTICAL/STALE_ORPHANED
+    states (must pass all 4 sibling consumer suites unchanged), input_manifest.py,
+    publication_reconciler.py, publication-authority classifier'
+  - 'Wave 2 (Phase 4): disposition content-addressed identity across 4 ledgers, baseline-integrity
+    assert, text-diff verification, vacuous-pass visibility'
+  - 'Wave 5 (Phase 5): TypeScript verify-examples runner, honest UPSTREAM-BROKEN status,
+    approve-gate code enforcement'
+  - 'pdf/typescript README readiness (Phase 6): verify MT040''s real on-disk output
+    (not its checklist), build only the two genuine README-specific gaps (banner-readme.png
+    derivation, aspose_com_targets.json entry)'
+  - 'Canary regeneration (Phase 7): tex/python, font/python (no push), pdf/typescript'
+  - 13 dirty products batched by defect class (Phase 8)
+  - Portfolio re-audit, template contract in-repo, evidence bundle (Phase 9)
+  out_of_scope_items:
+  - Any push/approve/merge to an external product GitHub repo without a fresh, explicit,
+    per-PR human go-ahead (font/python is expected to reach a verified local candidate
+    and a push REFUSAL, never a push)
+  - 'MT040''s own scope: pdf/typescript registration, cloning, TypeScript-scout hardening
+    (S-99), knowledge bootstrap, 5-subdomain site launch -- verified as an input,
+    never re-executed by this mission'
+  - Any edit to AGENTS.md itself
+  mandatory_acceptance_criteria:
+  - freshness_guard.py change passes its own tests plus all 4 sibling consumer suites
+    (batch_reference, refresh_run, launch_gate, readiness_gate) unchanged before being
+    considered done
+  - tex/python's ingest-candidate surfaces its 2 known ledger defects (c0001 merged_verbatim
+    mislabel, badge-preserved-from-zero-badges) unaided by the hardened disposition
+    checks
+  - 'font/python reaches freshness state HISTORY_REWRITTEN_CONTENT_IDENTICAL (not
+    STALE, not silently CURRENT) and a push attempt is refused as target_authority:
+    mirror'
+  - A single evidence bundle exists at reports/plan_state/readme-refresh-hardening-and-regen-2026-08-30/evidence/
+    with an absolute path reported in the final response
+  human_authority_boundaries:
+  - Any push/approve/merge to an external product repository
+  - Any decision authorizing font/python republication (upstream GitLab-canonical
+    question unresolved)
+  conflicts_found:
+  - Root MISSION_AUTHORITY.yaml is held by MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+    (open, in progress) -- per this repo's established precedent, this mission does
+    not take over the root slot; it hand-authors this archive record directly, matching
+    the exact shape mission_authority.py's own open command produces.
+  - reports/readme_refresh_runs/page/python/ACTIVE.json points to a stale run (rr-20260818T180353Z-b67f046ac7b8,
+    session_owner mt056-proof-rerun, PLANNED state, 12 days old) that the state machine
+    correctly refuses to let this session abandon (cross-session ownership check,
+    no CLI override exists). page/python is not needed before Phase 8 of this mission;
+    this is recorded as a real, deferred blocker on that one product's lane, not bypassed
+    via direct file edit.
+  - Working tree was clean for every file this mission's Wave-1 work touches, verified
+    via git status --porcelain immediately before mission open (2026-08-30).
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-08-30T00:00:00Z'
+  _closed_at: '2026-09-01T02:26:21Z'

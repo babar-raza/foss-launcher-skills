@@ -1,0 +1,22 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/pdf-go-readme.md.orig	2026-08-06 16:30:12.795833100 +0500
++++ reports/repo-presenter/pdf/go/readme.md	2026-08-06 16:30:25.099240600 +0500
+@@ -48,7 +48,8 @@
+   subgraph Capabilities["Core capabilities"]
+     C1["Document assembly: split/merge/extract/impose"]
+     C2["Content authoring: text/tables/vector/forms/annotations"]
+-    C3["Security: encrypt, sign, redact"]
++    C3["Security: encrypt, sign"]
++    C3b["Redaction: mark and apply (NewRedactAnnotation + ApplyRedactions)"]
+     C4["Conversion: Markdown, HTML, SVG"]
+     C5["Rendering: built-in rasterizer"]
+     C6["Validation: PDF/A, PDF/UA, structural"]
+@@ -76,7 +77,9 @@
+   PRODUCT --- C7
+   C1 --- O1
+   C2 --- O1
++  C2 --- C3b
+   C3 --- O1
++  C3b --- O1
+   C4 --- O2
+   C5 --- O3
+   C6 --- O1

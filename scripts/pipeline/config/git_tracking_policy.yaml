@@ -1,0 +1,51 @@
+# git_tracking_policy.yaml — declarative "default-ignore root, selectively track named
+# subpaths" classification, read by
+# scripts/pipeline/commands/ops/git_tracking_policy_sync.py.
+#
+# CONTRACT: scripts/pipeline/config/git_tracking_policy.yaml
+#   purpose: some directories are blanket-gitignored (e.g. reports/ — see
+#            docs/content-system/generated-vs-maintained.md) yet occasionally grow one
+#            curated subtree that should be durable/reviewable in git history. Hand-writing
+#            the .gitignore negation chain for that ("un-ignore every ancestor directory
+#            level, then re-ignore its siblings, then re-include only the named children")
+#            is a well-known git footgun that fails silently when done wrong, and the
+#            "named children" set (e.g. Aspose family names) usually already has one
+#            canonical source elsewhere in this repo — hand-copying it into .gitignore is
+#            the exact kind of drift this repo has already been bitten by once (see
+#            data/blog_family_routes.yaml's own header comment re: the "/font/ class of
+#            bug"). This file expresses that classification declaratively so both the
+#            drift risk and the negation-chain risk are eliminated by construction.
+#   read by: scripts/pipeline/commands/ops/git_tracking_policy_sync.py (--check / --fix)
+#   sibling: scripts/pipeline/config/knowledge_tracking_policy.yaml solves the MIRROR-IMAGE
+#            problem (default-track a root, selectively ignore named subpaths, for
+#            knowledge/) and deliberately does NOT generate .gitignore from policy, to keep
+#            .gitignore hand-reviewable — reasonable there because its patterns are flat
+#            single-line ignores with no ancestor-chain gotcha. This policy's direction is
+#            the opposite (default-ignore, selectively track) and DOES generate the
+#            .gitignore block, because the ancestor-chain construction is exactly the risky
+#            part that benefits from automation, not the part worth hand-reviewing.
+#   fail-closed: a policy `root` with zero resolvable keep names still renders a valid
+#            (empty-exception) block; nothing outside a `keep` entry is ever tracked.
+
+schema_version: 1
+
+policies:
+  - root: reports/repo-presenter-regen-full
+    description: >
+      Per-family repo-presenter README-refresh disposition/audit trail
+      (readme-refresh pipeline evidence). reports/ is globally gitignored local pipeline
+      evidence; this is the one deliberately tracked exception, carved out 2026-09-06 at
+      operator request so these per-product audit trails get git history, diffability, and
+      cross-session durability. Non-family entries directly under this root (_report/,
+      _scratch/, _briefing.md, comparison-*.md, etc.) are NOT covered by any keep entry
+      below and therefore stay local-only by default — this is intentional, not an
+      omission: only paths one level down that are named for an actual Aspose family are
+      ever un-ignored.
+    keep:
+      # type: family_glob — resolves the keep-name set from a YAML file's top-level
+      # `families:` mapping (its keys are the names). `pattern` is documentation only
+      # (git_tracking_policy_sync.py always tracks a full family directory recursively);
+      # it is not interpolated as a literal glob.
+      - type: family_glob
+        pattern: "{family}/**"
+        source: data/blog_family_routes.yaml

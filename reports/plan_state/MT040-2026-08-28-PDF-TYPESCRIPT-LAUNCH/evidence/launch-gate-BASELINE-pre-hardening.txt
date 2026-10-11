@@ -1,0 +1,20 @@
+L-01 [PASS] Knowledge freshness: state=CURRENT: degraded mode — durable sources agree, no local stale_since flag set
+L-02 [SKIP] Evidence coverage: no content files found for pdf/typescript
+L-03 [WARN] Forbidden claims: WARN: no direct evidence but no contradiction
+L-04 [PASS] API accuracy: audit.py exit 0
+L-05 [PASS] Format truth: 0 FAIL findings
+L-06 [SKIP] Promote validation: promote dry-run not available (knowledge fresh, formats.json present)
+L-08 [SKIP] Provenance coverage: no content files found for pdf/typescript
+L-09 [PASS] Hugo build: hugo exit 0
+L-10 [PASS] No coming-soon placeholder: no 'coming soon' placeholder found in family page
+L-11 [PASS] Family display name: title='Aspose.PDF FOSS', no linkTitle — 3 site(s) checked
+L-12 [FAIL] Denominator reconciliation: gap=898 (live: 898 eligible)
+  missing: Accumulator, ActiveFloat, AddBarcodeOptions, AddFontOptions, AddImageOptions, AddImagePagesOptions, AddImagePagesResult, AddLayerOptions, AddMarkdownResult, AddSVGOptions
+L-13 [PASS] Cross-subdomain Hugo build: 1 site(s) built OK, 0 skipped (remote theme)
+L-14 [SKIP] Grade non-regression: grade_manifest.json has no page entries
+L-15 [WARN] Snippet syntax: 1 snippet issue(s) out of 101
+  snippet_024.ts: bracket imbalance (192 open, 187 close)
+L-16 [SKIP] Platform linkTitle: no platform _index.md found for pdf/typescript
+---------------------------------
+Result: FAIL (1 gate failed)
+Gates: 7 PASS, 1 FAIL, 2 WARN, 5 SKIP

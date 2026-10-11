@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """validate_product_yaml.py — CI-ready gate for products.aspose.org content quality.
 
-Checks every Markdown file under content/products/ (or specified paths) for:
+Checks every Markdown file under content/products.aspose.org/ (or specified paths) for:
 
   1. GARBLED code blocks (exit 1): A fenced-code-block language tag followed by a
      space/tab then non-whitespace character inside YAML frontmatter. This indicates
@@ -25,7 +24,7 @@ USAGE
     python scripts/pipeline/commands/content/validate_product_yaml.py --strict
 
     # Check a specific file or directory:
-    python scripts/pipeline/commands/content/validate_product_yaml.py content/products/en/
+    python scripts/pipeline/commands/content/validate_product_yaml.py content/products.aspose.org/en/
 
 EXIT CODES
 ----------
@@ -41,32 +40,14 @@ import sys
 import textwrap
 from pathlib import Path
 
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+_PRODUCTS_DIR = _REPO_ROOT / "content" / "products.aspose.org"
 
+_PIPELINE_ROOT = Path(__file__).resolve().parent.parent.parent  # commands/content/ -> commands/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
 
-def _resolve_repo_root() -> Path:
-    """Return the repo root via $CONTENT_REPO_PATH or config_loader."""
-    import os as _os
-    env = _os.environ.get("CONTENT_REPO_PATH")
-    if env:
-        return Path(env).resolve()
-    try:
-        return resolve_content_repo()
-    except Exception:
-        return _HERE.parents[3]
-
-_REPO_ROOT = _resolve_repo_root()
-_PRODUCTS_DIR = _REPO_ROOT / "content" / "products"
-
-
-
-try:
-    from core.markdown import extract_frontmatter_body  # noqa: E402
-except ImportError:
-    import re as _re
-    _FM_RE = _re.compile(r"^---\s*\n(.*?)\n---\s*\n", _re.DOTALL)
-    def extract_frontmatter_body(text):
-        m = _FM_RE.match(text)
-        return m.group(1) if m else None
+from core.markdown import extract_frontmatter_body  # noqa: E402
 
 # Garbled: language tag immediately followed by space/tab then a non-whitespace char.
 # This pattern appears when code lines were joined by YAML flow-scalar line folding.
@@ -176,7 +157,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "paths",
         nargs="*",
-        help="Files or directories to check. Defaults to content/products/.",
+        help="Files or directories to check. Defaults to content/products.aspose.org/.",
     )
     p.add_argument(
         "--strict",

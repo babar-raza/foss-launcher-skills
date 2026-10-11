@@ -1,0 +1,31 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/email-python-readme.md.orig	2026-08-06 14:51:14.628221300 +0500
++++ reports/repo-presenter/email/python/readme.md	2026-08-06 14:51:26.063968700 +0500
+@@ -40,7 +40,8 @@
+     C3["High-level mutable message model (MapiMessage)"]
+     C4["MAPI property read/write by ID or name"]
+     C5["Recipients, attachments, and embedded messages"]
+-    C6["MSG and EmailMessage conversion"]
++    C6a["Export MapiMessage to EmailMessage (to_email_message)"]
++    C6b["Import EmailMessage as MapiMessage (from_email_message)"]
+   end
+ 
+   subgraph Outputs["Outputs"]
+@@ -59,14 +60,15 @@
+   PRODUCT --- C3
+   PRODUCT --- C4
+   PRODUCT --- C5
+-  PRODUCT --- C6
++  PRODUCT --- C6b
+   C1 --- O1
+   C2 --- O2
+   C3 --- O3
++  C3 --- C6a
+   C4 --- O3
+   C5 --- O4
+-  C6 --- O5
+-  C6 --- O2
++  C6a --- O5
++  C6b --- O2
+ ```
+ 
+ ## Key capabilities

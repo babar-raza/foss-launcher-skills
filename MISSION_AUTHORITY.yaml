@@ -1,0 +1,104 @@
+mission_authority:
+  mission_id: MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING
+  mission_summary: "A first-principles production assessment of MT066-2026-09-09-PACKAGE-
+    INSTALL-RECONCILIATION found a systemic governance gap independent of MT066's own
+    content-migration backlog: the root MISSION_AUTHORITY.yaml slot is (by its own
+    tooling's module docstring) 'a narrative pointer, not an execution lock.' Missions
+    can force-take-over the slot from a mission_locked: true, _archive_status: open
+    incumbent with nothing more than a 15-character reason string, and nothing durably
+    records what happens to the incumbent's remaining work. mission_authority.py list
+    shows at least 9 missions (MT025, MT028, MT037, MT058, MT059, MT062, MT064, plus 3
+    readme-refresh-track missions, MT066 itself) simultaneously [open] with no automatic
+    staleness detection anywhere in the repo. Compounding this, the entire durable
+    mission/taskcard ledger (reports/plan_state/**) is git-ignored and exists only on
+    whichever single machine last touched it -- invisible to concurrent sessions,
+    unrecoverable if that machine's state is lost. This mission fixes the governance
+    layer itself: (1) make reports/plan_state/** git-tracked, with every embedded
+    local-machine absolute path redacted first; (2) an open mission with no taskcard
+    activity for 7+ days surfaces automatically at session start; (3) force-taking-over
+    the root mission slot requires recording a disposition for the incumbent's
+    remaining work, closing the exact mechanism that left MT066 (and the 8 others
+    above) dangling. Executed under the Supervisor/Lane-agent schema defined in the
+    full plan (see governing_plan_path)."
+  governing_plan_path: plans/from_backlog/2026-09-17-mission-authority-durability-hardening.md
+  in_scope_outcomes:
+  - "reports/plan_state/** becomes git-tracked via a new whole_subtree policy type in
+    git_tracking_policy_sync.py (the existing family_glob/literal types only model
+    small, stable, enumerable name sets -- wrong shape for this mission_id-keyed,
+    unbounded, weekly-growing directory), gated on a one-time redaction pass removing
+    every embedded local-machine absolute path (52 files confirmed at mission-open
+    containing C:\\Users\\<user>\\... paths in governing_plan_path and similar fields)"
+  - "An automated stale-open-mission detector wired into the existing session-start
+    print block (same place 'Dirty files at start:' and 'N other active session(s)'
+    already print) -- extends mission_authority.py's build_liveness_report() with a
+    4th store reading reports/plan_state/*/mission_authority.yaml + each mission's
+    taskcards.jsonl newest recorded_at"
+  - "cmd_activate's --force path requires a --disposition argument (will-close-after-
+    current-task / parking-with-reason:<text> / handing-off-to:<mission-id>), persisted
+    on the existing mission_activation_log.jsonl, closing the exact gap that let MT066
+    (and >=9 other missions) go permanently dangling with zero forcing function"
+  out_of_scope_items:
+  - "MT066's own content-migration backlog (mass literal-install-text remediation
+    across 19 products, cells/net collision handling, GRADE_CONTRACT sec.10 grade
+    remediation) -- tracked separately under MT066's own continuing mission binding,
+    not folded into this mission's scope (folding it in would repeat the exact
+    scope-creep pattern that grew MT066 from 8 to 18 taskcards)"
+  - "A GitHub-Actions-based dead-man switch (repository-presenter's own out-of-band
+    liveness backstop) -- deliberately deferred: this repo currently has all 20
+    workflows disabled_manually as MT069's active cost-containment measure; standing
+    up a new always-on scheduled workflow here would directly reintroduce the exact
+    cost problem MT069 exists to fix. TC-GOV-02's session-start detector is the
+    interim, cost-free substitute; revisit only after MT069's redesign lands"
+  - "Retroactively repairing the reference-transition-legality gap in taskcard_store.py
+    (it enforces field-completeness-per-status and CAS concurrency-safety, but not a
+    legal-transition graph) -- noted as a real, disclosed gap in the governing plan,
+    not scoped into this mission to avoid further scope growth"
+  mandatory_acceptance_criteria:
+  - "git ls-files reports/plan_state/ is non-empty after the redaction+tracking work,
+    and zero C:\\Users\\ or /home/ literal path matches remain under it"
+  - "mission_authority.py status --json includes a stale_open_missions key correctly
+    listing every mission confirmed [open] with no taskcard activity past the
+    threshold, verified against the live >=9-mission backlog found at mission-open"
+  - "pytest scripts/pipeline/tests/test_mission_authority.py -k Activate passes,
+    including new cases proving --force fails without --disposition, and that the
+    existing ungated same-mission-id resume fast path is unmodified"
+  - "A fresh git clone of this repo (proving the durability fix actually closes the
+    single-machine-loss gap) contains at least one real mission's taskcards.jsonl"
+  human_authority_boundaries:
+  - "Force-taking over the root MISSION_AUTHORITY.yaml slot from a locked+open
+    incumbent -- done once at this mission's own open (from MT069, disjoint file
+    scope, same precedent MT068 recorded taking over from MT066) with the user's
+    explicit go-ahead to execute this plan; any further takeover of a DIFFERENT
+    future incumbent by this mission would need its own fresh justification"
+  - "Deciding whether/when to stand up a real GitHub-Actions dead-man switch for this
+    plan's own execution, once MT069's cost redesign lands"
+  - "Any relaxation of this mission's own TC-GOV-03 discipline (requiring a
+    disposition on future forced takeovers) once built"
+  conflicts_found:
+  - "Checked live at mission-open (2026-09-17, this session): MISSION_AUTHORITY.yaml's
+    working-tree copy was uncommitted, holding MT069-2026-09-16-GHA-MINUTES-
+    REARCHITECTURE's real Phase-B-authorization content (from another active session,
+    dated 2026-09-18 in that session's own clock) -- preserved via a dedicated
+    commit (68f45c4186) before this mission's takeover, so nothing was lost. 6 active
+    sessions confirmed via mission_authority.py status at the time of takeover
+    (session ledger), consistent with the multiple concurrent git worktrees observed
+    (agent-ad8903b8c4674bc87, agent-ae9dc0b36d8350e21, blog-url-frontmatter-fix,
+    .kilo/worktrees/feather-colt, .kilo/worktrees/steep-abacus, and others not
+    belonging to this session)."
+  - "MT069's own contract (as committed in 68f45c4186) added a new human-authority
+    boundary: 'Force-taking-over a locked+open root MISSION_AUTHORITY.yaml incumbent
+    if the root occupant changes... escalate, do not auto-force.' This mission's
+    takeover was escalated to the user (explicit go-ahead: 'take the best decisions',
+    2026-09-17, this session) rather than auto-forced silently, satisfying that rule
+    in spirit even though it was MT069 itself (not a later occupant) being taken over."
+  - "File-path scope confirmed disjoint from MT069: this mission touches
+    scripts/pipeline/commands/ops/git_tracking_policy_sync.py, a new
+    redact_plan_state_paths.py, scripts/pipeline/config/git_tracking_policy.yaml,
+    .gitignore, scripts/pipeline/commands/governance/mission_authority.py,
+    scripts/pipeline/commands/ops/session_ledger.py,
+    scripts/ci/hooks/session_start_ledger_hook.sh; MT069 touches .github/workflows/**
+    and its own investigation report. No overlap."
+  - "Mission-ID allocated via the sanctioned allocator (mission_authority.py allocate
+    --track main --slug GOVERNANCE-DURABILITY-HARDENING) -- returned
+    MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING."
+  mission_locked: true

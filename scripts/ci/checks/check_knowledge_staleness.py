@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_knowledge_staleness.py — Warn when a PR modifies content for a product
 whose knowledge model has stale_since set.
 
@@ -22,11 +20,10 @@ Note: This check is always advisory. Set continue-on-error: true in the workflow
 from __future__ import annotations
 
 import re
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # Pattern to extract {family}/{platform} from content paths.
 # Handles: content/{site}/en/{family}/{platform}/...
@@ -106,7 +103,7 @@ def main(argv: list[str]) -> int:
     for family, platform, since in stale:
         print(
             f"::warning::{family}/{platform}: stale_since={since} — "
-            f"run knowledge-diff then knowledge-update before writing content"
+            f"run S-12 (knowledge-diff) → S-14 (knowledge-update) before writing content"
         )
     print(
         f"\nSummary: {len(stale)} stale product(s) in this PR. "

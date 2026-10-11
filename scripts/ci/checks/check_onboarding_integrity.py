@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """
 scripts/ci/checks/check_onboarding_integrity.py
 
@@ -37,7 +35,7 @@ from pathlib import Path
 # Configuration
 # ---------------------------------------------------------------------------
 
-_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REPO_ROOT = _DEFAULT_REPO_ROOT
 
 OPERATOR_DOCS = [
@@ -60,14 +58,38 @@ def configure(repo_root: Path | None = None) -> None:
 # Substrings that must appear in docs/QUICKSTART.md.
 # Update here when a section is renamed — do NOT rename sections to avoid updating this list.
 REQUIRED_QUICKSTART_SUBSTRINGS = [
-    "Session Flow",
-    "Safety Rules",
-    "Further Reading",
+    "Environment Setup",
+    "Five Common Operator Workflows",
+    "After This Quickstart",
     "/session-start",
 ]
 
 # Pattern for relative markdown links: [text](target)
 _LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+
+
+def _github_heading_slug(heading: str) -> str:
+    """Compute a heading's GitHub Markdown anchor slug.
+
+    GitHub's real algorithm:
+      1. Lowercase the heading text
+      2. Remove all characters that are not ASCII alphanumeric, space, or hyphen
+      3. Replace EACH space with a hyphen individually -- NOT a collapsed
+         `\\s+` -> single-hyphen substitution. A heading with two consecutive
+         spaces (e.g. after stripping a lone `&` out of "Mission & Taskcard",
+         leaving "Mission  Taskcard") renders as a real double-hyphen anchor
+         on GitHub (`mission--taskcard`), not a single one.
+
+    Found live 2026-08-08: this function used to collapse whitespace runs via
+    `re.sub(r"\\s+", "-", ...)`, which produced a single-hyphen slug that
+    disagreed with AGENTS.md's own real, correct TOC anchor for its "§17
+    Planning Discipline (Mission & Taskcard Methodology)" heading -- a false
+    positive that blocked any commit touching RUNBOOK.md/OPERATOR_GUIDE.md
+    (the only two staged-file triggers for this check), unrelated to whatever
+    that commit actually changed.
+    """
+    slug = re.sub(r"[^a-z0-9\s-]", "", heading.lower())
+    return slug.strip().replace(" ", "-")
 
 # ---------------------------------------------------------------------------
 # Check runner
@@ -85,7 +107,7 @@ def _check(label: str, condition: bool, message: str) -> None:
             _passed_labels.add(label)
     else:
         _failures.append(f"  FAIL [{label}] {message}")
-        if os.getenv("GITHUB_ACTIONS") or os.getenv("GITLAB_CI"):
+        if os.getenv("GITHUB_ACTIONS"):
             # Emit GitHub Actions inline annotation (visible in PR diff view)
             first_line = message.splitlines()[0]
             print(f"::error title=Onboarding Integrity [{label}]::{first_line}")
@@ -101,6 +123,8 @@ def check_quickstart_tracked() -> None:
         ["git", "ls-files", "docs/QUICKSTART.md"],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         cwd=REPO_ROOT,
     )
     _check(
@@ -305,10 +329,7 @@ def check_quickstart_structure() -> None:
 def check_toc_anchors() -> None:
     """C7: Every (#anchor) href in AGENTS.md resolves to a real heading slug.
 
-    Uses GitHub Markdown's anchor algorithm:
-      1. Lowercase the heading text (strip leading #s and whitespace)
-      2. Remove all characters that are not ASCII alphanumeric, space, or hyphen
-      3. Replace whitespace runs with a single hyphen
+    Uses GitHub Markdown's anchor algorithm — see _github_heading_slug().
     """
     agents = REPO_ROOT / "AGENTS.md"
     if not agents.exists():
@@ -331,9 +352,7 @@ def check_toc_anchors() -> None:
         if not line.startswith("#"):
             continue
         heading = re.sub(r"^#+\s*", "", line)
-        slug = heading.lower()
-        slug = re.sub(r"[^a-z0-9\s-]", "", slug)
-        slug = re.sub(r"\s+", "-", slug.strip())
+        slug = _github_heading_slug(heading)
         if slug:
             heading_slugs.add(slug)
 
@@ -398,8 +417,7 @@ def main() -> int:
         for line in text.splitlines():
             if line.startswith("#"):
                 heading = re.sub(r"^#+\s*", "", line)
-                slug = re.sub(r"[^a-z0-9\s-]", "", heading.lower())
-                slug = re.sub(r"\s+", "-", slug.strip())
+                slug = _github_heading_slug(heading)
                 if slug:
                     print(f"  #{slug:<60}  ←  {heading}")
         return 0

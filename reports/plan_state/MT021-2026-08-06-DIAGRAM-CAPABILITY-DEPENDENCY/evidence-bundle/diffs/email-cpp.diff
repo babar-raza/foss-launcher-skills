@@ -1,0 +1,28 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/email-cpp-readme.md.orig	2026-08-06 16:26:42.657681700 +0500
++++ reports/repo-presenter/email/cpp/readme.md	2026-08-06 16:26:52.447977900 +0500
+@@ -36,7 +36,8 @@
+     C1["Low-level CFB read/write"]
+     C2["Low-level MSG read/write"]
+     C3["High-level mapi_message API"]
+-    C4["EML load/save bridge"]
++    C4a["Export mapi_message to .eml (save_to_eml)"]
++    C4b["Import .eml into mapi_message (load_from_eml)"]
+   end
+ 
+   subgraph Outputs["Outputs"]
+@@ -51,11 +52,13 @@
+   PRODUCT --- C1
+   PRODUCT --- C2
+   PRODUCT --- C3
+-  PRODUCT --- C4
++  PRODUCT --- C4b
+   C1 --- O1
+   C2 --- O2
+   C3 --- O2
+-  C4 --- O3
++  C3 --- C4a
++  C4a --- O3
++  C4b --- O2
+ ```
+ 
+ ## Key capabilities

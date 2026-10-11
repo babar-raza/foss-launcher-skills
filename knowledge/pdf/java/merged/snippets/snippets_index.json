@@ -1,0 +1,2974 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 159,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getBorder",
+      "Annotation.setBorder",
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getBorder",
+      "WidgetAnnotation.getCharacteristics",
+      "WidgetAnnotation.setBorder"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "pdf",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "780ee0cbff1cdbe5e93677b058e66ad2bbdd447486a5fcf8d64553cdac8c2490",
+      "norm": "8ea542b8ced682a4663868a13e50f5441593d96e5769fbcf27380fbd7fe59faa"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 184,
+    "classes_used": [
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraph",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextFragment"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.size",
+      "RadioButtonOptionField.setOptionName"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c5d50b2faa4aefcbd4e5172eef016006cd86e439fa1d99414743c88fdbae27e6",
+      "norm": "62dc51d2fad98f2b332c02c11c53b87f71d4d9d25b421982d60157ea05fa7db3"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 211,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Page",
+      "Text",
+      "TextAbsorber"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.accept",
+      "TextAbsorber.getText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "79383ef0b5445efc5aca06b8eeaac8f98e2f2371e4cfae9a21f42551e653d9af",
+      "norm": "16f0795f3cd8852ba8ede8b20cf50d5dbb8c4673dd5674c00d0b9eea444c4c7b"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 225,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Image",
+      "Index",
+      "Page",
+      "Re",
+      "Resource",
+      "Resources",
+      "XImage"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Document.save",
+      "Page.getResources",
+      "Resources.getImages",
+      "XImage.save"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "132ebe9b9474482491d6b8978c69c35dd8a0a6a75bdbccbaa6e836f9a051d7c7",
+      "norm": "276882de1af87a7e443bc2533e9286071b92d2f9532ab2c44f05f66166221c0e"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 243,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Page",
+      "Para",
+      "Paragraph",
+      "Paragraphs",
+      "Text",
+      "TextFragment"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Document.save",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bc43efc28da915376363085ed0212eb31eec157a433ecbcbb433930a0cf4af2d",
+      "norm": "545e0f4b71cae087a06e9e9bf366b5327c4a33fa085b0703b9edd116b5bd1912"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 258,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "Text",
+      "TextBoxField",
+      "Value"
+    ],
+    "methods_used": [
+      "Document.getForm",
+      "Document.save",
+      "Field.get",
+      "Field.getPartialName",
+      "Field.getValue",
+      "Field.setValue",
+      "Form.get",
+      "Form.getFields",
+      "Text.getValue",
+      "Text.setValue",
+      "TextBoxField.getValue",
+      "TextBoxField.setValue"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9c611e37aa09b5d8c26ec79c5e3f4357bc2bd1d4f21416945f5bb7a6873f4d01",
+      "norm": "9298aed6776a57f565844cbe1fb51d6e52698ac3c8f0cb06063d1d19d12492b1"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 279,
+    "classes_used": [
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraph",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "RadioButtonOptionField.setOptionName"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3618b0f812ffae8219362ff5961f94ba13f0e18e520f3a61651f3c84e80d1ff8",
+      "norm": "6e34d000fde532f2b66c93ba530088a14819a41eb1aaa599bab9285406857bae"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 297,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getBackground",
+      "Document.getPages",
+      "Document.setBackground",
+      "Page.add",
+      "Page.getBackground",
+      "Page.setBackground",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "78568b294dda2771ccb66a23d14057d95779ce237531605d4213a5f1650edd2d",
+      "norm": "b620e59276274c0c07672ac860a48aa2d1b46e961c0fcd95b4fc112ba1bae0ae"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 309,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Field.getBorder",
+      "RadioButtonOptionField.getBorder",
+      "RadioButtonOptionField.setStyle"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "09d5bc667a8ea8a340a5690c61eed98ce25a5695702f4e7469ce3ef5a67301f6",
+      "norm": "0dcd3e534cbcaa31685df7a969e49574fc450677456925d7f50a660156b26a0a"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 7,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "Collection",
+      "Do",
+      "Document",
+      "Page",
+      "Re"
+    ],
+    "methods_used": [
+      "Annotation.getRect",
+      "Annotation.getSubtype",
+      "AnnotationCollection.get",
+      "AnnotationCollection.getCount",
+      "Collection.getCount",
+      "Document.getPages",
+      "Page.getAnnotations",
+      "Page.getRect"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "14ebba988c15ed21eb62cab600a1cf55ab611299bfb0d1805a41c636b7d05cdf",
+      "norm": "e72385920afd69db63e4cad51e3ffc4ab5074be99974f248a594f52de732a510"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 59,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Document.save",
+      "Page.add",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6ca8267424ddcb0a1868b5ff43f729d6ac8900d10dbe7730fdbfbdee976a6ea4",
+      "norm": "5a9a535c7b600350f9897487db3d9592447007147745d6cca6c03d304d6be6e9"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 77,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.setContents",
+      "Document.getPages",
+      "Document.save",
+      "FreeTextAnnotation.setContents",
+      "Page.add",
+      "Page.getAnnotations",
+      "Page.setContents",
+      "TextAnnotation.setContents"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cc643a2f5b5e85840226cfef8daf1d6473165c2916e7b36e8205d49a114310e4",
+      "norm": "89e53555ee8866dc928c37da15ff9245edb8503651f3dc3592fdb3ffddd1f999"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 98,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "GoToURIAction",
+      "LinkAnnotation",
+      "Page",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Document.save",
+      "Page.add",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "77efbfb5516bb8097c39bcbfb664e4d3d39e3b3a2950d449ff8b6effccd21019",
+      "norm": "33034f19fffdbc64443118731e2f09a979bf0e449197eda4e558730eeb313284"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 118,
+    "classes_used": [
+      "Annotation"
+    ],
+    "methods_used": [
+      "Annotation.getContents",
+      "Annotation.getSubtype"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b78981205eaf836456b951306a54099894b34a4f32420130f3c9eaa44ff7aa32",
+      "norm": "546a035d7057217f4703a95f38ce3bc89527099cd8c3daf666078ced9bc6b6ba"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 128,
+    "classes_used": [
+      "Annotation",
+      "Date",
+      "MarkupAnnotation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f0dc15140608d581ef1d408a8e765e1865129b2e81b31da47fdd8c3a1eb9223",
+      "norm": "1ff6d5e9ee70ade623d8724ef0466fa431e31f674cc9faff798a9982279389d3"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 141,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "Collection",
+      "Re"
+    ],
+    "methods_used": [
+      "Annotation.getContents",
+      "AnnotationCollection.delete",
+      "Re.equals"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c792d18cb1e1a014ed7c0c6d5a2bbc94722b26520523e0a4f6bf55368b2df3d2",
+      "norm": "287d3cbda195fa32c648ac541a67dc696b7d848f37f60498317583de4ac1ebeb"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 162,
+    "classes_used": [
+      "Annotation",
+      "AnnotationCollection",
+      "Collection",
+      "Do",
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "AnnotationCollection.delete",
+      "AnnotationCollection.getCount",
+      "Collection.getCount",
+      "Document.getPages",
+      "Document.save",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "895c1db6edea9453687fc7b029d340ba8aa3f966563f9f536b3652abda9aeaf6",
+      "norm": "0c34273ce753bc27051443b888d761fe25d8402b19eb3fe3ac6ce51a0a91416d"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 176,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Integer",
+      "Map",
+      "Page"
+    ],
+    "methods_used": [
+      "Annotation.getSubtype",
+      "Document.getPages",
+      "Document.merge",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dfe2681dede9a290da3de82c953331f4d0b9893f751d9951a09300bb3c78f1f6",
+      "norm": "ef75db7e4e663483bc13d50993f0e00a35b2ed5e34cc14ca74ea467070f84ba1"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.java",
+    "source_file": "docs/annotations.md",
+    "source_function": "(docs_block)",
+    "source_line": 194,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FileAttachmentAnnotation",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "373f440b15cefe8fd4ae87d7d2e7dd33f79a82c578109ee7db12f6ce081ac5d5",
+      "norm": "7664559d1e7c642e11c9dd408488a0fb2910d22a0c88c987159ae1ed3dec378e"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 32,
+    "classes_used": [
+      "Do",
+      "Document",
+      "ET",
+      "Embedded",
+      "FileSpecification",
+      "Spec",
+      "Type"
+    ],
+    "methods_used": [
+      "Document.getEmbeddedFiles",
+      "Document.save",
+      "FileSpecification.setMIMEType"
+    ],
+    "formats_referenced": [
+      "cs",
+      "csv",
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "858435bf034d9d199672cfaa2cdf235625ea11b54a2b7345c5e13706fae7bd1e",
+      "norm": "a9ac2e44fd48d2f40fecf4a2376d67ef20eab3fed8b86348642997908312ff8b"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 56,
+    "classes_used": [
+      "Desc",
+      "Do",
+      "Document",
+      "Embedded",
+      "FileSpecification",
+      "Spec",
+      "Type"
+    ],
+    "methods_used": [
+      "Document.getEmbeddedFiles",
+      "Document.save",
+      "FileSpecification.setDescription",
+      "FileSpecification.setMimeType"
+    ],
+    "formats_referenced": [
+      "cs",
+      "csv",
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73557b2250809e8adae8095d2409ce463ade207974fc5fe8f1f73d5d417fd889",
+      "norm": "04a8f199d1f595e136b70af5adcd744860d9b7e974a55adf218f56d2e5a5996e"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 86,
+    "classes_used": [
+      "Collection",
+      "Date",
+      "Desc",
+      "Do",
+      "Document",
+      "ET",
+      "Embedded",
+      "EmbeddedFileCollection",
+      "FileParams",
+      "FileSpecification",
+      "Para",
+      "Spec",
+      "Type"
+    ],
+    "methods_used": [
+      "Collection.getCount",
+      "Date.getName",
+      "Desc.getName",
+      "Do.getName",
+      "Document.getEmbeddedFiles",
+      "ET.getName",
+      "EmbeddedFileCollection.get",
+      "EmbeddedFileCollection.getCount",
+      "FileParams.getCheckSum",
+      "FileParams.getCreationDate",
+      "FileParams.getModDate",
+      "FileParams.getSize",
+      "FileSpecification.getDescription",
+      "FileSpecification.getMIMEType",
+      "FileSpecification.getName",
+      "FileSpecification.getParams",
+      "FileSpecification.getUnicodeFileName",
+      "Para.getName"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bb5d5b734677bef3cc677eb84e30995432c02a5087f6bb3278d5ee31b6b22604",
+      "norm": "f06b1efd05133079948770e642712012f082f1745666e999083a5eeb46f85dce"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 129,
+    "classes_used": [
+      "Desc",
+      "Embedded",
+      "FileSpecification",
+      "Spec"
+    ],
+    "methods_used": [
+      "FileSpecification.getDescription"
+    ],
+    "formats_referenced": [
+      "cs",
+      "csv",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c219642f73cc780b93efd6a7b34bfd2cfe4631f7793cc8a8973dad0e504a988",
+      "norm": "6989e3c9c31e15b9568daa2c506256bda82ba15c4eb9c136b69f12de0bab2c32"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 142,
+    "classes_used": [
+      "Data",
+      "Do",
+      "Document",
+      "Embedded",
+      "FileSpecification",
+      "Path",
+      "Spec"
+    ],
+    "methods_used": [
+      "Data.getName",
+      "Data.getParent",
+      "Do.getName",
+      "Document.getEmbeddedFiles",
+      "FileSpecification.getData",
+      "FileSpecification.getName"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "afd7c231654bf112826bd50cd18017dea5ae063782d1cf74a21566dcce1a9aa1",
+      "norm": "00fd76b679e523ea0560c538fda0a59ad723ee7ca836f3069d7122fcfd2fb01a"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 171,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4469c8ae1abef7fc04d3c982df99cf91072f51301a265560956a78e438960621",
+      "norm": "052c7820626709756c447ccde137732b1c060b6166629b06037f2dce4b4de070"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 192,
+    "classes_used": [
+      "Delete",
+      "Do",
+      "Document",
+      "Embedded",
+      "Re"
+    ],
+    "methods_used": [
+      "Document.getEmbeddedFiles",
+      "Document.save"
+    ],
+    "formats_referenced": [
+      "cs",
+      "csv",
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cfdb90220564fa1de023cbc7a08400fe313b209bbba416c3c974f1158ff75be7",
+      "norm": "7503d8372cc49864c962d450aec2628d1aa1b18faa7f80f0712a8bd6624ed741"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 222,
+    "classes_used": [
+      "Keep",
+      "PdfFileEditor"
+    ],
+    "methods_used": [
+      "PdfFileEditor.concatenate"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f17feb92bc47e7af1837c3d55f16ee252456c84aedef2adce16e4d91b94cb520",
+      "norm": "61249a76ad9cd409d9f83b66d458e16a0c874febd4c3a400d42f0a8d4b611d47"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.java",
+    "source_file": "docs/attachments.md",
+    "source_function": "(docs_block)",
+    "source_line": 242,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FileAttachmentAnnotation",
+      "Graph",
+      "Page",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Document.save",
+      "FileAttachmentAnnotation.setIcon",
+      "Page.add",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a98b84d0a75054b0647e81b7b0978dc3d85b6b2107bf812ebcac341727ed80c2",
+      "norm": "c6b09c56ed66d44a82431c7f6790a8965b695020159a7fafac6d05895a24be97"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.java",
+    "source_file": "docs/conversion.md",
+    "source_function": "(docs_block)",
+    "source_line": 31,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Form",
+      "Format",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Document.save"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "be6af3ac5066efe128c852f6441d28ea2f29f0d009d640e56e764b5db54dfc98",
+      "norm": "12cf5fed92d02c43dc2cca5a3704570ddc46fc0a87fe5e7b5e6ebf1cb7abb59c"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "getCharacteristics_neverNull",
+    "source_line": 20,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "039728ec8b357bdbe7ee915b3fce41583caa5160a0af2bf688ceec7f4b8be06a",
+      "norm": "039728ec8b357bdbe7ee915b3fce41583caa5160a0af2bf688ceec7f4b8be06a"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "getCharacteristics_isCached",
+    "source_line": 29,
+    "classes_used": [
+      "Annotation",
+      "AppearanceCharacteristics",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd6b07834a3d2a847114be7e9f1011282490f5b75c2daec4864a571aa57d0216",
+      "norm": "fd6b07834a3d2a847114be7e9f1011282490f5b75c2daec4864a571aa57d0216"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "border_setAndRead_rgb",
+    "source_line": 40,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getBorder",
+      "Annotation.setBorder",
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getBorder",
+      "WidgetAnnotation.getCharacteristics",
+      "WidgetAnnotation.setBorder"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b15f392e35a53cd84532d4287cc62cebf278ebae41c203d08507b0eb6af77745",
+      "norm": "b15f392e35a53cd84532d4287cc62cebf278ebae41c203d08507b0eb6af77745"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "border_clear_removesEntry",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getBorder",
+      "Annotation.setBorder",
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getBorder",
+      "WidgetAnnotation.getCharacteristics",
+      "WidgetAnnotation.setBorder"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e41b679673569bce1f8557b75136e3a88a12380b8d7c5528c89257669c51ef1b",
+      "norm": "e41b679673569bce1f8557b75136e3a88a12380b8d7c5528c89257669c51ef1b"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "background_setAndRead",
+    "source_line": 66,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getBackground",
+      "Document.getPages",
+      "Document.setBackground",
+      "Page.add",
+      "Page.getBackground",
+      "Page.setBackground",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0b5ff8deb5cacb69e2459d59280ef47ba5c7acfceefa3f2cd837728bed266381",
+      "norm": "0b5ff8deb5cacb69e2459d59280ef47ba5c7acfceefa3f2cd837728bed266381"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "rotate_default_isZero",
+    "source_line": 78,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "Page.getRotate",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5fd93f77a3e9ba753a54b0a75b1664cdcba92fa05ad7479f9953ca5060d26783",
+      "norm": "5fd93f77a3e9ba753a54b0a75b1664cdcba92fa05ad7479f9953ca5060d26783"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "rotate_setAndRead",
+    "source_line": 87,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "Page.getRotate",
+      "Page.setRotate",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d9254d94aaf410b6dca58ee24de4f74f6726bac71edc42b3a209756014ab9bc3",
+      "norm": "d9254d94aaf410b6dca58ee24de4f74f6726bac71edc42b3a209756014ab9bc3"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationCharacteristicsTests.java",
+    "source_function": "caption_setAndRead",
+    "source_line": 99,
+    "classes_used": [
+      "Annotation",
+      "Caption",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Submit",
+      "WidgetAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WidgetAnnotation.getCharacteristics"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5917d696f216aa338f767896362e445ed936fa456cfb04b7b5da78b7c0fe17be",
+      "norm": "5917d696f216aa338f767896362e445ed936fa456cfb04b7b5da78b7c0fe17be"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "enumValues_matchSpecBits",
+    "source_line": 11,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re",
+      "Spec",
+      "Value"
+    ],
+    "methods_used": [
+      "AnnotationFlags.getBit"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d5c89434654d68ebc3a7319d61429e782060dbbe51fedef13e3dc0b5b0772b4",
+      "norm": "8d5c89434654d68ebc3a7319d61429e782060dbbe51fedef13e3dc0b5b0772b4"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "fromBits_returnsCorrectFlags",
+    "source_line": 25,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2d0a21b6c47d151bd31dad73aab59008dbe87ff4a72667eaf8a2dde49be77e25",
+      "norm": "2d0a21b6c47d151bd31dad73aab59008dbe87ff4a72667eaf8a2dde49be77e25"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "toBits_encodes",
+    "source_line": 40,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.toBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1bd6252d5c75e9ebea769a8197d758f6450f2160e48b23ce7ee8a63943170f64",
+      "norm": "1bd6252d5c75e9ebea769a8197d758f6450f2160e48b23ce7ee8a63943170f64"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "roundTrip_bitsEnumBits",
+    "source_line": 48,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags",
+      "Re"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits",
+      "AnnotationFlags.toBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e7cdf1895c347a28c21e672a037636b03888d8c3cf45f5dad6cfb6f9d4fe9b8c",
+      "norm": "e7cdf1895c347a28c21e672a037636b03888d8c3cf45f5dad6cfb6f9d4fe9b8c"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/AnnotationFlagsTest.java",
+    "source_function": "unknownBits_ignored",
+    "source_line": 55,
+    "classes_used": [
+      "Annotation",
+      "AnnotationFlags"
+    ],
+    "methods_used": [
+      "AnnotationFlags.fromBits"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b150506f34f7b390522c8dbe22058940b36534a8bbf2356ff562a7d1421ce79a",
+      "norm": "b150506f34f7b390522c8dbe22058940b36534a8bbf2356ff562a7d1421ce79a"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "ctor_storesReferenceAndPropsDefault",
+    "source_line": 14,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField",
+      "Re",
+      "Ref",
+      "Solid"
+    ],
+    "methods_used": [
+      "RadioButtonOptionField.getStyle",
+      "Re.getWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b4e21ffe3e382e2734a98fb444beebd6df15416db03bb64b42d631535174dcf3",
+      "norm": "b4e21ffe3e382e2734a98fb444beebd6df15416db03bb64b42d631535174dcf3"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "setWidth_syncsToOption",
+    "source_line": 23,
+    "classes_used": [
+      "Border",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Field.getBorder",
+      "Field.setWidth",
+      "RadioButtonOptionField.getBorder",
+      "RadioButtonOptionField.setWidth"
+    ],
+    "formats_referenced": [
+      "cs"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "89a70f8c1ff1210dccd8bc74d3629c7af53c4d8a5f13e4d1a8aae7360dde8136",
+      "norm": "89a70f8c1ff1210dccd8bc74d3629c7af53c4d8a5f13e4d1a8aae7360dde8136"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "setStyle_syncsToOption",
+    "source_line": 35,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [
+      "Field.getBorder",
+      "RadioButtonOptionField.getBorder",
+      "RadioButtonOptionField.setStyle"
+    ],
+    "formats_referenced": [
+      "cs",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f93ffe1d9fb9529ba0104139389871c996a2ab2298a969f9ef45b661ab24e08",
+      "norm": "8f93ffe1d9fb9529ba0104139389871c996a2ab2298a969f9ef45b661ab24e08"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "ctor_nullOption_throws",
+    "source_line": 49,
+    "classes_used": [
+      "Border",
+      "Button",
+      "Field",
+      "Op",
+      "Option",
+      "RadioButtonOptionField"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d00567c5a735f5f76e0ea42662aefa80b42731a7948b3fa5dce4f1f2e31f37ee",
+      "norm": "d00567c5a735f5f76e0ea42662aefa80b42731a7948b3fa5dce4f1f2e31f37ee"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/BorderRBOFCtorTest.java",
+    "source_function": "existingAnnotationCtor_stillWorks",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Border",
+      "Ctor",
+      "Re"
+    ],
+    "methods_used": [
+      "Re.getWidth"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4ace742093f68330cd30f632b789f1beeefb05c9c43b4d9ba6ab4f28d613b062",
+      "norm": "4ace742093f68330cd30f632b789f1beeefb05c9c43b4d9ba6ab4f28d613b062"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "newFreeText_hasNoneByDefault",
+    "source_line": 12,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getEndingStyle",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c8a6bf3dbe78ae6b9a55ffa9ceef5028a4547c207be15313f96e7c756e54fcac",
+      "norm": "c8a6bf3dbe78ae6b9a55ffa9ceef5028a4547c207be15313f96e7c756e54fcac"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "setEndingStyle_roundTrips",
+    "source_line": 21,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getEndingStyle",
+      "FreeTextAnnotation.setEndingStyle",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ac75a9f951ca6a59b6ae8da8479d927b8abde9172a77512fbfbd3d94ff8aeeb4",
+      "norm": "ac75a9f951ca6a59b6ae8da8479d927b8abde9172a77512fbfbd3d94ff8aeeb4"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextEndingStyleTest.java",
+    "source_function": "setEndingStyle_nullOrNone_removesEntry",
+    "source_line": 34,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Line",
+      "LineEnding",
+      "Page",
+      "PdfDictionary",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getPdfDictionary",
+      "Document.getPages",
+      "FreeTextAnnotation.getPdfDictionary",
+      "FreeTextAnnotation.setEndingStyle",
+      "Page.add",
+      "Page.getPdfDictionary",
+      "PdfDictionary.get",
+      "TextAnnotation.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c98c2da9d097a8b6abfdd6b12383077259fd6c1715b7d9ff93cc666dd921d324",
+      "norm": "c98c2da9d097a8b6abfdd6b12383077259fd6c1715b7d9ff93cc666dd921d324"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "enum_toFromPdfName_roundtrip",
+    "source_line": 18,
+    "classes_used": [
+      "FreeTextIntent",
+      "PdfName",
+      "Text",
+      "Type",
+      "Undefined"
+    ],
+    "methods_used": [
+      "FreeTextIntent.fromPdfName",
+      "FreeTextIntent.toPdfName"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ee01160568bbb82a5da637c66416d9d5093ae2934e92eee2a00439de1ba29900",
+      "norm": "ee01160568bbb82a5da637c66416d9d5093ae2934e92eee2a00439de1ba29900"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "intent_defaultIsUndefined",
+    "source_line": 32,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "FreeTextIntent",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation",
+      "Undefined"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getIntent",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "49f716c73d339135a69836a52b5f6e1405ad693d094b23ceb6d827739178d228",
+      "norm": "49f716c73d339135a69836a52b5f6e1405ad693d094b23ceb6d827739178d228"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "intent_setAndRead",
+    "source_line": 43,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "FreeTextIntent",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation",
+      "Type",
+      "Undefined"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getIntent",
+      "FreeTextAnnotation.setIntent",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "14a6704ed4d251cf612363629226e2e3d81682cfda760050efdd902d5f0503ac",
+      "norm": "14a6704ed4d251cf612363629226e2e3d81682cfda760050efdd902d5f0503ac"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "rotate_defaultIsZero",
+    "source_line": 69,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getRotate",
+      "Page.add",
+      "Page.getRotate"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f87203a90ca8255263c663b46e18d860e7a6036aa4758bc39ec964e3b8aa507",
+      "norm": "3f87203a90ca8255263c663b46e18d860e7a6036aa4758bc39ec964e3b8aa507"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "rotate_setAndRead",
+    "source_line": 80,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getRotate",
+      "FreeTextAnnotation.setRotate",
+      "Page.add",
+      "Page.getRotate",
+      "Page.setRotate"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2a4623cb71d285606c3e50a52e297c9959ce1cd41f10937b457b8361c7e4a84e",
+      "norm": "2a4623cb71d285606c3e50a52e297c9959ce1cd41f10937b457b8361c7e4a84e"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_defaultIsNull",
+    "source_line": 94,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2e200d7e10b02b335106df06e19b74d542074931f32f50f272b125a70bbfb058",
+      "norm": "2e200d7e10b02b335106df06e19b74d542074931f32f50f272b125a70bbfb058"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_threePoints_setAndRead",
+    "source_line": 105,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "69e1d8dc3d740a220dd166084abd970c1ec90ed70b8c35e256c797935ecf4ceb",
+      "norm": "69e1d8dc3d740a220dd166084abd970c1ec90ed70b8c35e256c797935ecf4ceb"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_twoPoints_setAndRead",
+    "source_line": 124,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "68f7d7f1278ebe4318ed1023037c92960ef19469bb3071ae400af51104012ee2",
+      "norm": "68f7d7f1278ebe4318ed1023037c92960ef19469bb3071ae400af51104012ee2"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_setNull_removes",
+    "source_line": 139,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "142c0ef0c508c461c4ee292884203600dff62cf1f8f10690080166fb9dcae65b",
+      "norm": "142c0ef0c508c461c4ee292884203600dff62cf1f8f10690080166fb9dcae65b"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/FreeTextIntentTests.java",
+    "source_function": "callout_invalidLength_isNoOp",
+    "source_line": 153,
+    "classes_used": [
+      "Annotation",
+      "DefaultAppearance",
+      "Do",
+      "Document",
+      "FreeTextAnnotation",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "TextAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "FreeTextAnnotation.getCallout",
+      "FreeTextAnnotation.setCallout",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3cb6e4a2d5e1ba6692389acc503edad37a92360207a1d1bbcf060bb4d87b727d",
+      "norm": "3cb6e4a2d5e1ba6692389acc503edad37a92360207a1d1bbcf060bb4d87b727d"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "highlightAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 18,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "HighlightAnnotation.getQuadPoints",
+      "Page.add"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9c74dbf7c2b9ab179f1dced17d22a30982cb520ce1b43a4a64e46e3520b746e2",
+      "norm": "9c74dbf7c2b9ab179f1dced17d22a30982cb520ce1b43a4a64e46e3520b746e2"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "underlineAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 42,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "UnderlineAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "UnderlineAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f12a25ed259e1f1ae262642eaeb29bd1bde80451e400af18e8de488706a1fb13",
+      "norm": "f12a25ed259e1f1ae262642eaeb29bd1bde80451e400af18e8de488706a1fb13"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "strikeOutAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 53,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "StrikeOutAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "StrikeOutAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "da31d6b2c31b15a136ddd9ab4ea9567a809cb2548467ffa6bd2e17b5f502263f",
+      "norm": "da31d6b2c31b15a136ddd9ab4ea9567a809cb2548467ffa6bd2e17b5f502263f"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "squigglyAnnotation_rectCtor_derivesQuadPoints",
+    "source_line": 64,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "Page",
+      "Point",
+      "Re",
+      "Rectangle",
+      "SquigglyAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "SquigglyAnnotation.getQuadPoints"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e03afbac01b62be60ac083db239c86a943c5e3a8257da6a9653aa64ab0f121e2",
+      "norm": "e03afbac01b62be60ac083db239c86a943c5e3a8257da6a9653aa64ab0f121e2"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "cosCtor_doesNotOverrideExistingQuadPoints",
+    "source_line": 75,
+    "classes_used": [
+      "Annotation",
+      "Ctor",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "PdfDictionary",
+      "Point",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Annotation.getPdfDictionary",
+      "Document.getPages",
+      "HighlightAnnotation.getPdfDictionary",
+      "HighlightAnnotation.getQuadPoints",
+      "HighlightAnnotation.setQuadPoints",
+      "Page.add",
+      "Page.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "755dd688987aa4eb522a48ace06612d0b031af2c7f51f346168398d175f7ecec",
+      "norm": "755dd688987aa4eb522a48ace06612d0b031af2c7f51f346168398d175f7ecec"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/TextMarkupAnnotationCtorTests.java",
+    "source_function": "allFourSubtypesAreSet",
+    "source_line": 89,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "HighlightAnnotation",
+      "Page",
+      "Re",
+      "Rectangle",
+      "SquigglyAnnotation",
+      "StrikeOutAnnotation",
+      "UnderlineAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getSubtype",
+      "Document.getPages",
+      "HighlightAnnotation.getSubtype",
+      "Page.add",
+      "SquigglyAnnotation.getSubtype",
+      "StrikeOutAnnotation.getSubtype",
+      "UnderlineAnnotation.getSubtype"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1dbaf5c303a682e2a8be79f864420c8384e22fe32d93aa959cd71136610e9e9a",
+      "norm": "1dbaf5c303a682e2a8be79f864420c8384e22fe32d93aa959cd71136610e9e9a"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setText_andGet_roundTrip",
+    "source_line": 12,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getContents",
+      "Document.getPages",
+      "Page.add",
+      "Page.getContents",
+      "WatermarkAnnotation.getContents",
+      "WatermarkAnnotation.getText",
+      "WatermarkAnnotation.setText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "37e31f28b942b92f6cfb5620068cfa03c04590359d8144268df9b0758533876b",
+      "norm": "37e31f28b942b92f6cfb5620068cfa03c04590359d8144268df9b0758533876b"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "getText_defaultsToNull",
+    "source_line": 23,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "Text",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aaff77a186120dcd2c69824c1a7bb93aa105b793773404d4f53b4782c06842af",
+      "norm": "aaff77a186120dcd2c69824c1a7bb93aa105b793773404d4f53b4782c06842af"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setOpacity_andGet_roundTrip",
+    "source_line": 32,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Op",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getOpacity",
+      "Annotation.setOpacity",
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getOpacity",
+      "WatermarkAnnotation.setOpacity"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b3a0948f194bd20e719a2614c457a3cc087b8bb78a2cd2e67e7be1794401b901",
+      "norm": "b3a0948f194bd20e719a2614c457a3cc087b8bb78a2cd2e67e7be1794401b901"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "setAngle_andGet_roundTrip",
+    "source_line": 43,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Document.getPages",
+      "Page.add",
+      "WatermarkAnnotation.getAngle",
+      "WatermarkAnnotation.setAngle"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6304236c1cf766094d7b0538023d401e02edd50a4552d311aeb45e9a8d1c78f9",
+      "norm": "6304236c1cf766094d7b0538023d401e02edd50a4552d311aeb45e9a8d1c78f9"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "src/test/java/org/aspose/pdf/annotations/WatermarkAnnotationApiTest.java",
+    "source_function": "subtype_isWatermark",
+    "source_line": 54,
+    "classes_used": [
+      "Annotation",
+      "Do",
+      "Document",
+      "Page",
+      "PdfDictionary",
+      "PdfName",
+      "Re",
+      "Rectangle",
+      "WatermarkAnnotation"
+    ],
+    "methods_used": [
+      "Annotation.getName",
+      "Annotation.getPdfDictionary",
+      "Do.getName",
+      "Document.getPages",
+      "Page.add",
+      "Page.getPdfDictionary",
+      "PdfDictionary.get",
+      "PdfName.getName",
+      "Re.getName",
+      "WatermarkAnnotation.getName",
+      "WatermarkAnnotation.getPdfDictionary"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b15f08ece764ce844fe17c64d4b55373a36605f0dafbf3557655aefa30ac8db0",
+      "norm": "b15f08ece764ce844fe17c64d4b55373a36605f0dafbf3557655aefa30ac8db0"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "resetToSilent",
+    "source_line": 18,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bc40551fd2ecda55c6583b48cc13e57e7a238e7d1e214355630cf71f1b257517",
+      "norm": "bc40551fd2ecda55c6583b48cc13e57e7a238e7d1e214355630cf71f1b257517"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "default_isOff",
+    "source_line": 26,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "69bf3d3cbee1008e6602165a59ebc6c4ab313a439026fe3af3ed547e747fde9d",
+      "norm": "69bf3d3cbee1008e6602165a59ebc6c4ab313a439026fe3af3ed547e747fde9d"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyOn_enablesWarning",
+    "source_line": 33,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b90e02a28712155f1c177d5aedd7c9b0e2406ce122bd5ee66d777f0ce7df66ca",
+      "norm": "b90e02a28712155f1c177d5aedd7c9b0e2406ce122bd5ee66d777f0ce7df66ca"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyWarning_enablesWarning",
+    "source_line": 40,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a5bf2f2cafd3405dd6ccf4b639671912ce8ebb07f1b4140430aeb64e0e5d7655",
+      "norm": "a5bf2f2cafd3405dd6ccf4b639671912ce8ebb07f1b4140430aeb64e0e5d7655"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyVerbose_enablesFine",
+    "source_line": 47,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "493a04a87c4ec4ec52d1c33a8070d8a05b12069e57871932bc88e56e312ae7a2",
+      "norm": "493a04a87c4ec4ec52d1c33a8070d8a05b12069e57871932bc88e56e312ae7a2"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyDebug_enablesAll",
+    "source_line": 54,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b665495036ddb8e02ce386a28a59810ff004c307c4ca33f4cd54ce178cfac232",
+      "norm": "b665495036ddb8e02ce386a28a59810ff004c307c4ca33f4cd54ce178cfac232"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyArbitraryJulLevel_works",
+    "source_line": 61,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6bb49dbf908606f430abb11e88422a6fa7ab094939cf7cb4e7efd3d1d42aeec8",
+      "norm": "6bb49dbf908606f430abb11e88422a6fa7ab094939cf7cb4e7efd3d1d42aeec8"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "propertyInvalid_fallsBackToOff",
+    "source_line": 68,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Property"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.configureFromSystemProperty",
+      "AsposePdfLogging.getLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "69be625c2fbaa616ec3e5ec9e985fe0c97038a4a4649602c036fc8d8dbecea2b",
+      "norm": "69be625c2fbaa616ec3e5ec9e985fe0c97038a4a4649602c036fc8d8dbecea2b"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "setLevelNull_silencesLibrary",
+    "source_line": 75,
+    "classes_used": [
+      "AsposePdfLogging"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.getLevel",
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "44f2003f24e95a803ceabd3bf7019569be67b565b69d3185c20815c3cde9e9a6",
+      "norm": "44f2003f24e95a803ceabd3bf7019569be67b565b69d3185c20815c3cde9e9a6"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "off_suppressesChildLoggerWarning",
+    "source_line": 82,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "445e0ca2717998c002337d7bcd0d2ad6b44ed7052bc1fbc9fc1144b56db6d347",
+      "norm": "445e0ca2717998c002337d7bcd0d2ad6b44ed7052bc1fbc9fc1144b56db6d347"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "warning_allowsChildWarningButNotFine",
+    "source_line": 92,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "otf",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3937f06163242d7273e8526b09aa1e9005b1285fef928d5e8b1c21f270f51b6f",
+      "norm": "3937f06163242d7273e8526b09aa1e9005b1285fef928d5e8b1c21f270f51b6f"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "verbose_allowsChildFine",
+    "source_line": 102,
+    "classes_used": [
+      "AsposePdfLogging",
+      "PDFParser",
+      "Parser"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9a24175f763b8b8eecbddc1cf1e7470440dd1bd7f3d4a79d5746c93e5e9956ad",
+      "norm": "9a24175f763b8b8eecbddc1cf1e7470440dd1bd7f3d4a79d5746c93e5e9956ad"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.java",
+    "source_file": "src/test/java/org/aspose/pdf/AsposePdfLoggingTest.java",
+    "source_function": "doesNotTouchRootLogger",
+    "source_line": 110,
+    "classes_used": [
+      "AsposePdfLogging",
+      "Handler",
+      "Root"
+    ],
+    "methods_used": [
+      "AsposePdfLogging.setLevel"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "77d6a2066e5666907727cbe2dcdf278510236adfe7181dd365f21bd9b98c00ee",
+      "norm": "77d6a2066e5666907727cbe2dcdf278510236adfe7181dd365f21bd9b98c00ee"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.java",
+    "source_file": "src/test/java/org/aspose/pdf/CellFormFieldTest.java",
+    "source_function": "cellAdd_radioOption_wrapsInFormFieldParagraph",
+    "source_line": 20,
+    "classes_used": [
+      "BaseParagraph",
+      "Button",
+      "Cell",
+      "Do",
+      "Document",
+      "Field",
+      "Form",
+      "FormField",
+      "FormFieldParagraph",
+      "Op",
+      "Option",
+      "Page",
+      "Para",
+      "Paragraph",
+      "Paragraphs",
+      "RadioButtonOptionField",
+      "Re",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Cell.add",
+      "Cell.getParagraphs",
+      "Document.getPages",
+      "Field.get",
+      "Form.add",
+      "Form.get",
+      "Form.size",
+      "FormFieldParagraph.asField",
+      "FormFieldParagraph.asOption",
+      "FormFieldParagraph.getField",
+      "Page.add",
+      "Page.getParagraphs",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "Paragraphs.size",
+      "RadioButtonOptionField.setOptionName"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "de0e486c0a0b8e9560feaf0b800d7e3539fa668383fc135b6b899fb82d0a5305",
+      "norm": "de0e486c0a0b8e9560feaf0b800d7e3539fa668383fc135b6b899fb82d0a5305"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/pdfobjects/NameTreeTest.java",
+    "source_function": "string",
+    "source_line": 244,
+    "classes_used": [
+      "PdfBase",
+      "PdfString"
+    ],
+    "methods_used": [
+      "PdfString.getString"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "28de62963ab7dcabcd12d8cb1bbc4e3e469346efe6690a411a624595915d54dc",
+      "norm": "28de62963ab7dcabcd12d8cb1bbc4e3e469346efe6690a411a624595915d54dc"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/xfa/binding/SomResolverTest.java",
+    "source_function": "classSyntaxDataValueVsDataGroup",
+    "source_line": 95,
+    "classes_used": [
+      "Context",
+      "Data",
+      "DataValue",
+      "Element",
+      "Node",
+      "Re",
+      "SomResolver",
+      "Value",
+      "XfaNode"
+    ],
+    "methods_used": [
+      "Data.getElementName",
+      "SomResolver.resolveNodes",
+      "XfaNode.getElementName"
+    ],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6a7d0f2f14383b62bdfdbabbf79b72795724210cd1b339f3126cab051d5f440a",
+      "norm": "6a7d0f2f14383b62bdfdbabbf79b72795724210cd1b339f3126cab051d5f440a"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.java",
+    "source_file": "src/test/java/org/aspose/pdf/engine/xfa/script/FormCalcEngineTest.java",
+    "source_function": "data",
+    "source_line": 206,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xml"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a45156e6ac57b0c2145bbb9fc1e0d7ebbff4d30b8b1b4d0eea37cb2c93030ca5",
+      "norm": "a45156e6ac57b0c2145bbb9fc1e0d7ebbff4d30b8b1b4d0eea37cb2c93030ca5"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.java",
+    "source_file": "src/test/java/org/aspose/pdf/PageCalculateContentBBoxTest.java",
+    "source_function": "textShowOrigin_isIncluded",
+    "source_line": 87,
+    "classes_used": [
+      "BT",
+      "ET",
+      "Matrix",
+      "Page",
+      "Re",
+      "Rectangle",
+      "SetTextMatrix",
+      "ShowText",
+      "Text"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b659b622cc977689aeb08893f0417a78d38a6794b281e317368274c43917d33a",
+      "norm": "b659b622cc977689aeb08893f0417a78d38a6794b281e317368274c43917d33a"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.java",
+    "source_file": "src/test/java/org/aspose/pdf/sdm/html/SdmHtmlWriterTest.java",
+    "source_function": "headingsAndParagraphs",
+    "source_line": 114,
+    "classes_used": [
+      "Do",
+      "Document",
+      "Element",
+      "Heading",
+      "Node",
+      "Para",
+      "Paragraph",
+      "Paragraphs",
+      "Run",
+      "SdmDocument",
+      "SdmHtmlWriter"
+    ],
+    "methods_used": [
+      "Heading.getInline",
+      "Para.getChildren",
+      "Paragraph.getInline",
+      "Paragraphs.add",
+      "Paragraphs.get",
+      "Paragraphs.size",
+      "SdmDocument.getChildren",
+      "SdmHtmlWriter.write"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d9286b7e4bb96712dfc47d7fec2e8706e7d1cdbf8bfe2522404c7e4f5fa1b38f",
+      "norm": "d9286b7e4bb96712dfc47d7fec2e8706e7d1cdbf8bfe2522404c7e4f5fa1b38f"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/AdobeGlyphListTest.java",
+    "source_function": "testContains",
+    "source_line": 67,
+    "classes_used": [
+      "AdobeGlyphList"
+    ],
+    "methods_used": [
+      "AdobeGlyphList.contains"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0483c65113c5ec7963063c4203712ea0aa68a9802e072c3e8b5838a47cc7ec33",
+      "norm": "0483c65113c5ec7963063c4203712ea0aa68a9802e072c3e8b5838a47cc7ec33"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/devices/TiffDeviceTest.java",
+    "source_function": "nullResolutionThrows",
+    "source_line": 14,
+    "classes_used": [
+      "Re",
+      "Resolution",
+      "TiffDevice"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1a703b84f71c38353896adde06844734424430db765dc69454adda3f3bbb1fae",
+      "norm": "1a703b84f71c38353896adde06844734424430db765dc69454adda3f3bbb1fae"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/engine/filter/JBIG2DecodeFilterTest.java",
+    "source_function": "filterName",
+    "source_line": 51,
+    "classes_used": [
+      "BI",
+      "Value"
+    ],
+    "methods_used": [
+      "BI.getName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "593bb89c10e6809ff6c1af21ee2466863ab49bbb6b902c6ef4eb3830d9ca02c1",
+      "norm": "593bb89c10e6809ff6c1af21ee2466863ab49bbb6b902c6ef4eb3830d9ca02c1"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/engine/pdfobjects/PdfDictionaryTest.java",
+    "source_function": "emptyDictionary",
+    "source_line": 19,
+    "classes_used": [
+      "PdfDictionary"
+    ],
+    "methods_used": [
+      "PdfDictionary.isEmpty",
+      "PdfDictionary.size"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "839b4601f32431f981d4c0a9f4adc437a370a8df3b2c7308496a3096541048cc",
+      "norm": "839b4601f32431f981d4c0a9f4adc437a370a8df3b2c7308496a3096541048cc"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/FontRepositoryTest.java",
+    "source_function": "testMissingFont",
+    "source_line": 63,
+    "classes_used": [
+      "Font",
+      "FontRepository",
+      "PdfDictionary",
+      "PdfFont",
+      "Re"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bdd0ef5d0e4b9f4afea7fd2b344bed656cc9414659fb407a90af32ee74ab648e",
+      "norm": "bdd0ef5d0e4b9f4afea7fd2b344bed656cc9414659fb407a90af32ee74ab648e"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/generation/WriterByteCorrectnessTest.java",
+    "source_function": "findPrecedingObjStart",
+    "source_line": 200,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "af8f68ab454163f33b57def1f4eaefab3759280bb92de4f6923c0e34bc34a08a",
+      "norm": "af8f68ab454163f33b57def1f4eaefab3759280bb92de4f6923c0e34bc34a08a"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/OperatorCollectionTest.java",
+    "source_function": "nullListThrows",
+    "source_line": 89,
+    "classes_used": [
+      "Collection",
+      "Op",
+      "Operator",
+      "OperatorCollection"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "98c37fce830a34cd9c7cf5e7ea305f1615b48082844d1135a8b7c63c6601e36c",
+      "norm": "98c37fce830a34cd9c7cf5e7ea305f1615b48082844d1135a8b7c63c6601e36c"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/PDFEncryptorTest.java",
+    "source_function": "rc4_roundTrip_shortString",
+    "source_line": 24,
+    "classes_used": [
+      "Encrypt",
+      "PDFDecryptor",
+      "PDFEncryptionDict",
+      "PDFEncryptor"
+    ],
+    "methods_used": [
+      "PDFDecryptor.decrypt",
+      "PDFEncryptor.encrypt"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ec901d900dfa2443256acad54fe7751d4929c6889c5ef4ec58270bb1d2f50f0b",
+      "norm": "ec901d900dfa2443256acad54fe7751d4929c6889c5ef4ec58270bb1d2f50f0b"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/TaggedPdfTest.java",
+    "source_function": "elementAlternativeText",
+    "source_line": 652,
+    "classes_used": [
+      "Desc",
+      "Element",
+      "Figure",
+      "FigureElement",
+      "Graph",
+      "PdfDictionary",
+      "TaggedContent",
+      "Text"
+    ],
+    "methods_used": [
+      "Element.getAlternateDescription",
+      "Element.getAlternativeText",
+      "Element.setAlternativeText",
+      "FigureElement.getAlternateDescription",
+      "FigureElement.getAlternativeText",
+      "FigureElement.setAlternativeText",
+      "TaggedContent.createFigureElement"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "56459bcb28e699e0bd4b7f749ebd5935d1edeff0094b0beead181a453de5a85f",
+      "norm": "56459bcb28e699e0bd4b7f749ebd5935d1edeff0094b0beead181a453de5a85f"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.java",
+    "source_file": "src/test/java/org/aspose/pdf/tests/XfdfTest.java",
+    "source_function": "testImportMultipleAnnotationTypes",
+    "source_line": 660,
+    "classes_used": [
+      "Annotation",
+      "AnnotationType",
+      "Do",
+      "Document",
+      "Page",
+      "Text",
+      "Type",
+      "Types"
+    ],
+    "methods_used": [
+      "Document.close",
+      "Document.getPages",
+      "Page.add",
+      "Page.getAnnotations"
+    ],
+    "formats_referenced": [
+      "cs",
+      "doc",
+      "text",
+      "xfdf",
+      "xml"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d5b75ed0b3bffeb28199cfbc366925fc040827d466a77ebc1f145597c72d0dfa",
+      "norm": "d5b75ed0b3bffeb28199cfbc366925fc040827d466a77ebc1f145597c72d0dfa"
+    }
+  }
+]

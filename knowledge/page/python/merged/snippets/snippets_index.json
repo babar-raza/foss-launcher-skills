@@ -1,0 +1,1814 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_output_path_for",
+    "source_line": 34,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ef92c483862dc08344e75a263fd7cf2097886889f19575d9ca37d3acf8880a5",
+      "norm": "7ef92c483862dc08344e75a263fd7cf2097886889f19575d9ca37d3acf8880a5"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_baseline_map",
+    "source_line": 41,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75922f37a0c2743aff8e8a5432bc8ba00524eb77d3d590fe96dc6a4ab73c68ff",
+      "norm": "75922f37a0c2743aff8e8a5432bc8ba00524eb77d3d590fe96dc6a4ab73c68ff"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_skip_when_missing",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "797bef9a327fc9d8e55b20062b5eeac4a15d4d480ec30e6c2084e248324235af",
+      "norm": "797bef9a327fc9d8e55b20062b5eeac4a15d4d480ec30e6c2084e248324235af"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_compare_images",
+    "source_line": 55,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2fcfe0e876ef0255bdaf7645441b3c6304da0805802e0a1168dc88c8d9d7924b",
+      "norm": "2fcfe0e876ef0255bdaf7645441b3c6304da0805802e0a1168dc88c8d9d7924b"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/common/test_utils.py",
+    "source_function": "test_skip_without_tools",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "56cb7134ce300c1a929d220ef2ead62dcff753ff24dec493940106894b53b7a7",
+      "norm": "56cb7134ce300c1a929d220ef2ead62dcff753ff24dec493940106894b53b7a7"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_same_winding_contours_enable_evenodd",
+    "source_line": 30,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1301f056b26859b965506a76174c2af4a1571cda44eafa451b2b77689a5fc5dc",
+      "norm": "1301f056b26859b965506a76174c2af4a1571cda44eafa451b2b77689a5fc5dc"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_opposite_winding_contours_keep_nonzero",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c18f174a428b3457d7a5c8fe2f59fe79e5a1f26d486986114d7df28c387e4df2",
+      "norm": "c18f174a428b3457d7a5c8fe2f59fe79e5a1f26d486986114d7df28c387e4df2"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/image/test_glyph_fill_policy.py",
+    "source_function": "test_single_contour_keeps_nonzero",
+    "source_line": 44,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f56f254d6071ae53df8a736f369894c398ddd8998091cac24b82392aaa2be57f",
+      "norm": "f56f254d6071ae53df8a736f369894c398ddd8998091cac24b82392aaa2be57f"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_render_size_respects_dpi",
+    "source_line": 21,
+    "classes_used": [
+      "Paint",
+      "Path",
+      "PathCommand",
+      "RasterRenderer",
+      "Rect",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "743e223416ebec2cbde9d6662d8f7c364438de6008123e2b0e2df61952dfddcb",
+      "norm": "743e223416ebec2cbde9d6662d8f7c364438de6008123e2b0e2df61952dfddcb"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_encode_png_and_bmp_signatures",
+    "source_line": 39,
+    "classes_used": [
+      "RasterRenderer",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "11137382c2bd86ff41471d8db30214afb98985ed44451a90effa54f0d1e449be",
+      "norm": "11137382c2bd86ff41471d8db30214afb98985ed44451a90effa54f0d1e449be"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_encode_jpeg_non_empty",
+    "source_line": 48,
+    "classes_used": [
+      "RasterRenderer",
+      "RenderDocument",
+      "RenderPage"
+    ],
+    "methods_used": [
+      "RasterRenderer.render"
+    ],
+    "formats_referenced": [
+      "raster"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5764d722ba2389347793e37dc7631102b85c315d27f6b4ee1bd993d191859b29",
+      "norm": "5764d722ba2389347793e37dc7631102b85c315d27f6b4ee1bd993d191859b29"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/image/test_raster_output.py",
+    "source_function": "test_page_pixel_size_snaps_integer_xps_a4_approximation",
+    "source_line": 56,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dba16b0a4b0b227f9ec524fe2b6e2328abe186e699034252ba000ef85961333d",
+      "norm": "dba16b0a4b0b227f9ec524fe2b6e2328abe186e699034252ba000ef85961333d"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/image/test_xps_raster_integration.py",
+    "source_function": "test_xps_to_bmp_header",
+    "source_line": 18,
+    "classes_used": [
+      "ImageSaveOptions",
+      "XpsDocument"
+    ],
+    "methods_used": [
+      "XpsDocument.from_file",
+      "XpsDocument.to_image"
+    ],
+    "formats_referenced": [
+      "images",
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e08daf23ed2ab8bde91399337fe33d70c587d1f8d1dbfa127348162da4a47de",
+      "norm": "4e08daf23ed2ab8bde91399337fe33d70c587d1f8d1dbfa127348162da4a47de"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_pdf_from_bytes",
+    "source_line": 20,
+    "classes_used": [
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a76464d0e2a664fcf3ae20657eaa7b6607a7f0e8ed29a8a34542d5b4c0dfdb6",
+      "norm": "0a76464d0e2a664fcf3ae20657eaa7b6607a7f0e8ed29a8a34542d5b4c0dfdb6"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_image_requires_format",
+    "source_line": 28,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "231cfba70d145a9128738234414050e9fbe4b1c908f99bdf6bf3dba96b88290c",
+      "norm": "231cfba70d145a9128738234414050e9fbe4b1c908f99bdf6bf3dba96b88290c"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_ps_to_image_png_from_bytes",
+    "source_line": 35,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "16b27178773133d1eb229e4aea6ee2d9b18ce47b18b87542ac36eebdfde3465a",
+      "norm": "16b27178773133d1eb229e4aea6ee2d9b18ce47b18b87542ac36eebdfde3465a"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_eps_metadata_extracts_fields",
+    "source_line": 43,
+    "classes_used": [
+      "McpInput"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "da219ee184c2acc6caf7e440cdd4c0825c279794583772c5068186a3fd100616",
+      "norm": "da219ee184c2acc6caf7e440cdd4c0825c279794583772c5068186a3fd100616"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_xps_to_pdf_from_file",
+    "source_line": 50,
+    "classes_used": [
+      "McpInput",
+      "McpOutput",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b66260772e6d0415abccbbce7de3be4f776da477085d0839568f1bc7ef08fe34",
+      "norm": "b66260772e6d0415abccbbce7de3be4f776da477085d0839568f1bc7ef08fe34"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/mcp/test_handlers.py",
+    "source_function": "test_xps_to_image_png_from_file",
+    "source_line": 58,
+    "classes_used": [
+      "McpConversionOptions",
+      "McpInput",
+      "McpOutput",
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "240b8f056f446f6f6806f7d7b16a26a098625f544a831e5447afe2970f637466",
+      "norm": "240b8f056f446f6f6806f7d7b16a26a098625f544a831e5447afe2970f637466"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/mcp/test_server.py",
+    "source_function": "test_create_server_registers_all_tools",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "48b257ed812ac494c01528696176f6f654fe30be68d5a0c722fbbd8dfa96da50",
+      "norm": "48b257ed812ac494c01528696176f6f654fe30be68d5a0c722fbbd8dfa96da50"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/mcp/test_server.py",
+    "source_function": "test_run_invokes_server_with_host_port",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a1368509ab0950ba6dc668fddad09e76bc595c00749822df898e0cc89ba744c",
+      "norm": "0a1368509ab0950ba6dc668fddad09e76bc595c00749822df898e0cc89ba744c"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embedded_font_objects_present",
+    "source_line": 27,
+    "classes_used": [
+      "FontCache",
+      "FontResolver",
+      "Matrix",
+      "Path",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontCache.load",
+      "FontResolver.resolve",
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c420018f688483c2eb5b3b39f0792582c25fad8d135bd18ab85dc02da2a32f0",
+      "norm": "4c420018f688483c2eb5b3b39f0792582c25fad8d135bd18ab85dc02da2a32f0"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embeds_defined_type42_font_program",
+    "source_line": 66,
+    "classes_used": [
+      "FontCache",
+      "FontResolver",
+      "FontResource",
+      "Matrix",
+      "Path",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontCache.load",
+      "FontCache.metrics_for",
+      "FontResolver.register_defined_font",
+      "FontResolver.resolve",
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a9edcea2e87ac2ad2ea4a4299acde3b4b09ab378f319ed9b3c2eddfc76d4a08f",
+      "norm": "a9edcea2e87ac2ad2ea4a4299acde3b4b09ab378f319ed9b3c2eddfc76d4a08f"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/pdf/test_pdf_font_embedding.py",
+    "source_function": "test_embeds_type42_without_cmap_by_synthesized_cmap",
+    "source_line": 119,
+    "classes_used": [
+      "FontResolver",
+      "OperatorRegistry",
+      "Path",
+      "PsConversionPipeline",
+      "PsImage",
+      "PsImageStore",
+      "PsInterpreter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "FontResolver.resolve",
+      "PsConversionPipeline.build_render_model"
+    ],
+    "formats_referenced": [
+      "images"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "254c1813bc67f63ad29623b2554e2e7e4074ffdeeb05d1b211ffcd36772d67cf",
+      "norm": "254c1813bc67f63ad29623b2554e2e7e4074ffdeeb05d1b211ffcd36772d67cf"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/pdf/test_pdf_writer_unicode.py",
+    "source_function": "test_unicode_text_does_not_crash",
+    "source_line": 12,
+    "classes_used": [
+      "Matrix",
+      "PdfMetadata",
+      "PdfWriter",
+      "RenderModelBuilder"
+    ],
+    "methods_used": [
+      "Matrix.identity",
+      "PdfWriter.write",
+      "RenderModelBuilder.add_text",
+      "RenderModelBuilder.begin_page",
+      "RenderModelBuilder.document",
+      "RenderModelBuilder.end_page"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bc8616587d79acda7891aaee52e029881b2b13c0c51048b2734c9642a83d8072",
+      "norm": "bc8616587d79acda7891aaee52e029881b2b13c0c51048b2734c9642a83d8072"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arc_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d4d3a5d1d9032a515150ee6ebcf372b9ccc23ffa8c82980673ee7d350f01b3fe",
+      "norm": "d4d3a5d1d9032a515150ee6ebcf372b9ccc23ffa8c82980673ee7d350f01b3fe"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arct_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ba78691d97627e515eac075b9783d9a0dff0d26657d5ac9d50170ae40eaca4f7",
+      "norm": "ba78691d97627e515eac075b9783d9a0dff0d26657d5ac9d50170ae40eaca4f7"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto1_ps_3",
+    "source_line": 18,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "20fcac8d4a4ffbdee5ec5b0beee364e61292707a6faf7bd1e406dbdd1ff11b18",
+      "norm": "20fcac8d4a4ffbdee5ec5b0beee364e61292707a6faf7bd1e406dbdd1ff11b18"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto2_ps_4",
+    "source_line": 21,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a404b8a78476882949c5455735a7ee04251890a61e83287d7dae9ef014ac3fb9",
+      "norm": "a404b8a78476882949c5455735a7ee04251890a61e83287d7dae9ef014ac3fb9"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto3_ps_5",
+    "source_line": 24,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f64919ad99e353a9de285011ad0c0840f99638d0ef16a875829c060b72b8fd8",
+      "norm": "3f64919ad99e353a9de285011ad0c0840f99638d0ef16a875829c060b72b8fd8"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto4_ps_6",
+    "source_line": 27,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fbb60c58a0c032164522960cce65b3628556631aa81a5f947b908c7b435f4dcc",
+      "norm": "fbb60c58a0c032164522960cce65b3628556631aa81a5f947b908c7b435f4dcc"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_arcto5_ps_7",
+    "source_line": 30,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae3d566b90e6a3b80f8c923a7989b36df2e55005b0c8b11bbd8893cc99aa4769",
+      "norm": "ae3d566b90e6a3b80f8c923a7989b36df2e55005b0c8b11bbd8893cc99aa4769"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs1_ps_8",
+    "source_line": 33,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f32472e45df72d27a842a6edae5d5c91e60fb4cd67512be183ee14eed8997938",
+      "norm": "f32472e45df72d27a842a6edae5d5c91e60fb4cd67512be183ee14eed8997938"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs2_ps_9",
+    "source_line": 36,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "de4f8022473c7e476ade72d54ef7134d5a034118a501ee9c647939eb802d6fd2",
+      "norm": "de4f8022473c7e476ade72d54ef7134d5a034118a501ee9c647939eb802d6fd2"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_bigarcs3_ps_10",
+    "source_line": 39,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7b023dfac580ce9993f727bc4077f54ae9c373335cfd59ba96a456976b346aa6",
+      "norm": "7b023dfac580ce9993f727bc4077f54ae9c373335cfd59ba96a456976b346aa6"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_circle1_ps_11",
+    "source_line": 42,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f672312025838d1cdf0979b7ccdd11bc59298fead058e09e4572fabfa22844d7",
+      "norm": "f672312025838d1cdf0979b7ccdd11bc59298fead058e09e4572fabfa22844d7"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_circle2_ps_12",
+    "source_line": 45,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0f0e23fc9dc5aefaa7607d23a7749fc57347efd0f83ce5ef5eef2f19089a066d",
+      "norm": "0f0e23fc9dc5aefaa7607d23a7749fc57347efd0f83ce5ef5eef2f19089a066d"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock1_ps_13",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d2d50adb93c3617623f9230de9ec3773a7f1bfca0749a7ceed7efe9f0d372e4",
+      "norm": "1d2d50adb93c3617623f9230de9ec3773a7f1bfca0749a7ceed7efe9f0d372e4"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock2_ps_14",
+    "source_line": 51,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "177f268774444639409be9884b143fbc781806a629648b691eae265426520ecc",
+      "norm": "177f268774444639409be9884b143fbc781806a629648b691eae265426520ecc"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock3_ps_15",
+    "source_line": 54,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d272a7d833f08db12be5c9cb05540456c668d859ff6f4e91b930e7f38b93180d",
+      "norm": "d272a7d833f08db12be5c9cb05540456c668d859ff6f4e91b930e7f38b93180d"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock4_ps_16",
+    "source_line": 57,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d05d03a771245ac8d40c01d3b1c0bfff808383deb4355e22a1200fe68edc9df7",
+      "norm": "d05d03a771245ac8d40c01d3b1c0bfff808383deb4355e22a1200fe68edc9df7"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock5_ps_17",
+    "source_line": 60,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ee0c8bc72113b575ed5e43dae58a164bb293a48680f4b1ed16e7f7d63a28f7b4",
+      "norm": "ee0c8bc72113b575ed5e43dae58a164bb293a48680f4b1ed16e7f7d63a28f7b4"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_clock6_ps_18",
+    "source_line": 63,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8b87314b77788cbf9c3b8ef69acc9fd660ea4459c47e14397430c76207e16bc5",
+      "norm": "8b87314b77788cbf9c3b8ef69acc9fd660ea4459c47e14397430c76207e16bc5"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto1_ps_19",
+    "source_line": 66,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6208a001fa50fdd32c2793d6d29def145d4b8d958e6874d425b2318cf8e4353",
+      "norm": "f6208a001fa50fdd32c2793d6d29def145d4b8d958e6874d425b2318cf8e4353"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto2_ps_20",
+    "source_line": 69,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75d29a47b5328750e5074eb5f9219a331101ec1883bd72dfd77d0a943b3b7372",
+      "norm": "75d29a47b5328750e5074eb5f9219a331101ec1883bd72dfd77d0a943b3b7372"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto3_ps_21",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2d01bbefebc1b948c6cc4344f3c748b69093920ea7ab9a76e990c163a74c778",
+      "norm": "e2d01bbefebc1b948c6cc4344f3c748b69093920ea7ab9a76e990c163a74c778"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_curveto4_ps_22",
+    "source_line": 75,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b74304ed245eb26c8cb2ba73f69cd98af6b64b568ca4d313ea1ae782ab5c53cd",
+      "norm": "b74304ed245eb26c8cb2ba73f69cd98af6b64b568ca4d313ea1ae782ab5c53cd"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp1_ps_23",
+    "source_line": 78,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c2de98224e3ab81e6907ea3f92551bf96e258686bc2dffb53a7fd968bb7ee68f",
+      "norm": "c2de98224e3ab81e6907ea3f92551bf96e258686bc2dffb53a7fd968bb7ee68f"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp2_ps_24",
+    "source_line": 81,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cbf0d475da77ae0ef3e7d5e5fb3bb8c1a90dd30e5785af90a3125afe54aaa117",
+      "norm": "cbf0d475da77ae0ef3e7d5e5fb3bb8c1a90dd30e5785af90a3125afe54aaa117"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_cusp3_ps_25",
+    "source_line": 84,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f0c1a599bef048bf07bf4a8b69f157d4fa7f768d2e9c93fc6cc25322f4bc7b5c",
+      "norm": "f0c1a599bef048bf07bf4a8b69f157d4fa7f768d2e9c93fc6cc25322f4bc7b5c"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_family_ps_26",
+    "source_line": 87,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ca3b6f58b9cb477c3f2d8ac662f4e5fa13c7cc2ff78ad0b7af28a9211653cc7",
+      "norm": "7ca3b6f58b9cb477c3f2d8ac662f4e5fa13c7cc2ff78ad0b7af28a9211653cc7"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_heart1_ps_27",
+    "source_line": 90,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e65202ba9f8ae00409b879ca925b543e5de43d5442078a08d9b6b951d5623843",
+      "norm": "e65202ba9f8ae00409b879ca925b543e5de43d5442078a08d9b6b951d5623843"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_heart2_ps_28",
+    "source_line": 93,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eae61924df620e76c1af8527156f42863b9d07908e640cc353c9b29874f363ee",
+      "norm": "eae61924df620e76c1af8527156f42863b9d07908e640cc353c9b29874f363ee"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_hull_ps_29",
+    "source_line": 96,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2748ea68a9bad499487dfafbfd92b54a608cb509e7dfaac87588a65c7c9b07f6",
+      "norm": "2748ea68a9bad499487dfafbfd92b54a608cb509e7dfaac87588a65c7c9b07f6"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_pacman_ps_30",
+    "source_line": 99,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a78758c1d0df122b69b76faeb6fff883265530ed83e7f24af6ea7e2d53d1a760",
+      "norm": "a78758c1d0df122b69b76faeb6fff883265530ed83e7f24af6ea7e2d53d1a760"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_piechart_ps_31",
+    "source_line": 102,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c1efa89add2f16a6d9a22b88b3868ca64338e562b98b12e6838334acc5062efa",
+      "norm": "c1efa89add2f16a6d9a22b88b3868ca64338e562b98b12e6838334acc5062efa"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_rcurveto_ps_32",
+    "source_line": 105,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "715752b9c19a2fe17e9203ae266bfbbec24d574fa67a7fd4daaba43903918fb3",
+      "norm": "715752b9c19a2fe17e9203ae266bfbbec24d574fa67a7fd4daaba43903918fb3"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots1_ps_33",
+    "source_line": 108,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65a46fd7ee05685143397250cee1dd91b1d16850251e33397b2e5540da633696",
+      "norm": "65a46fd7ee05685143397250cee1dd91b1d16850251e33397b2e5540da633696"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots2_ps_34",
+    "source_line": 111,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "50279d345a5992709107b31466118184eb22d73230ff71c93d6c43670f376608",
+      "norm": "50279d345a5992709107b31466118184eb22d73230ff71c93d6c43670f376608"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_spots3_ps_35",
+    "source_line": 114,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b616fe81ac4c33c48732300c974ec0f8ee96fc109ee0738c5a5180bce2716e69",
+      "norm": "b616fe81ac4c33c48732300c974ec0f8ee96fc109ee0738c5a5180bce2716e69"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary1_ps_36",
+    "source_line": 117,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e227ca35217cd262746a22b4e4de03676a647791db1b190a70ee1b73f47d3379",
+      "norm": "e227ca35217cd262746a22b4e4de03676a647791db1b190a70ee1b73f47d3379"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary2_ps_37",
+    "source_line": 120,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "18c740fb43f2e01479bdc9977aa4b80a5682714a3f01f08b705d7364d9c5cbd2",
+      "norm": "18c740fb43f2e01479bdc9977aa4b80a5682714a3f01f08b705d7364d9c5cbd2"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary3_ps_38",
+    "source_line": 123,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d953384ac0459cdfb91e9a6c84b2a10b659283971830a0fe132000f203baa7c3",
+      "norm": "d953384ac0459cdfb91e9a6c84b2a10b659283971830a0fe132000f203baa7c3"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary4_ps_39",
+    "source_line": 126,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f4c00c6b7ef0ab2e34dedf66670975c78e0335c5207a781062289f47c404eab",
+      "norm": "3f4c00c6b7ef0ab2e34dedf66670975c78e0335c5207a781062289f47c404eab"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary5_ps_40",
+    "source_line": 129,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "55dcbd884e3dd8efacc2810e4671f65bccd1a61ed6799aebba14d439057927a1",
+      "norm": "55dcbd884e3dd8efacc2810e4671f65bccd1a61ed6799aebba14d439057927a1"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/ps/functional/test_ps_functional_arcs07.py",
+    "source_function": "test_ps_functional_case_arcs07_vary6_ps_41",
+    "source_line": 132,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a709b86ea1b9b6f6dbcae6d8e4a0261af924ef7a22d4699079d46ad25db3671c",
+      "norm": "a709b86ea1b9b6f6dbcae6d8e4a0261af924ef7a22d4699079d46ad25db3671c"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox1_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "483caee2476bb631005d90b8f81765ff4f369882c81703422fc11cc9f3ed7fea",
+      "norm": "483caee2476bb631005d90b8f81765ff4f369882c81703422fc11cc9f3ed7fea"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox2_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "948ac2a3be51e2863d59d5909ffb2257a602d256be409672254e03ee9436ee38",
+      "norm": "948ac2a3be51e2863d59d5909ffb2257a602d256be409672254e03ee9436ee38"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox3_ps_3",
+    "source_line": 18,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4d24f1f880f54baff39feb8955f38774541b3c354cc352ea99b04e8531ee85dd",
+      "norm": "4d24f1f880f54baff39feb8955f38774541b3c354cc352ea99b04e8531ee85dd"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox4_ps_4",
+    "source_line": 21,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "960df0264ae9208ae95302fbedbfd9b24e2c3b5e5b6f0304241638a705500cde",
+      "norm": "960df0264ae9208ae95302fbedbfd9b24e2c3b5e5b6f0304241638a705500cde"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_bbox5_ps_5",
+    "source_line": 24,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bb51dcb3c14ed000d22c981f683a110e49daf7a3543723f3f65a76ec82adf53e",
+      "norm": "bb51dcb3c14ed000d22c981f683a110e49daf7a3543723f3f65a76ec82adf53e"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_borro_ps_6",
+    "source_line": 27,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c48805533480b66fb51dc63a24c277f58c8b493fd48cded4a1eda9b1d5ebd713",
+      "norm": "c48805533480b66fb51dc63a24c277f58c8b493fd48cded4a1eda9b1d5ebd713"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip1_ps_7",
+    "source_line": 30,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc5e268f8d0c54c908743409b3c02f0a3f48a33822b1ee67ee2c839092d0f82f",
+      "norm": "dc5e268f8d0c54c908743409b3c02f0a3f48a33822b1ee67ee2c839092d0f82f"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip2_ps_8",
+    "source_line": 33,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6b2dc947b2ecdab1d63f565d83dc07b917b7bcb92e40f179df4227773af71018",
+      "norm": "6b2dc947b2ecdab1d63f565d83dc07b917b7bcb92e40f179df4227773af71018"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip3_ps_9",
+    "source_line": 36,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3a35761bfc7a8303f7ac73c42f6376ca490999f3384a24ade9e0456be3f11b2b",
+      "norm": "3a35761bfc7a8303f7ac73c42f6376ca490999f3384a24ade9e0456be3f11b2b"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip4_ps_10",
+    "source_line": 39,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6e3e55220f8b1776c2bb409c9d1e3391b506e2a0b93c83327505d151e9a5a710",
+      "norm": "6e3e55220f8b1776c2bb409c9d1e3391b506e2a0b93c83327505d151e9a5a710"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip5_ps_11",
+    "source_line": 42,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bdfdb1b92eb6cc316e3d2c5ea868eb7257f5aec8e4b36c9beaf615f4363639b2",
+      "norm": "bdfdb1b92eb6cc316e3d2c5ea868eb7257f5aec8e4b36c9beaf615f4363639b2"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_clip6_ps_12",
+    "source_line": 45,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bf19ac1f6978a6bf28b93e5c7c4b2e5f0681584ac67b2351b1747a8d21ab7f32",
+      "norm": "bf19ac1f6978a6bf28b93e5c7c4b2e5f0681584ac67b2351b1747a8d21ab7f32"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_fill_ps_13",
+    "source_line": 48,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "759f8dd581d1bc3f3dd3541cdb73e4f7e38dd36edba5ab6f72e0fef30eb980ed",
+      "norm": "759f8dd581d1bc3f3dd3541cdb73e4f7e38dd36edba5ab6f72e0fef30eb980ed"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_flatten_ps_14",
+    "source_line": 51,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae78a1654c048183dd037a4afe8b86189810e4d8e6c51750b518074e41622749",
+      "norm": "ae78a1654c048183dd037a4afe8b86189810e4d8e6c51750b518074e41622749"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_initial_ps_15",
+    "source_line": 54,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c2b3be76c88a133b875fe1dbcba77bc4d99a8b0e7242b7cd3a3295e954498e6",
+      "norm": "3c2b3be76c88a133b875fe1dbcba77bc4d99a8b0e7242b7cd3a3295e954498e6"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_intersct_ps_16",
+    "source_line": 57,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0522fee8f6ea310ed3ccd828d96e8bc2ed5e603a088a57b9773128f9abf2cc58",
+      "norm": "0522fee8f6ea310ed3ccd828d96e8bc2ed5e603a088a57b9773128f9abf2cc58"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside1_ps_17",
+    "source_line": 60,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9b7e7612d69d6e4b56c4d7a1bdc3c9d3ae08415345fa3e8ac8481dc862891499",
+      "norm": "9b7e7612d69d6e4b56c4d7a1bdc3c9d3ae08415345fa3e8ac8481dc862891499"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside2_ps_18",
+    "source_line": 63,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3cdb6ac69aaf2db1889cfd5471c401d527ae18d74dbd3a79e788626288d21050",
+      "norm": "3cdb6ac69aaf2db1889cfd5471c401d527ae18d74dbd3a79e788626288d21050"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_outside3_ps_19",
+    "source_line": 66,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e0ba821aa5cb860625ae6dc459cb2107182f6460bda2adfc8d7fa4149e73de6",
+      "norm": "4e0ba821aa5cb860625ae6dc459cb2107182f6460bda2adfc8d7fa4149e73de6"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_pentagon_ps_20",
+    "source_line": 69,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa0e48d17c1d9f271459941db871fb6229e73bdb1f50347578927cfd30e98c21",
+      "norm": "fa0e48d17c1d9f271459941db871fb6229e73bdb1f50347578927cfd30e98c21"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_plyback1_ps_21",
+    "source_line": 72,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "375442bb7aeedc0b51df97eaa65b284af7d2548e52b7206f0e995e20e8930487",
+      "norm": "375442bb7aeedc0b51df97eaa65b284af7d2548e52b7206f0e995e20e8930487"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_plyback2_ps_22",
+    "source_line": 75,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e2f760fb97a166170c751b851515c195d28369b34d8ac8b6a2635b369a00f7c",
+      "norm": "0e2f760fb97a166170c751b851515c195d28369b34d8ac8b6a2635b369a00f7c"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_rect_ps_23",
+    "source_line": 78,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fdfb9fe32c0bc52be251a013ed97b847627dd85ebaa0f4db27eea8546d6fa12a",
+      "norm": "fdfb9fe32c0bc52be251a013ed97b847627dd85ebaa0f4db27eea8546d6fa12a"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_star_ps_24",
+    "source_line": 81,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b250974c062779e2eb0c7d7489aa175458a2dae4fdc72e3aef3dd56a6dd6aa26",
+      "norm": "b250974c062779e2eb0c7d7489aa175458a2dae4fdc72e3aef3dd56a6dd6aa26"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke1_ps_25",
+    "source_line": 84,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "901530f3d3f45317f11b3e0f9f2f4b90960d47250b66c4258fe75d78268a4cbd",
+      "norm": "901530f3d3f45317f11b3e0f9f2f4b90960d47250b66c4258fe75d78268a4cbd"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke2_ps_26",
+    "source_line": 87,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7f4a3a78ca61dbe6e9000cd8d426959f30ea909568d5adaa71c13aa714bd9832",
+      "norm": "7f4a3a78ca61dbe6e9000cd8d426959f30ea909568d5adaa71c13aa714bd9832"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_stroke3_ps_27",
+    "source_line": 90,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "075e075a37aabcd546ddcca86768ca5d0e76d816c0849033c6c8645e18cb3a57",
+      "norm": "075e075a37aabcd546ddcca86768ca5d0e76d816c0849033c6c8645e18cb3a57"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep1_ps_28",
+    "source_line": 93,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12ab682668d88589acacd669efa6b52c7af59969e3610f98add3ea443718a4c2",
+      "norm": "12ab682668d88589acacd669efa6b52c7af59969e3610f98add3ea443718a4c2"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep2_ps_29",
+    "source_line": 96,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65b4e7bfa10b53c8907710efebc07f52ff1f7ebbd628f9a39209fde80831b81d",
+      "norm": "65b4e7bfa10b53c8907710efebc07f52ff1f7ebbd628f9a39209fde80831b81d"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep3_ps_30",
+    "source_line": 99,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "592c6f5f13f3ce0518966a51c64fb460a6e42dfa1a3d0baf6b8fcaa6ef953328",
+      "norm": "592c6f5f13f3ce0518966a51c64fb460a6e42dfa1a3d0baf6b8fcaa6ef953328"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep4_ps_31",
+    "source_line": 102,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "764e72c126722d40bf2325757a42522481750dfed5d6d6ec849e73511e719919",
+      "norm": "764e72c126722d40bf2325757a42522481750dfed5d6d6ec849e73511e719919"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/ps/functional/test_ps_functional_clippn08.py",
+    "source_function": "test_ps_functional_case_clippn08_zstep5_ps_32",
+    "source_line": 105,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "95cd8dc89fcb22cb3960a513038e250b3f9817df6ca8e081a364de72b711302c",
+      "norm": "95cd8dc89fcb22cb3960a513038e250b3f9817df6ca8e081a364de72b711302c"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/ps/functional/test_ps_functional_color13.py",
+    "source_function": "test_ps_functional_case_color13_arrays_ps_1",
+    "source_line": 12,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e2cd043a1860365f70b65b2d53276fdd562ea9077da936b9e682b14ead484f7",
+      "norm": "0e2cd043a1860365f70b65b2d53276fdd562ea9077da936b9e682b14ead484f7"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/ps/functional/test_ps_functional_color13.py",
+    "source_function": "test_ps_functional_case_color13_bright_ps_2",
+    "source_line": 15,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "85f749b4da988a87e472f769191311d6323e81923d28c3e495d3de9acd4ba141",
+      "norm": "85f749b4da988a87e472f769191311d6323e81923d28c3e495d3de9acd4ba141"
+    }
+  }
+]

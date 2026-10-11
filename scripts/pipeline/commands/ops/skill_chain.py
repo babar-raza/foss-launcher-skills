@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """skill_chain.py — resolve ordered skill execution chain from the DAR table.
 
 Given a target skill, resolves the full prerequisite chain (including transitive
@@ -31,30 +30,21 @@ import argparse
 import json
 import sys
 from pathlib import Path
-import os
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 # Import shared DAR logic from check_dar_prerequisites
 _GOVERNANCE_DIR = Path(__file__).resolve().parents[1] / "governance"  # commands/ops/ -> commands/governance/
 if str(_GOVERNANCE_DIR) not in sys.path:
     sys.path.insert(0, str(_GOVERNANCE_DIR))
 
-try:
-    from check_dar_prerequisites import (  # noqa: E402
-        _parse_dar_table,
-        _extract_identifiers,
-        _skill_matches,
-        _get_prerequisites,
-        _get_session_skills,
-    )
-except ImportError:
-    # check_dar_prerequisites not available in foss; provide stubs
-    def _parse_dar_table(text): return []
-    def _extract_identifiers(row): return []
-    def _skill_matches(a, b): return False
-    def _get_prerequisites(rows, skill): return []
-    def _get_session_skills(runs_dir): return set()
+from check_dar_prerequisites import (  # noqa: E402
+    _parse_dar_table,
+    _extract_identifiers,
+    _skill_matches,
+    _get_prerequisites,
+    _get_session_skills,
+)
 
 _DAR_TABLE = _REPO_ROOT / "docs" / "governance" / "dar-table.md"
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"

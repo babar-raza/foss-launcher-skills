@@ -1,86 +1,280 @@
-# S-20: Page Update — Post-Knowledge-Refresh Content Update
+# S-20: Page Update — Update Page After Knowledge Change
 
 **Arguments**: $ARGUMENTS
-Expected format: `{content-file-path}`
+Expected format: `{family} {platform}` or `{relative-file-path}`
 
 ## Purpose
-Update an existing content page after S-14 (knowledge-update) has refreshed the knowledge model. Compares the page's existing citations against the current knowledge to identify what needs changing.
+After a knowledge refresh (S-14), identify which content pages reference changed claims and produce targeted updates. Only modifies paragraphs affected by knowledge changes — preserves accurate content untouched.
 
 ## Pre-conditions
-1. Content file must exist
-2. Knowledge model must exist and must NOT be stale (S-14 should have cleared staleness)
-3. Recommended: S-13 stale report identifies this page as STALE or AT_RISK
+1. Knowledge freshness is auto-checked via `refresh_knowledge.py` in Step 2 (replaces manual S-14 prerequisite)
+2. If targeting a specific file, it must exist under `content/`
+3. `knowledge/{family}/{platform}/merged/claims.json` exists (current)
+4. Content pages have `evidence:` frontmatter with `claims` and `apis` arrays
 
 ## Steps
 
-1. **Read the content file** at $ARGUMENTS
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-20 --scope "*"
+> ```
 
-2. **Identify product**: Extract `{family}` and `{platform}` from path
 
-3. **Load current knowledge**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`
+1. **Parse arguments**: Determine scope — either all pages for `{family}/{platform}` or a single file.
 
-4. **Extract existing citations**: Parse the YAML `evidence:` frontmatter block for claim IDs
-   - Build a list of referenced claim_ids
-   - Build a list of referenced API names
-   - Build a list of referenced format claims
+2. **Auto-refresh knowledge**: Before loading any knowledge artifacts, ensure they are current:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
+   ```
+   - If it prints "refreshed": knowledge was stale and has been rebuilt from the clone cache.
+   - If it prints "current": no action needed.
+   - If clone cache is missing: warn but continue with existing knowledge artifacts.
 
-5. **Identify citation changes**:
-   a. **Orphaned citations**: claim_ids that no longer exist in claims.json
-      - The paragraphs containing these need rewriting or removal
-   b. **Modified claims**: claim_ids that exist but with changed text or confidence
-      - The paragraphs may need updating to match new claim wording
-   c. **New relevant claims**: claims in claims.json not yet covered by the page
-      - May warrant new sections (only if high confidence and high relevance)
+3. **Load knowledge diff**: Read `knowledge/{family}/{platform}/merged/knowledge_delta.json`.
+   This file is written by `refresh_knowledge.py` after each successful refresh. Identify:
+   - **Added claims**: `new_claims` — new claim IDs not in previous version
+   - **Removed claims**: `removed_claims` — claim IDs that no longer exist
+   - **Modified claims**: `modified_claims` — same ID but changed text, confidence, or provenance
+   - **API changes**: `new_apis`, `removed_apis`, `modified_apis` — added/removed/changed classes
 
-6. **Identify API changes**:
-   a. **Removed API**: class/method names in content not in current api_surface.json
-      - Code blocks using removed API must be rewritten or removed
-   b. **Renamed API**: methods that were renamed (detect via similar signatures)
-      - Find-and-replace in both prose and code blocks
-   c. **New API**: methods added that are relevant to the page topic
-      - May warrant new code examples
+   **If `knowledge_delta.json` is absent** (first run after launch, or no refresh has occurred):
+   fall back to stale_detect scan — scan all pages for evidence.model_sha mismatch to find affected pages.
+   Log: `WARN: knowledge_delta.json not found; falling back to stale_detect scan for affected pages.`
 
-7. **Identify format changes**:
-   a. Format claims in content that now contradict formats.json
-      - Correct the direction (import/export/both) or remove
-   b. New format support added
-      - Update format tables if present
+4. **Find affected pages** (dual-path logic: citation-match + PIA-match):
+   - For product-wide scope: scan all `.md` files under the product's content paths (docs, kb, blog,
+     reference, **and products** — `content/products.aspose.org/en/{family}/{platform}/_index.md`,
+     the single per-product landing page; always include it in the scan even though it carries no
+     `evidence:` block (citation-match cannot apply to it, but it must still be reached by PIA-match
+     or a manual pass — this is the product's front door and must never be silently skipped just
+     because the enumeration forgot it, mission-plan-the-end-to-end-vast-hejlsberg.md Task 21)
+   - Read each page's `evidence:` frontmatter
+   - **Citation-match path**: A page is affected if its `claims` or `apis` arrays reference any changed/removed item
+   - **PIA-match path**: Load `reports/refresh_review/{family}/{platform}/page_impact.json` if present.
+     Add any page with `pia_score` of `HIGH_IMPACT` or `MEDIUM_IMPACT` to the affected-pages list,
+     even if its `evidence.claims`/`evidence.apis` have no delta overlap.
+     - For `MEDIUM_IMPACT` pages: perform LLM-assisted semantic review against current `claims.json`;
+       body updated only if review confirms change is warranted.
+     - If `LLM_API_KEY` absent and page is `MEDIUM_IMPACT` only (not citation-matched):
+       flag as `NEEDS_HUMAN_REVIEW` in page_decisions.json; do not silently skip.
+     - If `page_impact.json` absent: skip PIA-match path with a WARN; citation-match still runs.
+   - De-duplicate: pages found by both paths are processed once
+   - **PIA enforcement**: `HIGH_IMPACT` pages from `page_impact.json` MUST be
+     processed even if the citation-match path found no overlap. Skipping HIGH_IMPACT
+     pages violates the page-update contract and leaves stale content in place.
 
-8. **Apply updates**:
-   - Rewrite paragraphs with orphaned citations using current claims
-   - Update code blocks with renamed/removed API
-   - Correct format claims
-   - Add new sections for significant new claims (confidence >= 0.8 only)
-   - Preserve the page structure and template compliance
+5. **For each affected page**, produce an update plan:
+   - Map each removed/modified claim to the paragraph(s) that reference it
+   - For removed claims: mark paragraph for rewrite or removal
+   - For modified claims: identify specific sentences that need updating
+   - For API changes (renamed/removed methods): find code blocks and prose mentioning old names.
+     Before citing any *new* class/method name introduced by this update, check its
+     `exported_via_package_init` / `public_import_module` fields in `api_surface.json` — see
+     `skills/new-docs-page.md`'s "Python import paths" note (RC-tex-python-03,
+     MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL). Do not carry forward or introduce a
+     citation for an internal-only entity without the `# internal API` disclaimer.
+   - For added claims: identify if any existing section should incorporate new information
 
-9. **Update frontmatter**: Set `lastmod` to today's date
+   **Blog post strategy** (pages under `content/blog.aspose.org/`):
+   Blog posts are narrative content — surgical paragraph patching destroys coherence.
+   Apply these rules instead:
+   - If `removed_claims` or `removed_apis` includes any ID cited by this blog page
+     → full regeneration via `/new-blog-post {family} {platform} {slug}`. Do not patch.
+   - If only `modified_claims` (text changes, no removals) → update only the specific
+     claim-citing sentences (not whole paragraphs).
+   - If only `new_claims` are present → no update needed; new content goes in new pages
+     via delta dispatch (S-84 Step 5).
 
-10. **Write updated content** back to the file
+6. **Pre-write quality check**: For each affected page, invoke `no-downgrade-guard` before writing:
+   - Target path: the affected page's file path
+   - If BLOCK → do not write; report the blocking reason to the user.
+     **If the guard BLOCKS a known-accurate update**: do not silently skip. Use S-73 (manual-edit)
+     with explicit justification. Document the reason in the commit message.
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
 
-## Output
+7. **Apply updates**:
 
+    **Preserve-first rule** (non-negotiable):
+    - Default action for all content is preserve unchanged. Only content that is
+      the direct target of a delta entry (removed_claims, modified_claims,
+      removed_apis) may be rewritten or removed.
+    - Do NOT modify, remove, reorder, or rewrite any section, paragraph, bullet,
+      table row, code block, link, note, or navigation/reference content that has
+      no corresponding delta target.
+    - Sections with no delta target — including but not limited to: See Also,
+      Related Links, navigation lists, manually authored notes, supplemental
+      references, and appended link collections — must survive update unchanged.
+    - "Not in claims.json" is not a deletion reason.
+    - "Not in api_surface.json" is not a deletion reason.
+    - Content absent from knowledge files is not automatically obsolete.
+    - A delta targeting a parent section does not authorize rewriting all
+      sub-content. Identify the smallest affected unit (sentence, paragraph,
+      bullet, or code block) before editing.
+    - A section containing one targeted paragraph is not globally replaceable.
+      Preserve all sub-content in that section that has no delta target.
+
+    **Add-only delta constraint** (new_claims / new_apis):
+    - new_claims and new_apis are add-only signals. They do not authorize
+      rewriting, reordering, or deleting any existing section or content unit.
+    - Adding new content must not be used as a reason to rewrite a neighboring
+      See Also, Related Links, note, or manually authored block.
+    - If no designated safe insertion location exists, invoke the agent-owned
+      review lane (S-73 / S-90, invoked by the agent on behalf of governance)
+      to choose one, or no-op with evidence.
+
+    **Executor stop rule**:
+    - If you cannot map a delta entry to a specific content unit, stop the
+      mutation and invoke the agent-owned review lane. Do not delete or rebuild
+      the section. Mark as BLOCKED with evidence if no safe agent-owned path
+      exists.
+
+   - Rewrite affected paragraphs using current claims from `claims.json`
+   - Update code blocks if API surface changed (use snippets from `knowledge/{family}/{platform}/snippets/`)
+   - Update `evidence:` frontmatter: remove orphaned claim IDs, add new ones
+   - Update `model_sha` in evidence frontmatter to current value. **Do not also touch
+     `model_version`** unless the knowledge baseline's own scouted version string genuinely
+     changed (Task 23, mission-plan-the-end-to-end-vast-hejlsberg.md §9.17, closes G15):
+     `model_version` is a knowledge-baseline label ("what version string appeared in the source
+     repo's build file at the exact commit this page's evidence was checked against"), not a live
+     "current release" pointer — the latter is always `data/package_registry.json`, resolved at
+     Hugo build time via the `maven-coord`/`maven-gav` shortcodes, never frontmatter. These two
+     facts are allowed to diverge whenever a release is metadata-only relative to the knowledge
+     baseline (a version-bump-only commit with zero real API/claim change) — conflating them
+     produces a bulk, zero-value relabel (confirmed live, 2026-08-22: 581 pages already correctly
+     reflected an unchanged knowledge baseline; none needed a `model_version` change despite a
+     real Maven Central republish having happened).
+   - **Record decision after each page**:
+     ```bash
+     .venv/Scripts/python scripts/pipeline/commands/ops/refresh_review.py {family} {platform} \
+         --record-decision --path {relative_file_path} \
+         --decision {BODY_UPDATED|EVIDENCE_ONLY} \
+         --reason "{delta_signal_description}" \
+         [--body-changed]   # only when body prose was modified
+     ```
+     Decision rules:
+     - Pages with body prose changes → `BODY_UPDATED` (pass `--body-changed`)
+     - Pages with only `evidence.model_sha` updated → `EVIDENCE_ONLY`
+     - Pages assessed as NOT_AFFECTED by PIA but still scanned → `NOT_AFFECTED`
+     - Blog posts set to `draft: true` → `RETIRED`
+   - Also call `record_pages` for tracking:
+     ```bash
+     .venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} \
+         --step page_update --updated {space_separated_updated_paths}
+     ```
+
+8. **Run ground-check** on each updated page:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {updated-file-path}
+   ```
+
+8b. **Code block blank-line check** (products section only): If the updated file is under `content/products.aspose.org/`, run:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/content/validate_plugin_structure.py --files {updated-file-path}
+    ```
+    Must exit 0. If `CODE_BLOCK_BLANK_LINES` errors appear, strip blank lines at code fence boundaries and within short code snippets (<=8 lines) before proceeding.
+
+9. **Update provenance**: For each file where body content was modified, update the provenance mechanism:
+   ```python
+   from provenance import update_mechanism
+   from pathlib import Path
+   update_mechanism(Path("{updated-file-path}"), "page-update")
+   ```
+   The `content_hash` will be normalized automatically by the pre-commit hook — do not compute or pass it here.
+
+9b. **Backlink compliance assertion** (add-only safety net — after all updates):
+    Verify that each body-modified page still has a compliant aspose.com content-area
+    backlink in its See Also / Related Resources section. This step is a SAFETY NET:
+    the preserve-first rule (Step 7) must have already prevented any See Also section
+    deletion or modification. This step catches and restores any backlink that was
+    missing before the update or was inadvertently dropped despite preserve-first
+    enforcement.
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py --family {family} --platform {platform} --subdomain {subdomain}
+    ```
+    For any MISSING pages: re-inject (add-only — never rewrites or restructures existing content):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py --family {family} --platform {platform} --subdomain {subdomain} --write
+    ```
+    If BLOCKED_TARGET (no valid backlink target for this page): log WARN and continue.
+    Do not fail the skill. Do not rebuild or restructure any section.
+    This step runs once per skill invocation after all pages are updated.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
+
+10. **Report**: For each updated page, print:
+   ```
+   PAGE UPDATE — {file-path}
+   Changes applied:
+     - [claim CLM-xxx]: paragraph N rewritten (claim modified)
+     - [claim CLM-yyy]: removed (claim no longer exists)
+     - [api OldClass.method → NewClass.method]: code block updated
+   Audit result: PASS/FAIL
+   ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-20 --status completed
+> ```
+
+## Relationship to S-105 (body-refresh) — RPR-E-04
+
+S-20 is the **fallback / handoff path**, not the primary body-editing path. The
+deterministic-first engine is **S-105 (`body-refresh`)**, which handles the five
+deterministic update strategies plus a grounded LLM `PARAGRAPH_REWRITE`, with
+generation-time forbidden-claims, template-propagation, and surface-policy gates.
+S-20 handles what S-105 explicitly defers to it: docs/kb/blog prose that needs genuine
+agent/manual judgment, and the `unknown`-surface residual (see the surface-policy table
+in `.agents/skills/body-refresh/SKILL.md`). S-105 never edits reference pages in place —
+those are regenerated by S-62 (`batch-reference`).
+
+## Body-change requirement rules
+
+Not all delta signals require body prose changes. Use this table to determine
+whether a metadata-only update is acceptable or whether body content MUST change:
+
+| Delta signal | Body change REQUIRED? | Rationale |
+|---|---|---|
+| `removed_claims` citing specific paragraphs | YES | Remove stale sentences referencing removed APIs/features |
+| `modified_claims` | YES | Update sentences to reflect changed behavior |
+| `removed_apis` with no page citations | NO | Only evidence cleanup needed |
+| `new_claims` for existing pages | NO | New content goes in new pages or dedicated sections |
+
+## Frontmatter write rule
+
+ALWAYS use `attach_evidence.py` to update evidence blocks:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {updated-file-path}
 ```
-PAGE UPDATE — {content-file-path}
-Knowledge: {family}/{platform} (sha: {repo_sha})
-
-Changes applied:
-  Orphaned citations rewritten: {n}
-  Modified claims updated:      {n}
-  API references corrected:     {n}
-  Format claims fixed:          {n}
-  New sections added:           {n}
-
-Items requiring human review:
-  {list of changes that could not be automated}
-```
+NEVER construct evidence YAML manually or via `yaml.dump`. The `evidence/writer.py`
+performs surgical regex-based replacement that preserves non-evidence frontmatter
+fields and avoids duplicate keys.
 
 ## Post-conditions
-- After updating, the chain continues:
-  1. S-23 (ground-check) — verify updated content passes truth gate
-  2. S-24 (evidence-cite) — refresh citations for new/changed content
-  3. S-01 (path-guard) — validate write path
+- All affected pages have been updated to reflect current knowledge
+- No pages reference removed or orphaned claim IDs
+- Evidence frontmatter is current (model_sha matches latest)
+- Ground-check passes on all updated pages
+- Unaffected content is unchanged
 
 ## Error handling
-- If no citations found in file → treat as ungrounded page, recommend S-17/S-21 enhancement instead
-- If knowledge is stale → abort, run S-14 first
-- If >50% of page content is affected → flag for human review (major rewrite needed)
+- If `knowledge_delta.json` not found: fall back to stale_detect scan (Step 3); log warning
+- If a page references a removed claim but the paragraph cannot be safely rewritten, flag for human review
+- If audit.py fails after update, list specific issues and attempt one correction pass
+- If no-downgrade-guard BLOCKS a known-accurate update: escalate to S-73 (manual-edit); do not skip
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

@@ -1,0 +1,1 @@
+def test_seven_handlers_registered(self) -> None:

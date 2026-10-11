@@ -1,0 +1,96 @@
+mission_authority:
+  mission_id: readme-refresh-at-a-glance-retention-hardening-2026-09-02
+  mission_summary: 'Production hardening of /readme-refresh (S-120) triggered by two user
+    findings on the tex/python candidate (reports/repo-presenter-regen-full/tex/python/readme.md):
+    (1) an italic prose caveat between "## At a Glance" and the mermaid fence that no other
+    README carries -- the only such case in all 150 candidate files across every tree, a
+    documented-but-never-executed deletion (template plan:5410-5412) that survived two
+    regenerations; (2) a request for proof that everything in the original upstream README is
+    retained after verification. A deeper reassessment (user-directed, 2026-09-02) separated the
+    symptoms from seven root causes (template contract stops at section names; reactive phrase
+    lists; no composition contract for the un-runnable case; ledger-authored fields trusted over
+    the extractor; presence-based rather than fidelity-based retention; session-bound run locks
+    with no liveness-aware release; single-home facts with no parity) and shipped structural
+    fixes for each, then regenerated tex/python through the hardened skill as the repeatability
+    proof. No push to any external product repo.'
+  governing_plan_path: <local-plan-cache>/i-want-to-investigate-refactored-petal.md
+  in_scope_outcomes:
+  - 'TC-01: check_at_a_glance_section_shape (hard gate) + section_shapes index in
+    data/readme_template_contract.json (schema 2) + parity check 4 (every documented
+    section-body invariant names a real check_* function) -- commit fcfa20db5b'
+  - 'TC-02: structural document-self-reference narration detector in a README-only pattern
+    list (issue-draft hard gate untouched); check_process_narration_smells docstring corrected to
+    its real advisory tier -- commit 45d292e3b5'
+  - 'TC-03: skills/readme-refresh.md composition contract -- At-a-Glance section shape rule,
+    designed-limitations-vs-transient-defects rule (user decision: transient defects never in the
+    README), UPSTREAM-BROKEN handling, code-example-dispositions.json finally named, regenerated
+    execution-contract CLI block -- commit b038fdab6c (+ provider mirrors)'
+  - 'TC-04: abandon --adopt-orphaned, gated on session_ledger.resolve_context (closed / stale /
+    unknown-owner+24h), recorded on the manifest and as a RUN_ADOPTED event -- commit c66ece531e;
+    proven live on tex/python rr-20260831T173823Z-9fc92f92f68f (owner 147dcde5 closed)'
+  - 'TC-05: check_code_example_api_coverage_survives reads the LIVE extractor fingerprint
+    (354/475 ledger entries lacked the field; the hard gate had been vacuous for 24/27 products)
+    with mermaid units skipped and receiver-variable tolerance -- commits fcfa20db5b + a334b3a786'
+  - 'TC-06: check_content_unit_disposition_text_diff (advisory, 103/1963 baseline disclosed);
+    build_retention_report / render_retention_report_markdown; checks/retention-report.md written
+    on every ingest/recheck; read-only retention-report verb -- commits fcfa20db5b + 8b3b6dde36'
+  - 'TC-07: audit-portfolio skeleton_singletons (per-section opening-shape oracle, advisory) --
+    commit 8b3b6dde36'
+  - 'TC-08: _PRESERVATION_TRACKING_KEYS single source (3 drifted keys restored) + parity tests
+    (tuple <-> else branch, docstring tier <-> wiring, argparse <-> skill-doc CLI block) --
+    commits fcfa20db5b + b038fdab6c'
+  - 'TC-09: CHECKS_MODULE_VERSION 4, contract/registry count 114, template-contract.md section
+    shape invariants -- commit fcfa20db5b'
+  - 'TC-REGEN: tex/python regenerated under the hardened skill -- run
+    rr-20260902T080803Z-47f9708b4c7a, state AWAITING_REVIEW, 0 hard-gate findings, negative
+    control recorded (unchanged candidate fails at_a_glance_section_shape:prose_before_diagram),
+    verify-examples --python-runner 9x UPSTREAM-BROKEN / 1 clean / 5 toolchain-unavailable,
+    recheck idempotent, section isolation proven (only At a Glance / Key Capabilities / Quick
+    Start / Scope and Limitations changed), retention report needs_attention=0, u0010 restored
+    (fidelity 0.59 -> 0.82), c0003 restored verbatim, portfolio 22 clean / 9 dirty unchanged in
+    count with the only hard-gate deltas being the disclosed 3d/python (+3) and pdf/python (+4)
+    true positives'
+  - 'TC-FONT (2026-09-02, user-directed follow-on): font/python assessed and fully regenerated.
+    Upstream: 22 orphan roots, weekly GitLab re-snapshot; our merged PR #1 discarded on 2026-08-20;
+    live README byte-identical to the pre-PR README; source tree byte-identical since 26.6.4
+    (2026-06-25). Our ledgers had been authored against our own merged README (circular, 131
+    self-references). Rebuilt all four ledgers against the real old README (50/2/40/0 units),
+    restored 17 real CLI subcommands + 4 Python API demonstrations, fixed the 139/136 count,
+    removed transient-defect narration from Installation, corrected the old README''s own broken
+    Quick Start example (ST-170). Run rr-20260902T104838Z-d00e617b6702: 0 hard-gate findings,
+    recheck idempotent, 20/20 Python blocks + 42/42 CLI invocations executed live against the
+    repository''s own fixture fonts, prose fidelity median 0.94. Portfolio 23 clean / 8 dirty
+    (font/python 183 findings -> 0). State AWAITING_REVIEW; publication deliberately undecided
+    (mirror target).'
+  out_of_scope_items:
+  - Any push/approve/merge to an external product repository (tex/python stops at
+    AWAITING_REVIEW by user decision)
+  - Fixing 3d/python's and pdf/python's newly-real API-demonstration losses (filed ST-161/ST-162)
+  - Promoting check_process_narration_smells or check_content_unit_disposition_text_diff to
+    hard gates (ST-163 for the latter)
+  - The salient_tokens ledger-vs-extractor drift (ST-164) and the 7 skeleton singletons (ST-165)
+  - Adopting the other 4 orphaned runs (ST-167) -- per-product decisions
+  mandatory_acceptance_criteria:
+  - 'Scoped test suites green at every commit boundary (test_readme_refresh_checks.py +
+    test_readme_refresh_run.py + test_check_readme_template_contract_parity.py): 954 -> 966 ->
+    970 passing; check_readme_template_contract_parity.py OK; check_skill_command_parity via
+    pre-commit Step 33'
+  - 'Negative control: the unchanged tex/python candidate fails ingest-candidate on the new gate
+    (evidence/regen/01-negative-control.result.json)'
+  - 'tex/python clean under checks v4 with the note deleted, the packaging bullet deleted, u0010
+    and c0003 restored, everything else byte-identical (evidence/regen/02..07)'
+  - 'Portfolio audit before/after captured; only disclosed deltas (evidence/pre_flight +
+    evidence/regen/08)'
+  human_authority_boundaries:
+  - Any push/approve/merge to an external product repository
+  - Promotion of any advisory check to a hard gate
+  conflicts_found:
+  - 'Root MISSION_AUTHORITY.yaml is held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING;
+    per the two previous readme-refresh missions'' precedent this record is hand-authored here.'
+  - 'The TC-01/05/06 commit message (fcfa20db5b) counted 3d/java c0011 as a true positive of the
+    un-inerted gate; the first full-portfolio run showed it (and cells/typescript c0002e) to be a
+    receiver-variable-rename false positive, fixed in a334b3a786 and corrected in the check
+    docstring and here. Real true positives: 3d/python c0006b/e/f, pdf/python c0007/9/10/11.'
+  mission_locked: false
+  _archive_status: closed
+  _closed_at: '2026-09-02T08:35:00Z'

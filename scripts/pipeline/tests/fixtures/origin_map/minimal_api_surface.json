@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Document",
+    "method_details": [
+      {"name": "Save"},
+      {"name": "Load"},
+      {"name": "Convert"}
+    ],
+    "property_details": [
+      {"name": "Pages"},
+      {"name": "IsEncrypted"}
+    ]
+  },
+  {
+    "name": "Presentation",
+    "method_details": [
+      {"name": "Save"},
+      {"name": "Open"}
+    ],
+    "property_details": []
+  }
+]

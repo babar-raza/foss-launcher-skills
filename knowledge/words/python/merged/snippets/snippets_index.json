@@ -1,0 +1,894 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "ApiExamples/convert_document.py",
+    "source_function": "test_all_conversions",
+    "source_line": 41,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "985a2c74dcd1b3560c7d79daf0521246ff4de2801801cc12f67a5796b0578723",
+      "norm": "985a2c74dcd1b3560c7d79daf0521246ff4de2801801cc12f67a5796b0578723"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "ApiExamples/convert_document.py",
+    "source_function": "test_get_text_from_all_formats",
+    "source_line": 48,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "789849ffd5e92145491f6c15f12e502c9c1e09f70c176bdb9abc2006f3f31f79",
+      "norm": "789849ffd5e92145491f6c15f12e502c9c1e09f70c176bdb9abc2006f3f31f79"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_document_from_file",
+    "source_line": 27,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b26a75b68d9c3d7111e547521322e8db39f87d4640fd3f7a226791d93f059e6f",
+      "norm": "b26a75b68d9c3d7111e547521322e8db39f87d4640fd3f7a226791d93f059e6f"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_document_from_file_doc_format",
+    "source_line": 34,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73393e9efe10fbcaf550c4f23cfe97e15192f4d4d43b9825943e7ad560c01a9e",
+      "norm": "73393e9efe10fbcaf550c4f23cfe97e15192f4d4d43b9825943e7ad560c01a9e"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream",
+    "source_line": 39,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "51998c72eedce4e76b238a5dbe9b887c73598fb0c10d2a3dd318e246c494e0fb",
+      "norm": "51998c72eedce4e76b238a5dbe9b887c73598fb0c10d2a3dd318e246c494e0fb"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream_doc_format",
+    "source_line": 47,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a02e8797a91560258a49dc843cb3a647c37c1406ef0b0d824ad9d4a7ee0bb7fa",
+      "norm": "a02e8797a91560258a49dc843cb3a647c37c1406ef0b0d824ad9d4a7ee0bb7fa"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_stream_with_load_options",
+    "source_line": 53,
+    "classes_used": [
+      "Document",
+      "LoadFormat",
+      "LoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2c4fd9466509a1bd7fc56ebebcc7b06af99e2be7559c6c84433cde9cc2a58b42",
+      "norm": "2c4fd9466509a1bd7fc56ebebcc7b06af99e2be7559c6c84433cde9cc2a58b42"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_from_bytes_io",
+    "source_line": 62,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "28b2a424bfa4ac351f780d4adb20eece2a03b809eb1aec2657d8cd037a639ebc",
+      "norm": "28b2a424bfa4ac351f780d4adb20eece2a03b809eb1aec2657d8cd037a639ebc"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "ApiExamples/loading_document.py",
+    "source_function": "test_open_and_save",
+    "source_line": 71,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "09ab79a3c73cd148ebc55a3cb24334bd071f9d619f009f965d316704f6e1a3c3",
+      "norm": "09ab79a3c73cd148ebc55a3cb24334bd071f9d619f009f965d316704f6e1a3c3"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_load_markdown_from_bytes",
+    "source_line": 72,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "27259c93d600033a51612e0d171e708d70397799224cefac5c4c6109e8248998",
+      "norm": "27259c93d600033a51612e0d171e708d70397799224cefac5c4c6109e8248998"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_load_markdown_from_stream",
+    "source_line": 78,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d84106a6824b5b84b831af239828878bdb99ac63d6df5d8f26c736777dfd7e7",
+      "norm": "8d84106a6824b5b84b831af239828878bdb99ac63d6df5d8f26c736777dfd7e7"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_markdown_round_trip_preserves_source",
+    "source_line": 85,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6951c0ec3a142c3824e8c7521d4d92b3da9cde32a332b227bcac17295e45592e",
+      "norm": "6951c0ec3a142c3824e8c7521d4d92b3da9cde32a332b227bcac17295e45592e"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_preserve_empty_lines",
+    "source_line": 105,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "Paragraph"
+    ],
+    "methods_used": [
+      "Paragraph.get_text"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "paragraph",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c8fff1fd374482405898803f8ff01b6983e789356ecba0a51863e4e83ce08cd0",
+      "norm": "c8fff1fd374482405898803f8ff01b6983e789356ecba0a51863e4e83ce08cd0"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "ApiExamples/loading_markdown.py",
+    "source_function": "test_save_markdown_with_base64_image_to_docx_and_pdf",
+    "source_line": 118,
+    "classes_used": [
+      "Document",
+      "ImageType",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "NodeType",
+      "SaveFormat",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.get_child_nodes",
+      "Shape.as_shape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b14eb45b407d5551a68c96714c273e212654d96ecf0b784e179fde1b1fada993",
+      "norm": "b14eb45b407d5551a68c96714c273e212654d96ecf0b784e179fde1b1fada993"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "ApiExamples/working_with_images.py",
+    "source_function": "test_image_documents_to_all_formats",
+    "source_line": 38,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "11a36e836a7b3621811649183de162633e74f8305e4e79b9c1c8d3799b2f1237",
+      "norm": "11a36e836a7b3621811649183de162633e74f8305e4e79b9c1c8d3799b2f1237"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_export_underline_formatting",
+    "source_line": 28,
+    "classes_used": [
+      "MarkdownSaveOptions",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f1356aff1fc2e6a3d93bc97abe8c5b79fe8bda4d0bef1ba92c732f03d84ec7e8",
+      "norm": "b54c92eea7e9ff65b730e37ec1ca4da5e6e7e0ee73b9ddefb2951dcd636c42ee"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_set_encoding",
+    "source_line": 40,
+    "classes_used": [
+      "MarkdownSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2207106f43610d4db3bae3bf9814a91bb715c7fb67d0e90abf681f62789c33ca",
+      "norm": "2207106f43610d4db3bae3bf9814a91bb715c7fb67d0e90abf681f62789c33ca"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_set_paragraph_break",
+    "source_line": 57,
+    "classes_used": [
+      "MarkdownSaveOptions",
+      "Paragraph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "paragraph"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "723121e8f94a4ccf7d985fdc21025ceeaa0614639b57d6603494f2ba3ad01342",
+      "norm": "723121e8f94a4ccf7d985fdc21025ceeaa0614639b57d6603494f2ba3ad01342"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "ApiExamples/working_with_markdown_save_options.py",
+    "source_function": "test_markdown_from_all_input_formats",
+    "source_line": 73,
+    "classes_used": [
+      "MarkdownSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2e23667994e720ac2878c265b70837c5e093222aacd58083153c5c859f429b64",
+      "norm": "2e23667994e720ac2878c265b70837c5e093222aacd58083153c5c859f429b64"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_set_pretty_format",
+    "source_line": 29,
+    "classes_used": [
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d0badd681d35b7798af25d7e5564edecf718c6953ffd31ee9d2380ff85e9bc70",
+      "norm": "d0badd681d35b7798af25d7e5564edecf718c6953ffd31ee9d2380ff85e9bc70"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_pretty_format_off",
+    "source_line": 47,
+    "classes_used": [
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c0a39345cbb2e50598b04b33cc46de9d0d0bdd0ebe547342a40d68256e36bb14",
+      "norm": "c0a39345cbb2e50598b04b33cc46de9d0d0bdd0ebe547342a40d68256e36bb14"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_pretty_format_round_trip",
+    "source_line": 64,
+    "classes_used": [
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "39dc3538b7a7695c761e950d031cff55aa78730d85d09b586dfa790ab74aef73",
+      "norm": "39dc3538b7a7695c761e950d031cff55aa78730d85d09b586dfa790ab74aef73"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "ApiExamples/working_with_ooxml_save_options.py",
+    "source_function": "test_set_compression_level",
+    "source_line": 84,
+    "classes_used": [
+      "CompressionLevel",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae384abe95d0e179f50eedd7987eaa5b64160e31aa9b06fdd3b0993e42a8391f",
+      "norm": "bddc9d4001aba9e8c4faee9c15f6eb1a203c597ea632f3c9967ffdebc49ab69e"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "ApiExamples/working_with_pdf_save_options.py",
+    "source_function": "test_pdf_from_all_input_formats",
+    "source_line": 28,
+    "classes_used": [
+      "PdfSaveOptions",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "rtf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b9e57f1e00463433baa27e05507edbdbc97b664576ce93523f38e6be74eafd64",
+      "norm": "b9e57f1e00463433baa27e05507edbdbc97b664576ce93523f38e6be74eafd64"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "ApiExamples/working_with_pdf_save_options.py",
+    "source_function": "test_save_with_pdf_save_options",
+    "source_line": 41,
+    "classes_used": [
+      "PdfSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "921cc5cfc5739f43de7d6648ffa5f6a73a60045c6e7cb4eab099bb991df458e8",
+      "norm": "f11cdcf488122b72d35d5c5e1fe3082e5b880d3f2a28f831bee7847f6bb33f1d"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "ApiExamples/working_with_txt_save_options.py",
+    "source_function": "test_text_from_all_input_formats",
+    "source_line": 25,
+    "classes_used": [
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b1537a57128e2861f5720ff012e9919ea286d6e952d7a09b380241e2f0b5d139",
+      "norm": "b1537a57128e2861f5720ff012e9919ea286d6e952d7a09b380241e2f0b5d139"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "ApiExamples/working_with_txt_save_options.py",
+    "source_function": "test_get_text",
+    "source_line": 36,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b52ad173282537eb61bc435ba59a30c8459ced7a27036fb2145cc9c13834b04d",
+      "norm": "0e5a0ec02678fd6331e25432c1afb6247a4d785f421e3f4589bb947e22d9678f"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 134,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b17d1f5d7ef734c1c66ef58ea0890b35e16a649a048f2fc0a16ba7197cd401ce",
+      "norm": "e92161627d749f551221a7cb7c04b9d35d2658806330e97ba6cbfc1352c9f407"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 143,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2eabac1cc5838635a2b160bf2d4265e3dde9d9fbbc231f2ad75c49f0bd8e9dc1",
+      "norm": "6a8d099cb6e724a936cc5d9ef0edd4e8a6981e15e3c8d861c8c8a69e206eed15"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 161,
+    "classes_used": [
+      "Document",
+      "MarkdownSaveOptions",
+      "PdfSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bd950c6db372dd1852dee0b3fece3c071576d2d1f421692aad089996dec21910",
+      "norm": "8a96f99489a6c9650051efa4d807c54518420db6e328be823176cc7dd28ad629"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 190,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc2b472e024d2ec5a8639ebda0fe7f0c1448f488e0c50abfd1a5fd85e7ad5f2c",
+      "norm": "5220fe11256e08251c3e0db6318d811cf84e5b58b412237fea7455c654d91b02"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 200,
+    "classes_used": [
+      "Document",
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "pdf",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "51842320905e03c293c08dbe7a22c6c522cf4038d89e901ecf69e53d8855b8cd",
+      "norm": "ab51c018737a3f4a4658b8c7d6d9b599a7ddc9394aff2a4b3b142c96c8033d21"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 213,
+    "classes_used": [
+      "Document",
+      "LoadFormat",
+      "LoadOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "rtf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8df91b9217fa74d0f67a6701bcdb7349ddf84fb33b632b8eca5c822de6b4fdc1",
+      "norm": "ae67ed7b10e1d8db4cde13f698309ba4171035f7b8c0185f5ea2dc5eeec3a7e1"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 228,
+    "classes_used": [
+      "Document",
+      "MarkdownSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "719aea4e10f5ac603c56bea2f32b664d7a0544a28d00dfda799b1ddcefa4be97",
+      "norm": "f6759755fe20956e0fd91a650ab8732ce0f6bb3b2165072c5a14bb82be1705dc"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 239,
+    "classes_used": [
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2a184c58c3364075ddac0378d5f731ebabb37b94ed126eb851fdfc685418756a",
+      "norm": "321fcd4a899ccb28b55f5c7ddaba72b4e67e852d5d396f2a57c38651840a9059"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 250,
+    "classes_used": [
+      "CompressionLevel",
+      "Document",
+      "OoxmlSaveOptions"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ooxml",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f89b9f3cfee0cf5d7246031bc76f9e366fcbc6ffe7e1fbe9ff8c188f0e87d371",
+      "norm": "4be8c670710a44b3809059633c08067dafee738f15ab904fd10ac96986ed4fd0"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 264,
+    "classes_used": [
+      "Document",
+      "SaveFormat",
+      "Shape",
+      "ShapeRenderer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "text",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91af31bea4f1e63eae49e8e7ebc9e1af83eed7473082fca26d3a458d27e68308",
+      "norm": "bd86cab49259eec25a8ba8dc7e4ee6f7001b0b6ade9c798dd22bc950a548ffc7"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 287,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "Paragraph"
+    ],
+    "methods_used": [
+      "Paragraph.get_text"
+    ],
+    "formats_referenced": [
+      "doc",
+      "markdown",
+      "paragraph",
+      "text",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8b09a52bcad6a78c05028f572416a8a996d44ff82b8b3582a3fc654eb4900191",
+      "norm": "e467a260af06f09270be09e4c767d972eb8491be6633e498e59fd0a18f405808"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 307,
+    "classes_used": [
+      "Document",
+      "LoadOptions",
+      "MarkdownLoadOptions",
+      "SaveFormat",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "markdown",
+      "pdf",
+      "words"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "095fd0e055b9986d3022b54d53625c4cf053db88d976be0ffa03cc2e1bc4e9c6",
+      "norm": "b14304db1a5f87bc1d662131fe8a6dbf23f162ae08482fa6093d7c1e1d789b8f"
+    }
+  }
+]

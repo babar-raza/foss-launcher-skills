@@ -1,0 +1,66 @@
+{
+  "dispositions": {
+    "A-01": {
+      "probe_id": "A-01",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "all scoped products covered"
+    },
+    "A-02": {
+      "probe_id": "A-02",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "verdict='VIOLATED', override_present=True"
+    },
+    "A-03": {
+      "probe_id": "A-03",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "zero orphans"
+    },
+    "A-04": {
+      "probe_id": "A-04",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "all root causes traced"
+    },
+    "A-05": {
+      "probe_id": "A-05",
+      "disposition": "BLOCKER",
+      "detail": "fix-plan items with insufficient options: ['RC-tex-python-03', 'RC-tex-python-04', 'RC-tex-python-05', 'RC-tex-python-06']"
+    },
+    "A-06": {
+      "probe_id": "A-06",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "all taskcards fully specified"
+    },
+    "A-07": {
+      "probe_id": "A-07",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "every CLOSED taskcard traces to a known root cause"
+    },
+    "A-08": {
+      "probe_id": "A-08",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "every content change is attributed"
+    },
+    "A-09": {
+      "probe_id": "A-09",
+      "disposition": "BLOCKER",
+      "detail": "taskcards with content regenerated before/without a system fix: ['TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01', 'TC-tex-python-05-BLOG-CONTENT-FIX']"
+    },
+    "A-10": {
+      "probe_id": "A-10",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "every regenerated taskcard has a verified before/after diff"
+    },
+    "A-11": {
+      "probe_id": "A-11",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "every hardening item proven against a regression fixture"
+    },
+    "A-12": {
+      "probe_id": "A-12",
+      "disposition": "DISPROVEN_WITH_EVIDENCE",
+      "detail": "all 7 pilot-chain links resolved"
+    }
+  },
+  "any_blocker": true,
+  "independence_verified": true
+}

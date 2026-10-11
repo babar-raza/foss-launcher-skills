@@ -1,0 +1,144 @@
+diff --git a/scripts/pipeline/commands/launch/site_planner.py b/scripts/pipeline/commands/launch/site_planner.py
+index a9947a5ce8..18e2466d03 100644
+--- a/scripts/pipeline/commands/launch/site_planner.py
++++ b/scripts/pipeline/commands/launch/site_planner.py
+@@ -126,7 +126,8 @@ def slug_from_category(category: str) -> str:
+ # Helper: KB verb detection
+ # ---------------------------------------------------------------------------
+ 
+-_VERB_KEYWORDS: list[tuple[list[str], str]] = [
++# True verb synonyms: safe as a slug's leading verb (forward and reverse).
++_KB_VERB_SYNONYMS: list[tuple[list[str], str]] = [
+     (["load", "read", "open", "import"],                      "load"),
+     (["save", "write", "export"],                             "export"),
+     (["convert", "transform"],                                "convert"),
+@@ -137,6 +138,10 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["parse", "extract", "inspect", "analyze"],              "extract"),
+     (["traverse"],                                            "traverse"),
+     (["optimize", "compress"],                                "optimize"),
++]
++
++# Cluster-name hints (forward classification only) -- never treat as slug verbs.
++_KB_CATEGORY_VERB_HINTS: list[tuple[list[str], str]] = [
+     # Sub-package cluster names mapped to meaningful verbs
+     (["format"],                                              "convert"),   # format-support → convert
+     (["scene-manage", "scene-management"],                    "load"),      # scene-management → load
+@@ -181,6 +186,13 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["metadata-util"],                                       "extract"),   # metadata-utilities → extract
+ ]
+ 
++# ST-198: compat alias -- same name, order, content. detect_kb_verb() (forward
++# classification of a cluster NAME) scans both tables; the reverse parser
++# (split_kb_slug_verb_noun(), below) scans only _KB_VERB_SYNONYMS, because a
++# category-hint keyword (e.g. "msg", "mesh", "cfb", "comment") is never a
++# legitimate leading verb word of a slug.
++_VERB_KEYWORDS: list[tuple[list[str], str]] = _KB_VERB_SYNONYMS + _KB_CATEGORY_VERB_HINTS
++
+ # Clusters that should NOT generate KB howto pages (reference-only).
+ # Also excluded from docs developer-guide topic pages.
+ KB_SKIP_CLUSTERS = {
+@@ -217,6 +229,37 @@ def detect_kb_verb(category: str) -> str:
+     return "work-with"
+ 
+ 
++# ST-198: reverse vocabulary = every canonical verb ANY row can emit (exactly
++# what the old _known_verbs set held) + the synonym raw keywords (e.g. "read",
++# "save", "parse" -- ST-198's core fix) + "work-with". Deterministic order:
++# (-len, alphabetical) so compound verbs like "work-with" are matched before
++# their single-word prefixes, with a stable tie-break independent of hash seed.
++_KB_REVERSE_VERB_VOCAB: tuple[str, ...] = tuple(sorted(
++    {v for _, v in _VERB_KEYWORDS} | {kw for kws, _ in _KB_VERB_SYNONYMS for kw in kws} | {"work-with"},
++    key=lambda v: (-len(v), v)))
++
++
++def split_kb_slug_verb_noun(slug: str, platform: str) -> tuple[str, str]:
++    """Split a 'how-to-{verb}-{noun}[-{platform suffix}]' slug into (verb, noun).
++
++    Single implementation shared by _validate_kb_slugs() (below) and
++    content_eval.evaluators.topic_grounding._extract_topic_noun() -- see
++    _KB_REVERSE_VERB_VOCAB's docstring for why the vocabulary is built the
++    way it is. verb == "" when no known verb leads the slug (noun is then
++    the whole remainder, unchanged -- the pre-existing, tested fallback).
++    """
++    if not slug.startswith("how-to-"):
++        raise ValueError(f"not a how-to slug: {slug!r}")
++    inner = slug[len("how-to-"):]
++    suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
++    if inner.endswith(f"-{suffix}"):
++        inner = inner[: -(len(suffix) + 1)]
++    for kv in _KB_REVERSE_VERB_VOCAB:
++        if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
++            return kv, inner[len(kv) + 1:]
++    return "", inner
++
++
+ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
+     """Derive a concise KB howto noun from the cluster category name.
+ 
+@@ -1766,33 +1809,12 @@ def _validate_kb_slugs(
+     For source=discovered pages (existing deployed URLs), a warning is logged
+     but no exception is raised — live URLs must not be broken.
+     """
+-    # Build verb list (longest first) so compound verbs like "work-with" are
+-    # matched before their single-word prefixes ("work").
+-    _known_verbs: list[str] = sorted(
+-        {v for _, v in _VERB_KEYWORDS} | {"work-with"},
+-        key=len,
+-        reverse=True,
+-    )
+-
+-    plat_suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
+     for page in pages:
+         slug = page.get("slug", "")
+         source = page.get("source", "")
+         if not slug.startswith("how-to-"):
+             continue
+-        # Strip leading "how-to-" and trailing "-{plat_suffix}"
+-        inner = slug[7:]
+-        if inner.endswith(f"-{plat_suffix}"):
+-            inner = inner[: -(len(plat_suffix) + 1)]
+-        # Find verb by matching known verb prefixes (longest first to handle
+-        # compound verbs like "work-with" before single-word "work").
+-        verb = ""
+-        noun = inner
+-        for kv in _known_verbs:
+-            if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
+-                verb = kv
+-                noun = inner[len(kv) + 1:]
+-                break
++        verb, noun = split_kb_slug_verb_noun(slug, platform)
+         if not noun:
+             continue
+ 
+@@ -1814,16 +1836,21 @@ def _validate_kb_slugs(
+ 
+         # Check 2: verb-noun duplication — verb appears at the start OR end of
+         # the noun, including nominal forms (e.g. "extract" matches "extraction").
+-        verb_forms = [verb] + [verb + s for s in ("ion", "ing", "tion", "ation")]
+-        noun_parts = noun.split("-")
+-        if (any(noun.startswith(f) for f in verb_forms)
+-                or any(noun.endswith("-" + f) for f in verb_forms)
+-                or any(part in verb_forms for part in noun_parts)):
+-            _fail_or_warn(
+-                f"KB slug has verb-noun duplication: {slug!r}\n"
+-                f"  verb={verb!r} appears in noun={noun!r}"
+-            )
+-            continue
++        # ST-198 F-1: only meaningful when a verb was actually parsed -- an
++        # empty verb makes every verb_form the empty string, and
++        # noun.startswith("") is always True, so this used to fire a false
++        # "duplication" on every slug whose leading word matched no known verb.
++        if verb:
++            verb_forms = [verb] + [verb + s for s in ("ion", "ing", "tion", "ation")]
++            noun_parts = noun.split("-")
++            if (any(noun.startswith(f) for f in verb_forms)
++                    or any(noun.endswith("-" + f) for f in verb_forms)
++                    or any(part in verb_forms for part in noun_parts)):
++                _fail_or_warn(
++                    f"KB slug has verb-noun duplication: {slug!r}\n"
++                    f"  verb={verb!r} appears in noun={noun!r}"
++                )
++                continue
+ 
+         # Check 3: generic noun (primary word only)
+         primary = noun.split("-")[0]

@@ -1,9 +1,32 @@
+<!-- CONTRACT: scripts/pipeline/commands/content/audit.py (invoked in Step 3)
+     CONTRACT: scripts/pipeline/commands/content/ground_check.py (invoked in Step 3 when present)
+     postcondition: audit.py returns automated structural PASS/WARN/FAIL report
+     postcondition: ground_check.py returns grounding ratio gate (exit 0=PASS, 1=WARN, 2=FAIL)
+     postcondition: agent performs knowledge cross-reference and evidence checks manually
+     postcondition: skill is read-only — no file modifications
+     verified: 2026-04-01
+     depends_on: [S-01]
+-->
+# S-23: Content Check — Structural Quality Pre-Commit Check
+
 Run a structural and quality check on a content file before committing.
 
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{relative-file-path}` — e.g. `content/kb.aspose.org/en/3d/python/how-to-load-models.md`
 
+## Pre-conditions
+
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` (detect `{family}` and `{platform}` from the file path argument) and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
+
 ## Steps
+
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-23 --scope "*"
+> ```
+
 
 1. **Read the file** at the path given in `$ARGUMENTS`.
 
@@ -14,7 +37,26 @@ Run a structural and quality check on a content file before committing.
    - `content/reference.aspose.org/` → Reference page
    - `content/products.aspose.org/` → Product page
 
-3. **Run all checks below** and record PASS / WARN / FAIL for each:
+3. **Run automated structural checks via audit.py**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {relative-file-path}
+   ```
+   `audit.py` performs automated structural and schema checks and outputs a PASS/WARN/FAIL
+   report. Read the script output and incorporate the results into the overall check.
+
+   **Run grounding ratio gate via ground_check.py** (if the script exists):
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/ground_check.py {family} {platform} {relative-file-path}
+   ```
+   - Exit 0 → `GROUND_CHECK: PASS` — all backtick identifiers grounded in `api_surface.json`
+   - Exit 1 → `GROUND_CHECK: WARN` — grounding ratio 60–79%; flag but do not block
+   - Exit 2 → `GROUND_CHECK: FAIL` — grounding ratio <60%; block commit and list ungrounded identifiers
+   - If the script does not exist, skip this step (gate is enforced by agent reasoning in §Knowledge cross-reference checks below)
+
+   Then **perform the additional checks below** (these require agent reasoning and are not
+   automated by the script):
+
+   Record PASS / WARN / FAIL for each:
 
    ### Frontmatter checks (FAIL if any fail)
    - [ ] Frontmatter is valid YAML (no parse errors)
@@ -23,9 +65,9 @@ Run a structural and quality check on a content file before committing.
    - [ ] `draft` is `false` (WARN if `true` — not a blocker but flag it)
    - [ ] Date fields (`date`, `lastmod`) use `YYYY-MM-DD` format with quotes: `'2026-01-15'`
    - [ ] KB articles: `type: topic` present
-   - [ ] Docs pages: `type: docs` present
+   - [ ] Docs pages: `layout: list` present
    - [ ] Blog posts: `author: Aspose` and `categories` array present
-   - [ ] Reference pages: `layout: reference-single` present
+   - [ ] Reference pages: `layout: single` present
    - [ ] KB/blog: `keywords` list present with at least 5 items
 
    ### Content structure checks (FAIL if any fail)
@@ -89,13 +131,19 @@ Run a structural and quality check on a content file before committing.
      - [ ] Every property access `obj.property_name` in code blocks should be validated: if the object's class can be inferred from context, check that `property_name` exists on that class in `api_surface.json` — WARN if property not found (type inference is best-effort)
    - [ ] If `knowledge/{family}/{platform}/merged/index.json` does NOT exist: WARN "No knowledge model found — content cannot be verified against repo truth"
 
-   ### Evidence citation checks (WARN if any fail)
-   - [ ] Frontmatter `evidence:` block is present with at minimum `model_sha` and `claims` fields — WARN if missing (run `python scripts/pipeline/commands/content/attach_evidence.py --files {path}` to generate)
-   - [ ] All `claim_id` values in `evidence.claims` array exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if orphaned claim ID
-   - [ ] Pages with code blocks: `evidence.apis` array should be non-empty — WARN if empty (list verified `ClassName.method` references)
-   - [ ] `evidence.model_sha` matches `repo_sha` in `knowledge/{family}/{platform}/merged/model.yaml` — WARN if stale (rerun `attach_evidence.py`)
-   - [ ] **Do NOT** check for `<!-- evidence: ... -->` HTML comment citations — those are the legacy format; AGENTS.md §5 requires frontmatter blocks only
+   ### Evidence frontmatter checks (WARN unless noted)
+   - [ ] Frontmatter has an `evidence:` block with non-empty `model_sha` — WARN if missing or empty
+   - [ ] `evidence.claims` array is non-empty — WARN if empty (page has no grounded claims)
+   - [ ] All claim IDs in `evidence.claims` exist in `knowledge/{family}/{platform}/merged/claims.json` — WARN if any orphaned claim ID found
+   - [ ] `evidence.apis` array is non-empty for pages with code blocks — WARN if empty
+   - [ ] No `<!-- evidence: ... -->` HTML comment blocks in the page body — FAIL if found (violates AGENTS.md §5)
 
 5. **If OVERALL is FAIL**: list each failing check with a one-line fix suggestion.
 
 6. **Do not modify the file** — this skill is read-only.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-23 --status completed
+> ```
+

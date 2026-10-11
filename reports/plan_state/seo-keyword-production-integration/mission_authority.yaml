@@ -1,0 +1,104 @@
+mission_authority:
+  mission_id: seo-keyword-production-integration
+  mission_summary: Turn the two real keyword datasets in keywords/ (7 Schema B Google
+    Search Console files, weekly-refreshed; 14 Schema A LLM-suggested-keyword files,
+    irregularly hand-run) into a governed, autonomous, non-regressive SEO improvement
+    loop across all 5 aspose.org sites. Repairs the existing scripts/seo/ pipeline's
+    confirmed governance bypasses (apply.py never enforced requires_human_review;
+    never checked auto_updatable; never routed through no_downgrade_guard; the external
+    repo's seo-apply.yml faked its audit step; an unrelated LLM 'PR Arbiter' auto-approved
+    SEO PRs) and code defects (two independent incomplete Schema A/B filename allowlists;
+    Schema A's exact-title dedup orphaning entries; a hardcoded '.NET platform' Gemini-prompt
+    bias). Corrects confirmed technical-SEO gaps sitting next to that pipeline (31+
+    pages sharing the literal title 'Developer Guide'; 28+ KB FAQ pages sharing 'Frequently
+    Asked Questions' via two governed skills that silently disagree on the template;
+    seoTitle populated on 3,455 real, differentiated blog posts but rendered by zero
+    themes; themes/docs emitting zero hreflang across ~38 locale trees per family;
+    products.aspose.org emitting zero canonical tag; blog's Open Graph/Twitter templates
+    existing but never invoked; KB FAQ pages rendering HowTo schema instead of FAQPage).
+    Extends real search-demand signal into content generation (FAQ seeding, title
+    clauses) and the real content-refresh pipeline (page_impact_assess.py -> body_refresh.py,
+    order-only, never scope-changing) without weakening claim-grounding, evidence
+    integrity, no-downgrade-guard, or auto_updatable protection. Governing plan produced
+    via Claude Code Plan Mode across 4 rounds of forensic re-assessment (v1 rejected
+    for a misattributed regression fix; v2 corrected it; v3 added concrete title formulas,
+    independent-agent review, and refresh-pipeline-hooked traffic priority; v4 merged
+    a sibling Schema A revival plan into one mission and restructured execution per
+    d:/planning-execution-state-machine.md).
+  governing_plan_path: <local-plan-cache>/check-keywords-this-data-curious-feather.md
+  current_phase: Foundation lane in progress
+  in_scope_outcomes:
+  - scripts/seo/pipeline/schema.py structural Schema A/B classification, replacing
+    two incomplete filename allowlists in validate.py and map_url.py
+  - 'apply.py hardened: requires_human_review enforced on the write path, auto_updatable
+    checked, no_downgrade_guard wired in, format-preserving writer, corrected WRITABLE_FIELDS
+    (drops dead seoTitle target on docs/kb/reference/products, keeps it blog-only)'
+  - /seo-review registered as a governed skill (next free S-NN id, verify against
+    docs/registries/skills.md), redesigned as independent-agent review modeled on
+    this repo's own S-90 (publish-readiness-review) -- not human review
+  - scripts/seo/ retiered from T-02 to T-01 in AGENTS.md's deletion-governance table
+  - Schema A family-list reconciliation, generation/dedup/platform-bias fixes, bootstrap
+    regeneration of 5 launched-but-uncovered families (3d, email, font, note, slides),
+    then PR-gated cron deployment to the external aspose.org-workflows repo (human-performed
+    credential/deployment step)
+  - 'Title/description peer-consistency system: template registry, WARN-only evaluator,
+    duplicate-title CI gate, governed reconciliation of the conflicting S-22/S-59
+    templates, a frozen 3-page pilot (pdf net/java/python developer-guide index) before
+    any wider backfill'
+  - 'Technical SEO fixes: wire blog''s dormant Open Graph/Twitter partials to seoTitle
+    (highest-ROI item in the mission -- activates 3,455 already-authored files), add
+    hreflang to themes/docs, add canonical to themes/products, real FAQPage schema
+    for KB FAQ pages, robots.txt verification/fix for products+websites, sitemap x-default
+    parity'
+  - 'Unified three-tier keywords: frontmatter grounding (real GSC query -> cleaned
+    Schema A term -> claim/format-derived fallback), each write carrying an honest
+    keyword_source marker'
+  - FAQ generation keyword seeding with an explicit anti-fabrication guard (query
+    volume proves demand, never proves a claim exists)
+  - Traffic-tier signal threaded into the real content-refresh pipeline (page_impact_assess.py
+    -> body_refresh.py's processing order), hard-ruled to never change PIA's citation-based
+    scope decision
+  - Content-gap advisory reporting and a site_planner.py detect_clusters() tie-breaker
+    (Schema B lane active; Schema A lane explicitly deferred, not attempted, pending
+    unrelated knowledge-pipeline coverage of stub-tier families)
+  - In-repo weekly seo-analysis.yml (issue-only, matching this repo's own automation
+    convention); human-merged PR retirement of the external repo's seo-analysis.yml/seo-apply.yml/seo-review.yml
+    once a numeric clean-run gate clears
+  out_of_scope_items:
+  - themes/kb/ dead-code removal (kb.aspose.org actually renders via theme="docs";
+    themes/kb/ is unused -- needs its own DGR-scoped decision, not bundled here)
+  - 'The subtitle: truncation bug found in passing in 3 of 5 sampled families ("Developer
+    guide for Aspose." / "Aspose.") -- unrelated generation defect, filed to backlog
+    only'
+  - Cross-product refresh scheduling -- confirmed not to exist anywhere in this codebase
+    (refresh_run.py is always single family/platform); not being built by this mission
+  - Schema A's site_planner.py tie-breaker -- structurally blocked until a stub-tier
+    family (cad, imaging, ocr, psd, tasks, zip) clears repo-scout/knowledge-enrich
+    with a real claims-backed cluster; tracked DEFERRED_WITH_REASON
+  - Schema A's Gemini-generation cost/spend policy beyond confirming the workflow's
+    own ~1,350-call ceiling is reasonable -- not re-litigated here
+  mandatory_acceptance_criteria:
+  - All 7 Schema-B files and all 14 Schema-A files classify correctly via schema.py;
+    classification is structural (shape-based), not an enumerated filename list, so
+    it cannot silently drift again
+  - apply.py provably rejects a requires_human_review:true patch and a write to an
+    auto_updatable:false target (both as explicit negative tests, not just code review)
+  - The pdf/net + pdf/java developer-guide title-pilot clears its numeric non-regression
+    gate (<=10% avg-position degradation, <=20% relative CTR drop over a 2-4 week
+    window) before any wider title backfill proceeds; pdf/python (auto_updatable:false)
+    is correctly skipped, not overwritten
+  - Schema A bootstrap regeneration covers exactly the 5 targeted families with zero
+    cross-family contamination (git diff --stat scoped exactly)
+  - The 3 KB FAQ files misidentified as an unfixed regression in this plan's first
+    draft (3d/java, 3d/net, email/python faq.md) show zero diff for the entire duration
+    of this mission -- a standing regression pin on that retracted, corrected finding
+  - 'traffic_tier is proven order-only via a negative test: PIA''s scope-inclusion
+    decision is identical whether traffic_tier is present, absent, or ''no-data'''
+  - The external-repo workflow-retirement PR is opened only after 3 consecutive clean
+    in-repo seo-analysis.yml runs plus 1 successful governed apply, and is human-merged,
+    never auto-merged by this mission
+  conflicts_found: []
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-07-29T14:07:41Z'
+  _closed_at: '2026-07-30T22:12:45Z'

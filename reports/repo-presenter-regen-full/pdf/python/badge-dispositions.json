@@ -1,0 +1,41 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "ci_build_status",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml",
+      "evidence_note": "Old README's 'CI' badge and the candidate's own 'CI' badge both link to the same real, confirmed-present CI workflow (.github/workflows/ci.yml) -- same real target, same category."
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "language_version",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "Old README's 'Python 3.11+' badge and the candidate's own 'Python 3.11+' badge both state the real, confirmed minimum Python version -- pyproject.toml's requires-python is '>=3.11', matching both badges' claim exactly."
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "license",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE",
+      "evidence_note": "Old README's 'License: MIT' badge and the candidate's own 'License: MIT' badge both correctly identify the real, confirmed-present MIT LICENSE file -- same fact, same category, same real target (LICENSE)."
+    }
+  }
+]

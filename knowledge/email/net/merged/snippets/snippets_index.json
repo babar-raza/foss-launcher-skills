@@ -1,0 +1,597 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "DirectoryEntryNameOrderingMatchesSpecRules",
+    "source_line": 9,
+    "classes_used": [
+      "DirectoryEntry",
+      "DirectoryEntryNameComparer"
+    ],
+    "methods_used": [
+      "DirectoryEntryNameComparer.Compare"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b1643711ebd94cfc25d378958e83cd5de04bdee4a9dfe988fa804a04dbcc885a",
+      "norm": "b1643711ebd94cfc25d378958e83cd5de04bdee4a9dfe988fa804a04dbcc885a"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "WriterRoundTripsManualDocument",
+    "source_line": 17,
+    "classes_used": [
+      "CfbConstants",
+      "CfbDocument",
+      "CfbReader",
+      "CfbStorage",
+      "CfbStream",
+      "CfbWriter"
+    ],
+    "methods_used": [
+      "CfbReader.GetStreamData",
+      "CfbReader.IterChildren",
+      "CfbReader.ResolvePath",
+      "CfbStorage.AddStorage",
+      "CfbStorage.AddStream",
+      "CfbWriter.ToBytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "97d3a0f228f2715a2eb95b4e6d90085ad139b99abbf28735c592743978c9debc",
+      "norm": "97d3a0f228f2715a2eb95b4e6d90085ad139b99abbf28735c592743978c9debc"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/CfbRoundTripTests.cs",
+    "source_function": "WriterRejectsDuplicateSiblingNamesUnderCfbOrdering",
+    "source_line": 41,
+    "classes_used": [
+      "CfbDocument",
+      "CfbException",
+      "CfbStream",
+      "CfbWriter"
+    ],
+    "methods_used": [
+      "CfbWriter.ToBytes"
+    ],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "48207e0918b5ded026fb5dbd098127b39bb3833dc8498936ed6e464659aac83a",
+      "norm": "48207e0918b5ded026fb5dbd098127b39bb3833dc8498936ed6e464659aac83a"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlParsesPlainTextHeadersAndBody",
+    "source_line": 9,
+    "classes_used": [
+      "Header",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "47f8fad84ed2670959ace05abd7c70f3383421a7abb670c45d996f31a392e479",
+      "norm": "47f8fad84ed2670959ace05abd7c70f3383421a7abb670c45d996f31a392e479"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesFoldedHeadersAndBase64Text",
+    "source_line": 34,
+    "classes_used": [
+      "Header",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "01baf14e9ced32f8feadd134b361b01090b826856ec3b6a23d6dd0db5906e7f3",
+      "norm": "01baf14e9ced32f8feadd134b361b01090b826856ec3b6a23d6dd0db5906e7f3"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesMultipartRelatedInlineAttachment",
+    "source_line": 57,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4f597f6d50e175047d8b2c9e14a0b7f2ed732f76058e313180adba95412bb9c7",
+      "norm": "4f597f6d50e175047d8b2c9e14a0b7f2ed732f76058e313180adba95412bb9c7"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "SaveToEmlRoundTripsBodiesAndAttachments",
+    "source_line": 93,
+    "classes_used": [
+      "MapiAttachment",
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dce9531c4e68ff1de4615c3e3c26151579f4188ee1c5d3e2e72c944a14dd6cc4",
+      "norm": "dce9531c4e68ff1de4615c3e3c26151579f4188ee1c5d3e2e72c944a14dd6cc4"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "CanLoadAndSaveEmlUsingStreams",
+    "source_line": 121,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "38dfaaf5b18866e3ae3c2e91e4000bdb464c3fc848abf2e4f568ec1056a4fb81",
+      "norm": "38dfaaf5b18866e3ae3c2e91e4000bdb464c3fc848abf2e4f568ec1056a4fb81"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageEmlTests.cs",
+    "source_function": "LoadFromEmlHandlesQuotedPrintableHtml",
+    "source_line": 147,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.LoadFromEml"
+    ],
+    "formats_referenced": [
+      "mime"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f5191d3eccf699331599be02b618f4730f4ee56efe7bebc53bbe8765f737b672",
+      "norm": "f5191d3eccf699331599be02b618f4730f4ee56efe7bebc53bbe8765f737b672"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanCreateSaveAndReloadMessageWithSenderRecipientAndAttachment",
+    "source_line": 8,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "mime",
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "909061bb6aa8d74c440d9751695b058e5cdd2f51854806c2827839255cbf1a2d",
+      "norm": "909061bb6aa8d74c440d9751695b058e5cdd2f51854806c2827839255cbf1a2d"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanCreateSaveAndReloadMessageUsingStreams",
+    "source_line": 45,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.Create",
+      "MapiMessage.FromStream",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a033a6fba84f5fcd9f91b1f446cf5bd70e2d79333353f1a61aa8110d833cdbbf",
+      "norm": "a033a6fba84f5fcd9f91b1f446cf5bd70e2d79333353f1a61aa8110d833cdbbf"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MapiMessageTests.cs",
+    "source_function": "CanRoundTripEmbeddedMessageAttachment",
+    "source_line": 66,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddEmbeddedMessageAttachment",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b031530cdf64959ecf742a7019dcf7db48fd8aed99fc771782a14dd45e429015",
+      "norm": "b031530cdf64959ecf742a7019dcf7db48fd8aed99fc771782a14dd45e429015"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "CfbConstantsAreAvailable",
+    "source_line": 9,
+    "classes_used": [
+      "CfbConstants"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "cfb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91dd2aad6b40264127a628f6213cb283b95b5aad2faa3303fe5b03ca2b007bd6",
+      "norm": "91dd2aad6b40264127a628f6213cb283b95b5aad2faa3303fe5b03ca2b007bd6"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "MsgConstantsAreAvailable",
+    "source_line": 17,
+    "classes_used": [
+      "MsgConstants"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ce13930b4a107487ed46495b2abafc7c306b81c7ad4d7f0445e90e904daec62",
+      "norm": "0ce13930b4a107487ed46495b2abafc7c306b81c7ad4d7f0445e90e904daec62"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MetadataSmokeTests.cs",
+    "source_function": "MsgEnumsAreAvailable",
+    "source_line": 24,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae6add204030cfb8b6cda86462dba2bae6d3188d202eaa4ac1405833b9ef8084",
+      "norm": "ae6add204030cfb8b6cda86462dba2bae6d3188d202eaa4ac1405833b9ef8084"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamRejectsShortHeader",
+    "source_line": 8,
+    "classes_used": [
+      "Header",
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e8dfb9c3b260f93ae4ac4bafde030d870632086c60cb090082bc7f9655d92807",
+      "norm": "e8dfb9c3b260f93ae4ac4bafde030d870632086c60cb090082bc7f9655d92807"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseSubobjectPropertyStreamRejectsShortHeader",
+    "source_line": 14,
+    "classes_used": [
+      "Header",
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "60e76b23ddabfc9095d8251906829d4c614c0fd92a58c95ca2f0ea1b2296bbf3",
+      "norm": "60e76b23ddabfc9095d8251906829d4c614c0fd92a58c95ca2f0ea1b2296bbf3"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamRejectsMisalignedPayload",
+    "source_line": 20,
+    "classes_used": [
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29377b94edc531b73e60e650c4abba87f00d772f1efad84597fecfd9c68e7c27",
+      "norm": "29377b94edc531b73e60e650c4abba87f00d772f1efad84597fecfd9c68e7c27"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseSubobjectPropertyStreamRejectsMisalignedPayload",
+    "source_line": 27,
+    "classes_used": [
+      "MsgException",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73ff76da3a9bc595d4af272cfc7849eef005811865a1152c4034df25505f15dd",
+      "norm": "73ff76da3a9bc595d4af272cfc7849eef005811865a1152c4034df25505f15dd"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "tests/Aspose.Email.Foss.Tests/MsgReaderTests.cs",
+    "source_function": "ParseTopLevelPropertyStreamDecodesHeaderAndEntry",
+    "source_line": 34,
+    "classes_used": [
+      "Header",
+      "MsgReader"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1595d8daba7e9e99edb700a75b2c9f8099c85b74dce010b5afac3c6267345ff",
+      "norm": "d1595d8daba7e9e99edb700a75b2c9f8099c85b74dce010b5afac3c6267345ff"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "examples/create_msg_and_eml.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "Header",
+      "MapiMessage",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.FromFile",
+      "MapiMessage.Save",
+      "MapiMessage.SaveToEml",
+      "MapiMessage.SetProperty"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3e6c6dae0505909669a8aba6ac1adfcac58f5d5876358283d14d391bd199f2fb",
+      "norm": "360bc6a5003da0cc733037b32ada7cf9f020ff133606d0acc66720eaeeae335c"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "examples/msg_reader.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CfbReader",
+      "DirectoryEntry",
+      "MsgConstants",
+      "MsgDocument",
+      "MsgReader",
+      "MsgStorage",
+      "MsgStorageRole"
+    ],
+    "methods_used": [
+      "CfbReader.FromFile",
+      "CfbReader.IterTree",
+      "DirectoryEntry.IsRoot",
+      "DirectoryEntry.IsStream",
+      "MsgDocument.FromFile",
+      "MsgReader.FromFile",
+      "MsgStorage.FindStorage",
+      "MsgStorage.FindStream"
+    ],
+    "formats_referenced": [
+      "cfb",
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "54932c17019696c3ea50a13233c004dcfeafc13ba837542970b11d2d6ca54348",
+      "norm": "c3755c30351cd025f740bd23181306de08b041058452583411f19ee7de8159c5"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "examples/msg_summary.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "CommonMessagePropertyId",
+      "Header",
+      "MapiMessage",
+      "PropertyTypeCode"
+    ],
+    "methods_used": [
+      "MapiMessage.FromFile",
+      "MapiMessage.GetPropertyValue"
+    ],
+    "formats_referenced": [
+      "mime",
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d3a108eda7a7e6993e41b33860b53bd8d3b45f965f52a65903c74b0c7402b59d",
+      "norm": "d3a108eda7a7e6993e41b33860b53bd8d3b45f965f52a65903c74b0c7402b59d"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 36,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.FromStream"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a657fbd5ae9324c10d769fdb3778eeaa90e185127525a1b122cbfdb60d88bc23",
+      "norm": "46d6c65812c28a8a7f410a9b031dcb51dd1ce20aeac42058e38fc3c1a421f5f9"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 47,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.AddAttachment",
+      "MapiMessage.AddRecipient",
+      "MapiMessage.Create",
+      "MapiMessage.Save"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d42ea7a1b1d44c5ed5d1b5567d2fe63dc1dfec6f2af4b9b041f5cfc6db87bcce",
+      "norm": "078c439fe8f01c3ccf6c32099e9cc99ac5916afd70f7312eb76a69c522c870f4"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 63,
+    "classes_used": [
+      "MapiMessage"
+    ],
+    "methods_used": [
+      "MapiMessage.Create",
+      "MapiMessage.LoadFromEml",
+      "MapiMessage.Save",
+      "MapiMessage.SaveToEml"
+    ],
+    "formats_referenced": [
+      "msg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "116ab5e46954de2f23a7318712bb47915b2e0ee42e7606f19cc7ac7aa0e3e949",
+      "norm": "680946c9086e1fc8c19b98988892b6a41b323735c63278216b21413463e13587"
+    }
+  }
+]

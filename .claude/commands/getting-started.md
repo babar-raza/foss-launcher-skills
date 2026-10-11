@@ -1,11 +1,18 @@
-# S-69: Getting Started — Bootstrap the Repo Environment
+<!-- CONTRACT: agent-executed
+     purpose: bootstrap repo environment from fresh clone to content-ready state
+     preconditions: Python 3.8+ installed; git clone completed
+     postcondition: venv created; hooks installed; knowledge artifacts bootstrapped; audit passing
+     idempotent: yes — re-running steps is safe; existing artifacts are preserved
+     verified: 2026-04-11
+-->
+# S-64: Getting Started - Bootstrap the Repo Environment
 
 **Arguments**: $ARGUMENTS
 Optional format: `{family} {platform}` to bootstrap a specific product. Omit to see all steps.
 
 ## Purpose
 
-Answer "I just cloned the repo — what do I do?" Covers the full 7-step setup from a
+Answer "I just cloned the repo - what do I do?" Covers the full 7-step setup from a
 fresh clone through a verified, content-ready environment. Follow steps in order;
 each step depends on the previous.
 
@@ -13,10 +20,13 @@ each step depends on the previous.
 
 ## Step 1: Python environment
 
-Install all pipeline dependencies:
+Create and activate the repo virtual environment, then install all pipeline dependencies:
 
 ```bash
-pip install -r scripts/requirements.txt
+python -m venv .venv
+source .venv/Scripts/activate   # Windows (Git Bash)
+# source .venv/bin/activate     # Unix / macOS
+.venv/Scripts/pip install -r scripts/requirements.txt
 ```
 
 Key packages required:
@@ -25,122 +35,147 @@ Key packages required:
 |---------|----------------|
 | tree-sitter | >= 0.25 |
 | tree-sitter-language-pack | >= 0.13 |
+| tree-sitter-c-sharp | >= 0.23 |
 | pyyaml | >= 6.0 |
 | requests | >= 2.28 |
 
-Verify with `pip show tree-sitter pyyaml requests`.
+Verify with `.venv/Scripts/pip show tree-sitter pyyaml requests`.
 
-Alternatively use the install script:
-```bash
-bash install.sh      # Unix/macOS
-./install.ps1        # Windows PowerShell
-```
+> **All subsequent steps assume `.venv` is active.** If starting a new shell, re-activate first.
 
 ---
 
 ## Step 2: Credentials
 
-Create `.env` at the repo root (already in `.gitignore` — never commit it):
+Create `.env` at the repo root (already in `.gitignore` - never commit it):
 
 ```
-GITHUB_TOKEN=<personal access token with repo read scope>
+GH_TOKEN=<CLASSIC personal access token with repo read scope>
+PROFESSIONALIZE_API_KEY=<key for LLM embeddings - optional, TF-IDF fallback used if absent>
 ```
 
-`GITHUB_TOKEN` is required for product registry scanning and FOSS repo cloning (Steps 3–4).
+`PROFESSIONALIZE_API_KEY` is optional. All embedding operations fall back to TF-IDF
+automatically when the key is absent. `GH_TOKEN` is required for Steps 3 and 4.
+
+Use a **classic** (`ghp_`) PAT. The `aspose-*-foss` orgs reject fine-grained PATs whose
+lifetime exceeds 366 days with HTTP 403 (ST-058); `GITHUB_TOKEN` is only a fallback.
 
 ---
 
-## Step 3: Configure content repo path
+## Step 3: Populate product registry
 
-Set the path to your external content repository before running any content-writing skills:
+Write clone URLs into `data/products.json` for all active products:
 
 ```bash
-export CONTENT_REPO_PATH=/path/to/your/content-repo
+.venv/Scripts/python scripts/pipeline/commands/ops/update_product_registry.py --token $GH_TOKEN
 ```
 
-Or set `content_root` in `config.yaml` at the repo root.
-
-Verify:
-```bash
-python scripts/check_setup.py
-```
+This step is required before cloning FOSS source repos. Without it the product
+registry lacks clone URLs and subsequent steps cannot locate the correct repos.
 
 ---
 
-## Step 4: Populate product registry
+## Step 4: Clone FOSS source repos
 
-Discover FOSS repositories and update the product list:
-
-```bash
-python scripts/discover.py --token $GITHUB_TOKEN
-```
-
-This uses the discover-products skill (S-39). Run after adding new products.
-Alternatively scan by family:
+FOSS repos auto-clone the first time you run scout (Step 5). To pre-clone manually:
 
 ```bash
-python scripts/discover.py --family 3d --token $GITHUB_TOKEN
+# Run from scripts/pipeline/ directory
+.venv/Scripts/python -c "from core.clone_cache import ensure_clone; ensure_clone('{family}','{platform}')"
 ```
+
+Replace `{family}` and `{platform}` with the product you are working on (e.g. `3d`, `python`).
+Clones land at: `runs/.clone_cache/aspose_{family}_{platform}/`
+
+The `runs/` directory is git-ignored; FOSS clones are local only.
 
 ---
 
 ## Step 5: Bootstrap knowledge for a product
 
-Run the pipeline to extract knowledge from the FOSS source repo:
+Run the four-stage pipeline to extract, enrich, promote, and index knowledge:
 
 ```bash
-python scripts/pipeline/commands/knowledge/refresh_knowledge.py --family {family} --platform {platform}
+cd scripts/pipeline
+../../.venv/Scripts/python scout.py {family} {platform} ../../runs/.clone_cache/aspose_{family}_{platform}/ ../../knowledge/{family}/{platform}/scout/
+../../.venv/Scripts/python enrich.py {family} {platform}
+../../.venv/Scripts/python promote.py {family} {platform}
+../../.venv/Scripts/python index.py {family} {platform}
 ```
 
 **Expected outputs after completion:**
 
-- `knowledge/{family}/{platform}/scout/` — raw extraction artifacts
-- `knowledge/{family}/{platform}/merged/model.yaml` — product model
-- `knowledge/{family}/{platform}/merged/api_surface.json` — API surface
-- `knowledge/{family}/{platform}/merged/claims.json` — verifiable claims
+- `knowledge/{family}/{platform}/scout/` - raw extraction artifacts
+- `knowledge/{family}/{platform}/scout/enriched_claims.json` - LLM-enriched claims
+- `knowledge/{family}/{platform}/merged/model.yaml` - product model with confidence scores
+- `knowledge/{family}/{platform}/merged/api_surface.json` - discovered API surface
+- `knowledge/{family}/{platform}/merged/claims.json` - verifiable claims
+- `knowledge/{family}/{platform}/merged/index.json` - searchable index
 
 To bootstrap all products at once:
 
 ```bash
-python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check
 ```
 
 ---
 
 ## Step 5b: Install git hooks
 
-Install the pre-commit and commit-msg hooks to enforce governance on every commit:
+Install all governance hooks (pre-commit, commit-msg, post-commit) using the hook installer:
 
 ```bash
 bash scripts/install-hooks.sh
 ```
 
-This installs:
-- `pre-commit` — runs `validate_skills.py` + sync checks on staged skill files
-- `commit-msg` — enforces `Skills invoked:` declaration on content commits
+This installs and verifies all three hooks. The pre-commit hook runs `audit.py` on staged
+content files. The commit-msg hook enforces the `Skills invoked:` field (AGENTS.md §10; full detail: [docs/governance/evidence-and-provenance.md](../docs/governance/evidence-and-provenance.md)).
+The post-commit hook handles override token consumption.
 
-Verify installation:
+**WARN**: If hooks are absent or not executable, re-run `bash scripts/install-hooks.sh`.
+Verify with:
+
 ```bash
-ls -la .git/hooks/pre-commit .git/hooks/commit-msg
+ls -la .git/hooks/commit-msg
 ```
+
+---
+
+
+## Step 5c: Provenance backfill (fresh-clone only)
+
+On a fresh clone, locale files translated before the provenance system was introduced lack
+a `provenance:` block. Run the backfill to assign conservative defaults:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/migration/provenance_backfill.py
+```
+
+This is safe to re-run at any time (idempotent — files that already have a provenance block
+are skipped). After the backfill, all files have `auto_updatable: true` and
+`translation_origin: unknown` as their conservative baseline. Human-authored files should be
+updated manually to `auto_updatable: false` after running `/register-human-content` (S-66).
 
 ---
 
 ## Step 6: Verify environment is healthy
 
-Run the setup checker:
+Run the audit tool against your product:
 
 ```bash
-python scripts/check_setup.py --family {family} --platform {platform}
-```
-
-Quick batch check across all configured products:
-
-```bash
-python scripts/pipeline/commands/content/audit.py --all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
 Expected result: `PASS` or a findings list with severity levels.
+
+If `model.yaml` shows `api_confidence: low`, re-run scout with more verbose logging
+(add `--verbose` flag if supported, or inspect `scout/` artifacts manually).
+
+Quick batch check across all products:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all --json | .venv/Scripts/python -c "import json,sys; r=json.load(sys.stdin); print(f'{sum(1 for f in r if f[\"level\"]==\"FAIL\")} FAILs found')"
+```
 
 ---
 
@@ -148,18 +183,41 @@ Expected result: `PASS` or a findings list with severity levels.
 
 Do not edit any content page before completing these checks:
 
-1. Read `AGENTS.md` — authoritative agent governance rules
+1. Read `AGENTS.md` - authoritative agent governance rules
 2. Read `knowledge/{family}/{platform}/merged/model.yaml`:
-   - Confirm `stale_since: null` — if not null, run the staleness workflow (S-12 → S-14) first
-   - Note `api_confidence` level — low confidence means content claims need extra care
-3. Check `CLAUDE.md` for the content paths and forbidden write rules
+   - Confirm `stale_since: null` - if not null, run the staleness workflow (S-12 -> S-14) first
+   - Note `api_confidence` level - low confidence means content claims need extra care
+3. Check the relevant content path in `CLAUDE.md` for the target site
 4. Only then proceed to content work
 
 ---
 
 ## Notes for agents
 
+> **Authoritative source**: The governance rules below are also documented in `AGENTS.md` §2 (full detail: [docs/governance/read-order.md](../docs/governance/read-order.md))
+> (Read Order) and §9 (Maintenance Workflow). Those sections take precedence if any
+> discrepancy exists. These notes are a quick reference for first-time onboarding only.
+
 - Never skip Step 6 before editing content pages — knowledge freshness is a hard requirement.
 - If `stale_since != null` in `model.yaml`, run S-12 (knowledge-diff) → S-13 (stale-detect) → S-14 (knowledge-update) before any content edits.
+- `PROFESSIONALIZE_API_KEY` is optional; TF-IDF fallback is transparent to all consuming skills.
 - The `runs/` directory is git-ignored; FOSS clones are never committed.
 - For production content work, always verify knowledge freshness with `/stale-detect {family} {platform}` (S-13) before writing.
+- Cross-product refresh: `.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py --all --check`
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

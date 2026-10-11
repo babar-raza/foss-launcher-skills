@@ -1,0 +1,2753 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 24,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d897eebe81713734950fe03196383f379db1b94a8bf1f1055c64d6a5f27a38d0",
+      "norm": "d897eebe81713734950fe03196383f379db1b94a8bf1f1055c64d6a5f27a38d0"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 37,
+    "classes_used": [
+      "Cell",
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96438d0bf7a96cdc67fc2b0f43c5b6924a9d9e09cfd46c68a64799eb7f14ce53",
+      "norm": "96438d0bf7a96cdc67fc2b0f43c5b6924a9d9e09cfd46c68a64799eb7f14ce53"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 52,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.PutValue",
+      "Cell.SetFormula",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7d13044c302f6cd92f21a57c4191d4261c942e80903a26c6285d462d9e5375eb",
+      "norm": "7d13044c302f6cd92f21a57c4191d4261c942e80903a26c6285d462d9e5375eb"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 64,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "InvalidFileFormatException",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f99fa9e53e802a8984f8938b2214f32b09e53b8c96debe9cb607c54942e4f026",
+      "norm": "f99fa9e53e802a8984f8938b2214f32b09e53b8c96debe9cb607c54942e4f026"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 71,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetType",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4217cbdb934bd332b950f1868b6553602c71345b8654b68223b3c5d34535a83a",
+      "norm": "4217cbdb934bd332b950f1868b6553602c71345b8654b68223b3c5d34535a83a"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 88,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetType",
+      "Cell.GetValue",
+      "Cell.SetValue",
+      "CellValue.AsBool",
+      "CellValue.AsInteger",
+      "CellValue.AsString",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ea74b3ba59daf49099e963e6e03dbcd7f8b3dd399bbe683b3d6d75a950cd6e7d",
+      "norm": "ea74b3ba59daf49099e963e6e03dbcd7f8b3dd399bbe683b3d6d75a950cd6e7d"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 105,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "Cells",
+      "FormatCondition",
+      "FormatConditionType",
+      "Hyperlink",
+      "OperatorType",
+      "PageSetup",
+      "TargetModeType",
+      "Validation",
+      "ValidationType",
+      "VisibilityType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.SetValue",
+      "FormatCondition.SetFormula1",
+      "FormatCondition.SetType",
+      "Hyperlink.Delete",
+      "Hyperlink.GetLinkType",
+      "PageSetup.GetLeftMarginInch",
+      "PageSetup.SetLeftMargin",
+      "Validation.AddArea",
+      "Validation.SetFormula1",
+      "Validation.SetType",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetConditionalFormattings",
+      "Worksheet.GetHyperlinks",
+      "Worksheet.GetPageSetup",
+      "Worksheet.GetValidations",
+      "Worksheet.GetVisibilityType",
+      "Worksheet.SetName",
+      "Worksheet.SetVisibilityType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15dfded069424dad9b52157d31f1dad3e02597740b48463dcc970c2d263b73d2",
+      "norm": "15dfded069424dad9b52157d31f1dad3e02597740b48463dcc970c2d263b73d2"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 143,
+    "classes_used": [
+      "Color",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Worksheet.GetRightToLeft",
+      "Worksheet.GetShowGridlines",
+      "Worksheet.GetShowRowColumnHeaders",
+      "Worksheet.GetShowZeros",
+      "Worksheet.GetTabColor",
+      "Worksheet.GetZoom",
+      "Worksheet.SetRightToLeft",
+      "Worksheet.SetShowGridlines",
+      "Worksheet.SetShowRowColumnHeaders",
+      "Worksheet.SetShowZeros",
+      "Worksheet.SetTabColor",
+      "Worksheet.SetZoom"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5ec68b03efb1fe84bfb5fd59948d125fd7c0cf6a8866dbda0d270a75505311a8",
+      "norm": "5ec68b03efb1fe84bfb5fd59948d125fd7c0cf6a8866dbda0d270a75505311a8"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 163,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Worksheet.GetAutoFilter",
+      "Worksheet.GetProtection",
+      "Worksheet.Protect"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d52c19b7122248efc9d077c33051edaabe47e16d850cb58e404a6457de7eaf6a",
+      "norm": "d52c19b7122248efc9d077c33051edaabe47e16d850cb58e404a6457de7eaf6a"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 183,
+    "classes_used": [
+      "AutoFilter",
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "85da526a06a2ba99816c88dd1fe20c2a489a1f59e9acd23026979d339e54b77a",
+      "norm": "85da526a06a2ba99816c88dd1fe20c2a489a1f59e9acd23026979d339e54b77a"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 189,
+    "classes_used": [
+      "AutoFilter",
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8340e284243c8bcd6cd7c4afc389966e8055fdcf6ec38e47d00dcc5658b388a2",
+      "norm": "8340e284243c8bcd6cd7c4afc389966e8055fdcf6ec38e47d00dcc5658b388a2"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 205,
+    "classes_used": [
+      "AutoFilter",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.GetFilterColumns",
+      "AutoFilter.GetRange",
+      "AutoFilter.GetSortState",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetAutoFilter"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5a4a6044bc7caf1adb1999753bd322f57d6aa31696227c7f1d658b4ae5a0f310",
+      "norm": "5a4a6044bc7caf1adb1999753bd322f57d6aa31696227c7f1d658b4ae5a0f310"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 229,
+    "classes_used": [
+      "DefinedName",
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0181a0fe548a7371b2455ac3e31cfdac1e6a7acac23ef89d5098a4d4b2e33f53",
+      "norm": "0181a0fe548a7371b2455ac3e31cfdac1e6a7acac23ef89d5098a4d4b2e33f53"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 245,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "SaveFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.GetType",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "93c9d53e21dc543d519684b1bf0cef23542d82e0c07c25569e227cad5d219cd1",
+      "norm": "93c9d53e21dc543d519684b1bf0cef23542d82e0c07c25569e227cad5d219cd1"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 265,
+    "classes_used": [
+      "SaveFormat",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d4fceda5ce081b7734d654cc095d1e1cecf2d71a0419fcebc8548bafe0228b8",
+      "norm": "1d4fceda5ce081b7734d654cc095d1e1cecf2d71a0419fcebc8548bafe0228b8"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 283,
+    "classes_used": [
+      "SaveFormat",
+      "Validation",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3325cb2401fa19a212a7b8258b73fbf2f8e4cc05e9b5f7dca1e0194ca0f688b6",
+      "norm": "3325cb2401fa19a212a7b8258b73fbf2f8e4cc05e9b5f7dca1e0194ca0f688b6"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 299,
+    "classes_used": [
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc6ae801aa3deaf98cf60be24401b26805e87f4074e899d9d809cb9b327e834f",
+      "norm": "dc6ae801aa3deaf98cf60be24401b26805e87f4074e899d9d809cb9b327e834f"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 315,
+    "classes_used": [
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2ca58dc72d2cf6e7af4d44e6da5b451a7cc3b893ad041acd6efcfbe031553f8",
+      "norm": "e2ca58dc72d2cf6e7af4d44e6da5b451a7cc3b893ad041acd6efcfbe031553f8"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 331,
+    "classes_used": [
+      "PageSetup",
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d0e01b87d3cb6b5ecbf84c4ec9baad5c2b6bba6801d3617c4f97647ed84444fe",
+      "norm": "d0e01b87d3cb6b5ecbf84c4ec9baad5c2b6bba6801d3617c4f97647ed84444fe"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 347,
+    "classes_used": [
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetProperties",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "489e7e3b17d3112e946ffbad311bd6f4f9aee0b8d12a4c4833dd805369a0f60a",
+      "norm": "489e7e3b17d3112e946ffbad311bd6f4f9aee0b8d12a4c4833dd805369a0f60a"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Compatibility/CompatibilityTests.cpp",
+    "source_function": "TEST",
+    "source_line": 354,
+    "classes_used": [
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1a3e5331414c30459b51b78858170dc9c977d5d1c9c5966a993a7ecb4b55c46",
+      "norm": "e1a3e5331414c30459b51b78858170dc9c977d5d1c9c5966a993a7ecb4b55c46"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 17,
+    "classes_used": [
+      "Cell",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fda78e623b297c7ef86f85f2c26311533bea1ffd645c2980852ed368fd3b6054",
+      "norm": "fda78e623b297c7ef86f85f2c26311533bea1ffd645c2980852ed368fd3b6054"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 28,
+    "classes_used": [
+      "Cell",
+      "SaveFormat",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "009cd310dfb4ebb3fb860e65883ed4ba63f0cc6754cd354fe2ab5dbc34e04234",
+      "norm": "009cd310dfb4ebb3fb860e65883ed4ba63f0cc6754cd354fe2ab5dbc34e04234"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 38,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "SaveOptions",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "SaveOptions.SetUseSharedStrings",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5983acd08409b3069dad887dd7b8f932a6f15bdb4d1fde6141bfd22ae242fb7b",
+      "norm": "5983acd08409b3069dad887dd7b8f932a6f15bdb4d1fde6141bfd22ae242fb7b"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 58,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "SaveOptions",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "SaveOptions.SetUseSharedStrings",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f40292c872142a20cef7fac7104aba72e4048fc36da5c13ba6d5759bbd4b216d",
+      "norm": "f40292c872142a20cef7fac7104aba72e4048fc36da5c13ba6d5759bbd4b216d"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 74,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.GetStringValue",
+      "Cell.PutValue",
+      "Cell.SetFormula",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4bb002fc94f0d667b143460399a832f3cf7883730763d20bd073880927706eec",
+      "norm": "4bb002fc94f0d667b143460399a832f3cf7883730763d20bd073880927706eec"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 95,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetValue",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7cac5f72a427b5b10ec8d57b6c22776dcd15baad2923e7b9e9bb135d3531492c",
+      "norm": "7cac5f72a427b5b10ec8d57b6c22776dcd15baad2923e7b9e9bb135d3531492c"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 111,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "742a07112eec468612c9824580c2cd11309bcd9bc347378c0d57b0014ccab1cf",
+      "norm": "742a07112eec468612c9824580c2cd11309bcd9bc347378c0d57b0014ccab1cf"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/CellDataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 136,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "Color",
+      "DateTime",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.GetType",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "632e689c6c5e9b65faa17967c22fed65e2ed7585bb3ecde1e902f81306b5e1f6",
+      "norm": "632e689c6c5e9b65faa17967c22fed65e2ed7585bb3ecde1e902f81306b5e1f6"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 17,
+    "classes_used": [
+      "Cell",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1f6408301d4b8ca3607a9f5387b769c40e87767d25b422cdd63ae52e8dd56cd2",
+      "norm": "1f6408301d4b8ca3607a9f5387b769c40e87767d25b422cdd63ae52e8dd56cd2"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 36,
+    "classes_used": [
+      "Color",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25ceb0d878eb7e42b001de2233366b5d93374bf288e7d437ed8d4c554a69f45b",
+      "norm": "25ceb0d878eb7e42b001de2233366b5d93374bf288e7d437ed8d4c554a69f45b"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 57,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8aa11103616464fa5573e7f1ff129fd41ccdfa32750c7396450aa7740d7028db",
+      "norm": "8aa11103616464fa5573e7f1ff129fd41ccdfa32750c7396450aa7740d7028db"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 80,
+    "classes_used": [
+      "AutoFilter",
+      "Color",
+      "Column",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "58346bf38029e8b1917ca4891225997d9424e5ebfe1dfba8324e25b61b756b26",
+      "norm": "58346bf38029e8b1917ca4891225997d9424e5ebfe1dfba8324e25b61b756b26"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 109,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "Color",
+      "Column",
+      "FilterColumn",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.GetFilterColumns",
+      "AutoFilter.GetRange",
+      "AutoFilter.GetSortState",
+      "AutoFilter.SetRange",
+      "Cell.PutValue",
+      "FilterColumn.GetColorFilter",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetAutoFilter",
+      "Worksheet.GetCells",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "183ae3e30b34e5e67535214ef33023c3afefe62ff704a94f56282fc7473bfb57",
+      "norm": "183ae3e30b34e5e67535214ef33023c3afefe62ff704a94f56282fc7473bfb57"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 148,
+    "classes_used": [
+      "Cell",
+      "DefinedName",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "74084e2846eb050a6ae519cb551050a181c790013383a4bace5f34204cf1c2a3",
+      "norm": "74084e2846eb050a6ae519cb551050a181c790013383a4bace5f34204cf1c2a3"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 169,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.GetMergedCells",
+      "Cells.Merge",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8759adab4ed1b5b4432a1a222284dfa7d4dd429514a2e014982c8c1576569990",
+      "norm": "8759adab4ed1b5b4432a1a222284dfa7d4dd429514a2e014982c8c1576569990"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 189,
+    "classes_used": [
+      "Hyperlink",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f68bf0a7e66494b9fb8a57e0ef49515f0638aeb5d461197ccce8c1f6fb05ba37",
+      "norm": "f68bf0a7e66494b9fb8a57e0ef49515f0638aeb5d461197ccce8c1f6fb05ba37"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 208,
+    "classes_used": [
+      "Validation",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eec89a05c0862c10011824d912d4deb5ebb9404be9aff0440939b2c0dd8f8945",
+      "norm": "eec89a05c0862c10011824d912d4deb5ebb9404be9aff0440939b2c0dd8f8945"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 230,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c894055fa4a56fe627d97be5b0ef795b42cceebd1ed59b5e43c1a8cc0f9e3038",
+      "norm": "c894055fa4a56fe627d97be5b0ef795b42cceebd1ed59b5e43c1a8cc0f9e3038"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 252,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8445700afca34b14a7c917b6f1503bb0ecb1a0b15e3f8dae5a7f5632f1306157",
+      "norm": "8445700afca34b14a7c917b6f1503bb0ecb1a0b15e3f8dae5a7f5632f1306157"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/OpenXmlFeatureGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 280,
+    "classes_used": [
+      "PageSetup",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d13f2fdfe30b6e0063fe92eeb52f17486232a022b55067f350f8b34bedd5ba91",
+      "norm": "d13f2fdfe30b6e0063fe92eeb52f17486232a022b55067f350f8b34bedd5ba91"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/WorkbookMetadataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 79,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6afc755d53692a75d36c037971515c41cdc4cd19d055a2186e02be796a0989fb",
+      "norm": "6afc755d53692a75d36c037971515c41cdc4cd19d055a2186e02be796a0989fb"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/WorkbookMetadataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 110,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DocumentProperties",
+      "Workbook"
+    ],
+    "methods_used": [
+      "DocumentProperties.GetCompany",
+      "DocumentProperties.GetExtended",
+      "DocumentProperties.GetManager",
+      "DocumentProperties.SetCompany",
+      "DocumentProperties.SetManager",
+      "Workbook.GetDocumentProperties",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c54c26f02ee676e8804cc4a3e13d9bc9e6bd850cabdda4ff1bbd1ca7347b6d8",
+      "norm": "3c54c26f02ee676e8804cc4a3e13d9bc9e6bd850cabdda4ff1bbd1ca7347b6d8"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/WorkbookMetadataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 132,
+    "classes_used": [
+      "DocumentProperties",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cffe9fb271de95654f562ed3c1f1b4449f4eeba9fd334c20638364d26e694302",
+      "norm": "cffe9fb271de95654f562ed3c1f1b4449f4eeba9fd334c20638364d26e694302"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Golden/WorkbookMetadataGoldenTests.cpp",
+    "source_function": "TEST",
+    "source_line": 147,
+    "classes_used": [
+      "DocumentProperties",
+      "Workbook"
+    ],
+    "methods_used": [
+      "Workbook.GetProperties",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15f932b1a84b60cebb933493c5a4b4e721495072aa4131ba5ae1e3e07341e877",
+      "norm": "15f932b1a84b60cebb933493c5a4b4e721495072aa4131ba5ae1e3e07341e877"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Support/TestSupport.cpp",
+    "source_function": "TestOutputRoot",
+    "source_line": 61,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd1d5c874fceee225f991781538c3feb169b47ad34f36fb98284319c9d8d0f8a",
+      "norm": "fd1d5c874fceee225f991781538c3feb169b47ad34f36fb98284319c9d8d0f8a"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 24,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStringValue",
+      "Cell.GetType",
+      "Cell.PutValue",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b2c9498b5e63eada68001dee24ef2b4184c12ef543783747935753c5d270258",
+      "norm": "3b2c9498b5e63eada68001dee24ef2b4184c12ef543783747935753c5d270258"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 37,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetType",
+      "Cell.GetValue",
+      "Cell.PutValue",
+      "CellValue.AsBool",
+      "CellValue.AsDateTime",
+      "CellValue.AsDouble",
+      "CellValue.AsInteger",
+      "CellValue.AsString",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d0f4258d91f71d94d54f35463a970c3498fdaa6423bfbff978edd7c7d41d171",
+      "norm": "9d0f4258d91f71d94d54f35463a970c3498fdaa6423bfbff978edd7c7d41d171"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 65,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStringValue",
+      "Cell.PutValue",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5314b63a57c6e66c74e377089aa4911c1be3673ed04a8851ed29c1778745fbdc",
+      "norm": "5314b63a57c6e66c74e377089aa4911c1be3673ed04a8851ed29c1778745fbdc"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 86,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "091dd86bacb3ee3066ba996dff002e811221d96d1981ff68b57e4a6cd7210eb3",
+      "norm": "091dd86bacb3ee3066ba996dff002e811221d96d1981ff68b57e4a6cd7210eb3"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 155,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3475206d45e2adcb0991d6d76e677b9a29a5570c7604a59fc4ccbbe9ce4a2e50",
+      "norm": "3475206d45e2adcb0991d6d76e677b9a29a5570c7604a59fc4ccbbe9ce4a2e50"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 195,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25ee41e34ec14749edfaddf676d48dd5259cc9767b7b28c8ebaa5b08db17ae14",
+      "norm": "25ee41e34ec14749edfaddf676d48dd5259cc9767b7b28c8ebaa5b08db17ae14"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 241,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1f7b044b600372524f64965d17be569671c54aa5bd0aba559f5d8697e40cbf2",
+      "norm": "e1f7b044b600372524f64965d17be569671c54aa5bd0aba559f5d8697e40cbf2"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 285,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Workbook.GetSettings",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5183eed902a777e55d17e028be9c958ee7e3655ee7f0de0d90de70a81a37ce85",
+      "norm": "5183eed902a777e55d17e028be9c958ee7e3655ee7f0de0d90de70a81a37ce85"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 308,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.GetStringValue",
+      "Cell.GetType",
+      "Cell.GetValue",
+      "Cell.PutValue",
+      "Cell.SetFormula",
+      "CellValue.AsInteger",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6f46d3eb36941495ee4a6e8bef929d9322cc5b41559d8f44451317c442eded90",
+      "norm": "6f46d3eb36941495ee4a6e8bef929d9322cc5b41559d8f44451317c442eded90"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 323,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStringValue",
+      "Cell.GetType",
+      "Cell.GetValue",
+      "CellValue.IsEmpty",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "285af91dee595c0e608b3b5d74f6fa48f56bdce7da8daa29b8793be901b6357a",
+      "norm": "285af91dee595c0e608b3b5d74f6fa48f56bdce7da8daa29b8793be901b6357a"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 333,
+    "classes_used": [
+      "Cell",
+      "CellAddress",
+      "Cells",
+      "CellsException",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "CellAddress.GetColumnIndex",
+      "CellAddress.GetRowIndex",
+      "CellAddress.ToString",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0f9f10876656c19a74de955500022589cdc02972ca904b3ec8b800222e2068eb",
+      "norm": "0f9f10876656c19a74de955500022589cdc02972ca904b3ec8b800222e2068eb"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 348,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Font",
+      "HorizontalAlignment",
+      "HorizontalAlignmentType",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.SetStyle",
+      "Font.GetBold",
+      "Font.GetItalic",
+      "Font.SetBold",
+      "Font.SetItalic",
+      "Style.GetFont",
+      "Style.GetHorizontalAlignment",
+      "Style.SetFont",
+      "Style.SetHorizontalAlignment",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96ba41a2db787e1ade337c497d5674249797f56047917318fb3923ea22f99c0c",
+      "norm": "96ba41a2db787e1ade337c497d5674249797f56047917318fb3923ea22f99c0c"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/CellDataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 374,
+    "classes_used": [
+      "Border",
+      "BorderStyle",
+      "BorderStyleType",
+      "Borders",
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "CellsException",
+      "Color",
+      "FillPattern",
+      "Font",
+      "HorizontalAlignment",
+      "HorizontalAlignmentType",
+      "NumberFormat",
+      "Style",
+      "VerticalAlignment",
+      "VerticalAlignmentType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Border.GetLineStyle",
+      "Borders.GetDiagonal",
+      "Borders.GetDiagonalDown",
+      "Borders.GetDiagonalUp",
+      "Borders.GetRight",
+      "Cell.GetStyle",
+      "Cell.GetType",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Font.GetName",
+      "Font.GetStrikeThrough",
+      "Font.SetName",
+      "Font.SetStrikeThrough",
+      "Style.GetBorders",
+      "Style.GetCustom",
+      "Style.GetFont",
+      "Style.GetHorizontalAlignment",
+      "Style.GetIndentLevel",
+      "Style.GetIsHidden",
+      "Style.GetIsLocked",
+      "Style.GetNumber",
+      "Style.GetNumberFormat",
+      "Style.GetPattern",
+      "Style.GetReadingOrder",
+      "Style.GetRelativeIndent",
+      "Style.GetShrinkToFit",
+      "Style.GetTextRotation",
+      "Style.GetVerticalAlignment",
+      "Style.GetWrapText",
+      "Style.SetBackgroundColor",
+      "Style.SetFont",
+      "Style.SetForegroundColor",
+      "Style.SetHorizontalAlignment",
+      "Style.SetIndentLevel",
+      "Style.SetIsHidden",
+      "Style.SetIsLocked",
+      "Style.SetNumber",
+      "Style.SetNumberFormat",
+      "Style.SetPattern",
+      "Style.SetReadingOrder",
+      "Style.SetRelativeIndent",
+      "Style.SetShrinkToFit",
+      "Style.SetTextRotation",
+      "Style.SetVerticalAlignment",
+      "Style.SetWrapText",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetName",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d09df2853ea05a727d60e9fce1aa42796546c4ed4f046c8cdc1f5bd198b131fa",
+      "norm": "d09df2853ea05a727d60e9fce1aa42796546c4ed4f046c8cdc1f5bd198b131fa"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorkbookMetadataUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 7,
+    "classes_used": [
+      "Workbook"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f13dbaf851dbaaa80140d541b02611abbac30b222d3500923b678444e2e8ea0",
+      "norm": "3f13dbaf851dbaaa80140d541b02611abbac30b222d3500923b678444e2e8ea0"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 24,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "Row",
+      "VisibilityType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cells.GetColumns",
+      "Cells.GetMergedCells",
+      "Cells.GetRows",
+      "Cells.Merge",
+      "Column.GetIsHidden",
+      "Column.GetWidth",
+      "Column.SetIsHidden",
+      "Column.SetWidth",
+      "Row.GetHeight",
+      "Row.GetIsHidden",
+      "Row.SetHeight",
+      "Row.SetIsHidden",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetVisibilityType",
+      "Worksheet.SetVisibilityType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "14bd1b16687c3268022d7d121333fcb4239caf49b414fc1292103a418a399ede",
+      "norm": "14bd1b16687c3268022d7d121333fcb4239caf49b414fc1292103a418a399ede"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 47,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Color",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Worksheet.GetRightToLeft",
+      "Worksheet.GetShowGridlines",
+      "Worksheet.GetShowRowColumnHeaders",
+      "Worksheet.GetShowZeros",
+      "Worksheet.GetTabColor",
+      "Worksheet.GetZoom",
+      "Worksheet.SetRightToLeft",
+      "Worksheet.SetShowGridlines",
+      "Worksheet.SetShowRowColumnHeaders",
+      "Worksheet.SetShowZeros",
+      "Worksheet.SetTabColor",
+      "Worksheet.SetZoom"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12ba60197910ae181ec157d628a63adad7a20cbdeeca950167da8cffdd9f6b2c",
+      "norm": "12ba60197910ae181ec157d628a63adad7a20cbdeeca950167da8cffdd9f6b2c"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 72,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Worksheet.GetAutoFilter",
+      "Worksheet.GetProtection",
+      "Worksheet.Protect",
+      "Worksheet.Unprotect"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bebddf0b608da570b81a23a0bec13b1d61926a7d72ab6a17fe412f6986c30115",
+      "norm": "bebddf0b608da570b81a23a0bec13b1d61926a7d72ab6a17fe412f6986c30115"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 101,
+    "classes_used": [
+      "AutoFilter",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "FilterColumn",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "AutoFilter.Clear",
+      "AutoFilter.GetFilterColumns",
+      "AutoFilter.GetRange",
+      "AutoFilter.GetSortState",
+      "FilterColumn.Clear",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetAutoFilter"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3b8d6b3c2c9f957103456d127a5af063b5f45d8cf2b3d35feab6f99cca713b1",
+      "norm": "c3b8d6b3c2c9f957103456d127a5af063b5f45d8cf2b3d35feab6f99cca713b1"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 119,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "DefinedName",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "DefinedName.GetComment",
+      "DefinedName.GetFormula",
+      "DefinedName.GetHidden",
+      "DefinedName.GetLocalSheetIndex",
+      "DefinedName.GetName",
+      "DefinedName.SetComment",
+      "DefinedName.SetHidden",
+      "DefinedName.SetLocalSheetIndex",
+      "DefinedName.SetName",
+      "Workbook.GetDefinedNames",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetName",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b142f6671bc40d4c399dffdb1274831480d8bbcf2edc61392de44f2ec0d1c572",
+      "norm": "b142f6671bc40d4c399dffdb1274831480d8bbcf2edc61392de44f2ec0d1c572"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 156,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Hyperlink",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Hyperlink.GetAddress",
+      "Hyperlink.GetArea",
+      "Hyperlink.GetScreenTip",
+      "Hyperlink.GetTextToDisplay",
+      "Hyperlink.SetScreenTip",
+      "Hyperlink.SetTextToDisplay",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetHyperlinks"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f0084bbd241a25f7882c7d2e6bbf449625d6f1ad2830a74676981ae6780cfca3",
+      "norm": "f0084bbd241a25f7882c7d2e6bbf449625d6f1ad2830a74676981ae6780cfca3"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 195,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "Cells",
+      "CellsException",
+      "OperatorType",
+      "Validation",
+      "ValidationType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Validation.AddArea",
+      "Validation.GetAreas",
+      "Validation.GetFormula1",
+      "Validation.GetFormula2",
+      "Validation.RemoveArea",
+      "Validation.SetErrorMessage",
+      "Validation.SetErrorTitle",
+      "Validation.SetFormula1",
+      "Validation.SetFormula2",
+      "Validation.SetOperator",
+      "Validation.SetShowError",
+      "Validation.SetType",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetValidations"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e342c06f5b5b0a864eed13d4ad8c91ab5435b469a250849c37c771c239b4bc25",
+      "norm": "e342c06f5b5b0a864eed13d4ad8c91ab5435b469a250849c37c771c239b4bc25"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 235,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "CellValue",
+      "Cells",
+      "CellsException",
+      "Color",
+      "Column",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "OperatorType",
+      "Row",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.SetStyle",
+      "CellArea.GetFirstColumn",
+      "CellArea.GetFirstRow",
+      "FormatCondition.GetFormula1",
+      "FormatCondition.GetFormula2",
+      "FormatCondition.GetStopIfTrue",
+      "FormatCondition.GetStyle",
+      "FormatCondition.SetPriority",
+      "FormatCondition.SetStopIfTrue",
+      "FormatCondition.SetStyle",
+      "Style.GetPattern",
+      "Style.SetForegroundColor",
+      "Style.SetPattern",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetConditionalFormattings"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e101372085d95586090ff12fb43f1672b7ea816a7d67b1a4ffa15afbb6fa300c",
+      "norm": "e101372085d95586090ff12fb43f1672b7ea816a7d67b1a4ffa15afbb6fa300c"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 277,
+    "classes_used": [
+      "Border",
+      "Cell",
+      "CellArea",
+      "Color",
+      "FormatCondition",
+      "FormatConditionType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetType",
+      "FormatCondition.GetBarColor",
+      "FormatCondition.GetColorScaleCount",
+      "FormatCondition.GetFormula1",
+      "FormatCondition.GetIconSetType",
+      "FormatCondition.GetMinColor",
+      "FormatCondition.GetPercent",
+      "FormatCondition.GetPriority",
+      "FormatCondition.GetRank",
+      "FormatCondition.GetReverseIcons",
+      "FormatCondition.GetShowBorder",
+      "FormatCondition.GetShowIconOnly",
+      "FormatCondition.GetTimePeriod",
+      "FormatCondition.GetType",
+      "FormatCondition.SetBarColor",
+      "FormatCondition.SetColorScaleCount",
+      "FormatCondition.SetDirection",
+      "FormatCondition.SetFormula1",
+      "FormatCondition.SetIconSetType",
+      "FormatCondition.SetMaxColor",
+      "FormatCondition.SetMidColor",
+      "FormatCondition.SetMinColor",
+      "FormatCondition.SetPercent",
+      "FormatCondition.SetPriority",
+      "FormatCondition.SetRank",
+      "FormatCondition.SetReverseIcons",
+      "FormatCondition.SetShowBorder",
+      "FormatCondition.SetShowIconOnly",
+      "FormatCondition.SetTimePeriod",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetConditionalFormattings"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "04ca6ba803e415af143fdcfc865e32b5047422420cd84afacc3c665ee581b93c",
+      "norm": "04ca6ba803e415af143fdcfc865e32b5047422420cd84afacc3c665ee581b93c"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/Unit/WorksheetFeatureUnitTests.cpp",
+    "source_function": "TEST",
+    "source_line": 337,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Column",
+      "PageOrientation",
+      "PageOrientationType",
+      "PageSetup",
+      "PaperSizeType",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "PageSetup.AddHorizontalPageBreak",
+      "PageSetup.AddVerticalPageBreak",
+      "PageSetup.GetCenterFooter",
+      "PageSetup.GetCenterHorizontally",
+      "PageSetup.GetFirstPageNumber",
+      "PageSetup.GetFitToPagesTall",
+      "PageSetup.GetFitToPagesWide",
+      "PageSetup.GetHorizontalPageBreaks",
+      "PageSetup.GetLeftHeader",
+      "PageSetup.GetLeftMargin",
+      "PageSetup.GetOrientation",
+      "PageSetup.GetPaperSize",
+      "PageSetup.GetPrintArea",
+      "PageSetup.GetPrintGridlines",
+      "PageSetup.GetPrintTitleColumns",
+      "PageSetup.GetPrintTitleRows",
+      "PageSetup.GetRightMargin",
+      "PageSetup.GetScale",
+      "PageSetup.GetVerticalPageBreaks",
+      "PageSetup.SetCenterFooter",
+      "PageSetup.SetCenterHorizontally",
+      "PageSetup.SetFirstPageNumber",
+      "PageSetup.SetFitToPagesTall",
+      "PageSetup.SetFitToPagesWide",
+      "PageSetup.SetLeftHeader",
+      "PageSetup.SetLeftMargin",
+      "PageSetup.SetOrientation",
+      "PageSetup.SetPaperSize",
+      "PageSetup.SetPrintArea",
+      "PageSetup.SetPrintGridlines",
+      "PageSetup.SetPrintTitleColumns",
+      "PageSetup.SetPrintTitleRows",
+      "PageSetup.SetRightMargin",
+      "PageSetup.SetScale",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetPageSetup"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0780a364892eb541254be884636b9be937aadfc3111603487b4d75673c306a7a",
+      "norm": "0780a364892eb541254be884636b9be937aadfc3111603487b4d75673c306a7a"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 157,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStringValue",
+      "Cell.GetType",
+      "Cell.GetValue",
+      "CellValue.IsEmpty",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a5f4ecee9979566bf0a6f57239f1feaa04717cc9aee2a9ba139c079cd571e31",
+      "norm": "0a5f4ecee9979566bf0a6f57239f1feaa04717cc9aee2a9ba139c079cd571e31"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 171,
+    "classes_used": [
+      "Cell",
+      "CellValue",
+      "CellValueType",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.GetType",
+      "Cell.GetValue",
+      "CellValue.AsBool",
+      "CellValue.AsDateTime",
+      "CellValue.AsInteger",
+      "CellValue.AsString",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c56fbed6472016161e5de68e853ddd3e74e0d558225d0354e1bcd16b04cdc5fc",
+      "norm": "c56fbed6472016161e5de68e853ddd3e74e0d558225d0354e1bcd16b04cdc5fc"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 190,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "Font",
+      "HorizontalAlignment",
+      "HorizontalAlignmentType",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Font.GetBold",
+      "Font.GetColor",
+      "Font.GetItalic",
+      "Font.GetName",
+      "Font.SetBold",
+      "Style.GetFont",
+      "Style.GetForegroundColor",
+      "Style.GetHorizontalAlignment",
+      "Style.GetNumberFormat",
+      "Style.GetPattern",
+      "Style.SetFont",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells",
+      "Worksheet.GetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29afcf2c596de84ecb893d60a0219d4af3a780dab847dda4de82752ff0878e0b",
+      "norm": "29afcf2c596de84ecb893d60a0219d4af3a780dab847dda4de82752ff0878e0b"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 222,
+    "classes_used": [
+      "SaveOptions",
+      "Workbook"
+    ],
+    "methods_used": [
+      "SaveOptions.SetUseSharedStrings",
+      "Workbook.Save"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c7aa19ab869c28826f92beb3671f809657d888e553d41dde54f57b56bc43aea0",
+      "norm": "c7aa19ab869c28826f92beb3671f809657d888e553d41dde54f57b56bc43aea0"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 243,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DateTime",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetFormula",
+      "Cell.GetStringValue",
+      "Cell.GetValue",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ffcfe0962140bdd1858bd190e316d6285c891c6e47152e72494e7fce0212d9c",
+      "norm": "0ffcfe0962140bdd1858bd190e316d6285c891c6e47152e72494e7fce0212d9c"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 263,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "SaveOptions",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStringValue",
+      "Cell.GetValue",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.GetName"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1500053668f1684267f1c400bb8460c4b5685e2e20a1d4f6759878304e65f85",
+      "norm": "d1500053668f1684267f1c400bb8460c4b5685e2e20a1d4f6759878304e65f85"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 278,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "FillPattern",
+      "Font",
+      "NumberFormat",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "Font.GetBold",
+      "Font.GetItalic",
+      "Font.GetName",
+      "Style.GetFont",
+      "Style.GetNumber",
+      "Style.GetNumberFormat",
+      "Style.GetPattern",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.GetName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4313b95fa35b60c8555ed4673d7942e00ebe652624d0bd9be59e2b8c6d0a9fd7",
+      "norm": "4313b95fa35b60c8555ed4673d7942e00ebe652624d0bd9be59e2b8c6d0a9fd7"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 303,
+    "classes_used": [
+      "VisibilityType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetName",
+      "Worksheet.GetVisibilityType",
+      "Worksheet.SetName",
+      "Worksheet.SetVisibilityType"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aab4434d46823d30efed2a44d81e029d74875c3a56770dfd2c7bf7c9a34fe4f4",
+      "norm": "aab4434d46823d30efed2a44d81e029d74875c3a56770dfd2c7bf7c9a34fe4f4"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 327,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Column",
+      "Row",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStringValue",
+      "Cell.PutValue",
+      "Cells.GetColumns",
+      "Cells.GetMergedCells",
+      "Cells.GetRows",
+      "Cells.Merge",
+      "Column.GetIsHidden",
+      "Column.GetWidth",
+      "Column.SetIsHidden",
+      "Column.SetWidth",
+      "Row.GetHeight",
+      "Row.GetIsHidden",
+      "Row.SetHeight",
+      "Row.SetIsHidden",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "637ec2534acd64213f79ab9a4cdfbf3a710e335659e47187cb339b684db05c38",
+      "norm": "637ec2534acd64213f79ab9a4cdfbf3a710e335659e47187cb339b684db05c38"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 359,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "CellValue",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "Hyperlink",
+      "OperatorType",
+      "Style",
+      "Validation",
+      "ValidationType",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.GetType",
+      "Cell.PutValue",
+      "Cell.SetStyle",
+      "FormatCondition.GetFormula1",
+      "FormatCondition.GetFormula2",
+      "FormatCondition.GetOperator",
+      "FormatCondition.GetStopIfTrue",
+      "FormatCondition.GetStyle",
+      "FormatCondition.GetType",
+      "FormatCondition.SetFormula1",
+      "FormatCondition.SetStopIfTrue",
+      "FormatCondition.SetStyle",
+      "FormatCondition.SetType",
+      "Hyperlink.GetAddress",
+      "Hyperlink.GetArea",
+      "Hyperlink.GetScreenTip",
+      "Hyperlink.GetTextToDisplay",
+      "Hyperlink.SetScreenTip",
+      "Hyperlink.SetTextToDisplay",
+      "Style.GetPattern",
+      "Style.SetForegroundColor",
+      "Style.SetPattern",
+      "Validation.AddArea",
+      "Validation.GetErrorTitle",
+      "Validation.GetFormula1",
+      "Validation.GetFormula2",
+      "Validation.GetOperator",
+      "Validation.GetShowError",
+      "Validation.GetType",
+      "Validation.SetErrorTitle",
+      "Validation.SetFormula1",
+      "Validation.SetShowError",
+      "Validation.SetType",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.GetConditionalFormattings",
+      "Worksheet.GetHyperlinks",
+      "Worksheet.GetValidations"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8e4bb5b515e6127ddf92e5b402817f05bccde49e7d0828c815b4300d25ae3685",
+      "norm": "8e4bb5b515e6127ddf92e5b402817f05bccde49e7d0828c815b4300d25ae3685"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cpp",
+    "source_file": "Aspose.Cells.Foss.Cpp.Tests/tests/WorkbookPortingTests.cpp",
+    "source_function": "TEST",
+    "source_line": 423,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "DocumentProperties",
+      "Workbook",
+      "WorkbookSettings"
+    ],
+    "methods_used": [
+      "DocumentProperties.GetAuthor",
+      "DocumentProperties.GetCompany",
+      "DocumentProperties.GetTitle",
+      "DocumentProperties.SetAuthor",
+      "DocumentProperties.SetCompany",
+      "DocumentProperties.SetTitle",
+      "Workbook.GetDocumentProperties",
+      "Workbook.GetSettings",
+      "Workbook.Save",
+      "WorkbookSettings.GetDate1904",
+      "WorkbookSettings.SetDate1904"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7410ea60847a1d091aef756ced01a60cc0e0609ce792d7c3ac661203b1380acc",
+      "norm": "7410ea60847a1d091aef756ced01a60cc0e0609ce792d7c3ac661203b1380acc"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cpp",
+    "source_file": "samples/src/main.cpp",
+    "source_function": "main",
+    "source_line": 21,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "Font",
+      "Style",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetFormula",
+      "Cell.SetStyle",
+      "Font.SetBold",
+      "Font.SetColor",
+      "Font.SetName",
+      "Style.SetFont",
+      "Style.SetForegroundColor",
+      "Style.SetPattern",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "999ff98d14039e09d902b5a66ca5f97e0c49fd7498880330b4a80a636f9eb9d6",
+      "norm": "999ff98d14039e09d902b5a66ca5f97e0c49fd7498880330b4a80a636f9eb9d6"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 129,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Color",
+      "FillPattern",
+      "Font",
+      "Style",
+      "Workbook",
+      "Worksheet",
+      "WorksheetCollection"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.PutValue",
+      "Cell.SetFormula",
+      "Cell.SetStyle",
+      "Font.SetBold",
+      "Font.SetColor",
+      "Font.SetName",
+      "Style.SetFont",
+      "Style.SetForegroundColor",
+      "Style.SetPattern",
+      "Workbook.GetWorksheets",
+      "Workbook.Save",
+      "Worksheet.GetCells",
+      "Worksheet.SetName"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7cf86708acb74a94667ac8505a1702f1da818cf17400f406fdbff673449c5d9e",
+      "norm": "c58ef32c25d85ed84b15f5dcd5098c42d1a3b4767d7347cac19eb980f8835541"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 174,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Workbook",
+      "Worksheet"
+    ],
+    "methods_used": [
+      "Cell.GetDisplayStringValue",
+      "Cell.GetStringValue",
+      "Cell.GetValue",
+      "Workbook.GetWorksheets",
+      "Worksheet.GetCells"
+    ],
+    "formats_referenced": [
+      "xlsx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1b8347721cf8b24bc1bc874f4f752a6e2b860494eb853bd9b5da8b330785f0c4",
+      "norm": "1adb59adc815200c9862554e1ecb07adffa58d0855fd95e8e2925f6af7142fe6"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 198,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "CellValue",
+      "Color",
+      "FillPattern",
+      "FormatCondition",
+      "FormatConditionType",
+      "OperatorType",
+      "Style"
+    ],
+    "methods_used": [
+      "Cell.GetStyle",
+      "Cell.SetStyle",
+      "FormatCondition.GetStyle",
+      "FormatCondition.SetPriority",
+      "FormatCondition.SetStyle",
+      "Style.SetForegroundColor",
+      "Style.SetPattern"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ab4d3ddc3b0060a397b95a3b4f3e574b49a6563020639f50a82524949e83fad",
+      "norm": "d4a584b24f66aad1ff9869577265a3acb9c311ead703d8d733f5e8ade7526c7e"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 215,
+    "classes_used": [
+      "Cell",
+      "CellArea",
+      "OperatorType",
+      "Validation",
+      "ValidationType"
+    ],
+    "methods_used": [
+      "Validation.SetErrorMessage",
+      "Validation.SetErrorTitle",
+      "Validation.SetFormula1",
+      "Validation.SetFormula2",
+      "Validation.SetOperator",
+      "Validation.SetShowError",
+      "Validation.SetType"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e3ab30f8ff6f8315267c9c59026d6df2404ce6b6e4ddcc6cd4cb987a98beec11",
+      "norm": "f8754dc1e95fc85993c504d0c6410e611fa28e45f3655db2e025c1b133210bf1"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 230,
+    "classes_used": [
+      "Cell",
+      "Cells",
+      "Hyperlink"
+    ],
+    "methods_used": [
+      "Cell.PutValue",
+      "Hyperlink.SetScreenTip",
+      "Hyperlink.SetTextToDisplay"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "946eb02840fc7634ac51a501f05e1858fc87dce289b7241e16c538f9771936d1",
+      "norm": "978eeaa5bb0021867718ee6c9a9e1899d64bb5929b90bc7a02c4b4452d3df043"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 240,
+    "classes_used": [
+      "PageOrientation",
+      "PageOrientationType",
+      "PageSetup",
+      "PaperSizeType",
+      "Row"
+    ],
+    "methods_used": [
+      "PageSetup.SetCenterFooter",
+      "PageSetup.SetFitToPagesWide",
+      "PageSetup.SetOrientation",
+      "PageSetup.SetPaperSize",
+      "PageSetup.SetPrintArea",
+      "PageSetup.SetPrintTitleRows"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3546fcbd39845bf176d935dce93ce34f3a9c58be7e3dc5c7439bbea0e54a602",
+      "norm": "b821d4a3569fc57a864f5659b2e96a167e15ca855bfba3bec3d2832ed355d406"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cpp",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 252,
+    "classes_used": [
+      "Cell",
+      "DefinedName"
+    ],
+    "methods_used": [
+      "DefinedName.SetComment"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "023823270b98d9a96144532d64fc0319506f4396753fa952e1bb12f218ad3603",
+      "norm": "564ca937adcd6cffbdb5c7375891064d150121f851d091054d492406b854f117"
+    }
+  }
+]

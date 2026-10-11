@@ -1,0 +1,1810 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_acc01_font_embedding.py",
+    "source_function": "test_font_embedding_success",
+    "source_line": 60,
+    "classes_used": [
+      "Document",
+      "FontDescriptor",
+      "PdfName"
+    ],
+    "methods_used": [
+      "Document.convert_to_pdfa",
+      "Document.load_from",
+      "Document.validate_pdfa"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c542cfdfd8cc7794fadb0d5393c04f2ee6d2368e7311d0616b3bfb0dd814ae1",
+      "norm": "87b28f1e7addddeb8ae79f738648801e4e9909204ec7a3f6ae55383b30b5c063"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_acc01_font_embedding.py",
+    "source_function": "test_font_embedding_missing_file",
+    "source_line": 99,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.convert_to_pdfa",
+      "Document.load_from"
+    ],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4f4b07daac519d4c6bf23a5fe0604988f6a4c6f274e749eaeb3ecfdbbcd3b9b5",
+      "norm": "505f210758f40453f45bd54dab91a828c791fb96b485b865e8d59bfcb404d447"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_rgb8_round_trips_interlaced_and_not",
+    "source_line": 110,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "943de32d744e94b849e69fc759aced0595dd4f5d170b02a94a7e58f994554fe5",
+      "norm": "943de32d744e94b849e69fc759aced0595dd4f5d170b02a94a7e58f994554fe5"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_interlaced_and_progressive_agree",
+    "source_line": 120,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6560f2741269cc7917be963d47a4b47ed453b22d5558ac24446187ff7c5c4614",
+      "norm": "6560f2741269cc7917be963d47a4b47ed453b22d5558ac24446187ff7c5c4614"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_single_pixel_interlaced",
+    "source_line": 127,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4b2df5f0283df25053f8fd1a726afc098ac1328944dd4ea0d15e603709fca3c",
+      "norm": "c4b2df5f0283df25053f8fd1a726afc098ac1328944dd4ea0d15e603709fca3c"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_grayscale_sub_byte_depths_are_scaled_to_8_bit",
+    "source_line": 135,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gray"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cf2790602dc52cc79ac7cd303fe592fa3a00242ba06725dba7fcf1a361df34da",
+      "norm": "cf2790602dc52cc79ac7cd303fe592fa3a00242ba06725dba7fcf1a361df34da"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_sub_byte_depths_work_interlaced",
+    "source_line": 150,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "28a17d7fabeebe0a739eb8671486c6cea9acb1270908910f60dc781145553932",
+      "norm": "28a17d7fabeebe0a739eb8671486c6cea9acb1270908910f60dc781145553932"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_16_bit_keeps_the_high_byte",
+    "source_line": 161,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc906b1afe97ce1b0757a77f49eb6841b5dbf2df5e6f082daa4e37bc33658ee9",
+      "norm": "dc906b1afe97ce1b0757a77f49eb6841b5dbf2df5e6f082daa4e37bc33658ee9"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_16_bit_grayscale_interlaced",
+    "source_line": 172,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gray"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "553d90d3169927af9c2ddd61dc2bd2197928f060a293f3b9f6c1a4fc3ee281d1",
+      "norm": "553d90d3169927af9c2ddd61dc2bd2197928f060a293f3b9f6c1a4fc3ee281d1"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_palette_indices_are_not_rescaled",
+    "source_line": 183,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "956ee3296db37e7771375309efe8d17c513326af391803cf7c10fc4055729704",
+      "norm": "956ee3296db37e7771375309efe8d17c513326af391803cf7c10fc4055729704"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_palette_interlaced",
+    "source_line": 203,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bbc5c1266737d475cd87973bdb5db44c7864b7a65529220ae4c3f17141a3f470",
+      "norm": "bbc5c1266737d475cd87973bdb5db44c7864b7a65529220ae4c3f17141a3f470"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_gray_alpha_keeps_the_gray_channel",
+    "source_line": 215,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gray"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ad90606ccb05959c4d8e467c190cb6fa7e12f66f8b26e1015b76f03d8c072084",
+      "norm": "ad90606ccb05959c4d8e467c190cb6fa7e12f66f8b26e1015b76f03d8c072084"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_rgba_drops_the_alpha_channel",
+    "source_line": 222,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7d8389dfdf27a7f2fe50a9d01dc99d25c3d4a5190826e71bc6b7b4e6023e6706",
+      "norm": "7d8389dfdf27a7f2fe50a9d01dc99d25c3d4a5190826e71bc6b7b4e6023e6706"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_bit_depth_illegal_for_the_colour_type_is_rejected",
+    "source_line": 230,
+    "classes_used": [
+      "PdfValidationException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "977d547c82259e45a1ba8f2261ec68e28f41b359d37146fccc8be06fd6990ee1",
+      "norm": "977d547c82259e45a1ba8f2261ec68e28f41b359d37146fccc8be06fd6990ee1"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_unknown_interlace_method_is_rejected",
+    "source_line": 236,
+    "classes_used": [
+      "PdfValidationException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "78d10af2b23db5977ab5ceb359be06188ee4d4c139adb75f1d6bb4369e4e77fd",
+      "norm": "78d10af2b23db5977ab5ceb359be06188ee4d4c139adb75f1d6bb4369e4e77fd"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/test_add_image_png_variants.py",
+    "source_function": "test_truncated_interlaced_data_is_rejected",
+    "source_line": 248,
+    "classes_used": [
+      "PdfValidationException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf",
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4d5bab7b66fe6e562caa78f2ded963db01ea19f667a83dfa6a1959febebe39d4",
+      "norm": "4d5bab7b66fe6e562caa78f2ded963db01ea19f667a83dfa6a1959febebe39d4"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_pdf_padding_constant",
+    "source_line": 35,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b73b870a64b55ef5312a57b22dd3319882f7a24be2bb566ad3dc1f6e6b6099c",
+      "norm": "3b73b870a64b55ef5312a57b22dd3319882f7a24be2bb566ad3dc1f6e6b6099c"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_invalid_key_length_raises",
+    "source_line": 44,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b2fea64e5b03dd4c15bbe143040429e93187e7800cf1b18ad78f392a3e260dc2",
+      "norm": "b2fea64e5b03dd4c15bbe143040429e93187e7800cf1b18ad78f392a3e260dc2"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_encrypt_decrypt_aes128_roundtrip",
+    "source_line": 57,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ed0f3dc6c453f716f539a928830b9e6cd29b29a711cafc59a4c4fe358524a9e5",
+      "norm": "ed0f3dc6c453f716f539a928830b9e6cd29b29a711cafc59a4c4fe358524a9e5"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_encrypt_decrypt_aes256_roundtrip",
+    "source_line": 66,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b93ae3b3001bd79c2741ca434cd987efa9972cec04365c20af4e218ac417a796",
+      "norm": "b93ae3b3001bd79c2741ca434cd987efa9972cec04365c20af4e218ac417a796"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_empty_data_aes",
+    "source_line": 75,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "016e64348678fdaef889f49931852fe9990783e5f3ad14fac42950de8a7407c7",
+      "norm": "016e64348678fdaef889f49931852fe9990783e5f3ad14fac42950de8a7407c7"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_produces_32_bytes",
+    "source_line": 89,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dec1b0d80b31b85d2245c7060ccd07cec42174c85d0d946bd2676e411cc4cb24",
+      "norm": "dec1b0d80b31b85d2245c7060ccd07cec42174c85d0d946bd2676e411cc4cb24"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_different_passwords",
+    "source_line": 97,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0df13f9430b867d3649e09427b17285788a564df20a05bcb11fbbb7e3df0aa1c",
+      "norm": "0df13f9430b867d3649e09427b17285788a564df20a05bcb11fbbb7e3df0aa1c"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_owner_key_v4_empty_owner_uses_user",
+    "source_line": 104,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2374ab09e6d163a0501fcd292e6d8c2ed98e50e9b97e9a4b648e6626e9db44a8",
+      "norm": "2374ab09e6d163a0501fcd292e6d8c2ed98e50e9b97e9a4b648e6626e9db44a8"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_user_key_v4_returns_tuple",
+    "source_line": 111,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f528a28ae9699b4bdc36cf21b954a19302afe2c4e9106cc445d52b8609372ff3",
+      "norm": "f528a28ae9699b4bdc36cf21b954a19302afe2c4e9106cc445d52b8609372ff3"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_compute_user_key_v4_key_length_affects_result",
+    "source_line": 126,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6ab470fd70e6baa3c6d00957f3676d3a37237b258c5c55c4fc1676f24cc8fe63",
+      "norm": "6ab470fd70e6baa3c6d00957f3676d3a37237b258c5c55c4fc1676f24cc8fe63"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_file_id_affects_derived_key",
+    "source_line": 142,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b99a88fd82c7ef562c31d69a2826ad8e3723b7633e3c8564be4bf52a9bc649c6",
+      "norm": "b99a88fd82c7ef562c31d69a2826ad8e3723b7633e3c8564be4bf52a9bc649c6"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_permissions_affect_derived_key",
+    "source_line": 155,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "77a6bf2df693afe7812ec459d9e38ca0de050742aa7c44647fd459c017a3f726",
+      "norm": "77a6bf2df693afe7812ec459d9e38ca0de050742aa7c44647fd459c017a3f726"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_correct_user_password",
+    "source_line": 174,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5932b771d226321711fc98c97be81685f8808982c3a7a1ed4c5f8ce9c9fdd524",
+      "norm": "5932b771d226321711fc98c97be81685f8808982c3a7a1ed4c5f8ce9c9fdd524"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_wrong_password_returns_none",
+    "source_line": 189,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8edad872f102059fa3b2533875405673bafe5e0e86cd028e40c985d0cf35b695",
+      "norm": "8edad872f102059fa3b2533875405673bafe5e0e86cd028e40c985d0cf35b695"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_verify_password_v4_empty_password",
+    "source_line": 203,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2afb0d4cab8d5190cda585abdc24b3e5beebb6f92fb92421fd251ce1eb0d17e1",
+      "norm": "2afb0d4cab8d5190cda585abdc24b3e5beebb6f92fb92421fd251ce1eb0d17e1"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_full_encryption_roundtrip_aes128",
+    "source_line": 222,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4",
+      "EncryptionUtils.decrypt_aes_cbc",
+      "EncryptionUtils.encrypt_aes_cbc",
+      "EncryptionUtils.verify_password_v4"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2cdaf4cd1b1f7de883d50ad6a347afef9b66d23fed3f8dd37a631c6060bdf16c",
+      "norm": "2cdaf4cd1b1f7de883d50ad6a347afef9b66d23fed3f8dd37a631c6060bdf16c"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_object_key_derivation",
+    "source_line": 246,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.derive_object_key"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c69301bff0e87d5acf706d7323b2e0edac9581722bf2324a7bd37ce784dbb87",
+      "norm": "3c69301bff0e87d5acf706d7323b2e0edac9581722bf2324a7bd37ce784dbb87"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_generate_file_id",
+    "source_line": 258,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.generate_file_id"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "247fbc0a9439816e5f1e25b7c2cd08c78e5868c4edf186c9a7614908d9c61362",
+      "norm": "247fbc0a9439816e5f1e25b7c2cd08c78e5868c4edf186c9a7614908d9c61362"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_revision_2_key_derivation",
+    "source_line": 273,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "de009726a5b637987fa357f43962ced4aab769c27892e305295095b92439bb95",
+      "norm": "de009726a5b637987fa357f43962ced4aab769c27892e305295095b92439bb95"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_aes_key_derivation.py",
+    "source_function": "test_revision_3_key_derivation",
+    "source_line": 284,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_owner_key_v4",
+      "EncryptionUtils.compute_user_key_v4"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "841ec02c17852f76306346a3bba29ecd44d1cd5b8793274d601f2b0b32bc56da",
+      "norm": "841ec02c17852f76306346a3bba29ecd44d1cd5b8793274d601f2b0b32bc56da"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_named_glyphs",
+    "source_line": 17,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "292bb29489dd92f1faaf1022991da56f9d2f5a8e825a2bfe5d907148c93695c0",
+      "norm": "292bb29489dd92f1faaf1022991da56f9d2f5a8e825a2bfe5d907148c93695c0"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_ligature_and_variant_components",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bf21bb260e9bd109fcd03ba828f2840bd3a91d22f72899fd779449bd81f99a43",
+      "norm": "b447376008abf6f1611ca580722377263f8b77eb06ce57ccfbc82c5d5586d688"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_algorithmic_uni_forms",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "69564adbef7652966c56e10e0f869bd4104d6f6d79c5897e67f1611c31a60f72",
+      "norm": "69564adbef7652966c56e10e0f869bd4104d6f6d79c5897e67f1611c31a60f72"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_agl_unresolved_and_bad_input",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a010740554b5d48c267469f801d0289489e33fb0786342771ae0e1adc17bc5e2",
+      "norm": "e0d48dfb5cb8dbfba0eb8fb5bfc96cd5e8684eb6d9f98a0c9e4e0f638f3b121e"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_base_encoding_tables",
+    "source_line": 45,
+    "classes_used": [
+      "Encoding"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eb6ddd8b373a9e3c8d77071843bedd07f6b54f08f518b8485726279f79c9f773",
+      "norm": "eb6ddd8b373a9e3c8d77071843bedd07f6b54f08f518b8485726279f79c9f773"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_macexpert_encoding_table",
+    "source_line": 59,
+    "classes_used": [
+      "Encoding"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "unicode"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "506671ce9f22e7bb53893b71647553e749ae3411dbcb2cd86f96a77caf0ac8a7",
+      "norm": "506671ce9f22e7bb53893b71647553e749ae3411dbcb2cd86f96a77caf0ac8a7"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_cff_predefined_charsets",
+    "source_line": 74,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "13464ebc49927e223d82cd136774e8e91e48e1d4352bdc522dd68301b3c2ff9a",
+      "norm": "13464ebc49927e223d82cd136774e8e91e48e1d4352bdc522dd68301b3c2ff9a"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_cff_standard_strings",
+    "source_line": 84,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b01600c52d53269757e447e79b5e7fc490703e4773fe966490d002ba267cdd97",
+      "norm": "b01600c52d53269757e447e79b5e7fc490703e4773fe966490d002ba267cdd97"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_agl.py",
+    "source_function": "test_bundle_is_deterministic",
+    "source_line": 91,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ff2209793c732223c081fd150a39d2251a94ac39b5c43da1bd7070e19fe9533f",
+      "norm": "ff2209793c732223c081fd150a39d2251a94ac39b5c43da1bd7070e19fe9533f"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_returns_32_bytes",
+    "source_line": 9,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "da4057012de559f3a2bf0619a52f38a34113f6702394ddae3793a86013a222be",
+      "norm": "da4057012de559f3a2bf0619a52f38a34113f6702394ddae3793a86013a222be"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_deterministic",
+    "source_line": 16,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "df60e6116d56b37c8097ab9acae59462d2d17902c62df59a92a8065ef677e087",
+      "norm": "df60e6116d56b37c8097ab9acae59462d2d17902c62df59a92a8065ef677e087"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_different_salt",
+    "source_line": 24,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "99c2c525eefe83a4641e6863d45e251092245e92734c69d386fdf2de3264ce85",
+      "norm": "99c2c525eefe83a4641e6863d45e251092245e92734c69d386fdf2de3264ce85"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_different_password",
+    "source_line": 33,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e70f6c21d2925db5ba7727a894f49cb7b8680261d6f685e985e2dfdf8d73107",
+      "norm": "0e70f6c21d2925db5ba7727a894f49cb7b8680261d6f685e985e2dfdf8d73107"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_with_user_key",
+    "source_line": 40,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1fefd2a494124cffce9756b7384070104077c736a1fe94b2332b8b85fcdc5a21",
+      "norm": "1fefd2a494124cffce9756b7384070104077c736a1fe94b2332b8b85fcdc5a21"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_empty_password",
+    "source_line": 51,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b85de805b88f391592b8e2eb50246f369cc0a4e70e51f15e9e08a346196cf5d",
+      "norm": "5b85de805b88f391592b8e2eb50246f369cc0a4e70e51f15e9e08a346196cf5d"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_long_password_truncated",
+    "source_line": 57,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cbdc1945b93f108d19e11dd6e303d9b6c4e6d1e8ded562bf5049ac1a21f99f16",
+      "norm": "cbdc1945b93f108d19e11dd6e303d9b6c4e6d1e8ded562bf5049ac1a21f99f16"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_uses_multiple_hash_algorithms",
+    "source_line": 65,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "df99b7bb855a60702cdcd27c9ba5f4dafbbe5ebcaf54565cd5a57f498490348d",
+      "norm": "df99b7bb855a60702cdcd27c9ba5f4dafbbe5ebcaf54565cd5a57f498490348d"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_compute_hash_v5_minimum_64_rounds",
+    "source_line": 79,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a7530d80f2c438e3173db2ad790dedf14834e61384138dffda55fc403409aa0f",
+      "norm": "a7530d80f2c438e3173db2ad790dedf14834e61384138dffda55fc403409aa0f"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_algorithm_2b_v5r6.py",
+    "source_function": "test_aes256_key_derivation_roundtrip",
+    "source_line": 94,
+    "classes_used": [
+      "EncryptionUtils"
+    ],
+    "methods_used": [
+      "EncryptionUtils.compute_hash_v5"
+    ],
+    "formats_referenced": [
+      "encryption",
+      "pdf",
+      "verify"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d6b446fad314a0713c5ed562af9923557e8512561a761900ee9849f1d54462e",
+      "norm": "3d6b446fad314a0713c5ed562af9923557e8512561a761900ee9849f1d54462e"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_from_border_style_array",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9a9688eb797f38d9d1c5ada460d03377de0d66c7aac832b77dd3a345face6194",
+      "norm": "9a9688eb797f38d9d1c5ada460d03377de0d66c7aac832b77dd3a345face6194"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_style_d_without_array_defaults",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fecee14c9b3d8ae658ab536c44025f5f9a3e8fe61d94f2f3f7327703423162f1",
+      "norm": "fecee14c9b3d8ae658ab536c44025f5f9a3e8fe61d94f2f3f7327703423162f1"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_solid_border_emits_no_dash",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2fed2249ac75d07ed855a62484edfc3957b8df007b7102c9cca81de3f6be2eee",
+      "norm": "2fed2249ac75d07ed855a62484edfc3957b8df007b7102c9cca81de3f6be2eee"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_from_legacy_border_array",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8eef57cd2cb3e0ca138c2584cc00747bdf8898580856c9a785c7a203cbaa1970",
+      "norm": "8eef57cd2cb3e0ca138c2584cc00747bdf8898580856c9a785c7a203cbaa1970"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_dash_applies_to_line_and_freetext",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1722dbcc7df40175719f0f7138c3e84f43d2580df27869e281693e91cc1c466",
+      "norm": "d1722dbcc7df40175719f0f7138c3e84f43d2580df27869e281693e91cc1c466"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_open_arrow_end_adds_strokes",
+    "source_line": 61,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5d774fbcb6a4f78d64e6b0bcaf39f26f950ff69ed53eeacb45d26a5cbb894a1f",
+      "norm": "af0ccb8875fa797cc00a475cf98a7f9fddbe93eaad07b3e513dd5b16bda400c7"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_closed_arrow_is_filled",
+    "source_line": 73,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ee893dca411d24c436c504734eccf1338ace097a6ca2d8f279427724f354d55",
+      "norm": "62ea642d87562cfab7da136af4da0f8616b740465d220d328eb0ff1290ba186b"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_diamond_and_circle_endings",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "89930ce970e00ac3842c2a53c6db7fd859f5bebeb4e854770a916b7a231b87a0",
+      "norm": "6aa1e0cc1142ffa5104fd8e8934d024fbf4245d147af063b6e6a9227b50f4ec4"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_line_none_ending_draws_only_the_shaft",
+    "source_line": 94,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "079e06a5ad6c3bebf339db12db9c647a39323571c13338ae2679e7c4f3921dc1",
+      "norm": "49aa7b03e6709a6be9bde6bf71e939ae5864d2e4a1dd744a02e9b338cd821f87"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_polyline_endings_orient_to_end_edges",
+    "source_line": 101,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d0a6f06260935fac86c2478aed1def851dbfb6a800e619a80afc82dad2f85ac2",
+      "norm": "d0a6f06260935fac86c2478aed1def851dbfb6a800e619a80afc82dad2f85ac2"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_square_cloud_border_replaces_rectangle",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d6343db6df6a34ef45a1f0cb45cb7096e6340a20da55b8681f9ed0088e16a6b",
+      "norm": "f2861c48b23c096bc6156b1e7a21243b82bf50a830f970bd02698250be3887fd"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_square_without_be_stays_rectangular",
+    "source_line": 126,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8633e467e9685c1e3c9faf3adf1d5c3df1d8c1fb7c0ee079912ceb28193a7ca9",
+      "norm": "8633e467e9685c1e3c9faf3adf1d5c3df1d8c1fb7c0ee079912ceb28193a7ca9"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_polygon_cloud_border",
+    "source_line": 132,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "61c0e48cdaf12951bf60248219452f4c0b8037fb8a65f2ff6b93b7afcdd40758",
+      "norm": "61c0e48cdaf12951bf60248219452f4c0b8037fb8a65f2ff6b93b7afcdd40758"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_annotation_appearance_decorations.py",
+    "source_function": "test_be_non_cloud_style_is_ignored",
+    "source_line": 142,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "41d3bd8a144f00fe73a1edd1a5138acc4e3eaadf5fbd65441545353037994a90",
+      "norm": "41d3bd8a144f00fe73a1edd1a5138acc4e3eaadf5fbd65441545353037994a90"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_square_with_stroke_and_fill",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f1b6d16f01e68d926d8f599f99c7849bf3b9bfb1c71359156c019c5d53058d97",
+      "norm": "f1b6d16f01e68d926d8f599f99c7849bf3b9bfb1c71359156c019c5d53058d97"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_square_without_colour_defaults_to_black_border",
+    "source_line": 36,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f35de9fcafcd72d740f25a7e06fb62ea70a5c6c950cdf68d8db54c76bc8bc815",
+      "norm": "eed8c48b95910df3436820d962effc874f1c2520b60bf27dc4c9734bb3a92331"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_circle_uses_bezier_curves",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gray"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "51ddc7325ca9ff7bd9e8ace86220f4df2b39ff417399feadfdbe23f65b6ee1fa",
+      "norm": "b19b98a8d4292e377887b239f03fe6e0edf38c5461df444c5e2ea35d5c848e0f"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_line_converts_to_local_coordinates",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "99b2a174fe76ae164cc8256a2eec45cc2dfb2ea24e3199fa085a04b812d3b55d",
+      "norm": "99b2a174fe76ae164cc8256a2eec45cc2dfb2ea24e3199fa085a04b812d3b55d"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_polygon_closes_and_fills",
+    "source_line": 59,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0c18591b3aa2a3d2e874147f520aa11df3243a4108082756e84bb392674a8c9e",
+      "norm": "616f55ee883e5d6b5752f8f029485b1be22cc661e43a65b12dd05ac60a1def1f"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_polyline_is_open_and_stroke_only",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d2cc3d04137a24c28bb07aebfe41588b98ca9ffa6b1991a581732bdeaa37a21d",
+      "norm": "d2cc3d04137a24c28bb07aebfe41588b98ca9ffa6b1991a581732bdeaa37a21d"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_ink_draws_each_path",
+    "source_line": 80,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e7edcee521bee9facc70c4cad9226285b94cb7e5ddf0a4e5d84eef3a28fa29ad",
+      "norm": "e7edcee521bee9facc70c4cad9226285b94cb7e5ddf0a4e5d84eef3a28fa29ad"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_highlight_uses_multiply_blend",
+    "source_line": 89,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2ec76ee95dec486905514bf93e99256b6eeef55b9633057045bcedab6e316622",
+      "norm": "2ec76ee95dec486905514bf93e99256b6eeef55b9633057045bcedab6e316622"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_underline_and_strikeout_draw_lines",
+    "source_line": 103,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4f20bfcde4e1e4ff7acccd7ba40524f75e8ceb80566767c4303887f8a91a0ccb",
+      "norm": "4f20bfcde4e1e4ff7acccd7ba40524f75e8ceb80566767c4303887f8a91a0ccb"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_draws_wrapped_text_and_border",
+    "source_line": 119,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "355cac7fc5a480db4b807694e3b3e3719f5681967d9be04e58f6d43a5f945e2d",
+      "norm": "355cac7fc5a480db4b807694e3b3e3719f5681967d9be04e58f6d43a5f945e2d"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_fills_background_from_c",
+    "source_line": 134,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6c098406b42e05903c65ef5f5893ba1cfb209cc91cd4b86d2998052c33e28033",
+      "norm": "6c098406b42e05903c65ef5f5893ba1cfb209cc91cd4b86d2998052c33e28033"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_uses_default_appearance_size_and_colour",
+    "source_line": 143,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "06d4cb537332ff583c284b7d488fbb4da795ecf197f5588996cab0aaa1c6c21c",
+      "norm": "06d4cb537332ff583c284b7d488fbb4da795ecf197f5588996cab0aaa1c6c21c"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_freetext_wraps_by_glyph_metrics",
+    "source_line": 152,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "60859cac2be40d03171cf3c71011e303cd3016c49d8c08d035e8ae5e19ef5656",
+      "norm": "60859cac2be40d03171cf3c71011e303cd3016c49d8c08d035e8ae5e19ef5656"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_caption_size_fits_glyph_metrics",
+    "source_line": 169,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3dd7a0ea90ae05d3ccc90673a4c5f95353c2538eec154f4a26dcda87df3200ff",
+      "norm": "3dd7a0ea90ae05d3ccc90673a4c5f95353c2538eec154f4a26dcda87df3200ff"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_draws_named_caption_in_red_by_default",
+    "source_line": 184,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0d3337a9d58d94d971e4941ac6421c6615af0ef32ad0131e98cd665e4a149907",
+      "norm": "0d3337a9d58d94d971e4941ac6421c6615af0ef32ad0131e98cd665e4a149907"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_stamp_honours_colour_and_contents_fallback",
+    "source_line": 194,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c49984749f7c24f55777eb1edbcaa5e8d0988a37601b6fac945bad975c1cd6a7",
+      "norm": "6688618c8d0ff6c3fb7931368664b76c0b1d57e50ed1c9d8cba9e428f2b6a521"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_caret_draws_filled_triangle",
+    "source_line": 203,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "raw"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bdc4b03ab73d062953aac468583898ccfb80d982dc7e8d109d9333095d2ae117",
+      "norm": "fbd3d5600092153902382d10bd4e6f7120c4bc360a74cc2ddf9617ad778eb6b4"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_caret_honours_rgb_colour",
+    "source_line": 212,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "rgb"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c05a9e59ba40db1d847f8b6a66539a489819554764ee517b1a8aa0eb0804752",
+      "norm": "3c05a9e59ba40db1d847f8b6a66539a489819554764ee517b1a8aa0eb0804752"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_unsupported_subtype_returns_none",
+    "source_line": 218,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ab408f20462d637e51bc64d914548d770c781037455b31922fa7e9b277d519d",
+      "norm": "0ab408f20462d637e51bc64d914548d770c781037455b31922fa7e9b277d519d"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_missing_geometry_returns_none",
+    "source_line": 224,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "30b988ff73186384b9e9bb9165efaa5ca144e1f3c3afca32b06c1c546cbbd11a",
+      "norm": "30b988ff73186384b9e9bb9165efaa5ca144e1f3c3afca32b06c1c546cbbd11a"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_build_degenerate_rect_returns_none",
+    "source_line": 230,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "684cdea05f8c2bbe817467ae4a1dbb0f282d0f04ccd2fff44507e8762531c68a",
+      "norm": "684cdea05f8c2bbe817467ae4a1dbb0f282d0f04ccd2fff44507e8762531c68a"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_annotation_generate_appearance_sets_ap",
+    "source_line": 239,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d0a8c61ad081f9a8867a7e17d1002a7d295f960e48ab4ce987286726a703f52b",
+      "norm": "d0a8c61ad081f9a8867a7e17d1002a7d295f960e48ab4ce987286726a703f52b"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_highlight_generate_appearance_has_extgstate_resource",
+    "source_line": 251,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "03b424547dc49047c4663ee5cfe2d92c0b4328870c0e1e8395a2ea6c844a678e",
+      "norm": "03b424547dc49047c4663ee5cfe2d92c0b4328870c0e1e8395a2ea6c844a678e"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_freetext_generate_appearance_registers_font_resource",
+    "source_line": 263,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c31190d1ce8ce6422909b7677ad8dc92056338c3c68337926ea1366554956968",
+      "norm": "c31190d1ce8ce6422909b7677ad8dc92056338c3c68337926ea1366554956968"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_stamp_generate_appearance_end_to_end",
+    "source_line": 280,
+    "classes_used": [
+      "Annotation",
+      "AnnotationName"
+    ],
+    "methods_used": [
+      "Annotation.generate_appearance"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d9a998de252c67ddc2c30dacb8c7158e45e2a7e58dc4ff98d1beb246099d717",
+      "norm": "1d9a998de252c67ddc2c30dacb8c7158e45e2a7e58dc4ff98d1beb246099d717"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_caret_generate_appearance_end_to_end",
+    "source_line": 292,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d9134f7e40e6762a8bc030ee09fde0312e0f3aa6635b1022f176c229279bf9b0",
+      "norm": "d9134f7e40e6762a8bc030ee09fde0312e0f3aa6635b1022f176c229279bf9b0"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generate_appearance_unsupported_subtype_returns_false",
+    "source_line": 299,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "528b52b9148f4c7a095ef5c0eff9f4a6758fa4d2563eb4cb6e568624a1866803",
+      "norm": "528b52b9148f4c7a095ef5c0eff9f4a6758fa4d2563eb4cb6e568624a1866803"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generate_appearance_keeps_existing_unless_forced",
+    "source_line": 306,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "769a449e962640c523e20af16628e2c7f48c87b09046923c73c133d0e9b7f717",
+      "norm": "769a449e962640c523e20af16628e2c7f48c87b09046923c73c133d0e9b7f717"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_page_generate_appearances_counts_created",
+    "source_line": 321,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8587464c6624f91645d16eedac9b2549156e9d871349c6f0fb11ec0e3f0b873d",
+      "norm": "8587464c6624f91645d16eedac9b2549156e9d871349c6f0fb11ec0e3f0b873d"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_document_generate_appearances_across_pages",
+    "source_line": 330,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.generate_appearances"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "17513166b4c8693850f2ab66d7e10c398662287da30351cb1ace0984621db775",
+      "norm": "17513166b4c8693850f2ab66d7e10c398662287da30351cb1ace0984621db775"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_annotation_appearance_generation.py",
+    "source_function": "test_generated_appearance_survives_save_load",
+    "source_line": 343,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.load_from",
+      "Document.save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "65d463aa9360223d109b8a32c508c0d7a7e813e0e8ee24722e1398390f24daca",
+      "norm": "65d463aa9360223d109b8a32c508c0d7a7e813e0e8ee24722e1398390f24daca"
+    }
+  }
+]

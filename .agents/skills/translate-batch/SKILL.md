@@ -1,19 +1,13 @@
 ---
 name: translate-batch
-id: S-100
 description: >
-  Translate all English content pages for a product family and platform to one
-  or more target locales. Supports all translator backends and incremental
-  translation with caching.
-args: "{family} {platform} [{site}] [{locales}]"
+  Translate all English content pages for a product family and platform
+argument-hint: "{family} {platform} [locales]"
 ---
 
-# S-100: Translate Batch — Batch Translation for Family/Platform
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-> **Backend requirement:** This skill requires the `scripts/translator/` backend package, which is
-> **not included** in this repository. Install the backend separately before invoking this skill.
-> Run `python -m translator preflight` to verify availability. Without the backend, commands in
-> the Steps section will fail with `ModuleNotFoundError`.
+# S-53: Translate Batch — Batch Translation for Family/Platform
 
 Translate all English content pages for a product family and platform to one or more target locales.
 
@@ -25,71 +19,144 @@ Omit `{site}` or use `all` to process all supported sites. Omit `{locales}` or u
 ## Pre-conditions
 
 1. At least one translation backend must be available. Run `python -m translator preflight` to check.
-2. English source files must exist under `$CONTENT_REPO_PATH/content/{site}/en/{family}/{platform}/`
-3. The knowledge model for the family/platform should be current
+   - **llm.professionalize.com**: requires `LLM_API_KEY` to be set.
+   - **Ollama**: requires Ollama running locally with a suitable model installed.
+   - **M2M100 offline**: requires `pip install transformers torch` and the model downloaded (~2 GB).
+2. English source files must exist under `content/{site}/en/{family}/{platform}/`.
+3. The knowledge model for the family/platform should be current. If `knowledge/{family}/{platform}/merged/index.json` shows `stale: true`, run `/stale-detect` first.
 
 ## Steps
 
-1. **Parse** `$ARGUMENTS` into `family`, `platform`, `site` (default: `all`), `locales` (default: `all`).
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-53 --scope "*"
+> ```
 
-2. **Run preflight** (mandatory):
+
+1. **Parse** `$ARGUMENTS` into:
+   - `family` — product family (e.g. `slides`, `3d`, `cells`)
+   - `platform` — platform identifier (e.g. `net`, `python`, `java`, `cpp`)
+   - `site` — site name or `all` (default: `all`)
+   - `locales` — comma-separated locale codes or `all` (default: `all`)
+
+2. **Estimate scope** before running:
+   - Count English `.md` files under `content/{site}/en/{family}/{platform}/` (across all specified sites).
+   - Multiply by the number of target locales.
+   - Print: `Scope: {file_count} files x {locale_count} locales = {total} translation jobs`
+   - If total exceeds 500, warn the user and ask for confirmation before proceeding.
+
+3. **Run preflight** (mandatory before translation):
    ```bash
-   python -m translator preflight
+   .venv/Scripts/python -m translator preflight [--provider {auto,llm,ollama,m2m}]
    ```
+   Review the preflight report. Confirm that:
+   - A valid backend is selected (no `ERROR` lines in output).
+   - The selected model is a non-thinking translation-suitable model.
+   - Any `WARNING` lines are understood and acceptable.
+   If preflight fails, resolve the issue before proceeding.
 
-3. **Run the batch translator**:
+4. **Run the batch translator**:
    ```bash
-   python -m translator batch {family} {platform} \
-     [--site {site}] \
-     [--locales {locales}] \
-     [--provider {auto,llm,ollama,m2m}] \
-     [--workers N] \
-     [--dry-run]
+   .venv/Scripts/python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} [--provider {auto,llm,ollama,m2m}]
    ```
-   Options:
-   - `--workers N`: parallel worker count (default: 4; reduce for Ollama)
-   - `--resume`: skip files already translated (use after interrupted run)
-   - `--force`: re-translate even if cached output exists
+   - `--provider auto` (default): system selects best available backend automatically.
+   - `--provider llm`: force llm.professionalize.com.
+   - `--provider ollama`: force local Ollama.
+   - `--provider m2m`: force offline M2M100 backend.
+   - `--dry-run`: validate without writing output.
+   - `--force`: re-translate files whose translated copies are already up to date.
+   - `--offline`: alias for `--provider m2m` (backward compat).
 
-4. **Monitor progress**: The translator prints per-file progress:
+5. **Structural completion (product pages only)**: For every translated file under
+   `content/products.aspose.org/`, run:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/migration/complete_plugin_structure.py --files {translated_file}
    ```
-   [1/N] [OK]   filename -> fr
-   [2/N] [OK]   filename -> de
-   [3/N] [SKIP] filename -> ar: already translated
-   [4/N] [FAIL] filename -> zh: backend error
+   This inserts missing display-control sections (`supportandlearning`, `more_formats`,
+   `back_to_top`) that the translator preserves-if-present but cannot generate when the
+   English source lacked them at translation time. Idempotent — safe on pages that already
+   have all sections. Skip for non-product-site translations.
+
+6. **Monitor progress**: The translator prints progress every 10 jobs and a final summary line:
+   ```
+   Batch complete: N ok, N skipped, N failed
+   Manifest: reports/translation/{family}-{platform}-{timestamp}.json
    ```
 
-5. **Print batch summary**:
+7. **Check manifest for failures**: Read the manifest JSON from the path printed by the CLI.
+   - If `summary.failed == 0`: proceed to cache-stats and commit.
+   - If `summary.failed > 0`: print the list of failed files with their error messages.
+     Ask the operator: "N files failed translation. Retry now, commit partial, or abort?"
+     - **Retry**: run `python -m translator batch --family {family} --platform {platform} --site {site} --locales {locales} --retry-failed {manifest_path}`
+     - **Commit partial**: proceed but note failures in the commit body.
+     - **Abort**: stop without committing.
+
+8. **On completion**, run cache-stats to confirm cache utilisation:
+   ```bash
+   .venv/Scripts/python -m translator cache-stats
+   ```
+   Print the cache statistics.
+
+9. **Spot-check translated output**: For a representative sample (up to 3 files), run `/content-check` on the translated output:
+   ```
+   /content-check content/{site}/{lang}/{family}/{platform}/{filename}
+   ```
+   Report any FAIL results.
+
+10. **Report results** in this format:
    ```
    TRANSLATE BATCH — {family}/{platform}
-   Site: {site}
-   Locales: {locales}
-   Backend: {backend} ({model})
+   Site(s): {site}   Locales: {locales}
+   Backend used: {backend} ({model})
+   Source files found: N
+   Total jobs: N
 
-   Files processed: N
-     OK: N
-     Skipped: N (already translated)
-     Failed: N
+   BATCH RESULT
+   OK: N   SKIPPED: N   FAILED: N
+
+   CACHE STATS
+   Total entries: N   Total hits: N
+
+   SPOT-CHECK (sample)
+     {path}: PASS | WARN | FAIL
+     ...
 
    OVERALL: PASS | PARTIAL | FAIL
    ```
+   OVERALL is FAIL if the translator exited non-zero. OVERALL is PARTIAL if some files failed. OVERALL is PASS if all jobs succeeded or were legitimately skipped.
 
-6. **Post-batch verification** (spot-check):
-   Run content-check on 5 random translated files:
-   ```bash
-   /content-check {sample-output-path}
-   ```
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-53 --status completed
+> ```
 
 ## Post-conditions
 
-- All translatable English pages for the product have locale variants
-- `evidence:` frontmatter preserved byte-for-byte
-- Hugo shortcodes, code blocks, and API names unchanged
-- Batch translation report written to `reports/translations/{family}-{platform}-{date}.json`
+- All English source files for the family/platform have translated counterparts in each locale directory.
+- Translated files are stamped with the current date so subsequent `sync` runs will skip them unless the source is updated.
+- Cache entries are populated, making incremental re-runs significantly faster.
 
-## Resuming Interrupted Batches
+## Acceptance Criteria
 
-If a batch run is interrupted, resume without re-translating cached files:
-```bash
-python -m translator batch {family} {platform} --resume [--locales {remaining-locales}]
-```
+- [ ] Preflight completed without errors before translation started.
+- [ ] Translator CLI exits 0 (or only with expected validation failures reported).
+- [ ] All `[OK]` locales have files on disk at the correct paths.
+- [ ] No `[FAIL]` entries in the batch output.
+- [ ] Cache hit rate is reasonable for repeated runs (should be near 100% for unchanged source).
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

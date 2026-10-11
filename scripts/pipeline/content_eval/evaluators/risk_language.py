@@ -23,6 +23,12 @@ class RiskLanguageEvaluator(BaseEvaluator):
         findings: list[Finding] = []
 
         for line_no, line_text in page.prose_lines:
+            # Skip markdown table data rows on reference pages.
+            # API reference tables use technical language ('get all formats',
+            # 'guarantees a property') that accurately describes API contracts
+            # but superficially matches risk-language patterns.
+            if getattr(page, "subdomain", None) == "reference" and line_text.startswith("|"):
+                continue
             for pattern, desc, severity in RISK_LANGUAGE_PATTERNS:
                 if re.search(pattern, line_text, re.IGNORECASE):
                     findings.append(Finding(

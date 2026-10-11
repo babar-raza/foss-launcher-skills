@@ -1,0 +1,32 @@
+family: email
+platform: python
+version: 1
+
+discovery_hints:
+  package_source_file: pyproject.toml
+  package_extraction: "toml:[project].name"
+  language: python
+  format_source_glob: "src/**/formats/*.py"
+  stub_search_hints:
+    - "raise NotImplementedError"
+    - "pass  # TODO"
+  runtime_requirement_source: pyproject.toml
+
+discovered_actuals:
+  package_name: "aspose-email-foss"
+  import_path: "aspose.email_foss"
+  package_source_actual: pyproject.toml
+  format_files_found: null
+  last_baseline_sha: c336fa7c1d6b90c6155ecf25a261477640c2b1b6
+
+language_conventions:
+  method_naming: snake_case
+  enum_values: UPPER_CASE
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

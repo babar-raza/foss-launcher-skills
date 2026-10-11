@@ -1,14 +1,4 @@
----
-name: page-retire
-id: S-88
-description: >
-  Retire obsolete content pages by setting draft: true in frontmatter. Uses Hugo's
-  draft mechanism to suppress pages without deleting them, preserving history and
-  allowing rollback.
-args: "{file-path} | --from-plan {site_plan_path}"
----
-
-# S-88: Page Retire — Retire Obsolete Content Pages
+# S-83: Page Retire — Retire Obsolete Content Pages
 
 **Arguments**: $ARGUMENTS
 Expected format:
@@ -26,70 +16,82 @@ production builds without deleting them (preserving history and allowing rollbac
 Before retiring any page, confirm at least one of these signals:
 
 **(a) Cluster-level signal**: The page appears in `site_plan.yaml delta.pages_to_remove`
-(produced by S-87 delta-site-plan).
+(produced by S-82 delta-site-plan).
 
 **(b) Claim-level signal**: `stale_detect.py` reports `orphaned_claims` for the page
 (claims cited in evidence frontmatter that no longer exist in `merged/claims.json`).
 
 **Retire only when BOTH signals agree**, OR when the operator explicitly names a path.
-Retiring on a single signal without operator confirmation risks premature retirement.
+Retiring on a single signal without operator confirmation risks premature retirement of
+pages that still have valid coverage.
 
 ## Pre-conditions
 
-1. File exists at the target path under `$CONTENT_REPO_PATH/content/`
-2. `knowledge/{family}/{platform}/merged/model.yaml` must exist
+1. `scripts/pipeline/commands/healing/retire_page.py` exists
+2. Target page(s) exist under `content/`
+3. For `--from-plan`: `site_plan.yaml` with `delta.pages_to_remove` exists
 
 ## Steps
 
-1. **Parse arguments**: Determine single-file mode or plan-driven mode.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-83 --scope "*"
+> ```
 
-2. **In plan-driven mode** (`--from-plan`):
-   - Read `{site_plan_path}` and extract `delta.pages_to_remove`
-   - Confirm the list with the operator before proceeding
 
-3. **For each target file**:
+1. **Parse arguments**: Determine mode — single file or from-plan batch.
 
-   a. **Verify retirement signal**: Check both (a) and (b) above. If neither is confirmed and
-      the operator did not explicitly name the path, SKIP with a warning.
-
-   b. **Check current state**:
-      - If `draft: true` already in frontmatter → SKIP: "already retired"
-      - If file does not exist → SKIP: "not found"
-
-   c. **Set draft: true** in frontmatter:
-      ```bash
-      python scripts/pipeline/commands/healing/retire_page.py --files {path}
-      ```
-      Or manually: add `draft: true` to YAML frontmatter.
-
-   d. **Update provenance**:
-      - Set `provenance.content_origin: retired`
-      - Set `provenance.last_mechanism: skill`
-      - Set `provenance.auto_updatable: false`
-
-   e. **Run audit** (should now be skipped by draft status in production):
-      ```bash
-      python scripts/pipeline/commands/content/audit.py --files {path}
-      ```
-
-4. **Summary report**:
+2. **Always run --dry-run first**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py {file-path} --dry-run
+   # or
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml --dry-run
    ```
-   PAGE RETIRE
-   Targets: N
-   Retired: N
-   Skipped (already retired): N
-   Skipped (no retirement signal): N
+   Review the list of pages that would be retired. Confirm before proceeding.
+
+3. **Verify retirement signals** (if not operator-directed):
+   For each candidate page, check that BOTH signals are present:
+   - Check `site_plan.yaml delta.pages_to_remove` includes the path
+   - Check `stale_detect.py` output for `orphaned_claims` on the page
+   If only one signal is present, flag for operator confirmation before retiring.
+
+4. **Execute retirement**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py {file-path}
+   # or
+   .venv/Scripts/python scripts/pipeline/commands/healing/retire_page.py --from-plan reports/plans/{family}/{platform}/site_plan.yaml
    ```
+   Each retired page receives:
+   - `draft: true` in frontmatter (Hugo standard — suppresses from production builds)
+   - `retired_at: YYYY-MM-DD` in frontmatter (date of retirement)
+   The file is NOT deleted. All other frontmatter fields are preserved.
+
+5. **Report retirement**:
+   ```
+   Page Retirement Report: {family}/{platform}
+   Retired:  {N} pages
+   Skipped:  {N} pages (already retired)
+   Errors:   {N} pages (path not found, etc.)
+
+   Retired pages:
+     - content/docs.aspose.org/en/{family}/{platform}/old-page/index.md
+   ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-83 --status completed
+> ```
 
 ## Post-conditions
 
-- `draft: true` set in frontmatter of all retired pages
-- `provenance.content_origin: retired` in all retired pages
-- Pages remain on disk (not deleted)
-- Rollback: remove `draft: true` to restore visibility
+- Retired pages have `draft: true` and `retired_at: YYYY-MM-DD` in frontmatter
+- No files are deleted
+- Already-retired pages (draft: true) are idempotently skipped
+- Pages NOT in the retirement list are unchanged
 
-## Never Do
+## Error handling
 
-- Never delete files — retirement is draft-only
-- Never retire a page without a confirmed retirement signal
-- Never retire pages that are still referenced by active pages (check inbound links first)
+- If page path does not exist: exit with error code; no partial writes
+- If `--from-plan` path not found: halt with clear message
+- If frontmatter parse fails: skip that page; log as error; continue batch
+- If operator provides a path not confirmed by both signals: warn but proceed (operator override)

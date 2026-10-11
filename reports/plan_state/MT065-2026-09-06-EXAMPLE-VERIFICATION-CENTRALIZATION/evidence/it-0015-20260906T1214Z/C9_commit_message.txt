@@ -1,0 +1,42 @@
+feat(example-verification): C9 -- refresh_run advisory example_execution validation field
+
+Adds "example_execution" to refresh_run.py's ADVISORY_VALIDATION_FIELDS
+(alongside the existing "truth_audit") and to scoped_commands (not the
+separate single-shot commands dict truth_audit uses -- this field needs
+to run PER FILE over the run's own scope, matching content_audit/
+link_validation's shape, so it gets the same 40-per-chunk Windows-argv
+protection those two already have). The command:
+smoke_test.py --files <chunk...> --json -- bare --files with no explicit
+family/platform, so each file's own languages are auto-detected from its
+real fence tags (C4's RC22 fix), correct for a scope spanning more than
+one platform's pages.
+
+Read smoke_test.py's own current argparse definition directly before
+writing any code, rather than trusting the governing plan's literal
+prefix list (which includes --exit-codes/--blocking-platforms flags C4
+never actually built): --max-tier only accepts "1"/"2" as valid choices,
+so this deliberately omits --max-tier entirely and lets the CLI's own
+default (2) apply -- --max-tier 3 isn't even a valid choice yet, since no
+taskcard has wired real per-block execution into this CLI's dispatch.
+
+New test_verify_records_example_execution_as_advisory_not_blocking
+(mirrors the existing truth_audit advisory test, adapted for the
+scoped/chunked mechanism this field actually uses -- a combination no
+existing field has). Also updated the existing load-bearing chunking
+regression test (test_verify_run_chunks_every_scoped_validator_for_a_
+large_scope) to include smoke_test.py in its scoped_scripts tuple, since
+that test's own purpose is proving 40-path chunking for EVERY scoped
+validator. Both mechanically verified: reverted the core change via git
+stash, confirmed both tests fail for the right reason, restored the fix,
+confirmed all 117 tests (116 + 1 new) pass again.
+
+Verification: check_monkeypatch_lint.py 0 violations.
+
+Deliberately advisory-only (matching the governing plan's own explicit
+design -- "advisory -> later differential-blocking, the truth_audit
+posture" -- not a scope cut).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C9
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

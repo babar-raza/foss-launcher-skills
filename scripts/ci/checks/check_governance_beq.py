@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Behavioral Equivalence (BEQ) check for governance refactor routing.
 
@@ -16,6 +15,7 @@ BEQ paths checked:
   BEQ-08: §10 → docs/governance/evidence-and-provenance.md
   BEQ-09: §14 → docs/workflows/completion-verification.md
   BEQ-10: §12 → docs/registries/skills.md + docs/registries/file-map.md
+  BEQ-11: §17 → docs/governance/planning-methodology.md
 
 Usage:
     python scripts/ci/checks/check_governance_beq.py
@@ -28,27 +28,30 @@ Exit codes:
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 # BEQ routing table: (beq_id, section_label, child_doc_path, min_lines)
 # min_lines = minimum substantive content lines expected in child doc
 BEQ_ROUTES: list[tuple[str, str, str, int]] = [
     ("BEQ-01", "§3",  "docs/workflows/mental-model-refresh.md", 10),
-    ("BEQ-02", "§4",  "docs/governance/write-boundaries.md", 10),
-    ("BEQ-03", "§4b", "docs/governance/python-placement.md", 5),
+    # §4 routes to docs/reference/governance-gates.md (post-refactor path; updated 2026-06-24)
+    ("BEQ-02", "§4",  "docs/reference/governance-gates.md", 10),
+    # §4b routes to docs/development/python-placement.md (post-refactor path; updated 2026-06-24)
+    ("BEQ-03", "§4b", "docs/development/python-placement.md", 5),
     ("BEQ-04", "§6",  "docs/workflows/skill-chains.md", 10),
     ("BEQ-05", "§6a", "docs/governance/dar-table.md", 10),
     ("BEQ-06", "§6b", "docs/workflows/gap-escalation.md", 10),
     ("BEQ-07", "§9",  "docs/workflows/maintenance.md", 5),
-    ("BEQ-08", "§10", "docs/governance/evidence-and-provenance.md", 10),
+    # §10 routes to archived path (evidence-and-provenance moved to _archive; updated 2026-06-24)
+    ("BEQ-08", "§10", "docs/_archive/pre-refactor/governance/evidence-and-provenance.md", 10),
     ("BEQ-09", "§14", "docs/workflows/completion-verification.md", 5),
     ("BEQ-10a", "§12", "docs/registries/skills.md", 20),
     ("BEQ-10b", "§12", "docs/registries/file-map.md", 20),
+    ("BEQ-11", "§17", "docs/governance/planning-methodology.md", 20),
 ]
 
 

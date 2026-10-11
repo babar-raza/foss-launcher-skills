@@ -1,0 +1,218 @@
+[
+  {
+    "format": "Bmp",
+    "enum": "",
+    "value": "",
+    "file": "bmp.go",
+    "line": 94,
+    "direction": "export"
+  },
+  {
+    "format": "Doc",
+    "enum": "",
+    "value": "",
+    "file": "docx_write.go",
+    "line": 49,
+    "direction": "export"
+  },
+  {
+    "format": "docx",
+    "enum": "",
+    "value": "",
+    "file": "docx_write.go",
+    "line": 538,
+    "direction": "export"
+  },
+  {
+    "format": "Epub",
+    "enum": "",
+    "value": "",
+    "file": "epub_write.go",
+    "line": 26,
+    "direction": "export"
+  },
+  {
+    "format": "epub",
+    "enum": "",
+    "value": "",
+    "file": "epub_write.go",
+    "line": 130,
+    "direction": "export"
+  },
+  {
+    "format": "JSON",
+    "enum": "",
+    "value": "",
+    "file": "form_json.go",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "HTML",
+    "enum": "",
+    "value": "",
+    "file": "html_export.go",
+    "line": 75,
+    "direction": "export"
+  },
+  {
+    "format": "svg",
+    "enum": "",
+    "value": "",
+    "file": "html_export_svg.go",
+    "line": 43,
+    "direction": "export"
+  },
+  {
+    "format": "jbig2",
+    "enum": "",
+    "value": "",
+    "file": "jbig2_huffman.go",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "hint",
+    "enum": "",
+    "value": "",
+    "file": "linearize_hint_test.go",
+    "line": 23,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "markdown_export.go",
+    "line": 31,
+    "direction": "export"
+  },
+  {
+    "format": "Jpeg",
+    "enum": "",
+    "value": "",
+    "file": "render_device.go",
+    "line": 149,
+    "direction": "export"
+  },
+  {
+    "format": "Gif",
+    "enum": "",
+    "value": "",
+    "file": "render_device.go",
+    "line": 165,
+    "direction": "export"
+  },
+  {
+    "format": "SVG",
+    "enum": "",
+    "value": "",
+    "file": "svg_export.go",
+    "line": 25,
+    "direction": "export"
+  },
+  {
+    "format": "Tiff",
+    "enum": "",
+    "value": "",
+    "file": "tiff.go",
+    "line": 174,
+    "direction": "export"
+  },
+  {
+    "format": "Xlsx",
+    "enum": "",
+    "value": "",
+    "file": "xlsx_write.go",
+    "line": 44,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "document.go",
+    "line": 92,
+    "direction": "import"
+  },
+  {
+    "format": "Docx",
+    "enum": "",
+    "value": "",
+    "file": "docx_textbox_test.go",
+    "line": 32,
+    "direction": "export"
+  },
+  {
+    "format": "Epub",
+    "enum": "",
+    "value": "",
+    "file": "epub_write.go",
+    "line": 36,
+    "direction": "export"
+  },
+  {
+    "format": "SVG",
+    "enum": "",
+    "value": "",
+    "file": "examples_test.go",
+    "line": 192,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "examples_test.go",
+    "line": 454,
+    "direction": "export"
+  },
+  {
+    "format": "SVG",
+    "enum": "",
+    "value": "",
+    "file": "examples_test.go",
+    "line": 469,
+    "direction": "export"
+  },
+  {
+    "format": "HTML",
+    "enum": "",
+    "value": "",
+    "file": "examples_test.go",
+    "line": 484,
+    "direction": "export"
+  },
+  {
+    "format": "JSON",
+    "enum": "",
+    "value": "",
+    "file": "form_fields_extra_test.go",
+    "line": 141,
+    "direction": "export"
+  },
+  {
+    "format": "JSON",
+    "enum": "",
+    "value": "",
+    "file": "form_fields_extra_test.go",
+    "line": 158,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "markdown.go",
+    "line": 169,
+    "direction": "import"
+  },
+  {
+    "format": "Xlsx",
+    "enum": "",
+    "value": "",
+    "file": "xlsx_write.go",
+    "line": 57,
+    "direction": "export"
+  }
+]

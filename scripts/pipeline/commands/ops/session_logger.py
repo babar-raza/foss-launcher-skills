@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """session_logger.py — Log skill invocations to session records.
 
 Pipeline scripts can call log_invocation() to record that a skill was executed.
@@ -27,7 +26,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 _SESSION_DIR = _REPO_ROOT / "reports" / "session-invocations"
 
 _LOG_FILE: Path | None = None

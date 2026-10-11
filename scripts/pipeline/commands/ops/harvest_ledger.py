@@ -6,16 +6,16 @@ enables re-harvest on report changes, and tracks failures.
 
 Usage (CLI):
   # Show ledger status summary
-  python scripts/pipeline/harvest_ledger.py status
+  python scripts/pipeline/commands/ops/harvest_ledger.py status
 
   # Retry all failed entries (reset status to 'review')
-  python scripts/pipeline/harvest_ledger.py retry-failed
+  python scripts/pipeline/commands/ops/harvest_ledger.py retry-failed
 
   # Waive a report so it is never harvested
-  python scripts/pipeline/harvest_ledger.py waive reports/eval/some-report.json --reason "not relevant"
+  python scripts/pipeline/commands/ops/harvest_ledger.py waive reports/eval/some-report.json --reason "not relevant"
 
   # DANGEROUS: clear the entire ledger
-  python scripts/pipeline/harvest_ledger.py reset
+  python scripts/pipeline/commands/ops/harvest_ledger.py reset
 
 Usage (Python import):
   from harvest_ledger import HarvestLedger
@@ -54,7 +54,7 @@ from tempfile import NamedTemporaryFile
 # Module-level paths (reconfigurable via configure())
 # ---------------------------------------------------------------------------
 
-_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _LEDGER_DIR = _REPO_ROOT / "reports" / "harvest-state"

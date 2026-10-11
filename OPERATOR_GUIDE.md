@@ -1,7 +1,16 @@
-# Operator Guide — foss-launcher-skills Content Generation System
+<!--
+OWNERSHIP: OPERATOR_GUIDE.md
+AUTHORITY: Skill concept model and invocation guide
+MUST NOT RESTATE: Policy rules — AGENTS.md is the only authority for rules
+REVIEW TRIGGERS:
+  - AGENTS.md §12 / docs/registries/skills.md Skill Registry changes (new/renamed skills) → update §3 invocation examples
+  - skills/session-start.md changes → update §3 How to Invoke a Skill
+MAINTAINED BY: Human maintainer · CI: scripts/ci/checks/check_onboarding_integrity.py
+-->
+# Operator Guide — aspose.org Content System
 
-This guide explains how to operate the foss-launcher-skills content generation system
-for new team members, maintainers, and anyone inheriting or debugging this system.
+This guide explains how to operate the aspose.org content management system for new team
+members, maintainers, and anyone inheriting or debugging this system.
 
 ---
 
@@ -10,58 +19,35 @@ for new team members, maintainers, and anyone inheriting or debugging this syste
 **All local operations on Windows MUST use Git Bash** (MSYS2/MINGW64, from
 [Git for Windows](https://git-scm.com/downloads)). WSL, PowerShell, and cmd.exe
 are not supported — governance scripts depend on bash semantics and Unix utilities.
-WSL is permanently rejected due to environment-variable boundary failures.
+WSL is permanently rejected; see `docs/STATUS-venv-closure.md` for the reason.
 
 For the full policy, see `AGENTS.md §2b`. CI runs on `ubuntu-latest` (no Windows
 enforcement needed in CI).
-
-## Python Virtual Environment — Platform Paths
-
-Examples throughout this guide use the **Windows Git Bash** path for the virtual environment.
-Adapt for your platform:
-
-| Platform | Activate | Python binary |
-|----------|----------|---------------|
-| Windows (Git Bash) | `source .venv/Scripts/activate` | `.venv/Scripts/python` |
-| Linux / macOS | `source .venv/bin/activate` | `.venv/bin/python` |
-
-All `.venv/Scripts/python` references in this guide become `.venv/bin/python` on Linux/macOS.
 
 ---
 
 ## §1 — What Is This System?
 
-The foss-launcher-skills system uses AI agents (Claude, Codex, Kilo Code) to generate,
+The aspose.org content system uses AI agents (Claude, Codex, and Kilo Code) to generate,
 validate, and repair Aspose FOSS product documentation across five subdomains:
 `docs`, `blog`, `kb`, `products`, and `reference`.
 
-Content is grounded in **knowledge models** (per product/platform) built from FOSS
-source repositories. Every content page must cite evidence from the knowledge model.
-
-**Standalone repo operation**: This repo owns the skills system. Content lives in an
-external repository. Configure your content root before running any content-writing
-skill:
-
-```bash
-# Option A: environment variable (recommended for shell sessions)
-export CONTENT_REPO_PATH=/path/to/your/content-repo
-
-# Option B: config.yaml in this repo root
-# content_root: "/path/to/your/content-repo"
-```
+Content is grounded in **knowledge models** (per product/platform) that are built from FOSS
+source repositories. Every content page must cite evidence from the knowledge model. Quality
+is enforced by automated audit, evaluation, and CI gates.
 
 ---
 
 ## §2 — What Is a "Skill"?
 
-A **skill** is a markdown file in `skills/` (e.g. `skills/knowledge-update.md`). It
-describes a procedure that an AI agent follows step by step.
+A **skill** is a markdown file in `skills/` (e.g. `skills/knowledge-update.md`). It describes
+a procedure that an AI agent follows step by step.
 
 **A skill is NOT a CLI command.** You cannot run a skill from a terminal directly.
 
 | Concept | What it is |
 |---------|-----------|
-| `skills/knowledge-update.md` | Procedure document for the knowledge-update skill |
+| `skills/knowledge-update.md` | Procedure document for the S-14 skill |
 | `/knowledge-update 3d python` | How you invoke it — only inside an AI agent session |
 | `scripts/pipeline/commands/knowledge/refresh_knowledge.py` | The backing script the agent calls automatically |
 
@@ -69,19 +55,20 @@ describes a procedure that an AI agent follows step by step.
 
 ## §3 — How to Invoke a Skill
 
-1. Configure your content root (see §1 above).
-2. Open a Claude agent session in this repository:
+1. Open an agent session in this repository:
    - Claude Code CLI: run `claude` in the repo root
-   - IDE extension: open the repo folder, open the Claude sidebar
-3. Type the slash command with arguments:
+   - Codex CLI: run `codex` in the repo root (reads `CODEX.md` for setup)
+   - Kilo Code: open the repo folder in the IDE extension
+   - Claude Code IDE extension: open the repo folder, open the Claude sidebar
+2. Type the slash command with arguments:
    ```
    /knowledge-update 3d python
    /launch-product slides java
-   /content-check $CONTENT_REPO_PATH/content/docs.aspose.org/en/3d/python/getting-started/installation.md
+   /content-check content/docs.aspose.org/en/3d/python/getting-started/installation.md
    /batch-remediate 3d python
    ```
-4. The agent reads the skill file and follows the steps. Script-backed steps run
-   automatically. Agent-reasoned steps are performed by the agent.
+3. The agent reads the skill file and follows the steps. Script-backed steps run automatically.
+   Agent-reasoned steps (like reading claims, writing content) are performed by the agent.
 
 ---
 
@@ -102,8 +89,8 @@ The CONTRACT tells you:
 - **What that script produces** (postconditions)
 - **What the agent must do manually** (note: lines)
 
-To find the backing script for any skill: look for the `<!-- CONTRACT: ... -->` block at
-the top of the skill file. Skills without a CONTRACT block are fully agent-executed.
+To find the backing script for any skill: look for the `<!-- CONTRACT: ... -->` block at the
+top of the skill file. Skills without a CONTRACT block are fully agent-executed (no script).
 
 ---
 
@@ -112,144 +99,176 @@ the top of the skill file. Skills without a CONTRACT block are fully agent-execu
 If you need to run a skill's script portions without an active agent session:
 
 > **Warning — hooks are inactive in terminal mode.**
-> Claude Code's PreToolUse enforcement hooks only fire inside Claude Code. They do NOT
-> run when you execute scripts from a terminal directly. To compensate, run these
-> equivalents manually after any content changes:
+> Claude Code's 6 PreToolUse enforcement hooks (session gate, path guard, Python venv
+> check, skill context gate, content write gate, content edit gate) only fire inside
+> Claude Code. They do NOT run when you execute scripts from a terminal directly.
+> To compensate, run these equivalents manually after any content changes:
+> - Path governance: `.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py {path}`
 > - API accuracy: `.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}`
+> - Frontmatter: `.venv/Scripts/python scripts/pipeline/commands/content/validate_frontmatter.py {file}`
 
-### knowledge-update
+### knowledge-update (S-14)
 Runs all 4 knowledge pipeline steps:
 ```bash
-.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} {clone_cache_path}
+repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform} $repo_path
 # Confirms completion: check knowledge/{family}/{platform}/merged/pipeline_run.json
 ```
 
-### content-check
+### content-check (S-23)
 ```bash
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
 ```
 
-### batch-eval-fix
+### batch-eval-fix (S-41)
 ```bash
 # Step 1: Evaluate
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
 # Step 2: Auto-fix
 .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
 # Step 3: Refresh evidence
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/attach_evidence.py --files {modified-files}
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {modified-files}
 ```
 
-### translate
+### truth-audit (S-38)
 ```bash
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/translator/cli.py batch {family} {platform} --locales all
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform} --json
 ```
+
+### ht-translate / ht-translate-batch (S-HT-01 / S-HT-02)
+The internal `scripts/translator/` package was permanently deleted 2026-07-02. The only
+authorized translation mechanism is the external `hugo-translator` tool, invoked via
+`/ht-translate` (single page) or `/ht-translate-batch` (family/platform batch) — see
+`.claude/commands/translate.md` for the full retirement notice and
+`.claude/commands/ht-translate.md` / `ht-translate-batch.md` for invocation syntax and valid
+site-profile IDs. There is no script-only equivalent to run outside an agent session.
 
 ---
 
-## §6 — Quick System Health Commands
+## §6 — Audit FAIL Baseline
+
+Running `.venv/Scripts/python scripts/pipeline/commands/content/audit.py all` currently shows
+**0 FAILs** across all active products (see `data/products.json` for the current count — 31
+active family/platform entries as of 2026-08-07; this number changes independently of this
+doc, don't trust a hardcoded figure here).
+For the current baseline (count and root causes), see `reports/audit/baseline-fail-counts.json`.
+
+If FAILs appear after a knowledge model update or content generation sprint, check
+`reports/audit/baseline-fail-counts.json` for the current documented baseline and root causes.
+
+The CI regression gate (`scripts/ci/checks/check_audit_regression.py`) blocks any PR that introduces
+**new** FAILs beyond the documented baseline. Pre-existing baselined FAILs do not block CI.
+
+**Common FAIL root causes:**
+| Classification | Root Cause | Fix |
+|----------------|-----------|-----|
+| `stale_claim_id` | Knowledge model regenerated; claim IDs in content not refreshed | Re-run `attach_evidence.py` or remove stale claim from evidence block |
+| `missing_api_member` | Scout didn't extract that member type (e.g., dataclass fields before 2026-04-01 fix) | Update `extraction/api_surface.py` or remove invalid `apis:` entry |
+| `content_parse_false_positive` | URL fragment or code comment parsed as API reference | Convert code block to prose or restructure to avoid ambiguity |
+
+If you add new content and see audit FAILs, check whether they are:
+1. In the baseline (expected) → no action needed
+2. New to a previously-clean product → investigate and fix before merging
+
+---
+
+## §7 — Quick System Health Commands
 
 ```bash
-# Validate skill registry integrity
-.venv/Scripts/python scripts/validate_skills.py
-
-# Verify mirror sync (skills/ -> .claude/commands/ -> .agents/ -> .kilocode/)
-.venv/Scripts/python scripts/sync_commands.py --check
-.venv/Scripts/python scripts/sync_agents.py --check
-
-# API accuracy audit (requires CONTENT_REPO_PATH set)
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py all
+# API accuracy audit (0 FAILs in current baseline — see §6 and reports/audit/baseline-fail-counts.json)
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py all
 
 # Content quality evaluation for a product
-CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python -m scripts.pipeline.content_eval evaluate 3d python --format json
-
-# Run all tests
-.venv/Scripts/python -m pytest tests/ -q
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate 3d python --format json
 
 # Check knowledge model freshness
-cat knowledge/{family}/{platform}/merged/model.yaml | grep stale_since
-```
+.venv/Scripts/python scripts/pipeline/commands/ops/project_phase_store.py get 3d python
 
----
+# Verify skill registry and sync parity
+.venv/Scripts/python scripts/ci/checks/check_skill_registry.py
+.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check
 
-## §7 — Initial Setup
+# Check for new audit regressions vs baseline
+.venv/Scripts/python scripts/ci/checks/check_audit_regression.py audit-results.json reports/audit/baseline-fail-counts.json
 
-```bash
-# 1. Clone the repository
-git clone <repo-url> foss-launcher-skills-gitlab
-cd foss-launcher-skills-gitlab
-
-# 2. Create and activate virtual environment
-python -m venv .venv
-source .venv/Scripts/activate      # Windows Git Bash
-# source .venv/bin/activate        # Linux/macOS
-
-# 3. Install dependencies
-pip install -r scripts/requirements.txt
-
-# 4. Set content root (required for content-writing skills)
-export CONTENT_REPO_PATH=/path/to/your/content-repo
-
-# 5. (Optional) Install git hooks
-bash scripts/install-hooks.sh
-
-# 6. Verify setup
-.venv/Scripts/python scripts/check_setup.py
+# Run all tests
+.venv/Scripts/python -m pytest scripts/ -q
 ```
 
 ---
 
 ## §8 — Diagnosing Failures
 
+### "UnicodeError" or encoding crash
+All pipeline scripts set UTF-8 stdout. If you hit a UnicodeError, check that your Python
+environment uses UTF-8 locale. On Windows: set `PYTHONUTF8=1` or use `.venv/Scripts/python`.
+
 ### Audit reports unexpected FAILs
-1. Run the audit: `CONTENT_REPO_PATH=/path/to/content .venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}`
-2. For stale claim IDs: re-run `attach_evidence.py` for the affected product
-3. For missing API member: re-run `refresh_knowledge.py` (knowledge model may be stale)
-4. In an agent session: `/diagnose-skill-failure` classifies failures into CONFIG / DATA /
-   CODE / GOVERNANCE / REGRESSION with a resolution path for each.
+1. Check if the FAIL product is in the baseline: `cat reports/audit/baseline-fail-counts.json`
+2. If new FAIL in a clean product: run `/diagnose-skill-failure` in an agent session
+3. If stale claim IDs: re-run `attach_evidence.py` for the affected product
+4. If missing API member: re-run `refresh_knowledge.py` (knowledge model may be stale)
 
 ### Detecting upstream repository changes
-- **Single product**: Run `/knowledge-diff {family} {platform}` — fetches the clone cache
-  and compares SHAs. If SHAs differ, `stale_since` is auto-set in `model.yaml`.
-- **All products at once**: Run `/change-sweep` — batch SHA comparison across all active
-  products with structured JSON output.
+- **Single product**: Run `/knowledge-diff {family} {platform}` — fetches the clone cache and compares SHAs.
+  If SHAs differ: `stale_since` is auto-set in `model.yaml`; follow "Knowledge model is stale" below.
+  If SHAs match: no action needed; the command exits cleanly.
+- **All products at once**: Run `/change-sweep` (S-94) — batch SHA comparison across all
+  active products (see `data/products.json`) with structured JSON output. See
+  `docs/operations/discovery-operations.md` for full workflow and CLI reference.
 
 ### Knowledge model is stale
 1. Check `knowledge/{family}/{platform}/merged/model.yaml` → `stale_since` field
-2. If not null: run `/knowledge-update {family} {platform}` in an agent session
-3. After knowledge update: run `/delta-site-plan {family} {platform}` to compute
-   page-level changes
-4. Execute downstream updates per `docs/RUNBOOK.md` §3d
+2. If not null: run `/knowledge-update {family} {platform}` or manually run the 4 steps (see §5)
+3. After knowledge update: run `/delta-site-plan {family} {platform}` to compute page-level changes
+4. Execute downstream updates per RUNBOOK.md §3d (page-update, page-retire, batch-reference, family-sync)
+5. Run verification gate: `post_refresh_verify.py {family} {platform} --verify` — must exit 0 before commit
 
 ### Pre-commit hook is not running
 Install hooks with the single-command installer:
 ```bash
 bash scripts/install-hooks.sh
 ```
+This installs all 3 hooks (pre-commit, commit-msg, post-commit) and verifies installation.
 
 ### Skill fails mid-execution
-Use `/diagnose-skill-failure` in an agent session. It classifies failures and provides
-a resolution path for each type.
+Use S-67 (/diagnose-skill-failure) in an agent session. It classifies failures into:
+CONFIG / DATA / CODE / GOVERNANCE / REGRESSION with a resolution path for each.
 
-### CONTENT_REPO_PATH not set
-Most content-writing skills fail with a path error if `CONTENT_REPO_PATH` is not set.
-Set it before starting any agent session:
+### CI check fails locally but passes in GitHub Actions (or vice versa)
+The local simulation mirrors CI step-for-step. Run:
 ```bash
-export CONTENT_REPO_PATH=/path/to/your/content-repo
+bash scripts/ci/hooks/simulate_pr_checks.sh
 ```
+If results differ, check that `simulate_pr_checks.sh` was last synchronized with
+`content-audit.yml` (both files include a "SYNC" comment with the sync date).
 
 ---
 
 ## §9 — DAR: Skill Dependency Rules
 
-The DAR (Dependency Activation Rules) table in `AGENTS.md §6a` defines which skills must
-run before others. For example, `/knowledge-bootstrap` must pass before any content
-generation.
+The DAR (Dependency Activation Rules) table in AGENTS.md §6a defines which skills must run
+before others. For example, `/knowledge-bootstrap` must pass before any content generation.
 
-**Before invoking any content-generating skill:** verify required upstream checkpoints
-are set. If missing, run the upstream skill first.
+**Before invoking any content-generating skill:** read `reports/phase_state.json` for the
+current product and verify required upstream checkpoints are set. If missing, run the
+upstream skill first.
 
-**There is no code-level gate** that prevents out-of-order skill invocation. Correct
-ordering depends on the agent reading and following `AGENTS.md §6a` in the active session.
+DAR compliance is **code-enforced by default** (SR-04). When an agent opens a skill context
+via `skill_context.py begin`, the DAR prerequisite check runs automatically and exits 1 if
+required upstream skills have not yet run this session:
+
+```bash
+# Default: DAR prerequisites are checked automatically
+.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-21 --scope "content/**"
+
+# Bootstrap/recovery only: skip DAR check with --skip-dar
+.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-12 --scope "knowledge/**" --skip-dar
+```
+
+The checkpoint store at `reports/phase_state.json` records which stages have been completed.
+Out-of-order skill invocation is blocked at context-open time — agents cannot bypass this
+gate by instruction-following alone.
 
 ---
 
@@ -258,84 +277,22 @@ ordering depends on the agent reading and following `AGENTS.md §6a` in the acti
 | Path | Purpose |
 |------|---------|
 | `skills/` | Canonical skill files (source of truth) |
-| `skills/registry.yaml` | Machine-readable skill registry with IDs, scripts, flags |
-| `.claude/commands/` | Claude Code mirror of skills (auto-synced by sync_commands.py) |
-| `.agents/skills/` | Codex CLI mirror of skills (auto-synced by sync_agents.py) |
-| `.kilocode/skills/` | Kilo Code mirror of skills (auto-synced) |
-| `knowledge/{family}/{platform}/` | Knowledge models per product (in this repo) |
+| `.claude/commands/` | Claude Code mirror of skills |
+| `.agents/skills/` | Codex CLI mirror of skills |
+| `.kilocode/skills/` | Kilo Code mirror of skills |
+| `knowledge/{family}/{platform}/` | Knowledge models per product |
 | `knowledge/{family}/{platform}/merged/model.yaml` | Model metadata, stale_since |
 | `knowledge/{family}/{platform}/merged/claims.json` | Factual claims |
 | `knowledge/{family}/{platform}/merged/api_surface.json` | API surface |
 | `knowledge/{family}/{platform}/merged/pipeline_run.json` | Confirms full 4-step pipeline ran |
-| `reports/` | Local-only audit artifacts (gitignored) |
-| `reports/skill-gaps/` | Gap escalation reports |
-| `reports/skill-breakage/` | Skill breakage reports |
-| `reports/discovery/` | Patrol and sweep discovery reports |
+| `knowledge/{family}/{platform}/merged/knowledge_delta.json` | Semantic diff: new/removed/modified claims and APIs |
+| `reports/refresh_state/{family}/{platform}/progress.json` | Step-level progress tracking for refresh workflow |
+| `reports/audit/` | Audit results and baseline |
+| `reports/content_eval/` | Content evaluation reports |
+| `reports/proofs/` | CI proof bundles |
+| `reports/skill-runs/` | Skill execution records |
+| `reports/discovery/` | Discovery reports: `patrol_report.json`, `sweep_report.json`, `combined_report.md`, `history/` |
 | `scripts/pipeline/` | Core pipeline scripts |
-| `scripts/translator/` | Translation subsystem (9 sub-packages) |
 | `scripts/ci/` | CI gate scripts |
-| `scripts/validate_skills.py` | Skill registry validator |
-| `scripts/sync_commands.py` | Sync skills/ to .claude/commands/ (excludes internal skills) |
-| `scripts/sync_agents.py` | Sync skills/ to .agents/ and .kilocode/ |
 | `AGENTS.md` | Canonical governance (read this first) |
-| `docs/RUNBOOK.md` | Operations runbook for common tasks |
-
----
-
-## §11 — Mirror Sync System
-
-Three agent mirrors are maintained automatically:
-
-| Mirror | Path | Internal skills |
-|--------|------|----------------|
-| Claude Code | `.claude/commands/{name}.md` | Excluded (7 internal skills hidden) |
-| Codex CLI | `.agents/skills/{name}/SKILL.md` | Included |
-| Kilo Code | `.kilocode/skills/{name}/SKILL.md` | Included |
-
-After any skill file change in `skills/`:
-```bash
-.venv/Scripts/python scripts/sync_commands.py --sync
-.venv/Scripts/python scripts/sync_agents.py --sync
-```
-
-> **Warning**: Do NOT use `tools/distribute.py` for syncing to `.claude/commands/` —
-> it does not filter internal skills and will expose them to agents. Use
-> `sync_commands.py` instead.
-
----
-
-## §12 — Common Operator Workflows
-
-### Launch a new product
-```
-/launch-product {family} {platform}
-```
-This orchestrates the full 8-phase pipeline: knowledge bootstrap → evidence →
-site plan → page generation → validation → translation → commit.
-
-### Refresh an existing product after upstream changes
-```
-/refresh-product {family} {platform}
-```
-Runs the complete refresh chain: knowledge diff → update → delta-site-plan → page-update
-→ retire → family-sync → content-check → link-validate → translate → commit.
-
-### Run quality evaluation on a product
-```
-/content-eval {family} {platform}
-/publish-readiness-review {family} {platform}
-```
-
-### Scan for new FOSS products
-```
-/repo-patrol
-/change-sweep
-/discovery-triage
-```
-
-### Update skill registry after adding a skill
-```
-.venv/Scripts/python scripts/validate_skills.py
-.venv/Scripts/python scripts/sync_commands.py --sync
-.venv/Scripts/python scripts/sync_agents.py --sync
-```
+| `RUNBOOK.md` | CLI quick-reference for operators |

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Skill chain verification: validate skill dependency chains.
 
 This module verifies that skill chains follow the correct dependency

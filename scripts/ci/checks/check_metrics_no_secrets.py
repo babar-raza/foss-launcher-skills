@@ -1,10 +1,11 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_no_secrets.py — CI gate: prevent secrets in metrics code, tests, and reports.
 
 Scans metrics source files, tests, and reports/metrics/ for secret-like patterns.
 Never prints matched secret values — only file path, line number, and pattern type.
 
 Allowlists harmless fake test-fixture patterns that cannot be real credentials.
+
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
 
 Usage:
     python scripts/ci/checks/check_metrics_no_secrets.py
@@ -19,12 +20,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Files and directories to scan
 _SCAN_TARGETS = [

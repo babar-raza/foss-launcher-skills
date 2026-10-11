@@ -1,0 +1,1958 @@
+[
+ {
+  "unit_id": "c0001",
+  "heading_context": "Features",
+  "language": "typescript",
+  "api_call_fingerprint": [
+   "Document.OpenFile",
+   "ToSvg",
+   "fs.writeFileSync",
+   "ToImage",
+   "doc.ToHtml",
+   "doc.ToMarkdown",
+   "doc.ToDocx"
+  ],
+  "disposition": "merged_reframed",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0002",
+  "heading_context": "Installation",
+  "language": "bash",
+  "api_call_fingerprint": [
+   "npm install"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0003",
+  "heading_context": "Installation",
+  "language": "bash",
+  "api_call_fingerprint": [
+   "npm install",
+   "npm run"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0004",
+  "heading_context": "Quick start",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "disk",
+   "Document.Open",
+   "Document.OpenFile",
+   "console.log",
+   "doc.RemovePage",
+   "doc.Reorder",
+   "doc.SetMetadata",
+   "doc.WriteTo",
+   "doc.Save"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0005",
+  "heading_context": "Quick start",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.New",
+   "AddText",
+   "doc.AddPage",
+   "PageFormat.A4.landscape",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0006",
+  "heading_context": "Encrypted PDFs",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.OpenFile",
+   "doc.WriteTo",
+   "catch",
+   "console.error"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0007",
+  "heading_context": "Encrypted output",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.OpenFile",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0008",
+  "heading_context": "Certificate-based (public-key) encryption",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "certificates",
+   "doc.Save",
+   "Document.Open",
+   "console.log",
+   "flags"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0009",
+  "heading_context": "Split and merge",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Split",
+   "doc.ExtractPages",
+   "subset",
+   "Document.Merge",
+   "docA.Append",
+   "docA.InsertPage"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0010",
+  "heading_context": "Content streams",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "parseContentStream",
+   "console.log",
+   "serializeContentStream"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0011",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.OpenFile",
+   "page.AddText",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0012",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTextBlock"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0013",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTextBlock"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0014",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTextBlock"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0015",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddText",
+   "page.AddTextBlock"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0016",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.AddFont",
+   "doc.AddFontFile",
+   "AddText",
+   "AddTextBlock",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0017",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.RegisterFontFolder",
+   "doc.RegisterSystemFonts",
+   "doc.LoadFontByName",
+   "AddText"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0018",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.LoadFontByName",
+   "doc.LoadFontFamily",
+   "doc.AddMarkdown"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0019",
+  "heading_context": "Text stamping",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.AddFont",
+   "AddText"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0020",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "createTable",
+   "table.setColumnWidths",
+   "table.addRow",
+   "row.addCell",
+   "AddTable",
+   "at"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0021",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow",
+   "r0.addCell",
+   "addCell"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0022",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0023",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow",
+   "AddTable"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0024",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "t.addRow",
+   "r.setMinHeight",
+   "addCell"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0025",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow",
+   "row.addCell",
+   "setImage",
+   "AddTable"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0026",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTable",
+   "doc.AddPage"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0027",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "AddTable"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0028",
+  "heading_context": "Tables",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow",
+   "t.setRepeatingRowsCount",
+   "AddTable"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0029",
+  "heading_context": "Table of contents",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTOC"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0030",
+  "heading_context": "Table of contents",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "createTable",
+   "t.addRow",
+   "String",
+   "t.setRepeatingRowsCount",
+   "AddTable"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031a",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031b",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewFlow",
+   "PageFormat.A4.landscape"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031c",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "flow.AddHeading",
+   "flow.AddParagraph",
+   "flow.AddColumnBreak",
+   "flow.AddList"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031d",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewFloatingBox",
+   "sidebar.AddImage",
+   "sidebar.AddParagraph",
+   "flow.AddFloatBox"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031e",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewFloatingBox",
+   "quote.AddParagraph",
+   "flow.AddFloatingBox"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0031f",
+  "heading_context": "Flow layout (`doc.NewFlow`)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "flow.Render"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0032",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Graphics",
+   "g.setStrokeColor",
+   "setLineWidth",
+   "rect",
+   "stroke",
+   "g.setFillColor",
+   "circle",
+   "fill",
+   "g.apply",
+   "apply"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0033",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "g.setLineJoin",
+   "setMiterLimit",
+   "miters",
+   "polygon",
+   "stroke",
+   "g.roundedRect",
+   "fill",
+   "g.moveTo",
+   "arc",
+   "close"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0034a",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "g.setFillGradient",
+   "g.rect",
+   "fill"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0034b",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "g.setFillGradient",
+   "g.circle",
+   "fill"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0035",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "g.setStrokeGradient",
+   "g.setLineWidth",
+   "drawLine",
+   "stroke"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0036",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewTilingPattern",
+   "t.setLineWidth",
+   "setStrokeColor",
+   "drawLine",
+   "stroke",
+   "Graphics",
+   "g.setFillPattern",
+   "drawRect",
+   "fill",
+   "g.apply"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0037",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewTilingPattern",
+   "t.circle",
+   "fill",
+   "g.setFillPattern",
+   "drawRect"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0038",
+  "heading_context": "Vector drawing",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewTemplate",
+   "tpl.page.AddImage",
+   "tpl.page.AddText",
+   "tpl.page.Graphics",
+   "drawLine",
+   "stroke",
+   "apply",
+   "tpl.PlaceOn"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0039",
+  "heading_context": "Image insertion",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Uint8Array",
+   "readFileSync",
+   "AddImage"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0040",
+  "heading_context": "Barcodes",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddBarcode"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0041",
+  "heading_context": "Layers (optional content)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "oc.AddLayer",
+   "Graphics",
+   "g.BeginLayer",
+   "setFillColor",
+   "rect",
+   "fill",
+   "EndLayer",
+   "g.apply",
+   "AddImage",
+   "AddStamp"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0042",
+  "heading_context": "Text extraction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "console.log",
+   "GetText"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0043",
+  "heading_context": "Text extraction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "GetTextFragments",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0044",
+  "heading_context": "Text extraction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "GetStructuredText",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0045",
+  "heading_context": "Vector path extraction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "GetPaths",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0046",
+  "heading_context": "Text search",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "Search",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0047",
+  "heading_context": "Text search",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "SearchAnnotations",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0048",
+  "heading_context": "Text search",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.SearchAnnotations",
+   "page.Redact",
+   "hits.flatMap"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0049",
+  "heading_context": "Text search",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "SearchAnnotationText",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0050",
+  "heading_context": "Text replace",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "ReplaceText",
+   "doc.ReplaceText"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0051",
+  "heading_context": "Redaction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "Redact",
+   "number",
+   "doc.Redact",
+   "fs.writeFileSync",
+   "doc.Save"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0052",
+  "heading_context": "Redaction",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddRedact",
+   "page.MarkRedactText",
+   "doc.ApplyRedactions"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0053",
+  "heading_context": "Flatten annotations and forms",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.Open",
+   "FlattenAnnotations",
+   "doc.FlattenAnnotations",
+   "doc.FlattenForm",
+   "fs.writeFileSync",
+   "doc.Save"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0054",
+  "heading_context": "Flatten annotations and forms",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.Get",
+   "Flatten"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0055",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "console.log",
+   "form.Get",
+   "group",
+   "choice",
+   "form.GenerateAppearances",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0056a",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddTextField"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0056b",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "AddTextField"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0056c",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.Get"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0057",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddTextField",
+   "AFNumber_Format",
+   "amount.SetActions",
+   "AFRange_Validate"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0058a",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddCheckbox"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0058b",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddRadioGroup"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0059a",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddComboBox"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0059b",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddListBox"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0060",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "country.AddOption",
+   "country.RemoveOption"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0061",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.AddPushButton"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0062",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddLink",
+   "app.alert"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0063",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Form.RemoveField"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0064",
+  "heading_context": "Form fields (AcroForm)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "AddTextField",
+   "doc.Form.Get",
+   "SetStyle",
+   "rectangle"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0065",
+  "heading_context": "Form data (FDF / XFDF)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.OpenFile",
+   "doc.Form.Get",
+   "doc.ExportXfdf",
+   "ExportFdf",
+   "other.ImportXfdf",
+   "ImportFdf"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0066",
+  "heading_context": "Form data (FDF / XFDF)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.ExportXfdf",
+   "other.ImportXfdf"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0067",
+  "heading_context": "Outlines (bookmarks)",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.GetOutlines",
+   "console.log",
+   "doc.SetOutlines",
+   "colour"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0068",
+  "heading_context": "Page labels",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.GetPageLabels",
+   "doc.SetPageLabels",
+   "doc.PageLabelFor"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0069",
+  "heading_context": "Named destinations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.GetNamedDestinations",
+   "console.log",
+   "doc.SetNamedDestination",
+   "doc.RemoveNamedDestination"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0070",
+  "heading_context": "Document open behaviour and document-level JavaScript",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.SetOpenDestination",
+   "doc.SetOpenAction",
+   "app.alert",
+   "doc.GetOpenAction",
+   "doc.RemoveOpenAction"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0071",
+  "heading_context": "Document open behaviour and document-level JavaScript",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.SetJavaScript",
+   "doc.GetJavaScripts",
+   "doc.RemoveJavaScript"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072a",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072b",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Subtype",
+   "console.log"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072c",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddTextNote"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072d",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddStamp",
+   "Uint8Array",
+   "readFileSync"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072e",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "QuadPoints",
+   "page.AddHighlight",
+   "default",
+   "page.AddUnderline"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072f",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "line",
+   "page.AddSquare",
+   "page.AddCircle",
+   "page.AddLine"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072g",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "polyline",
+   "page.AddPolygon",
+   "page.AddPolyline",
+   "page.AddInk"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072h",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddFreeText"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072i",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddSquare",
+   "page.AddPopup"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072j",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddCaret",
+   "page.AddHighlight"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072k",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddLink"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0072l",
+  "heading_context": "Annotations",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.RemoveAnnotation"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0073",
+  "heading_context": "Embedded files / attachments",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "attachment",
+   "doc.AddAttachment",
+   "doc.GetAttachments",
+   "console.log",
+   "a.GetBytes",
+   "doc.RemoveAttachment",
+   "icon",
+   "AddFileAttachment"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0074",
+  "heading_context": "Embedded files / attachments",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.AddAttachment",
+   "a.SetField",
+   "Date",
+   "doc.SetCollection"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0075",
+  "heading_context": "XMP metadata",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.GetXmp",
+   "console.log",
+   "doc.SetXmp",
+   "bag",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0076",
+  "heading_context": "Images",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "console.log",
+   "bytes",
+   "img.Decode"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0077",
+  "heading_context": "Images",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "img.Replace",
+   "fs.readFileSync",
+   "Remove"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0078a",
+  "heading_context": "File-based helpers",
+  "language": "ts",
+  "api_call_fingerprint": [],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0078b",
+  "heading_context": "File-based helpers",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "splitPdfFile",
+   "readMetadataFile",
+   "updateMetadataFile",
+   "clearMetadataFile",
+   "savePageImageFile",
+   "exportXfdfFile",
+   "importXfdfFile"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0078c",
+  "heading_context": "File-based helpers",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "bytes",
+   "htmlFileToPdf"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0079",
+  "heading_context": "Optimization",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.Optimize",
+   "console.log",
+   "doc.WriteTo"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0080",
+  "heading_context": "Grayscale conversion",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.ConvertToGrayscale"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0081",
+  "heading_context": "HTML",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "parseHtml"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0082",
+  "heading_context": "HTML",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "parseHtmlBytes",
+   "Uint8Array",
+   "readFile"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0083",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "parseMarkdown"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0084",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.New",
+   "doc.AddMarkdown",
+   "readFileSync",
+   "join"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0085",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.NewFlow",
+   "flow.AddHeading",
+   "flow.AddMarkdown",
+   "flow.Render"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0086",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "page.AddMarkdown",
+   "placeElements"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0087",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "Document.New",
+   "doc.AddMarkdown",
+   "doc.ValidatePdfUa"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0088",
+  "heading_context": "Markdown",
+  "language": "ts",
+  "api_call_fingerprint": [
+   "doc.AddMarkdown"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0089",
+  "heading_context": "Development",
+  "language": "bash",
+  "api_call_fingerprint": [
+   "npm install",
+   "npm test",
+   "npm run"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0090",
+  "heading_context": "Development",
+  "language": "bash",
+  "api_call_fingerprint": [
+   "npm run"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ },
+ {
+  "unit_id": "c0091",
+  "heading_context": "Feature showcase",
+  "language": "bash",
+  "api_call_fingerprint": [
+   "npm run"
+  ],
+  "disposition": "merged_verbatim",
+  "target_section": "Additional Examples",
+  "verification": {
+   "status": "verified_against_source",
+   "evidence_type": "clone_cache_path",
+   "evidence_ref": "README.md"
+  }
+ }
+]

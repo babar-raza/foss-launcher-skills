@@ -1,0 +1,875 @@
+[
+  {
+    "unit_id": "u0001",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "Aspose.Cells FOSS for Go is a pure-Go library for creating, reading, and writing Excel workbooks —\nECMA-376 Office Open XML `.xlsx` spreadsheets — with no third-party dependency. It covers cell\ndata and A1-style addressing, visual formatting, a built-in formula engine, data validation,\nstructured tables, embedded pictures, CSV import and export, low-memory row streaming for large\nfiles, and password-based workbook encryption.",
+    "salient_tokens": [
+      ".xlsx",
+      "FOSS",
+      "ECMA",
+      "XML",
+      "CSV"
+    ],
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Project Structure](#project-structure)",
+    "salient_tokens": [
+      "Project Structure",
+      "#project-structure"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Cell values are read and written through `Cells.Get`/`Cells.Set`, addressed by A1-style\n  references (`\"A1\"`, `\"B2\"`) and covering `string`, `float64`, `int`, and `bool` values.",
+    "salient_tokens": [
+      "Cells.Get",
+      "Cells.Set",
+      "\"A1\"",
+      "\"B2\"",
+      "string",
+      "float64",
+      "int",
+      "bool",
+      "A1",
+      "B2"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/cells.go"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Font, fill, alignment, and borders combine into a `Style` applied to any cell via\n  `Cell.SetStyle`, with automatic deduplication of identical styles during save.",
+    "salient_tokens": [
+      "Style",
+      "Cell.SetStyle",
+      "SetStyle"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/style.go"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Formulas are stored with `Cell.SetFormula` and evaluated by the built-in `CalculateFormula`\n  engine, which supports `SUM`, `AVERAGE`, `MAX`, and `MIN` over single cells or A1-style ranges.",
+    "salient_tokens": [
+      "Cell.SetFormula",
+      "CalculateFormula",
+      "SUM",
+      "AVERAGE",
+      "MAX",
+      "MIN",
+      "SetFormula"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/formula_engine.go"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Data validation rules (`DataValidation`) restrict a range to dropdown lists or whole/decimal\n  ranges with custom error messages and error styles; structured `Table` ranges add header rows\n  and auto-filters; `Picture` objects (PNG or JPEG) embed images. All three attach to a\n  `Worksheet` via `AddDataValidation`, `AddTable`, and `AddPicture`.",
+    "salient_tokens": [
+      "DataValidation",
+      "Table",
+      "Picture",
+      "Worksheet",
+      "AddDataValidation",
+      "AddTable",
+      "AddPicture",
+      "PNG",
+      "JPEG"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/datavalidation.go"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `Workbook.ExportToCSV` and `Workbook.ImportFromCSV` move data to and from CSV with a\n  caller-supplied delimiter; export converts typed cell values to their CSV string form via\n  `CellToString`, while import stores every field as a plain `string`.",
+    "salient_tokens": [
+      "Workbook.ExportToCSV",
+      "Workbook.ImportFromCSV",
+      "CellToString",
+      "string",
+      "ExportToCSV",
+      "ImportFromCSV",
+      "CSV"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/csv_handler.go"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- The streaming reader (`StreamingReader.ProcessRows`) handles very large files with row-by-row\n  processing, reading directly from the source path without first building the shared\n  `Workbook`/`Worksheet` model, so peak memory stays proportional to the width of one row\n  rather than the whole file.",
+    "salient_tokens": [
+      "StreamingReader.ProcessRows",
+      "Workbook",
+      "Worksheet",
+      "StreamingReader",
+      "ProcessRows"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/streaming_reader.go"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `Workbook.SetPassword` and `Workbook.VerifyPassword` add ECMA-376 Agile Encryption (SHA-512\n  key derivation, AES-256-CBC) to the save path, producing a password-protected XLSX file.",
+    "salient_tokens": [
+      "Workbook.SetPassword",
+      "Workbook.VerifyPassword",
+      "SetPassword",
+      "VerifyPassword",
+      "ECMA",
+      "SHA",
+      "AES",
+      "CBC",
+      "XLSX"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/crypto.go"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "excerpt": "The module supports Go 1.24.5 or later and has zero third-party dependencies — encryption and\neverything else builds on the Go standard library alone. Because the package name (`cells_foss`)\ndiffers from the module path's final segment (`v26`), import it with an explicit alias:",
+    "salient_tokens": [
+      "cells_foss",
+      "v26",
+      "1.24.5"
+    ],
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Create a workbook, write a couple of cells, and save it to disk:",
+    "salient_tokens": [],
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Run `go run main.go` to produce `hello.xlsx`.",
+    "salient_tokens": [
+      "go run main.go",
+      "hello.xlsx"
+    ],
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Load an existing workbook, read and update a cell, then save the result:",
+    "salient_tokens": [],
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Runnable programs for every capability live under `examples/` in the repository. The formula\nengine example is shown directly below; the rest are collapsed for space.",
+    "salient_tokens": [
+      "examples/"
+    ],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "salient_tokens": [],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "The library source lives under `aspose/cells_foss/`, with runnable examples, tests, a\nverification tool, and a usage guide alongside it at the repository root:",
+    "salient_tokens": [
+      "aspose/cells_foss/"
+    ],
+    "target_section": "Project Structure",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.go"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "The library's public surface is centered on `Workbook` and `Worksheet` — created with\n`NewWorkbook`/`LoadWorkbook` and exposing a `*Cells` collection through `Worksheet.Cells()` — with\nsupporting types (`Style`, `DataValidation`, `Table`, `Picture`, `StreamingReader`) for styling,\nvalidation, structured ranges, images, and low-memory row access.",
+    "salient_tokens": [
+      "Workbook",
+      "Worksheet",
+      "NewWorkbook",
+      "LoadWorkbook",
+      "*Cells",
+      "Worksheet.Cells()",
+      "Style",
+      "DataValidation",
+      "Table",
+      "Picture",
+      "StreamingReader"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.go"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "salient_tokens": [
+      "API"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Alignment` | Alignment controls how cell content is positioned within the cell bounds. |\n| `Border` | Border defines which sides of a cell have a visible rule and the colour of those rules. |\n| `Cell` | Cell represents a single cell in a worksheet grid. |\n| `Cells` | Cells is a collection of Cell values indexed by A1-style string references (e.g. \"A1\", \"B2\", \"Z100\"). |\n| `DataValidation` | DataValidation represents a single data-validation rule applied to a range of cells on a worksheet. |\n| `Fill` | Fill describes the background appearance of a cell. |\n| `Font` | Font describes the typographic properties applied to cell text. |\n| `Picture` | Picture represents an image embedded in a worksheet. |\n| `RowCallback` | RowCallback is invoked by StreamingReader.ProcessRows once for every row in the worksheet. |\n| `StreamingReader` | StreamingReader reads an .xlsx workbook row by row without loading the entire sheet XML into memory. |\n| `Style` | Style groups font, fill, alignment, and border settings into a named formatting record. |\n| `Table` | Table represents a structured range of data (a \"table\" in Excel terminology) with optional header row and built-in auto-filter. |\n| `Workbook` | Workbook is the top-level object representing an Excel workbook. |\n| `Worksheet` | Worksheet represents a single sheet within a workbook. |",
+    "salient_tokens": [
+      "Alignment",
+      "Border",
+      "Cell",
+      "Cells",
+      "DataValidation",
+      "Fill",
+      "Font",
+      "Picture",
+      "RowCallback",
+      "StreamingReader",
+      "Style",
+      "Table",
+      "Workbook",
+      "Worksheet",
+      "ProcessRows",
+      "XML",
+      "A1",
+      "B2",
+      "Z100"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.go"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/go/)** — Go documentation for\n  Aspose.Cells FOSS: loading, editing, styling, and saving spreadsheets.",
+    "salient_tokens": [
+      "FOSS",
+      "Getting started guide",
+      "https://docs.aspose.org/cells/go/"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/go/)** — Go knowledge base for Aspose.Cells\n  FOSS: how-to articles, FAQ, and troubleshooting guides.",
+    "salient_tokens": [
+      "FAQ",
+      "FOSS",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/cells/go/"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/go/)** — the complete, browsable\n  reference for all 14 public types (the [API reference](#api-reference) section above covers the\n  essentials).",
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "API reference",
+      "https://reference.aspose.org/cells/go/",
+      "#api-reference"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[AGENTS.md](AGENTS.md)** — the repository's own contribution guide for AI-assisted\n  development, covering source-of-truth conventions and areas to avoid changing without review.",
+    "salient_tokens": [
+      "AGENTS",
+      "AI",
+      "AGENTS.md"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Found a bug or have a feature request?\n  [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues) on GitHub.",
+    "salient_tokens": [
+      "FOSS",
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/issues"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Cell references are A1-style strings only (`\"A1\"`, `\"B2\"`); tuple/array indices (e.g. `[0, 0]`)\n  are not supported.",
+    "salient_tokens": [
+      "\"A1\"",
+      "\"B2\"",
+      "[0, 0]",
+      "A1",
+      "B2"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/cells.go"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `CalculateFormula` supports only `SUM`, `AVERAGE`, `MAX`, and `MIN`; any other formula returns\n  an error rather than being evaluated.",
+    "salient_tokens": [
+      "CalculateFormula",
+      "SUM",
+      "AVERAGE",
+      "MAX",
+      "MIN"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/formula_engine.go"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- CSV import (`ImportFromCSV`/`FromCSV`) stores every field as a Go `string` — it does not infer\n  numeric or boolean types the way `Cells().Set` does when called directly with typed values.",
+    "salient_tokens": [
+      "ImportFromCSV",
+      "FromCSV",
+      "string",
+      "Cells().Set",
+      "CSV"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/csv_handler.go"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- On save, unmodified content is reused verbatim from the original XML byte-for-byte, and only\n  content touched since load is regenerated — round-trip fidelity depends on this split, not a\n  full re-serialization of every part.",
+    "salient_tokens": [
+      "XML"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/xmlsaver.go"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Generated XML follows ECMA-376's own element ordering; this preserves round-trip compatibility\n  but isn't independently configurable.",
+    "salient_tokens": [
+      "XML",
+      "ECMA"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/xmlsaver.go"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "These limitations don't apply to\n[Aspose.Cells for Go Enterprise Edition](https://products.aspose.com/cells/go-cpp/), which adds\nthe complete Excel formula function library, additional file-format coverage, and commercial\nsupport.",
+    "salient_tokens": [
+      "Aspose.Cells for Go Enterprise Edition",
+      "https://products.aspose.com/cells/go-cpp/"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Run the full test suite from the repository root:",
+    "salient_tokens": [],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "<details>\n<summary>More Test and Example Commands</summary>",
+    "salient_tokens": [],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Run only the integration tests (the public API surface):",
+    "salient_tokens": [
+      "API"
+    ],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Run every bundled example program:",
+    "salient_tokens": [],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "`examples/` is its own Go module, with a `replace` directive already pointing it back at the\nrepository root — the exact version named in its `require` line never needs to resolve to a real\npublished release, only to satisfy Go's own version-string syntax. If building or running anything\nunder `examples/` reports an invalid module version, replace that line's version with any\nwell-formed pseudo-version for major version 26 and re-run.",
+    "salient_tokens": [
+      "examples/",
+      "replace",
+      "require"
+    ],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/go.mod"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "Example programs under `examples/` write their output files to `examples/outputfiles/` (created\non first run) — avoid committing generated `.xlsx`/`.csv` files or that directory's contents.",
+    "salient_tokens": [
+      "examples/",
+      "examples/outputfiles/",
+      ".xlsx",
+      ".csv"
+    ],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/basic/main.go"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "For a complete usage walkthrough beyond this README, see the repository's own\n[docs/usage.md](docs/usage.md).",
+    "salient_tokens": [
+      "README",
+      "docs/usage.md"
+    ],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License"
+    ],
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {"input": "Font", "expected_slug": "Font", "note": "PEP 8 name unchanged"},
+  {"input": "FontLoader", "expected_slug": "FontLoader", "note": "CamelCase unchanged"},
+  {"input": "Outer.Inner", "expected_slug": "Outer_Inner", "note": "Dot replaced"},
+  {"input": "ns::Class", "expected_slug": "ns_Class", "note": "Double-colon collapsed"},
+  {"input": "List[int]", "expected_slug": "List_int_", "note": "Brackets replaced"},
+  {"input": "path/to/Class", "expected_slug": "path_to_Class", "note": "Forward slashes replaced"},
+  {"input": "ns\\Class", "expected_slug": "ns_Class", "note": "Backslash replaced"},
+  {"input": "Nullable?", "expected_slug": "Nullable_", "note": "Question mark replaced"},
+  {"input": "Generic<T>", "expected_slug": "Generic_T_", "note": "Angle brackets replaced"},
+  {"input": "Union|Type", "expected_slug": "Union_Type", "note": "Pipe replaced"},
+  {"input": "", "expected_slug": "", "note": "Empty string"},
+  {"input": "CMapFormat4", "expected_slug": "CMapFormat4", "note": "Digits preserved"}
+]

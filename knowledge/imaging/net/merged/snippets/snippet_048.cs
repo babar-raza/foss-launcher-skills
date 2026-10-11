@@ -1,0 +1,2 @@
+private static void AppendExplicitUShortBigEndian(ByteBuilder builder, int group, int element, int value) =>
+        builder.UInt16BE(group).UInt16BE(element).Ascii("US").UInt16BE(2).UInt16BE(value);

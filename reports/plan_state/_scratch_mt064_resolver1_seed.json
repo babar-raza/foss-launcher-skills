@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "SEO-SCHEMA-A-FAMILY-SET-TEST-DRIFT-RESOLVER-1",
+    "status": "READY",
+    "priority": "P2",
+    "wave": 5,
+    "dependencies": [],
+    "allowed_paths": ["scripts/seo/tests/test_schema_classification.py"],
+    "stage_limit": "IMPLEMENTED",
+    "title": "Pre-existing test drift: test_all_26_real_files_accounted_for's hardcoded expected file sets no longer match keywords/ (5 new Schema A families landed via commit b68089586a, 2026-08-02: svg, pub, finance, omr, gis -- unrelated to any MT064 card). Discovered running the full scripts/seo/tests regression suite during SEO-MAPURL-CASE-INSENSITIVE-RESOLVE (2026-09-05); not caused by that card's diff (map_url.py, test_map_url_resolution.py, conftest.py only). Fix: update _EXPECTED_SCHEMA_A (and _EXPECTED_SCHEMA_B if needed) to match the current real keywords/ directory contents, or make the test derive its expected set structurally instead of a hardcoded literal, per plan protocol's pre-existing-failure routing (open a resolver card, do not block selection).",
+    "source": "MT064 steady-state iteration it-0002, failure-routing resolver",
+    "evidence_refs": []
+  }
+]

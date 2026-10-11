@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stage2-taskcard-contract.schema.json",
+  "title": "Stage 2 taskcard contract (plan hardening)",
+  "description": "Derived verbatim from .supervisor/prompts/prompt2-plan-hardening.md — its 'Taskcard Requirements' field list, the issue-mapping dispositions, and the Plan Verdicts enum. Authored 2026-08-05 under MT021 TC-MT021-07 (backlog ST-060). NOTE: prompt2 declares taskcard `status` as 'valid enum from taskcard-state-machine.schema.json', but that schema does not exist and no authoritative status set exists in the repo (scripts/pipeline/lib/taskcard_store.py performs compare-and-set on arbitrary status strings and defines no enum). Rather than invent one, `status` is typed as a free string here and the dangling reference is flagged in prompt2 itself — see .supervisor/schemas/README.md.",
+  "type": "object",
+  "required": ["mission_id", "taskcards", "verdict"],
+  "properties": {
+    "mission_id": { "type": "string" },
+    "iteration": { "type": "integer" },
+    "every_actionable_finding_mapped": { "type": "boolean" },
+    "prose_only_findings": { "type": "integer" },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PLAN_HARDENED_FROM_AUDIT_READY_FOR_EXECUTION",
+        "PLAN_HARDENED_FROM_AUDIT_WITH_PARTIAL_CONTEXT",
+        "PLAN_NOT_READY_AUDIT_PLAN_MISMATCH",
+        "PLAN_NOT_READY_MISSING_ACTIVE_PLAN",
+        "PLAN_NOT_READY_MISSING_AUDIT_SUMMARY",
+        "BLOCKED_EXTERNAL"
+      ]
+    },
+    "issue_dispositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "disposition"],
+        "properties": {
+          "issue_id": { "type": "string" },
+          "disposition": {
+            "type": "string",
+            "enum": ["fixed_by_existing_plan_item", "new_plan_item_required",
+                     "updated_plan_item_required", "taskcard_required",
+                     "governance_change_required", "verification_only_required",
+                     "rejected_with_reason", "blocked_external"]
+          }
+        }
+      }
+    },
+    "taskcards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["taskcard_id", "title", "source_issue_ids", "why_it_matters",
+                     "status", "lane_owner", "required_implementation",
+                     "required_verification", "required_evidence",
+                     "acceptance_criteria", "stop_conditions", "allowed_paths",
+                     "forbidden_paths", "dependencies", "closeout_rules"],
+        "properties": {
+          "taskcard_id": { "type": "string" },
+          "title": { "type": "string" },
+          "source_issue_ids": { "type": "array", "items": { "type": "string" } },
+          "source_issue_level": { "type": "string" },
+          "source_audit_finding": { "type": "string" },
+          "why_it_matters": { "type": "string" },
+          "risk_addressed": { "type": "string" },
+          "status": { "type": "string" },
+          "lane_owner": { "type": "string" },
+          "supervisor_role": { "type": "string" },
+          "required_implementation": {},
+          "required_verification": {},
+          "required_evidence": {},
+          "quality_dimensions": {},
+          "scoring_rubric": {},
+          "reroute_rule_if_score_below_4": { "type": "string" },
+          "acceptance_criteria": {},
+          "stop_conditions": {},
+          "allowed_paths": { "type": "array", "items": { "type": "string" } },
+          "forbidden_paths": { "type": "array", "items": { "type": "string" } },
+          "dependencies": { "type": "array" },
+          "closeout_rules": {},
+          "machine_state": {},
+          "validation_commands": { "type": "array" }
+        }
+      }
+    }
+  }
+}

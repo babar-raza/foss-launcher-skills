@@ -1,0 +1,2738 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.PDF FOSS for C++ is a free, open-source, modern C++20 library for working with PDF\ndocuments — opening and saving existing files, extracting text, rasterising pages to image\nformats, and building documents from scratch (text, tables, vector graphics, watermarks,\nannotations, AcroForm fields, and bookmarks). It links against nothing but the C++ standard\nlibrary: every primitive, including the TIFF, JPEG, and PNG codecs and the page rasteriser, is\nimplemented from scratch with no dependency on any commercial PDF stack. Its public API is a\nstrict subset of the commercial Aspose.PDF for .NET library — class names, method names, and\nshapes mirror it where natural for migrants — and spec references throughout follow ISO 32000-1\n(PDF 1.7) and ISO 32000-2 (PDF 2.0).",
+    "salient_tokens": [
+      "PDF",
+      "FOSS",
+      "AcroForm",
+      "TIFF",
+      "JPEG",
+      "PNG",
+      "API",
+      "NET",
+      "ISO",
+      "1.7",
+      "2.0"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Intro"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "salient_tokens": [
+      "Dependencies",
+      "#dependencies"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Project Structure](#project-structure)",
+    "salient_tokens": [
+      "Project Structure",
+      "#project-structure"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- [Third-Party Notices](#third-party-notices)",
+    "salient_tokens": [
+      "Third-Party Notices",
+      "#third-party-notices"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Open, edit, and save existing PDF documents with `Document`, including byte-verbatim\n  round-trips or an incremental `/Info`-metadata update that preserves the original bytes; open\n  password-protected files by supplying the user or owner password to `Document(path, password)`,\n  with `IsEncrypted()` reporting the state.",
+    "salient_tokens": [
+      "Document",
+      "/Info",
+      "Document(path, password)",
+      "IsEncrypted()",
+      "PDF",
+      "IsEncrypted"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Extract text with `Text::TextAbsorber`, which walks a whole `Document` or a single `Page`, or\n  `Text::TextFragmentAbsorber` for positioned fragments with font, size, and colour.",
+    "salient_tokens": [
+      "Text::TextAbsorber",
+      "Document",
+      "Page",
+      "Text::TextFragmentAbsorber",
+      "TextAbsorber",
+      "TextFragmentAbsorber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Render pages to raster images through `PngDevice`, `JpegDevice`, and `BmpDevice` (single page\n  per call), or `TiffDevice` (single page, or a full multi-page document range in one call via\n  `Process(Document, startPage, endPage, ostream)`) — an anti-aliased renderer with no third-party\n  runtime dependency;\n  `TiffDevice` supports 1/4/8/24-bpp output with median-cut palette quantisation, or a\n  caller-supplied `IIndexBitmapConverter` (`Get1BppImage`/`Get4BppImage`/`Get8BppImage`) for\n  caller-controlled palette generation.",
+    "salient_tokens": [
+      "PngDevice",
+      "JpegDevice",
+      "BmpDevice",
+      "TiffDevice",
+      "Process(Document, startPage, endPage, ostream)",
+      "IIndexBitmapConverter",
+      "Get1BppImage",
+      "Get4BppImage",
+      "Get8BppImage",
+      "startPage",
+      "endPage"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Encrypt and decrypt with `Document::Encrypt(user, owner, permissions, algorithm)` — RC4-40,\n  RC4-128, AES-128, or AES-256 (PDF 2.0, R=6) — governed by a granular `Permissions` flags enum\n  (print, modify, extract, annotate, fill form, accessibility, assemble, high-res print).",
+    "salient_tokens": [
+      "Document::Encrypt(user, owner, permissions, algorithm)",
+      "Permissions",
+      "RC4",
+      "AES",
+      "PDF",
+      "2.0"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Sign documents with `Facades::PdfFileSignature`, which adds a detached PKCS#7\n  (`adbe.pkcs7.detached`) signature with a byte-exact `/ByteRange`.",
+    "salient_tokens": [
+      "Facades::PdfFileSignature",
+      "adbe.pkcs7.detached",
+      "/ByteRange",
+      "PdfFileSignature",
+      "PKCS",
+      "ByteRange"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Build documents from scratch: positioned and word-wrapped text through `Text::TextBuilder`,\n  `TextFragment`, and `TextParagraph` (with font lookup via `FontRepository::FindFont`), tabular\n  layout through `Table`/`Row`/`Cell` (column widths, per-cell and default borders, background\n  colours, and column-spanning cells), vector shapes through `Drawing::Graph` (`Line`, `Rectangle`,\n  `Circle`, `Ellipse`), and rotated, semi-transparent text overlays through `WatermarkArtifact`.",
+    "salient_tokens": [
+      "Text::TextBuilder",
+      "TextFragment",
+      "TextParagraph",
+      "FontRepository::FindFont",
+      "Table",
+      "Row",
+      "Cell",
+      "Drawing::Graph",
+      "Line",
+      "Rectangle",
+      "Circle",
+      "Ellipse",
+      "WatermarkArtifact",
+      "TextBuilder",
+      "FontRepository",
+      "FindFont"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- References to the Standard-14 fonts (`/Helvetica`, `/Times-Roman`, `/Courier`, four styles\n  each) without an embedded `/FontFile` paint correctly via system fonts, falling back to bundled\n  Liberation substitutes (SIL OFL 1.1) so glyphs render even in fontless Linux/CI containers; text\n  extracted through `TextDevice` goes through a pluggable `Encoding` — a BCL\n  `System.Text.Encoding`-style charset codec supporting UTF-8, UTF-16LE, UTF-16BE, Latin-1, and\n  Windows-1252 output.",
+    "salient_tokens": [
+      "/Helvetica",
+      "/Times-Roman",
+      "/Courier",
+      "/FontFile",
+      "TextDevice",
+      "Encoding",
+      "System.Text.Encoding",
+      "FontFile",
+      "SIL",
+      "OFL",
+      "CI",
+      "BCL",
+      "UTF",
+      "1.1"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- Add and manage annotations across a gallery of subtypes — `Highlight`, `Underline`, `Squiggly`,\n  `StrikeOut`, `Square`, `Circle`, `Line`, `Ink`, `Text` (sticky note), `FreeText`, `Stamp`, `Link`\n  (with `GoToAction`/`GoToURIAction`), and `FileAttachment` — each with a pre-generated `/AP`\n  appearance stream so it renders in any spec-conforming viewer.",
+    "salient_tokens": [
+      "Highlight",
+      "Underline",
+      "Squiggly",
+      "StrikeOut",
+      "Square",
+      "Circle",
+      "Line",
+      "Ink",
+      "Text",
+      "FreeText",
+      "Stamp",
+      "Link",
+      "GoToAction",
+      "GoToURIAction",
+      "FileAttachment",
+      "/AP",
+      "AP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Add interactive AcroForm fields — `TextBoxField`, `CheckboxField`, `RadioButtonField`,\n  `ComboBoxField`, `ListBoxField`, and push-button `ButtonField` — through the `Form` class\n  (`Document::Form()`), and flatten every field into static page content with `Form::Flatten()`.",
+    "salient_tokens": [
+      "TextBoxField",
+      "CheckboxField",
+      "RadioButtonField",
+      "ComboBoxField",
+      "ListBoxField",
+      "ButtonField",
+      "Form",
+      "Document::Form()",
+      "Form::Flatten()",
+      "AcroForm"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- Define a hierarchical outline (bookmark) tree with `OutlineItemCollection`, bold/italic styling,\n  and `XYZExplicitDestination` targets; define reusable `NamedDestination`s; and attach\n  document-level companion files via `Document::EmbeddedFiles()`.",
+    "salient_tokens": [
+      "OutlineItemCollection",
+      "XYZExplicitDestination",
+      "NamedDestination",
+      "Document::EmbeddedFiles()",
+      "EmbeddedFiles"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- Read and write document metadata through typed `DocumentInfo` accessors (title, author,\n  subject, keywords, creator, producer, dates) plus `Add`/`Remove`/`ClearCustomData` for\n  arbitrary entries, and read XMP metadata via `Metadata`.",
+    "salient_tokens": [
+      "DocumentInfo",
+      "Add",
+      "Remove",
+      "ClearCustomData",
+      "Metadata",
+      "XMP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- Use the classic `Aspose::Pdf::Facades` API — `PdfConverter` (rasterise a PDF to multi-page TIFF\n  or per-page PNG), `PdfExtractor` (text extraction honouring `StartPage`/`EndPage`),\n  `PdfFileSecurity` (encrypt/decrypt/change passwords), `PdfFileSignature` (sign),\n  `PdfBookmarkEditor` (create/extract bookmarks), `PdfFileEditor` (concatenate and split\n  documents via `Concatenate`/`SplitFromFirst`/`SplitToEnd`/`SplitToPages`), and `PdfFileStamp`\n  (page header/footer/page-number stamping via `AddHeader`/`AddFooter`/`AddPageNumber`) — each\n  binding independently to a `Document`.",
+    "salient_tokens": [
+      "Aspose::Pdf::Facades",
+      "PdfConverter",
+      "PdfExtractor",
+      "StartPage",
+      "EndPage",
+      "PdfFileSecurity",
+      "PdfFileSignature",
+      "PdfBookmarkEditor",
+      "PdfFileEditor",
+      "Concatenate",
+      "SplitFromFirst",
+      "SplitToEnd",
+      "SplitToPages",
+      "PdfFileStamp",
+      "AddHeader",
+      "AddFooter",
+      "AddPageNumber",
+      "Document",
+      "API",
+      "PDF",
+      "TIFF",
+      "PNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "No prebuilt package has been published for this library yet — it builds as a static library you\nlink into your project. Add it as a subdirectory of your CMake build:",
+    "salient_tokens": [
+      "CMake"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- A C++20 compiler (clang 16+, gcc 13+, or MSVC 2022 17.5+)",
+    "salient_tokens": [
+      "MSVC",
+      "17.5"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- CMake 3.20 or later",
+    "salient_tokens": [
+      "CMake",
+      "3.20"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- Python 3, build-time only — a generator step embeds the bundled font outlines into a generated\n  source file",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "**Runtime dependencies: none.** The test suite alone fetches\n[GoogleTest](https://github.com/google/googletest) v1.14.0 via CMake `FetchContent` at configure\ntime; it is not needed to build or consume the library itself.",
+    "salient_tokens": [
+      "FetchContent",
+      "GoogleTest",
+      "CMake",
+      "14.0",
+      "https://github.com/google/googletest"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "The static library lands at `build/libaspose_pdf_foss.a` (or `aspose_pdf_foss.lib` on MSVC), built\nout-of-source under `build/`. For a release build, pass `-DCMAKE_BUILD_TYPE=Release` to the\nconfigure step. `CMakePresets.json` also carries host-conditional Windows-MSVC presets — e.g.\n`cmake --preset windows-msvc-debug`.",
+    "salient_tokens": [
+      "build/libaspose_pdf_foss.a",
+      "aspose_pdf_foss.lib",
+      "build/",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "CMakePresets.json",
+      "cmake --preset windows-msvc-debug",
+      "MSVC",
+      "CMakePresets"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `Python3` — required by the CMake configure step\n  (`find_package(Python3 REQUIRED COMPONENTS Interpreter)` in `CMakeLists.txt`) to run a\n  generator script that embeds the bundled Standard-14 font outlines into a generated source\n  file; needed only to configure/build the library, not by the compiled library at runtime.",
+    "salient_tokens": [
+      "Python3",
+      "find_package(Python3 REQUIRED COMPONENTS Interpreter)",
+      "CMakeLists.txt",
+      "CMake",
+      "REQUIRED",
+      "COMPONENTS",
+      "CMakeLists"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Dependencies"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "Open a PDF, count its pages, extract text, and render page 1 to PNG at 150 DPI:",
+    "salient_tokens": [
+      "PDF",
+      "PNG",
+      "DPI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Quick Start"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "Additional Examples below extends this into a from-scratch showcase\n([`examples/12_create_features.cpp`](examples/12_create_features.cpp), one of the 12 programs\nunder `examples/` — see `examples/README.md`, built via `cmake --build build` into\n`build/examples/<name>`): `Table`/`Row`/`Cell` layouts, `Drawing::Graph`\nshapes (`Line`, `Rectangle`, `Circle`, `Ellipse`), annotations and AcroForm fields with a\npre-generated `/AP` appearance stream, `Form::Flatten()`-ready fields (`TextBoxField`,\n`CheckboxField`, `RadioButtonField`, `ComboBoxField`, `ListBoxField`, `ButtonField`), an outline\n(bookmark) tree, `CryptoAlgorithm`-based encryption (`RC4x40`/`RC4x128`/`AESx128`/`AESx256`) with\na `[Flags]` `Permissions` enum (not a DRM mechanism), a digital-signature walkthrough (see\n`tests/facades_pdf_file_signature_smoke_test.cpp`), the `/Info`-metadata gotcha for from-scratch\ndocuments, and the by-reference lifetime rule for `Paragraphs`/`Annotations`/`Form`/`Artifacts`/\n`Outlines` — each parked in a `shared_ptr` until `Save()`.",
+    "salient_tokens": [
+      "examples/12_create_features.cpp",
+      "examples/",
+      "examples/README.md",
+      "cmake --build build",
+      "build/examples/<name>",
+      "Table",
+      "Row",
+      "Cell",
+      "Drawing::Graph",
+      "Line",
+      "Rectangle",
+      "Circle",
+      "Ellipse",
+      "/AP",
+      "Form::Flatten()",
+      "TextBoxField",
+      "CheckboxField",
+      "RadioButtonField",
+      "ComboBoxField",
+      "ListBoxField",
+      "ButtonField",
+      "CryptoAlgorithm",
+      "RC4x40",
+      "RC4x128",
+      "AESx128",
+      "AESx256",
+      "[Flags]",
+      "Permissions",
+      "tests/facades_pdf_file_signature_smoke_test.cpp",
+      "/Info",
+      "Paragraphs",
+      "Annotations",
+      "Form",
+      "Artifacts",
+      "Outlines",
+      "shared_ptr",
+      "Save()",
+      "README",
+      "AcroForm",
+      "AP",
+      "DRM",
+      "`examples/12_create_features.cpp`"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Quick Start"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "12 runnable examples live in [`examples/`](examples/), covering the whole public surface —\nopening documents, metadata, text extraction, save round-trips, every raster device, and a\nfrom-scratch content-creation showcase. After `cmake --build build`, executables land at\n`build/examples/<name>`; run them in numeric order, since each builds on the previous (see\n[`examples/README.md`](examples/README.md) for the full tour).",
+    "salient_tokens": [
+      "examples/",
+      "cmake --build build",
+      "build/examples/<name>",
+      "examples/README.md",
+      "README",
+      "`examples/`",
+      "`examples/README.md`"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "The most illustrative beyond Quick Start is `12_create_features`, a 10-page showcase exercising\nthe whole creation surface — positioned text, a table, vector graphics, and a watermark, built\nonto a page from an empty `Document`:",
+    "salient_tokens": [
+      "12_create_features",
+      "Document"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "> **Lifetime rule for creation.** `Paragraphs`, `Annotations`, `Form`, `Artifacts`, and `Outlines`\n> store the object added to them **by reference**, so every table, graph, annotation, field,\n> watermark, and outline item must outlive `Save()`.",
+    "salient_tokens": [
+      "Paragraphs",
+      "Annotations",
+      "Form",
+      "Artifacts",
+      "Outlines",
+      "Save()"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "| Example | Shows |\n|---|---|\n| `01_pages` | open a PDF, count pages, iterate the 1-based indexer |\n| `02_read_metadata` / `03_write_metadata` | read `DocumentInfo`; edit + incremental-update save |\n| `04_text_extraction` | `TextAbsorber::Visit(Document)` |\n| `05_save_roundtrip` | byte-verbatim save |\n| `06_devices_surface` | construct + round-trip device properties |\n| `07_render_png` | end-to-end `PngDevice::Process(Page, ostream)` |\n| `08_render_tiff` | multi-page TIFF via `TiffDevice::Process(Document, …)` |\n| `09_indexed_tiff` | 8-bpp palettised TIFF (median-cut) |\n| `10_render_text_pdf` | render a page with an embedded TrueType font |\n| `11_render_standard14` | render `/Helvetica` with no embedded font (fallback path) |\n| `12_create_features` | from-scratch 10-page showcase: text, image, tables, graphics, annotations, AcroForm fields, bookmarks |",
+    "salient_tokens": [
+      "01_pages",
+      "02_read_metadata",
+      "03_write_metadata",
+      "DocumentInfo",
+      "04_text_extraction",
+      "TextAbsorber::Visit(Document)",
+      "05_save_roundtrip",
+      "06_devices_surface",
+      "07_render_png",
+      "PngDevice::Process(Page, ostream)",
+      "08_render_tiff",
+      "TiffDevice::Process(Document, …)",
+      "09_indexed_tiff",
+      "10_render_text_pdf",
+      "11_render_standard14",
+      "/Helvetica",
+      "12_create_features",
+      "PDF",
+      "TextAbsorber",
+      "PngDevice",
+      "TIFF",
+      "TiffDevice",
+      "TrueType",
+      "AcroForm"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "Read existing `/Info` entries and update the document title through `DocumentInfo`:",
+    "salient_tokens": [
+      "/Info",
+      "DocumentInfo"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "> The incremental-update writer patches an existing `/Info` object; a from-scratch document has\n> no `/Info` to patch, so setting metadata on one and saving throws.",
+    "salient_tokens": [
+      "/Info"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "`CryptoAlgorithm` covers `RC4x40`, `RC4x128`, `AESx128`, and `AESx256`. `Permissions` is a\n`[Flags]` enum (ISO 32000-1 §7.6.3.2 Table 22) — compose with `|`. Permissions are enforced by\nviewers; the library itself is not a DRM mechanism.",
+    "salient_tokens": [
+      "CryptoAlgorithm",
+      "RC4x40",
+      "RC4x128",
+      "AESx128",
+      "AESx256",
+      "Permissions",
+      "[Flags]",
+      "|",
+      "ISO",
+      "DRM",
+      "7.6.3.2"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "See [`tests/facades_pdf_file_signature_smoke_test.cpp`](tests/facades_pdf_file_signature_smoke_test.cpp)\nfor the full signing flow.",
+    "salient_tokens": [
+      "tests/facades_pdf_file_signature_smoke_test.cpp",
+      "`tests/facades_pdf_file_signature_smoke_test.cpp`"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "Available subtypes: `Highlight`, `Underline`, `Squiggly`, `StrikeOut`, `Square`, `Circle`, `Line`,\n`Ink`, `Text`, `FreeText`, `Stamp`, `Link` (with `GoToAction`/`GoToURIAction`), `FileAttachment`.",
+    "salient_tokens": [
+      "Highlight",
+      "Underline",
+      "Squiggly",
+      "StrikeOut",
+      "Square",
+      "Circle",
+      "Line",
+      "Ink",
+      "Text",
+      "FreeText",
+      "Stamp",
+      "Link",
+      "GoToAction",
+      "GoToURIAction",
+      "FileAttachment"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "Field types: `TextBoxField`, `CheckboxField`, `RadioButtonField`, `ComboBoxField`, `ListBoxField`,\n`ButtonField`.",
+    "salient_tokens": [
+      "TextBoxField",
+      "CheckboxField",
+      "RadioButtonField",
+      "ComboBoxField",
+      "ListBoxField",
+      "ButtonField"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "`PdfConverter` also exposes a per-page cursor — `HasNextImage()`/`GetNextImage(outputFile)` — for\nwalking pages one at a time as PNGs via `Devices::PngDevice`, and `PageCount()` for the real page\ncount.",
+    "salient_tokens": [
+      "PdfConverter",
+      "HasNextImage()",
+      "GetNextImage(outputFile)",
+      "Devices::PngDevice",
+      "PageCount()",
+      "HasNextImage",
+      "GetNextImage",
+      "outputFile",
+      "PNGs",
+      "PngDevice",
+      "PageCount"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "Public-facing headers and their implementations sit under `include/aspose/pdf/` and `src/public/`;\ninternal foundation primitives (codecs, the rasteriser, crypto) live separately under\n`include/internal/` and `src/internal/`:",
+    "salient_tokens": [
+      "include/aspose/pdf/",
+      "src/public/",
+      "include/internal/",
+      "src/internal/"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Project Structure"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "Aspose.PDF FOSS for C++ exposes 244 public types across 5 modules — Core API, Annotations,\nDrawing, Facades, and Forms — listed in the table below; curated member detail for the\nmost-used entry points follows below it.",
+    "salient_tokens": [
+      "PDF",
+      "FOSS",
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "<details>\n<summary>View the Public API Surface</summary>",
+    "salient_tokens": [
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Artifact` | Class with 14 methods. |\n| `ArtifactCollection` | Class with 7 methods and 1 property. |\n| `BaseParagraph` | Class with 23 methods and 1 property. |\n| `BitmapInfo` | BitmapInfo enables creation of raw bitmap images with specified pixel format, width, height, and pixel data, supporting image handling without external dependencies. |\n| `BmpDevice` | Class with 1 method. |\n| `BorderInfo` | Class with 10 methods. |\n| `Cell` | Class with 27 methods. |\n| `Cells` | Class with 9 methods. |\n| `Color` | Class with 147 methods. |\n| `Device` | The Device base class provides a virtual destructor, ensuring proper cleanup of derived raster‑device objects such as PngDevice or JpegDevice. |\n| `Document` | Document metadata can be read via `Document.Info()` and the accessor methods `Title()`, `Author()`, `Creator()`, `Producer()`, `Subject()`, and `Keywords()`. |\n| `DocumentDevice` | Class with 4 methods. |\n| `DocumentInfo` | Class with 24 methods and 1 property. |\n| `DocumentPrivilege` | Class with 34 methods. |\n| `EmbeddedFileCollection` | Class with 9 methods. |\n| `FileSpecification` | FileSpecification objects allow setting metadata for embedded files, including MIME type, description, Unicode name, and compression via the Encoding property. |\n| `FloatingBox` | Class with 12 methods. |\n| `Font` | The Font class lets developers query whether a font is embedded in the PDF and whether it is subsetted, enabling compliance checks for PDF/A. |\n| `FontRepository` | Class with 2 methods. |\n| `GraphInfo` | Class with 25 methods. |\n| `Hyperlink` | Class with 6 methods and 1 property. |\n| `ImageDevice` | Class with 10 methods. |\n| `JpegDevice` | Class with 1 method. |\n| `LoadOptions` | Class with 3 methods. |\n| `MarginInfo` | MarginInfo allows precise control of page margins with double-precision getters and setters for left, right, top, and bottom values. |\n| `Margins` | Class with 8 methods. |\n| `Metadata` | Metadata class implements a dictionary-like interface with Add(key, value), Remove(key), and TryGetValue(key, value) for managing XMP metadata entries. |\n| `NamedDestinationCollection` | Class with 6 methods and 1 property. |\n| `OutlineCollection` | Class in the PDF C++ API. |\n| `OutlineItemCollection` | Class with 18 methods. |\n| `Outlines` | Class with 12 methods. |\n| `Page` | Page labels (e.g., Roman numerals, custom prefixes) are managed through PageLabel and PageLabelCollection classes. |\n| `PageCollection` | The PageCollection class provides methods to add a new blank page, insert a page at a specific position, and delete pages by number or range. |\n| `PageDevice` | PageDevice.Process(page, outputFileName) can render a page directly to a file path. |\n| `PageLabel` | PageLabel.StartingValue() gets or sets the numeric start for a page label sequence. |\n| `PageLabelCollection` | PageLabelCollection.GetLabel(pageIndex) retrieves the PageLabel assigned to a specific page. |\n| `PageSize` | PageSize.Width() and Height() get or set the page dimensions, while IsLandscape() indicates orientation. |\n| `Paragraphs` | Class with 6 methods. |\n| `PngDevice` | Class with 3 methods. |\n| `Point` | Class with 6 methods. |\n| `Position` | The Position class provides XIndent and YIndent getters and setters to fine‑tune the horizontal and vertical offset of annotations. |\n| `Rectangle-Aspose_Pdf` | Class with 28 methods. |\n| `RenderingOptions` | Class with 26 methods. |\n| `Resolution` | Resolution stores horizontal and vertical DPI via X() and Y() getters and setters. |\n| `Resources` | Class with 3 methods and 1 property. |\n| `Row` | Class with 23 methods. |\n| `Rows` | Rows and Row classes provide a table model for building PDF tables with per‑cell styling, borders, and padding. |\n| `SvgLoadOptions` | SvgLoadOptions allows SVG files to be imported with optional page‑size adjustment via the AdjustPageSize property. |\n| `Table` | The Table class lets developers construct PDF tables with full control over rows, column widths, borders, cell padding, and default text state. |\n| `TextAbsorber` | Class with 6 methods and 1 property. |\n| `TextBuilder` | Class with 2 methods. |\n| `TextDevice` | Class with 3 methods. |\n| `TextFragment` | Class with 7 methods. |\n| `TextFragmentAbsorber` | Class with 4 methods. |\n| `TextFragmentCollection` | Class with 2 methods. |\n| `TextFragmentState` | Class with 1 method. |\n| `TextParagraph` | Class with 18 methods. |\n| `TextState` | The TextState class provides getters and setters for font, font size, foreground/background/stroking colors, and text decorations such as underline, strike‑out, subscript, and superscript. |\n| `TiffDevice` | Class with 11 methods. |\n| `TiffSettings` | Class with 13 methods. |\n| `WatermarkArtifact` | Class in the PDF C++ API. |\n| `XImage` | XImage exposes the pixel dimensions of an image via Width() and Height() methods. |\n| `XImageCollection` | XImageCollection manages multiple XImage objects, providing Add, Replace, Delete, and Clear operations. |\n| `XmpValue` | XmpValue provides conversion helpers: ToString(), ToInteger(), ToDouble(), ToArray(), and type‑query methods such as IsString() and IsArray(). |",
+    "salient_tokens": [
+      "Artifact",
+      "ArtifactCollection",
+      "BaseParagraph",
+      "BitmapInfo",
+      "BmpDevice",
+      "BorderInfo",
+      "Cell",
+      "Cells",
+      "Color",
+      "Device",
+      "Document",
+      "Document.Info()",
+      "Title()",
+      "Author()",
+      "Creator()",
+      "Producer()",
+      "Subject()",
+      "Keywords()",
+      "DocumentDevice",
+      "DocumentInfo",
+      "DocumentPrivilege",
+      "EmbeddedFileCollection",
+      "FileSpecification",
+      "FloatingBox",
+      "Font",
+      "FontRepository",
+      "GraphInfo",
+      "Hyperlink",
+      "ImageDevice",
+      "JpegDevice",
+      "LoadOptions",
+      "MarginInfo",
+      "Margins",
+      "Metadata",
+      "NamedDestinationCollection",
+      "OutlineCollection",
+      "OutlineItemCollection",
+      "Outlines",
+      "Page",
+      "PageCollection",
+      "PageDevice",
+      "PageLabel",
+      "PageLabelCollection",
+      "PageSize",
+      "Paragraphs",
+      "PngDevice",
+      "Point",
+      "Position",
+      "Rectangle-Aspose_Pdf",
+      "RenderingOptions",
+      "Resolution",
+      "Resources",
+      "Row",
+      "Rows",
+      "SvgLoadOptions",
+      "Table",
+      "TextAbsorber",
+      "TextBuilder",
+      "TextDevice",
+      "TextFragment",
+      "TextFragmentAbsorber",
+      "TextFragmentCollection",
+      "TextFragmentState",
+      "TextParagraph",
+      "TextState",
+      "TiffDevice",
+      "TiffSettings",
+      "WatermarkArtifact",
+      "XImage",
+      "XImageCollection",
+      "XmpValue",
+      "MIME",
+      "PDF",
+      "TryGetValue",
+      "XMP",
+      "API",
+      "outputFileName",
+      "StartingValue",
+      "GetLabel",
+      "pageIndex",
+      "IsLandscape",
+      "XIndent",
+      "YIndent",
+      "DPI",
+      "SVG",
+      "AdjustPageSize",
+      "ToString",
+      "ToInteger",
+      "ToDouble",
+      "ToArray",
+      "IsString",
+      "IsArray"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AFRelationship` | Enum with 7 members. |\n| `BorderSide` | Enum with 7 members. |\n| `ColorDepth` | Enum with 5 members. |\n| `CompressionType` | Enum with 5 members. |\n| `CryptoAlgorithm` | Enum with 4 members. |\n| `FileEncoding` | Enum with 2 members. |\n| `FormPresentationMode` | Enum with 2 members. |\n| `HorizontalAlignment` | Enum with 6 members. |\n| `NumberingStyle` | Enum with 6 members. |\n| `PageCoordinateType` | PageCoordinateType enum values MediaBox and CropBox let developers choose which page rectangle is used for coordinate calculations. |\n| `PasswordType` | Enum with 4 members. |\n| `PdfFormat` | Enum with 27 members. |\n| `Permissions` | Enum with 8 members. |\n| `Rotation` | Rotation enum provides four orientation values: None, on90, on180, on270. |\n| `ShapeType` | Enum with 3 members. |\n| `VerticalAlignment` | Enum with 4 members. |",
+    "salient_tokens": [
+      "AFRelationship",
+      "BorderSide",
+      "ColorDepth",
+      "CompressionType",
+      "CryptoAlgorithm",
+      "FileEncoding",
+      "FormPresentationMode",
+      "HorizontalAlignment",
+      "NumberingStyle",
+      "PageCoordinateType",
+      "PasswordType",
+      "PdfFormat",
+      "Permissions",
+      "Rotation",
+      "ShapeType",
+      "VerticalAlignment",
+      "MediaBox",
+      "CropBox"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Annotation` | Class with 36 methods. |\n| `AnnotationCollection` | Class with 11 methods. |\n| `AnnotationSelector` | Class with 35 methods and 1 property. |\n| `BleedMarkAnnotation` | BleedMarkAnnotation.Accept(visitor) implements the visitor pattern, allowing external visitor objects to process the annotation without exposing its internal structure. |\n| `Border` | Border appearance can be customized by setting its Width, Style, Effect, EffectIntensity, and corner radii via the Border class methods. |\n| `CaretAnnotation` | Class with 5 methods. |\n| `Characteristics` | Class with 3 methods. |\n| `CircleAnnotation` | Class with 1 method. |\n| `ColorBarAnnotation` | Class with 3 methods. |\n| `CommonFigureAnnotation` | Class with 5 methods. |\n| `CornerPrinterMarkAnnotation` | Class with 2 methods. |\n| `DefaultAppearance` | Class with 8 methods. |\n| `ExplicitDestination` | Class with 3 methods. |\n| `FileAttachmentAnnotation` | FileAttachmentAnnotation.File() gets or sets the attached file via a FileSpecification object, allowing embedding of external resources in a PDF. |\n| `FitBExplicitDestination` | Class with 1 method. |\n| `FitBHExplicitDestination` | Class with 2 methods. |\n| `FitBVExplicitDestination` | Class with 2 methods. |\n| `FitExplicitDestination` | Class with 1 method. |\n| `FitHExplicitDestination` | Class with 2 methods. |\n| `FitRExplicitDestination` | Class with 5 methods. |\n| `FitVExplicitDestination` | Class with 2 methods. |\n| `FreeTextAnnotation` | Class with 23 methods. |\n| `GoToAction` | Class with 4 methods. |\n| `GoToURIAction` | Class with 4 methods. |\n| `HighlightAnnotation` | Class with 1 method. |\n| `InkAnnotation` | InkAnnotation represents free‑hand ink strokes; its InkList property holds a StrokeList that can be read or replaced. |\n| `JavascriptAction` | JavascriptAction encapsulates a JavaScript snippet attached to PDF objects; the script can be retrieved or updated via Script() getter/setter. |\n| `LineAnnotation` | Class with 25 methods. |\n| `LinkAnnotation` | LinkAnnotation enables clickable areas in a PDF that can trigger a PdfAction or navigate to a named destination. |\n| `MarkupAnnotation` | MarkupAnnotation provides methods to set review state, opacity, title, and rich text for comment‑type annotations. |\n| `MovieAnnotation` | MovieAnnotation lets you embed a video file in a PDF, with properties for title, poster flag, aspect ratio, and rotation. |\n| `NamedAction` | Class with 3 methods. |\n| `NamedDestination` | Class with 2 methods. |\n| `PageInformationAnnotation` | Class with 1 method. |\n| `PdfAction` | PdfAction.GetECMAScriptString() returns the JavaScript code attached to a PDF action, enabling inspection or modification of interactive scripts. |\n| `PolyAnnotation` | Class with 11 methods. |\n| `PolygonAnnotation` | Class with 1 method. |\n| `PolylineAnnotation` | Class with 1 method. |\n| `PopupAnnotation` | Class with 5 methods. |\n| `PrinterMarkAnnotation` | PrinterMarkAnnotation can insert printer marks such as trim, bleed, registration, or colour bars into an entire document or a single page via AddPrinterMarks. |\n| `RedactionAnnotation` | RedactionAnnotation lets you permanently remove content while optionally overlaying custom text, fill colour, border colour and font size. |\n| `RegistrationMarkAnnotation` | Class with 3 methods. |\n| `RichMediaAnnotation` | RichMediaAnnotation enables embedding of Flash or other rich media with activation events and custom variables. |\n| `ScreenAnnotation` | Class with 3 methods. |\n| `SoundAnnotation` | Class with 3 methods. |\n| `SquareAnnotation` | Class with 1 method. |\n| `SquigglyAnnotation` | Class with 1 method. |\n| `StampAnnotation` | Class with 5 methods. |\n| `StrikeOutAnnotation` | Class with 1 method. |\n| `SubmitFormAction` | Class with 5 methods. |\n| `TextAnnotation` | Class with 5 methods. |\n| `TextMarkupAnnotation` | Class with 4 methods. |\n| `TextStyle` | Class with 9 methods. |\n| `TrimMarkAnnotation` | TrimMarkAnnotation and UnderlineAnnotation both support the visitor pattern via an Accept method that forwards the annotation to a visitor object. |\n| `UnderlineAnnotation` | Class with 1 method. |\n| `WatermarkAnnotation` | WatermarkAnnotation enables adding a visual watermark to a PDF page and lets developers control its transparency. |\n| `WidgetAnnotation` | WidgetAnnotation provides access to AcroForm field attributes such as ReadOnly, Required, Exportable, and DefaultAppearance. |\n| `XYZExplicitDestination` | XYZExplicitDestination supplies explicit page view coordinates via Left(), Top() and Zoom() methods. |",
+    "salient_tokens": [
+      "Annotation",
+      "AnnotationCollection",
+      "AnnotationSelector",
+      "BleedMarkAnnotation",
+      "Border",
+      "CaretAnnotation",
+      "Characteristics",
+      "CircleAnnotation",
+      "ColorBarAnnotation",
+      "CommonFigureAnnotation",
+      "CornerPrinterMarkAnnotation",
+      "DefaultAppearance",
+      "ExplicitDestination",
+      "FileAttachmentAnnotation",
+      "FitBExplicitDestination",
+      "FitBHExplicitDestination",
+      "FitBVExplicitDestination",
+      "FitExplicitDestination",
+      "FitHExplicitDestination",
+      "FitRExplicitDestination",
+      "FitVExplicitDestination",
+      "FreeTextAnnotation",
+      "GoToAction",
+      "GoToURIAction",
+      "HighlightAnnotation",
+      "InkAnnotation",
+      "JavascriptAction",
+      "LineAnnotation",
+      "LinkAnnotation",
+      "MarkupAnnotation",
+      "MovieAnnotation",
+      "NamedAction",
+      "NamedDestination",
+      "PageInformationAnnotation",
+      "PdfAction",
+      "PolyAnnotation",
+      "PolygonAnnotation",
+      "PolylineAnnotation",
+      "PopupAnnotation",
+      "PrinterMarkAnnotation",
+      "RedactionAnnotation",
+      "RegistrationMarkAnnotation",
+      "RichMediaAnnotation",
+      "ScreenAnnotation",
+      "SoundAnnotation",
+      "SquareAnnotation",
+      "SquigglyAnnotation",
+      "StampAnnotation",
+      "StrikeOutAnnotation",
+      "SubmitFormAction",
+      "TextAnnotation",
+      "TextMarkupAnnotation",
+      "TextStyle",
+      "TrimMarkAnnotation",
+      "UnderlineAnnotation",
+      "WatermarkAnnotation",
+      "WidgetAnnotation",
+      "XYZExplicitDestination",
+      "EffectIntensity",
+      "FileSpecification",
+      "PDF",
+      "InkList",
+      "StrokeList",
+      "JavaScript",
+      "GetECMAScriptString",
+      "AddPrinterMarks",
+      "AcroForm",
+      "ReadOnly"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AnnotationFlags` | AnnotationFlags enum includes a Locked flag that, when set, prevents further modifications to the annotation's properties. |\n| `AnnotationState` | Enum with 7 members. |\n| `AnnotationStateModel` | Enum with 3 members. |\n| `AnnotationType` | Enum with 33 members. |\n| `BorderEffect` | Enum with 2 members. |\n| `BorderStyle` | Enum with 5 members. |\n| `CapStyle` | Enum with 2 members. |\n| `CaptionPosition` | Enum with 2 members. |\n| `CaretSymbol` | Enum with 2 members. |\n| `ColorsOfCMYK` | Enum with 4 members. |\n| `ExplicitDestinationType` | Enum with 8 members. |\n| `FileIcon` | Enum with 4 members. |\n| `FreeTextIntent` | Enum with 4 members. |\n| `HighlightingMode` | Enum with 5 members. |\n| `Justification` | Enum with 3 members. |\n| `LineEnding` | Enum with 10 members. |\n| `LineIntent` | Enum with 3 members. |\n| `PolyIntent` | Enum with 4 members. |\n| `PredefinedAction` | Enum with 71 members. |\n| `PrinterMarkCornerPosition` | Enum with 4 members. |\n| `PrinterMarkSidePosition` | Enum with 4 members. |\n| `PrinterMarksKind` | Enum with 7 members. |\n| `ReplyType` | ReplyType enum distinguishes between Reply, Group, and Undefined reply categories. |\n| `RichTextFontStyles` | Enum with 4 members. |\n| `SoundIcon` | Enum with 2 members. |\n| `StampIcon` | Enum with 14 members. |\n| `TextAlignment` | Enum with 3 members. |\n| `TextIcon` | Enum with 15 members. |",
+    "salient_tokens": [
+      "AnnotationFlags",
+      "AnnotationState",
+      "AnnotationStateModel",
+      "AnnotationType",
+      "BorderEffect",
+      "BorderStyle",
+      "CapStyle",
+      "CaptionPosition",
+      "CaretSymbol",
+      "ColorsOfCMYK",
+      "ExplicitDestinationType",
+      "FileIcon",
+      "FreeTextIntent",
+      "HighlightingMode",
+      "Justification",
+      "LineEnding",
+      "LineIntent",
+      "PolyIntent",
+      "PredefinedAction",
+      "PrinterMarkCornerPosition",
+      "PrinterMarkSidePosition",
+      "PrinterMarksKind",
+      "ReplyType",
+      "RichTextFontStyles",
+      "SoundIcon",
+      "StampIcon",
+      "TextAlignment",
+      "TextIcon"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Circle` | Class with 7 methods. |\n| `Ellipse` | Class with 9 methods. |\n| `Graph` | Class with 16 methods. |\n| `Line` | Class with 3 methods. |\n| `Rectangle-Aspose_Pdf_Drawing` | Class with 11 methods. |\n| `Shape` | Class with 4 methods. |",
+    "salient_tokens": [
+      "Circle",
+      "Ellipse",
+      "Graph",
+      "Line",
+      "Rectangle-Aspose_Pdf_Drawing",
+      "Shape"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AlignmentType` | Class with 4 methods. |\n| `Bookmark` | Class with 35 methods. |\n| `Bookmarks` | Bookmarks can be organized hierarchically; use Bookmark.ChildItem() or Bookmark.ChildItems() to access nested Bookmarks and set properties such as Action, Destination, and display flags like BoldFlag and ItalicFlag. |\n| `Facade` | Facade.BindPdf overloads accept either a file path string (srcFile) or an existing `Aspose::Pdf::Document` (srcDoc) to load PDF content. |\n| `FormEditor` | Class with 53 methods. |\n| `FormFieldFacade` | Class with 30 methods and 26 properties. |\n| `PdfAnnotationEditor` | PdfAnnotationEditor can import annotations from FDF or XFDF files and flatten them into the page content, removing interactive elements. |\n| `PdfBookmarkEditor` | PdfBookmarkEditor.CreateBookmarkOfPage(title, pageNumber) adds a new bookmark that points to the specified page. |\n| `PdfContentEditor` | PdfContentEditor.ReplaceText(srcText, destText) searches the entire document and replaces matching strings, returning true when at least one replacement occurs. |\n| `PdfConverter` | Class with 37 methods. |\n| `PdfExtractor` | PdfExtractor extracts text by calling ExtractText() and then GetText(outputFile) to write the extracted plain‑text to a file. |\n| `PdfFileEditor` | Class with 72 methods. |\n| `PdfFileInfo` | PdfFileInfo provides getters and setters for standard metadata fields such as Author, Creator, and custom keys via GetMetaInfo(name) and SetMetaInfo(name, value). |\n| `PdfFileSecurity` | Class with 20 methods. |\n| `PdfFileSignature` | Class with 41 methods. |\n| `PdfFileStamp` | Class with 26 methods and 8 properties. |\n| `PdfPageEditor` | Class with 28 methods and 16 properties. |\n| `PdfXmpMetadata` | Class with 15 methods. |\n| `SaveableFacade` | SaveableFacade offers a simple interface to persist PDF objects to a file path via Save(destFile). |\n| `SignatureName` | SignatureName.HasSignature() returns true if the PDF contains a detached PKCS#7 signature, and ToString() provides a textual representation of the signature name. |\n| `VerticalAlignmentType` | VerticalAlignmentType offers static factory methods Top(), Center(), and Bottom() to obtain alignment objects, and ToString() to obtain their textual representation. |",
+    "salient_tokens": [
+      "AlignmentType",
+      "Bookmark",
+      "Bookmarks",
+      "Facade",
+      "Aspose::Pdf::Document",
+      "FormEditor",
+      "FormFieldFacade",
+      "PdfAnnotationEditor",
+      "PdfBookmarkEditor",
+      "PdfContentEditor",
+      "PdfConverter",
+      "PdfExtractor",
+      "PdfFileEditor",
+      "PdfFileInfo",
+      "PdfFileSecurity",
+      "PdfFileSignature",
+      "PdfFileStamp",
+      "PdfPageEditor",
+      "PdfXmpMetadata",
+      "SaveableFacade",
+      "SignatureName",
+      "VerticalAlignmentType",
+      "ChildItem",
+      "ChildItems",
+      "BoldFlag",
+      "ItalicFlag",
+      "BindPdf",
+      "srcFile",
+      "srcDoc",
+      "PDF",
+      "FDF",
+      "XFDF",
+      "CreateBookmarkOfPage",
+      "pageNumber",
+      "ReplaceText",
+      "srcText",
+      "destText",
+      "ExtractText",
+      "GetText",
+      "outputFile",
+      "GetMetaInfo",
+      "SetMetaInfo",
+      "destFile",
+      "HasSignature",
+      "PKCS",
+      "ToString"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `Algorithm` | Enum with 2 members. |\n| `AutoRotateMode` | Enum with 3 members. |\n| `BlendingColorSpace` | Enum with 4 members. |\n| `DataType` | Enum with 6 members. |\n| `DefaultMetadataProperties` | Enum with 9 members. |\n| `EncodingType` | Enum with 7 members. |\n| `FieldType` | Enum with 13 members. |\n| `FontStyle` | Enum with 16 members. |\n| `ImageMergeMode` | Enum with 3 members. |\n| `KeySize` | Enum with 3 members. |\n| `PositioningMode` | Enum with 3 members. |\n| `PropertyFlag` | Enum with 4 members. |\n| `StampType` | Enum with 2 members. |\n| `SubmitFormFlag` | Enum with 6 members. |\n| `WordWrapMode` | WordWrapMode enum defines two text wrapping strategies: Default and ByWords. |",
+    "salient_tokens": [
+      "Algorithm",
+      "AutoRotateMode",
+      "BlendingColorSpace",
+      "DataType",
+      "DefaultMetadataProperties",
+      "EncodingType",
+      "FieldType",
+      "FontStyle",
+      "ImageMergeMode",
+      "KeySize",
+      "PositioningMode",
+      "PropertyFlag",
+      "StampType",
+      "SubmitFormFlag",
+      "WordWrapMode",
+      "ByWords"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BarcodeField` | Class with 6 methods. |\n| `ButtonField` | Class with 11 methods. |\n| `CheckboxField` | Class with 16 methods. |\n| `ChoiceField` | Class with 14 methods. |\n| `ComboBoxField` | Class with 5 methods. |\n| `DateField` | Class with 4 methods. |\n| `DocMDPSignature` | Class with 1 method. |\n| `ExternalSignature` | Class in the PDF C++ API. |\n| `Field` | Field.Recalculate() recomputes the value of a form field and returns true on success. |\n| `FileSelectBoxField` | Class with 1 method. |\n| `Form` | Form text box fields can have a barcode added programmatically by calling `AddBarcode(code)` on a `TextBoxField` instance. |\n| `IconFit` | IconFit allows fine‑grained control of form field scaling; developers can set ScalingReason, ScalingMode, and leftover margins before rendering. |\n| `ListBoxField` | Class with 3 methods. |\n| `NumberField` | Class with 3 methods. |\n| `Option` | Class with 8 methods. |\n| `OptionCollection` | Class with 9 methods. |\n| `PKCS1` | Class with 1 method. |\n| `PKCS7` | Class with 1 method. |\n| `PKCS7Detached` | Class with 1 method. |\n| `PasswordBoxField` | Class with 1 method. |\n| `RadioButtonField` | Class with 7 methods. |\n| `RadioButtonOptionField` | Class with 5 methods. |\n| `RichTextBoxField` | RichTextBoxField provides a form field that stores rich text with styling, justification, and formatted value. |\n| `Signature` | Signature objects allow creation and verification of detached PKCS#7 signatures on PDF documents. |\n| `SignatureCustomAppearance` | Class with 37 methods. |\n| `SignatureField` | Class with 2 methods. |\n| `TextBoxField` | Class with 15 methods. |\n| `XFA` | XFA provides access to XML‑based XFA form data; calling FieldNames() yields a list of all field identifiers present in the XFA document. |",
+    "salient_tokens": [
+      "BarcodeField",
+      "ButtonField",
+      "CheckboxField",
+      "ChoiceField",
+      "ComboBoxField",
+      "DateField",
+      "DocMDPSignature",
+      "ExternalSignature",
+      "Field",
+      "FileSelectBoxField",
+      "Form",
+      "AddBarcode(code)",
+      "TextBoxField",
+      "IconFit",
+      "ListBoxField",
+      "NumberField",
+      "Option",
+      "OptionCollection",
+      "PKCS1",
+      "PKCS7",
+      "PKCS7Detached",
+      "PasswordBoxField",
+      "RadioButtonField",
+      "RadioButtonOptionField",
+      "RichTextBoxField",
+      "Signature",
+      "SignatureCustomAppearance",
+      "SignatureField",
+      "XFA",
+      "PDF",
+      "API",
+      "AddBarcode",
+      "ScalingReason",
+      "ScalingMode",
+      "PKCS",
+      "XML",
+      "FieldNames"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BoxStyle` | Enum with 6 members. |\n| `DocMDPAccessPermissions` | The DocMDPAccessPermissions enum defines the allowed modifications on a signed PDF: NoChanges prevents any edits, FillingInForms allows form filling, and AnnotationModification permits annotation changes. |\n| `FormType` | Enum with 3 members. |\n| `IconCaptionPosition` | Enum with 7 members. |\n| `ScalingMode` | ScalingMode enum defines Proportional and Anamorphic scaling options for image transformations. |\n| `ScalingReason` | ScalingReason enum indicates when scaling should be applied: Always, IconIsBigger, IconIsSmaller, or Never. |\n| `SubjectNameElements` | Enum with 7 members. |\n| `Symbology` | Enum with 3 members. |",
+    "salient_tokens": [
+      "BoxStyle",
+      "DocMDPAccessPermissions",
+      "FormType",
+      "IconCaptionPosition",
+      "ScalingMode",
+      "ScalingReason",
+      "SubjectNameElements",
+      "Symbology",
+      "PDF",
+      "NoChanges",
+      "FillingInForms",
+      "AnnotationModification",
+      "IconIsBigger",
+      "IconIsSmaller"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `Document` — `Document()` (from scratch), `Document(path)`, `Document(path, password)`",
+    "salient_tokens": [
+      "Document",
+      "Document()",
+      "Document(path)",
+      "Document(path, password)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `Pages() -> PageCollection` (1-based indexer), `Info() -> DocumentInfo`, `Form() -> Forms::Form`, `Outlines()`, `EmbeddedFiles()`",
+    "salient_tokens": [
+      "Pages() -> PageCollection",
+      "Info() -> DocumentInfo",
+      "Form() -> Forms::Form",
+      "Outlines()",
+      "EmbeddedFiles()",
+      "PageCollection",
+      "DocumentInfo",
+      "EmbeddedFiles"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `Save(path)`, `SetTitle(value)`",
+    "salient_tokens": [
+      "Save(path)",
+      "SetTitle(value)",
+      "SetTitle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `Encrypt(user, owner, permissions, algorithm)` / `Decrypt(password)`, `IsEncrypted()`",
+    "salient_tokens": [
+      "Encrypt(user, owner, permissions, algorithm)",
+      "Decrypt(password)",
+      "IsEncrypted()",
+      "IsEncrypted"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `Page` — `SetPageSize(width, height)`, `Paragraphs()`, `Annotations()`, `Artifacts()`, `AddImage(bytes, rect)`",
+    "salient_tokens": [
+      "Page",
+      "SetPageSize(width, height)",
+      "Paragraphs()",
+      "Annotations()",
+      "Artifacts()",
+      "AddImage(bytes, rect)",
+      "SetPageSize",
+      "AddImage"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `PageCollection` — `Add()`, `Insert(index)`, `Delete(pageNumber)`, `Count()`",
+    "salient_tokens": [
+      "PageCollection",
+      "Add()",
+      "Insert(index)",
+      "Delete(pageNumber)",
+      "Count()",
+      "pageNumber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `Text::TextAbsorber` — `Visit(Document)` / `Visit(Page)`, `Text() -> string`",
+    "salient_tokens": [
+      "Text::TextAbsorber",
+      "Visit(Document)",
+      "Visit(Page)",
+      "Text() -> string",
+      "TextAbsorber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `Text::TextFragmentAbsorber` — `TextFragments() -> TextFragmentCollection`",
+    "salient_tokens": [
+      "Text::TextFragmentAbsorber",
+      "TextFragments() -> TextFragmentCollection",
+      "TextFragmentAbsorber",
+      "TextFragments",
+      "TextFragmentCollection"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `Text::TextBuilder(page)` — `AppendText(fragment)`, `AppendParagraph(paragraph)`",
+    "salient_tokens": [
+      "Text::TextBuilder(page)",
+      "AppendText(fragment)",
+      "AppendParagraph(paragraph)",
+      "TextBuilder",
+      "AppendText",
+      "AppendParagraph"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `Text::TextFragment`, `Text::TextParagraph`, `Text::TextState` (font, size, colours, decorations)",
+    "salient_tokens": [
+      "Text::TextFragment",
+      "Text::TextParagraph",
+      "Text::TextState",
+      "TextFragment",
+      "TextParagraph",
+      "TextState"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `FontRepository::FindFont(name)`",
+    "salient_tokens": [
+      "FontRepository::FindFont(name)",
+      "FontRepository",
+      "FindFont"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `PngDevice`, `JpegDevice`, `BmpDevice`, `TiffDevice` — each `Process(page, ostream)`; `TiffDevice` also accepts `TiffSettings` for palettised output",
+    "salient_tokens": [
+      "PngDevice",
+      "JpegDevice",
+      "BmpDevice",
+      "TiffDevice",
+      "Process(page, ostream)",
+      "TiffSettings"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `Resolution` — horizontal/vertical DPI",
+    "salient_tokens": [
+      "Resolution",
+      "DPI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `DocumentDevice`/`PageDevice` — base rendering surfaces",
+    "salient_tokens": [
+      "DocumentDevice",
+      "PageDevice"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `Table` — `Rows()`, `ColumnWidths(value)`, `Border(value)`, `DefaultCellBorder(value)`",
+    "salient_tokens": [
+      "Table",
+      "Rows()",
+      "ColumnWidths(value)",
+      "Border(value)",
+      "DefaultCellBorder(value)",
+      "ColumnWidths",
+      "DefaultCellBorder"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `Row`/`Cell` — `Cells().Add(text)`, `Cell::ColSpan`, `BackgroundColor`, `BackgroundImage`",
+    "salient_tokens": [
+      "Row",
+      "Cell",
+      "Cells().Add(text)",
+      "Cell::ColSpan",
+      "BackgroundColor",
+      "BackgroundImage",
+      "ColSpan"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `Drawing::Graph(width, height)` — `Shapes()` holding `Line`, `Rectangle`, `Circle`, `Ellipse`",
+    "salient_tokens": [
+      "Drawing::Graph(width, height)",
+      "Shapes()",
+      "Line",
+      "Rectangle",
+      "Circle",
+      "Ellipse"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `WatermarkArtifact` — configured via the inherited `Artifact` surface (`SetTextAndState`, `SetImage`, `Position`, `Rotation`, `Opacity`, `IsBackground`)",
+    "salient_tokens": [
+      "WatermarkArtifact",
+      "Artifact",
+      "SetTextAndState",
+      "SetImage",
+      "Position",
+      "Rotation",
+      "Opacity",
+      "IsBackground"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `Annotation`/`AnnotationCollection` — base type and per-page collection",
+    "salient_tokens": [
+      "Annotation",
+      "AnnotationCollection"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- Concrete subtypes: `HighlightAnnotation`, `TextAnnotation`, `FreeTextAnnotation`, `StampAnnotation`, `LinkAnnotation`, `InkAnnotation`, `RedactionAnnotation`, and more",
+    "salient_tokens": [
+      "HighlightAnnotation",
+      "TextAnnotation",
+      "FreeTextAnnotation",
+      "StampAnnotation",
+      "LinkAnnotation",
+      "InkAnnotation",
+      "RedactionAnnotation"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `PdfAction`, `GoToAction`, `GoToURIAction`, `NamedAction`, `JavascriptAction`, `SubmitFormAction`",
+    "salient_tokens": [
+      "PdfAction",
+      "GoToAction",
+      "GoToURIAction",
+      "NamedAction",
+      "JavascriptAction",
+      "SubmitFormAction"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `Forms::Form` — `Document::Form()`, `Add(field, pageNumber)`, `Delete(field)`, `Flatten()`",
+    "salient_tokens": [
+      "Forms::Form",
+      "Document::Form()",
+      "Add(field, pageNumber)",
+      "Delete(field)",
+      "Flatten()",
+      "pageNumber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `Forms::Field` subtypes — `TextBoxField`, `CheckboxField`, `RadioButtonField`, `ComboBoxField`, `ListBoxField`, `ButtonField`, `DateField`, `NumberField`, `PasswordBoxField`, `FileSelectBoxField`, `RichTextBoxField`, `BarcodeField`",
+    "salient_tokens": [
+      "Forms::Field",
+      "TextBoxField",
+      "CheckboxField",
+      "RadioButtonField",
+      "ComboBoxField",
+      "ListBoxField",
+      "ButtonField",
+      "DateField",
+      "NumberField",
+      "PasswordBoxField",
+      "FileSelectBoxField",
+      "RichTextBoxField",
+      "BarcodeField"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- `OutlineCollection`/`OutlineItemCollection` — `Title`, `Bold`, `Destination`, `Add`",
+    "salient_tokens": [
+      "OutlineCollection",
+      "OutlineItemCollection",
+      "Title",
+      "Bold",
+      "Destination",
+      "Add"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `NamedDestinationCollection`, `ExplicitDestination` subtypes (`XYZExplicitDestination`, `FitExplicitDestination`, and more)",
+    "salient_tokens": [
+      "NamedDestinationCollection",
+      "ExplicitDestination",
+      "XYZExplicitDestination",
+      "FitExplicitDestination"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `DocumentInfo` — `Title`/`Author`/`Creator`/`Producer`/`Subject`/`Keywords`, `Add`/`Remove`/`ClearCustomData`",
+    "salient_tokens": [
+      "DocumentInfo",
+      "Title",
+      "Author",
+      "Creator",
+      "Producer",
+      "Subject",
+      "Keywords",
+      "Add",
+      "Remove",
+      "ClearCustomData"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `Metadata`/`XmpValue` — dictionary-style XMP property access",
+    "salient_tokens": [
+      "Metadata",
+      "XmpValue",
+      "XMP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- `CryptoAlgorithm` — `RC4x40`, `RC4x128`, `AESx128`, `AESx256`",
+    "salient_tokens": [
+      "CryptoAlgorithm",
+      "RC4x40",
+      "RC4x128",
+      "AESx128",
+      "AESx256"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- `Permissions` — `[Flags]` enum per ISO 32000-1 §7.6.3.2 Table 22",
+    "salient_tokens": [
+      "Permissions",
+      "[Flags]",
+      "ISO",
+      "7.6.3.2"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `Facades::PdfFileSignature` — detached PKCS#7 signing with a byte-exact `/ByteRange`",
+    "salient_tokens": [
+      "Facades::PdfFileSignature",
+      "/ByteRange",
+      "PdfFileSignature",
+      "PKCS",
+      "ByteRange"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- `Facades::PdfFileSecurity` — encrypt/decrypt/change passwords",
+    "salient_tokens": [
+      "Facades::PdfFileSecurity",
+      "PdfFileSecurity"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- `Facades::Facade` — base type; `BindPdf` overloads accept a file path or an existing `Document`",
+    "salient_tokens": [
+      "Facades::Facade",
+      "BindPdf",
+      "Document"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- `Facades::PdfConverter` — rasterise a PDF to multi-page TIFF or per-page PNG",
+    "salient_tokens": [
+      "Facades::PdfConverter",
+      "PdfConverter",
+      "PDF",
+      "TIFF",
+      "PNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- `Facades::PdfExtractor` — `StartPage`/`EndPage`-scoped text extraction",
+    "salient_tokens": [
+      "Facades::PdfExtractor",
+      "StartPage",
+      "EndPage",
+      "PdfExtractor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- `Facades::PdfBookmarkEditor` — `CreateBookmarkOfPage(title, pageNumber)`",
+    "salient_tokens": [
+      "Facades::PdfBookmarkEditor",
+      "CreateBookmarkOfPage(title, pageNumber)",
+      "PdfBookmarkEditor",
+      "CreateBookmarkOfPage",
+      "pageNumber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "- `Facades::PdfFileEditor` — `Concatenate(files, out)`, `SplitFromFirst`/`SplitToEnd`/`SplitToPages`/`SplitToBulks`, plus `Try*` non-throwing variants",
+    "salient_tokens": [
+      "Facades::PdfFileEditor",
+      "Concatenate(files, out)",
+      "SplitFromFirst",
+      "SplitToEnd",
+      "SplitToPages",
+      "SplitToBulks",
+      "Try*",
+      "PdfFileEditor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- `Facades::PdfFileStamp` — `AddHeader(text, margin)`, `AddFooter(text, margin)`, `AddPageNumber(...)`, drawn as real text into each page",
+    "salient_tokens": [
+      "Facades::PdfFileStamp",
+      "AddHeader(text, margin)",
+      "AddFooter(text, margin)",
+      "AddPageNumber(...)",
+      "PdfFileStamp",
+      "AddHeader",
+      "AddFooter",
+      "AddPageNumber"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track. CORRECTED 2026-08-20 (TC-RDR-03-PDF-CPP): this closing </details> tag was previously mis-targeted at Additional Examples (the same target_section as u0048, a DIFFERENT closing tag) -- re-derived from the old-README unit order (immediately preceding u0099, the Documentation & Resources GitHub-docs bullet, mirroring the API Reference <details> block that closes at readme.md line 840, right before ## Documentation & Resources) and independently confirmed against the candidate readme.md structure (two distinct <details>/</details> pairs: Additional Examples at lines 276-455, API Reference at lines 482-840).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/pdf/cpp/)** — installation, walkthroughs, and feature guides for this library.",
+    "salient_tokens": [
+      "Getting started guide",
+      "https://docs.aspose.org/pdf/cpp/"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/pdf/cpp/)** — task-focused answers for common PDF-processing questions.",
+    "salient_tokens": [
+      "FAQ",
+      "PDF",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/pdf/cpp/"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/pdf/cpp/)** — the complete, browsable reference for all 244 public types (the [API Reference](#api-reference) section above covers the essentials).",
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "API Reference",
+      "https://reference.aspose.org/pdf/cpp/",
+      "#api-reference"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "- **[Contributing guide](CONTRIBUTING.md)** — how to propose changes and the project's coding conventions.",
+    "salient_tokens": [
+      "CONTRIBUTING",
+      "Contributing guide",
+      "CONTRIBUTING.md"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/issues) on GitHub.",
+    "salient_tokens": [
+      "PDF",
+      "FOSS",
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp/issues"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "Aspose.PDF FOSS for C++ is a v1 release and a deliberate subset of the commercial Aspose.PDF for\n.NET library. A few boundaries are worth noting:",
+    "salient_tokens": [
+      "PDF",
+      "FOSS",
+      "NET"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "- A handful of `XmpValue` type-checking helpers — `IsDateTime`, `IsField`, `IsNamedValue`,\n  `IsRaw`, `IsNamedValues`, and `IsStructure` — are stubs that always return `false`; use\n  `IsString`/`IsInteger`/`IsDouble`/`IsArray` instead.",
+    "salient_tokens": [
+      "XmpValue",
+      "IsDateTime",
+      "IsField",
+      "IsNamedValue",
+      "IsRaw",
+      "IsNamedValues",
+      "IsStructure",
+      "false",
+      "IsString",
+      "IsInteger",
+      "IsDouble",
+      "IsArray"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "- Standard-14 font fallback covers 12 of the 14 standard fonts (Helvetica, Times-Roman, and\n  Courier, four styles each) via bundled Liberation substitutes; Symbol and ZapfDingbats have no\n  bundled fallback.",
+    "salient_tokens": [
+      "ZapfDingbats"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "- The incremental-update metadata writer patches an existing `/Info` object; a from-scratch\n  document has no `/Info` to patch, so setting metadata on one and saving throws.",
+    "salient_tokens": [
+      "/Info"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "- `Permissions` set via encryption are enforced by the consuming PDF viewer, not by this library\n  — the encryption bitfield is written into the file, but the library itself is not a DRM\n  mechanism.",
+    "salient_tokens": [
+      "Permissions",
+      "PDF",
+      "DRM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "These limitations don't apply to\n[Aspose.PDF for C++ — Enterprise Edition](https://products.aspose.com/pdf/cpp/), which adds full support for\nevery Facades method (including `PdfFileEditor` and `PdfFileStamp`), complete XMP type-checking,\nand broader format coverage beyond this FOSS edition's v1 scope.",
+    "salient_tokens": [
+      "PdfFileEditor",
+      "PdfFileStamp",
+      "PDF",
+      "XMP",
+      "FOSS",
+      "Aspose.PDF for C++ — Enterprise Edition",
+      "https://products.aspose.com/pdf/cpp/"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0110",
+    "excerpt": "A GoogleTest suite covers both the public-API surface and the foundation primitives; GoogleTest\nis fetched at configure time and is the only test-time dependency. Public-API bodies under\n`src/public/` call directly into foundation primitives under `src/internal/`; foundation\nprimitives never reach back into the public API.",
+    "salient_tokens": [
+      "src/public/",
+      "src/internal/",
+      "GoogleTest",
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Development and Testing"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0111",
+    "excerpt": "The compiled library links against nothing but the C++ standard library, and all codecs (TIFF,\nJPEG, PNG, and more) are implemented from scratch within the library. It bundles the Liberation\nfont family (SIL Open Font License 1.1) to provide metrically-compatible substitutes for the\nStandard-14 PDF fonts — see\n[`src/internal/standard14_outlines.fonts/OFL.txt`](src/internal/standard14_outlines.fonts/OFL.txt).\nGoogleTest (BSD 3-Clause) is fetched via CMake `FetchContent` for the test suite only and is not\npart of the shipped library. Full detail: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).",
+    "salient_tokens": [
+      "src/internal/standard14_outlines.fonts/OFL.txt",
+      "FetchContent",
+      "TIFF",
+      "JPEG",
+      "PNG",
+      "SIL",
+      "PDF",
+      "OFL",
+      "GoogleTest",
+      "BSD",
+      "CMake",
+      "1.1",
+      "`src/internal/standard14_outlines.fonts/OFL.txt`",
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Third-Party Notices"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Third-Party Notices",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0112",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "License"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0113",
+    "excerpt": "It bundles metric-compatible Liberation fonts (Sans / Serif / Mono), compiled into the static\nlibrary to render the PDF Standard-14 fonts when no embedded or system font is available. These\nare licensed under the SIL Open Font License 1.1, which permits bundling with software under any\nlicense — see [`src/internal/standard14_outlines.fonts/OFL.txt`](src/internal/standard14_outlines.fonts/OFL.txt).\nThe MIT license above covers the library's own code (SPDX: `MIT AND OFL-1.1` for the distribution\nas a whole).",
+    "salient_tokens": [
+      "src/internal/standard14_outlines.fonts/OFL.txt",
+      "MIT AND OFL-1.1",
+      "PDF",
+      "SIL",
+      "OFL",
+      "MIT",
+      "SPDX",
+      "AND",
+      "1.1",
+      "`src/internal/standard14_outlines.fonts/OFL.txt`"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "pdf/cpp's README has already been pushed and merged upstream -- the clone-cache 'old README' is now byte-identical to this candidate (confirmed 2026-08-18, MT052 follow-up). This content unit is therefore, by construction, already present verbatim in the candidate at its own real position; there is no preservation risk to track.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "License"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "excluded_reason": null
+  }
+]

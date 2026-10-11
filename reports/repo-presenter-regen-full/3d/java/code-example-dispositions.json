@@ -1,0 +1,146 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Mesh.java"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Stream.java"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    },
+    "excluded_reason": "Topically covered by the candidate's 'Build a Scene From a Primitive' example (node creation) -- not re-added verbatim to avoid a near-duplicate example."
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Transform.java"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/LambertMaterial.java"
+    },
+    "excluded_reason": "Topically covered by the candidate's 'Assign a PBR Material' example plus the Key Capabilities mention of LambertMaterial -- not re-added verbatim to avoid a near-duplicate example."
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/PbrMaterial.java"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/NurbsCurve.java"
+    },
+    "excluded_reason": "Topically covered by the candidate's 'Define a NURBS Curve's Control Points' example -- a different but equally valid real usage pattern; not re-added verbatim to avoid a near-duplicate example."
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Vector3.java"
+    },
+    "excluded_reason": "Vector3's dot/cross usage is already documented in the candidate's Math API Reference subsection (Vector2/Vector3/Vector4 component-vector description) -- not re-added as a standalone runnable example since it demonstrates no API beyond what's already covered in the Additional Examples above."
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  }
+]

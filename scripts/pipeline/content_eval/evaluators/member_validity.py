@@ -17,6 +17,15 @@ Reference pages only (``page.subdomain == "reference"``).
 
 Checks performed
 ----------------
+0. **Class reachability** (FAIL, RC-W1-004) — the page's own documented
+   class/struct must be reachable/public, not merely present somewhere in
+   api_surface.json. Confirmed live: cells/rust's WorkbookModel.md documents
+   ``WorkbookModel`` as "part of the public API" while it is a ``pub struct``
+   wired only via a private ``mod api;`` in the FOSS source, never
+   re-exported via lib.rs's ``pub use api::{...}`` block -- unreachable by
+   any real consumer of the crate. See ``_reachability.py`` for the
+   primary/live-fallback signal design shared with code_block_api.py.
+
 1. **Property table membership** (FAIL) — each property name in the property table is
    looked up in the documented class's ``properties`` list in api_surface.json.
    If absent: FAIL [MV].
@@ -45,6 +54,7 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from . import _reachability
 
 # ---------------------------------------------------------------------------
 # Pattern constants
@@ -65,19 +75,19 @@ _HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
 # Captures CamelCase member names to reduce false positives on Python built-ins.
 _MEMBER_ACCESS_RE = re.compile(r"\.([A-Z][A-Za-z0-9_]+)\b")
 
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = Path("knowledge")
 
 # Sections whose property rows should not be checked (inherited members from base class)
 _INHERITED_SECTION_KEYWORDS = ("inherited", "compositenode", "base class", "node")
+
+# RC-W1-004: page.platform -> the language string _reachability.live_unreachable
+# expects (mirrors extraction/tree_helpers.py's PLATFORM_TO_LANG, kept local
+# and minimal to avoid coupling content_eval to the extraction package).
+_PLATFORM_TO_LANGUAGE: dict[str, str] = {
+    "net": "csharp", "dotnet": "csharp", "java": "java", "cpp": "cpp",
+    "python": "python", "typescript": "typescript", "javascript": "javascript",
+    "nodejs": "javascript", "go": "go", "rust": "rust",
+}
 
 
 class MemberValidityEvaluator(BaseEvaluator):
@@ -124,6 +134,13 @@ class MemberValidityEvaluator(BaseEvaluator):
         if class_entry is None:
             return findings
 
+        # Check 0 (RC-W1-004): the page's own documented class/struct must be
+        # reachable/public. Runs before the member-membership checks below,
+        # which assume the class itself is a legitimate documentation
+        # subject -- an unreachable class fails regardless of whether its
+        # member tables happen to be individually accurate.
+        findings.extend(self._check_class_reachability(class_entry, class_name, page))
+
         # Build known member set: properties + methods + enum_members
         known_props: set[str] = {
             p.get("name", "") for p in class_entry.get("properties", []) if p.get("name")
@@ -152,6 +169,52 @@ class MemberValidityEvaluator(BaseEvaluator):
         # and cross-object accesses (.GetChildNodes called on doc not on Image, etc.)
 
         return findings
+
+    # ------------------------------------------------------------------
+    # Check 0 (RC-W1-004): class-level reachability
+    # ------------------------------------------------------------------
+
+    def _check_class_reachability(
+        self, class_entry: dict, class_name: str, page: Page,
+    ) -> list[Finding]:
+        """FAIL when the page's own documented class is confirmed unreachable.
+
+        Primary signal: the `reachable` field on the api_surface.json class
+        entry (set by extraction/api_surface.py). Fallback: a best-effort
+        live clone-cache check, used only when the class has no `reachable`
+        key yet (knowledge not re-scouted since this field was added).
+        """
+        reason = ""
+        primary = _reachability.class_reachability(class_entry)
+        if primary is False:
+            reason = (
+                f"api_surface.json marks `{class_name}` `reachable: false` — "
+                f"not part of the public API a real consumer of this package "
+                f"can reach"
+            )
+        elif primary is None:
+            language = _PLATFORM_TO_LANGUAGE.get(page.platform, page.platform)
+            is_unreachable, live_reason = _reachability.live_unreachable(
+                class_name, page.family, page.platform, language)
+            if is_unreachable:
+                reason = live_reason
+
+        if not reason:
+            return []
+        return [Finding(
+            level="FAIL",
+            category="MV",
+            filepath=str(page.filepath),
+            line_no=0,
+            message=f"This page documents `{class_name}` as public API, but {reason}",
+            suggestion=(
+                f"Verify `{class_name}` is genuinely part of the reachable "
+                f"public surface before publishing a reference page for it; "
+                f"if not, retire the page or correct the reachable path it "
+                f"actually requires."
+            ),
+            evaluator=self.name,
+        )]
 
     # ------------------------------------------------------------------
     # Check 1: property table membership

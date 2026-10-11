@@ -1,84 +1,170 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-"""Validate family root display names in fixture or external content roots."""
-from __future__ import annotations
+"""
+Family root display-name linter for reference/docs/kb sites.
 
-import argparse
+Scans family-level _index.md files (one directory below en/) and validates:
+  V-01  linkTitle must NOT exist at family root level
+  V-02  title must match "{Canonical Product Name} FOSS"
+  V-03  subtitle must exist and not exceed 55 visible characters
+
+Canonical product names are loaded from metrics_taxonomy.yaml.
+
+Exit code: 0 if clean, 1 if violations found, 2 if setup error.
+"""
 import sys
 from pathlib import Path
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    print("ERROR: PyYAML not installed — run: pip install pyyaml", file=sys.stderr)
+    sys.exit(2)
 
-SITES = ("reference.aspose.org", "docs.aspose.org", "kb.aspose.org")
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_TAXONOMY_PATH = _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
+
+_SITES = [
+    "reference.aspose.org",
+    "docs.aspose.org",
+    "kb.aspose.org",
+]
+
+# Keys in taxonomy that are not real family directories.
+_SKIP_KEYS = {"_all"}
 
 
-def load_taxonomy(path: Path) -> dict[str, str]:
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    products = data.get("products", data)
-    if not isinstance(products, dict):
-        raise ValueError("taxonomy products must be a mapping")
-    return {str(key): str(value) for key, value in products.items() if str(key) != "_all"}
+def _load_taxonomy() -> dict[str, str]:
+    """Return {family_slug: product_display_name} from metrics_taxonomy.yaml."""
+    if not _TAXONOMY_PATH.exists():
+        print(f"ERROR: taxonomy not found: {_TAXONOMY_PATH}", file=sys.stderr)
+        sys.exit(2)
+    with open(_TAXONOMY_PATH, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    products = data.get("products", {})
+    return {k: v for k, v in products.items() if k not in _SKIP_KEYS}
 
 
-def parse_frontmatter(path: Path) -> tuple[dict | None, str | None]:
+def _parse_frontmatter(path: Path) -> tuple[dict | None, str | None]:
+    """Parse YAML frontmatter. Return (dict, None) or (None, error_reason)."""
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
-        return None, "missing frontmatter"
+        return None, "missing frontmatter delimiters"
     end = text.find("\n---", 3)
     if end == -1:
-        return None, "unclosed frontmatter"
-    data = yaml.safe_load(text[3:end]) or {}
-    if not isinstance(data, dict):
-        return None, "frontmatter is not a mapping"
-    return data, None
+        return None, "unclosed frontmatter (no closing ---)"
+    try:
+        fm = yaml.safe_load(text[3:end])
+    except yaml.YAMLError as exc:
+        return None, f"YAML parse error: {exc}"
+    if not isinstance(fm, dict):
+        return None, f"frontmatter is {type(fm).__name__}, expected dict"
+    return fm, None
 
 
-def check_file(path: Path, family: str, taxonomy: dict[str, str], content_root: Path) -> list[str]:
+def check_file(
+    path: Path, family: str, taxonomy: dict[str, str]
+) -> list[str]:
+    """Return violation strings for a single family _index.md."""
     violations: list[str] = []
-    rel = path.relative_to(content_root)
-    frontmatter, error = parse_frontmatter(path)
-    if frontmatter is None:
-        return [f"FAIL {rel}: V-00 {error}"]
-    if "linkTitle" in frontmatter:
-        violations.append(f"FAIL {rel}: V-01 linkTitle present")
+    try:
+        rel = path.relative_to(_REPO_ROOT)
+    except ValueError:
+        rel = path
+
+    fm, parse_error = _parse_frontmatter(path)
+    if fm is None:
+        violations.append(
+            f"FAIL {rel}: V-00 unparsable frontmatter — {parse_error}"
+        )
+        return violations
+
+    # V-01: linkTitle must not exist at family root level
+    link_title = fm.get("linkTitle")
+    if link_title is not None:
+        violations.append(
+            f"FAIL {rel}: V-01 linkTitle={link_title!r} present "
+            f"(family root must not have linkTitle — sidebar will show short name)"
+        )
+
+    # V-02: title must match "{Product} FOSS"
+    title = fm.get("title", "")
     canonical = taxonomy.get(family)
-    if canonical:
+    if canonical is not None:
         expected = f"{canonical} FOSS"
-        if frontmatter.get("title") != expected:
-            violations.append(f"FAIL {rel}: V-02 title={frontmatter.get('title')!r} expected {expected!r}")
+        if title != expected:
+            violations.append(
+                f"FAIL {rel}: V-02 title={title!r} "
+                f"does not match expected {expected!r}"
+            )
     else:
-        violations.append(f"WARN {rel}: family {family!r} not in taxonomy")
+        # Family not in taxonomy — warn but don't fail
+        violations.append(
+            f"WARN {rel}: family {family!r} not found in taxonomy — "
+            f"cannot validate title={title!r}"
+        )
+
+    # V-03: subtitle must exist for homepage card display (55-char hard max)
+    subtitle = fm.get("subtitle")
+    if subtitle is None:
+        violations.append(
+            f"FAIL {rel}: V-03 subtitle missing "
+            f"(family root must have a subtitle for homepage card display)"
+        )
+    elif not isinstance(subtitle, str) or not subtitle.strip():
+        violations.append(
+            f"FAIL {rel}: V-03 subtitle is empty or non-string"
+        )
+    else:
+        char_count = len(subtitle)
+        if char_count > 55:
+            violations.append(
+                f"FAIL {rel}: V-03 subtitle is {char_count} chars "
+                f"(hard max: 55 for card display)"
+            )
+
     return violations
 
 
-def check(content_root: Path, taxonomy_path: Path) -> list[str]:
-    taxonomy = load_taxonomy(taxonomy_path)
+def main() -> int:
+    taxonomy = _load_taxonomy()
+
     violations: list[str] = []
-    for site in SITES:
-        en_root = content_root / site / "en"
+    files_checked = 0
+
+    for site in _SITES:
+        en_root = _REPO_ROOT / "content" / site / "en"
         if not en_root.exists():
             continue
-        for family_dir in sorted(path for path in en_root.iterdir() if path.is_dir()):
-            index = family_dir / "_index.md"
-            if index.exists():
-                violations.extend(check_file(index, family_dir.name, taxonomy, content_root))
-    return violations
+        for family_dir in sorted(en_root.iterdir()):
+            if not family_dir.is_dir():
+                continue
+            index_md = family_dir / "_index.md"
+            if not index_md.exists():
+                continue
+            family = family_dir.name
+            files_checked += 1
+            violations.extend(check_file(index_md, family, taxonomy))
 
+    fails = [v for v in violations if v.startswith("FAIL")]
+    warns = [v for v in violations if v.startswith("WARN")]
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--content-root", type=Path, default=Path("content"))
-    parser.add_argument("--taxonomy", type=Path, default=Path("scripts/pipeline/config/metrics_taxonomy.yaml"))
-    args = parser.parse_args(argv)
-    if not args.taxonomy.exists():
-        print(f"ERROR taxonomy not found: {args.taxonomy}", file=sys.stderr)
-        return 2
-    violations = check(args.content_root, args.taxonomy)
     if violations:
-        print("\n".join(violations))
-    fails = [item for item in violations if item.startswith("FAIL")]
-    return 1 if fails else 0
+        for v in violations:
+            print(v)
+
+    if fails:
+        print(
+            f"\n{len(fails)} violation(s) found across {files_checked} files.",
+            file=sys.stderr,
+        )
+        return 1
+
+    status = "OK"
+    if warns:
+        status += f" (with {len(warns)} warning(s))"
+    print(f"{status} — {files_checked} family root pages checked, all display names canonical.")
+    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

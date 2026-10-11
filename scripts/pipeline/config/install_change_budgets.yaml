@@ -1,0 +1,52 @@
+# Install-content change-budget guard (PKGINSTALL-CHANGE-BUDGET, governing plan
+# section R.3.6) -- modeled directly on the real, already-working
+# scripts/seo/config/change_budgets.yaml + scripts/seo/pipeline/change_budget.py
+# pattern (static caps + rolling-baseline anomaly check with an explicit,
+# always-logged warm-up period, fail-closed, never truncate-and-continue).
+#
+# Nothing today caps or validates the blast radius of a proposed
+# install-instruction content change before it's applied -- the "one product
+# per commit, never one all-products commit" rule ST-054's own plan states is
+# prose-only guidance, not machine-enforced. These caps close that gap for
+# install_collision_classifier-gated migrators and locale_patch.py.
+#
+# Two mechanisms, same cap names, different scale (matches the SEO
+# precedent's own "same names, different consumer-specific overrides" design):
+#   - mechanical_migration: package_install_migrator.py /
+#     package_install_inline_migrator.py -- one (family, platform) at a time,
+#     English + locale copies together (a mechanically-migrated English fix
+#     lands with its locale propagation in the SAME commit today, per ST-054's
+#     existing per-product-commit convention).
+#   - locale_propagation: locale_patch.py running standalone (S-75-style,
+#     propagating an already-landed English fix to its locale copies without
+#     re-touching English) -- legitimately fans out across many more files
+#     (one English fix -> up to ~26 locale copies), so gets its own,
+#     proportionally larger override.
+max_files_per_run: 50
+max_files_per_locale_per_run: 30
+
+# mechanical_migration override: matches max_files_per_run/
+# max_files_per_locale_per_run above by default (no override needed) --
+# ST-054's own real numbers (TC-06: 4 products, 5-6 replacements each) are
+# far below this cap; the cap exists to catch a runaway/bugged run, not to
+# accommodate an unusually large legitimate one.
+mechanical_migration_max_files_per_run: 50
+mechanical_migration_max_files_per_locale_per_run: 30
+
+# locale_propagation override: one English fix fans out across every locale
+# a page has (this repo tracks up to ~26 locales per product, confirmed via
+# ST-054 TC-07's own real run: 250 locale files patched across 3 products in
+# one session, largest single product 134 files for slides/net) -- a shared
+# 50-file cap would wrongly block that already-successful, already-safe
+# real-world propagation pattern.
+locale_propagation_max_files_per_run: 400
+locale_propagation_max_files_per_locale_per_run: 30
+
+# Anomaly check: refuse (fail closed, never silently truncate) if a run's
+# PROPOSED total_files for a given (family, mechanism) exceeds
+# anomaly_multiplier times the mean of that (family, mechanism)'s last N
+# ACTUAL run totals. First `warmup_runs` runs for any (family, mechanism) are
+# warm-up: static caps only, anomaly check explicitly logged INACTIVE, never
+# silently skipped without a visible marker.
+anomaly_multiplier: 3.0
+warmup_runs: 3

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """seed_grade_manifest.py — One-time seeding of grade_manifest.json from frontmatter.
 
@@ -8,9 +7,19 @@ can function without reading frontmatter.
 
 Usage:
     .venv/Scripts/python scripts/pipeline/commands/migration/seed_grade_manifest.py [--dry-run]
+    PYTHONPATH="scripts/pipeline;scripts/pipeline/lib" .venv/Scripts/python \\
+        scripts/pipeline/commands/migration/seed_grade_manifest.py
 
 After seeding, skip-graded gate uses manifest first (ARCH-02).  No .md files
 are modified by this script — it is read-only for content files.
+
+IMPORTANT — MANUAL TRIGGER REQUIRED (added A13 W.4 2026-06-02):
+    reports/grade_manifest.json is NOT auto-regenerated. It will drift as
+    `--write-grade-if-policy-met` writes grades to individual pages. Re-run
+    this script manually after any batch grade operation (batch_regrade,
+    content-eval batch, or a series of targeted grade writes). The manifest is
+    not served to users but misleads pipeline operators if stale.
+    Recommended: re-run after each sprint that includes grade writes.
 """
 from __future__ import annotations
 
@@ -20,13 +29,13 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/  # scripts/pipeline/
+    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
     _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
     if _LIB_DIR not in sys.path:
         sys.path.insert(0, _LIB_DIR)
 
-from lib.grade_writer import read_grade, content_hash  # noqa: E402
-from lib.grade_manifest import load_manifest, save_manifest  # noqa: E402
+from grade_writer import read_grade, content_hash  # noqa: E402
+from grade_manifest import load_manifest, save_manifest  # noqa: E402
 from core.markdown import _FRONTMATTER_WRITER_RE as _FM_RE  # noqa: E402
 
 

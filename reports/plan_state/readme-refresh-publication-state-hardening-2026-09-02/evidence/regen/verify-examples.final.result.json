@@ -1,0 +1,127 @@
+{
+  "runner": "python_verification_runner_v2",
+  "blocks_found": 18,
+  "block_statuses": [
+    {
+      "index": 0,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 1,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 2,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 3,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 4,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_4.py\", line 7, in <module>\n    scene.open(\"model.obj\", options)\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 123, in open\n    stream = open(file_name, 'rb')\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'",
+      "missing_fixture": "model.obj"
+    },
+    {
+      "index": 5,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 6,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_6.py\", line 4, in <module>\n    scene.open(\"model.obj\")\n    ~~~~~~~~~~^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 123, in open\n    stream = open(file_name, 'rb')\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'",
+      "missing_fixture": "model.obj"
+    },
+    {
+      "index": 7,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 8,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 9,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_9.py\", line 5, in <module>\n    scene.open(\"model.obj\")\n    ~~~~~~~~~~^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 123, in open\n    stream = open(file_name, 'rb')\nFileNotFoundError: [Errno 2] No such file or directory: 'model.obj'",
+      "missing_fixture": "model.obj"
+    },
+    {
+      "index": 10,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_10.py\", line 4, in <module>\n    scene.open(\"model.gltf\")\n    ~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 123, in open\n    stream = open(file_name, 'rb')\nFileNotFoundError: [Errno 2] No such file or directory: 'model.gltf'",
+      "missing_fixture": "model.gltf"
+    },
+    {
+      "index": 11,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "RUNTIME-ERROR",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_11.py\", line 11, in <module>\n    scene.save(\"post.obj\")\n    ~~~~~~~~~~^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 181, in save\n    exporter.export(self, stream, options)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/ObjExporter.py\", line 25, in export\n    self._write_obj(scene, stream, options)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/ObjExporter.py\", line 50, in _write_obj\n    stream.write(content)\n    ~~~~~~~~~~~~^^^^^^^^^\nTypeError: a bytes-like object is required, not 'str'"
+    },
+    {
+      "index": 12,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 13,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 14,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "Traceback (most recent call last):\n  File \"<local-plan-cache>/block_14.py\", line 6, in <module>\n    scene.open(\"model.dae\", options)\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"<local-plan-cache>/Scene.py\", line 123, in open\n    stream = open(file_name, 'rb')\nFileNotFoundError: [Errno 2] No such file or directory: 'model.dae'",
+      "missing_fixture": "model.dae"
+    },
+    {
+      "index": 15,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 16,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 17,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    }
+  ],
+  "fixtures": {
+    "staged": {},
+    "unresolved": [
+      "3D-FOSS-for-Python.git",
+      "Aspose.3D",
+      "aspose.threed",
+      "ball.stl",
+      "crate.gltf",
+      "model.dae",
+      "model.glb",
+      "model.gltf",
+      "model.obj",
+      "post.obj"
+    ]
+  },
+  "environment": {
+    "install_source": "pypi",
+    "package": "aspose-3d-foss",
+    "version": "26.1.0"
+  },
+  "all_named": true
+}

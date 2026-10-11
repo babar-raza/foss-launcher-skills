@@ -1,12 +1,3 @@
----
-name: content-audit
-id: S-32
-description: >
-  Audit content pages against verified knowledge. Maps each factual claim
-  in content to knowledge artifacts using semantic similarity.
-args: "{content-file-path} | {family} {platform}"
----
-
 # S-32: Content Audit — Semantic Knowledge Verification
 
 **Arguments**: $ARGUMENTS
@@ -22,19 +13,25 @@ Audit content pages against verified knowledge. Maps each factual claim in conte
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-32 --scope "*"
+> ```
+
+
 ### Step 1: Run deterministic audit script
 
 Run the Python script first to get reproducible, machine-verifiable results:
 
 ```bash
 # For a specific product:
-python scripts/pipeline/commands/content/audit.py {family} {platform} --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py {family} {platform} --json
 
 # For specific files:
-python scripts/pipeline/commands/content/audit.py --files {content-file-path} --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py --files {content-file-path} --json
 
 # For all products:
-python scripts/pipeline/commands/content/audit.py all --json
+.venv/Scripts/python scripts/pipeline/commands/content/content_audit.py all --json
 ```
 
 The script classifies every prose paragraph into tiers:
@@ -69,6 +66,11 @@ Review the aggregate summary and act on:
 - Any CONTRADICTED tier findings (must fix)
 - Files with high UNSUPPORTED percentages (need evidence)
 - Code blocks with API accuracy failures
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-32 --status completed
+> ```
 
 ## Audit report format
 ```

@@ -1,0 +1,1 @@
+def test_hyphenchar_assignment_and_group_restore(self) -> None:

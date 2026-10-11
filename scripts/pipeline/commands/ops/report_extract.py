@@ -8,16 +8,16 @@ suggestion, and a stable content hash for deduplication.
 
 Usage (CLI):
   # Human-readable summary of open items
-  python scripts/pipeline/report_extract.py reports/forensic-pass1/sprint-summary.md
+  python scripts/pipeline/commands/ops/report_extract.py reports/forensic-pass1/sprint-summary.md
 
   # JSON output for downstream tooling
-  python scripts/pipeline/report_extract.py "reports/*.md" --json
+  python scripts/pipeline/commands/ops/report_extract.py "reports/*.md" --json
 
   # Count-only mode (path: count)
-  python scripts/pipeline/report_extract.py "reports/**/*.md" --count-only
+  python scripts/pipeline/commands/ops/report_extract.py "reports/**/*.md" --count-only
 
   # Filter by minimum confidence
-  python scripts/pipeline/report_extract.py reports/ --json --min-confidence 0.9
+  python scripts/pipeline/commands/ops/report_extract.py reports/ --json --min-confidence 0.9
 
 Usage (Python import):
   from report_extract import parse_report, OpenItem
@@ -44,7 +44,7 @@ from typing import Sequence
 # Repo root resolution (matches session_ledger.py pattern)
 # ---------------------------------------------------------------------------
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 
 def _repo_rel(path: str | Path) -> str:

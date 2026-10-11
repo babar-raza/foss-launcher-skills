@@ -1,17 +1,13 @@
-"""claim_report.py -- WARN-only CI claim report for non-reference subdomains.
+"""claim_report.py — WARN-only CI claim report for non-reference subdomains.
 
 TC-CLAIM-11: Read-only report. Never blocks. Never writes content files.
 
-Ported/adapted from aspose.org scripts/pipeline/commands/content/claim_report.py.
-Adaptations:
-  - Uses foss knowledge_core.Knowledge, discover_content, parse_frontmatter
-  - ClaimPolicy replaced with simple format-check stub (evidence.claim_policy not available)
-  - content_discovery replaced with knowledge_core.discover_content + _infer_subdomain
-
-Checks (all WARN-only):
-  - Unknown claims: claim ID not in knowledge model
+Checks (all WARN-only in Sprint 1):
+  - Unknown claims: claim ID not in merged/claims.json
+  - Stale claims: same check via ClaimValidator
   - Duplicate claims: same claim ID listed twice
   - Malformed claim IDs: does not match CLM- or ERC- patterns
+  - Page-role mismatches: ERC with page_role != subdomain type (via ClaimPolicy)
 
 Output:
   - Summary table printed to stdout
@@ -19,9 +15,9 @@ Output:
   - Exit code 0 always (WARN-only; does not block pipeline)
 
 Usage:
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/claim_report.py cells java
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/claim_report.py cells java --subdomain blog
-    PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/claim_report.py cells java --output-json report.json
+    python scripts/pipeline/commands/content/claim_report.py cells java
+    python scripts/pipeline/commands/content/claim_report.py cells java --subdomain blog.aspose.org
+    python scripts/pipeline/commands/content/claim_report.py cells java --output-json report.json
 """
 from __future__ import annotations
 
@@ -29,6 +25,14 @@ import json
 import re
 import sys
 from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+_PIPELINE_ROOT = _HERE.parent.parent
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
+_LIB_DIR = str(_PIPELINE_ROOT / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 # Claim ID format patterns
 _CLM_RE = re.compile(r"^CLM-[a-zA-Z0-9]+-[0-9a-f]{4,}$")
@@ -39,42 +43,8 @@ def _is_valid_claim_format(cid: str) -> bool:
     return bool(_CLM_RE.match(cid) or _ERC_RE.match(cid))
 
 
-def _infer_subdomain(filepath: Path) -> str:
-    """Infer subdomain from a content file path.
-
-    Expects paths like: content/{subdomain}.aspose.org/en/{family}/{platform}/...
-    or: content/{subdomain}/{family}/{platform}/...
-    """
-    parts = filepath.parts
-    try:
-        ci = next(i for i, p in enumerate(parts) if p == "content")
-    except StopIteration:
-        return ""
-    if len(parts) <= ci + 1:
-        return ""
-    sub = parts[ci + 1]
-    # Strip .aspose.org suffix if present
-    if ".aspose.org" in sub:
-        sub = sub.split(".")[0]
-    return sub
-
-
-def _infer_family_platform(filepath: Path) -> tuple[str, str]:
-    """Infer (family, platform) from a content file path."""
-    parts = filepath.parts
-    try:
-        ci = next(i for i, p in enumerate(parts) if p == "content")
-    except StopIteration:
-        return "", ""
-    if len(parts) < ci + 5:
-        return "", ""
-    family = parts[ci + 3]
-    platform = parts[ci + 4]
-    return family, platform
-
-
 def scan_files(
-    files: list,
+    files: list[Path],
     knowledge,
     subdomain: str | None = None,
 ) -> dict:
@@ -82,11 +52,12 @@ def scan_files(
 
     Never writes. Never raises on individual file errors.
     """
-    from knowledge_core import parse_frontmatter  # noqa: E402
+    from core.markdown import parse_frontmatter  # noqa: E402
+    from evidence.claim_policy import ClaimPolicy, PolicyContext  # noqa: E402
+    from content_discovery import _infer_subdomain  # noqa: E402
 
-    known_ids: set = set()
-    if knowledge is not None and hasattr(knowledge, "claim_ids"):
-        known_ids = set(getattr(knowledge, "claim_ids", []) or [])
+    known_ids = knowledge.claim_ids
+    policy = ClaimPolicy()
 
     issues: list[dict] = []
     total_files = 0
@@ -94,7 +65,7 @@ def scan_files(
 
     for f in files:
         try:
-            fm = parse_frontmatter(Path(f))
+            fm = parse_frontmatter(f)
         except Exception:
             continue
 
@@ -108,7 +79,8 @@ def scan_files(
         total_files += 1
         file_issues: list[dict] = []
         seen_in_file: set[str] = set()
-        file_subdomain = _infer_subdomain(Path(f)) or subdomain or ""
+        file_subdomain = _infer_subdomain(f) or subdomain or ""
+        page_role = fm.get("page_role")
 
         for cid in claims:
             if not isinstance(cid, str):
@@ -133,13 +105,34 @@ def scan_files(
                 })
             seen_in_file.add(cid)
 
-            # Unknown / stale (only checked if we have a knowledge model)
-            if known_ids and cid not in known_ids:
+            # Unknown / stale
+            if cid not in known_ids:
                 file_issues.append({
                     "claim_id": cid,
                     "issue": "UNKNOWN_CLAIM",
                     "severity": "WARN",
                     "message": f"Claim ID not in knowledge model: {cid!r}",
+                })
+                continue
+
+            # Page-role mismatch (via ClaimPolicy)
+            ctx = PolicyContext(
+                filepath=f,
+                subdomain=file_subdomain,
+                page_role=page_role,
+                claim_id=cid,
+                claim_kind=None,
+                claim_page_role=None,
+                claim_source=None,
+                token_match_context=None,
+            )
+            decision = policy.evaluate(ctx)
+            if decision.action == "WARN":
+                file_issues.append({
+                    "claim_id": cid,
+                    "issue": "PAGE_ROLE_MISMATCH",
+                    "severity": "WARN",
+                    "message": decision.reason,
                 })
 
         if file_issues:
@@ -150,12 +143,9 @@ def scan_files(
                 "issues": file_issues,
             })
 
-    family = getattr(knowledge, "family", "") if knowledge else ""
-    platform = getattr(knowledge, "platform", "") if knowledge else ""
-
     return {
-        "family": family,
-        "platform": platform,
+        "family": knowledge.family,
+        "platform": knowledge.platform,
         "subdomain_filter": subdomain,
         "total_files_scanned": total_files,
         "files_with_issues": files_with_issues,
@@ -171,39 +161,58 @@ def _print_summary(report: dict) -> None:
     print(f"\n=== Claim Report: {report['family']}/{report['platform']} ===")
     if report.get("subdomain_filter"):
         print(f"Subdomain filter: {report['subdomain_filter']}")
-    print(f"Files scanned:     {report['total_files_scanned']}")
+    print(f"Files scanned:    {report['total_files_scanned']}")
     print(f"Files with issues: {report['files_with_issues']}")
     print(f"Total warnings:    {report['warn_count']}")
     if report["records"]:
         print("\nIssues found:")
-        for rec in report["records"][:20]:
+        for rec in report["records"][:20]:  # print up to 20
             print(f"  {rec['filepath']}")
             for issue in rec["issues"]:
                 print(f"    [{issue['severity']}] {issue['issue']}: {issue['message']}")
     print()
 
 
+def _infer_family_platform(filepath: Path) -> tuple[str, str]:
+    """Infer (family, platform) from a content file path.
+
+    Expects paths like: content/{subdomain}/en/{family}/{platform}/...
+    Returns ('', '') if not inferrable.
+    """
+    parts = filepath.parts
+    try:
+        ci = next(i for i, p in enumerate(parts) if p == "content")
+    except StopIteration:
+        return "", ""
+    if len(parts) < ci + 5:
+        return "", ""
+    family = parts[ci + 3]
+    platform = parts[ci + 4]
+    return family, platform
+
+
 def main(argv=None):
     import argparse
-    from knowledge_core import Knowledge, discover_content  # noqa: E402
+    from knowledge_core import Knowledge  # noqa: E402
+    from content_discovery import discover_content  # noqa: E402
 
     parser = argparse.ArgumentParser(
         prog="claim_report",
         description="WARN-only CI claim report for non-reference subdomains.",
     )
     parser.add_argument("family", nargs="?", default="",
-                        help="Product family (e.g. cells)")
+                        help="Product family (e.g. cells); optional when --files is used")
     parser.add_argument("platform", nargs="?", default="",
-                        help="Product platform (e.g. java)")
+                        help="Product platform (e.g. java); optional when --files is used")
     parser.add_argument("--files", nargs="+", metavar="FILE",
-                        help="Specific files to scan (CI mode)")
+                        help="Specific files to scan (CI mode); skips discover_content")
     parser.add_argument("--subdomain", metavar="SUBDOMAIN",
                         help="Restrict to this subdomain only")
     parser.add_argument("--output-json", "--json-out", metavar="OUTFILE",
                         dest="output_json",
                         help="Write full JSON report to OUTFILE")
     parser.add_argument("--warn-annotations", action="store_true",
-                        help="Emit GitHub Actions ::warning:: annotations")
+                        help="Emit GitHub Actions ::warning:: annotations for each issue")
 
     parsed = parser.parse_args(argv)
 
@@ -218,26 +227,22 @@ def main(argv=None):
             parser.error("family and platform are required when --files is not given")
         files = None
 
-    knowledge = None
-    if family and platform:
-        try:
-            knowledge = Knowledge(family, platform)
-            if not knowledge.available:
-                print(f"WARN: no knowledge model for {family}/{platform}; "
-                      "UNKNOWN_CLAIM detection may be incomplete")
-        except Exception as e:
-            print(f"WARN: could not load knowledge model: {e}")
+    knowledge = Knowledge(family, platform) if family and platform else None
+    if knowledge is None or not knowledge.available:
+        print(f"WARN: no knowledge model for {family}/{platform}; "
+              "UNKNOWN_CLAIM detection may be incomplete")
 
     if files is None:
         files = discover_content(family, platform)
         if parsed.subdomain:
-            files = [f for f in files if _infer_subdomain(Path(f)) == parsed.subdomain]
+            from content_discovery import _infer_subdomain  # noqa: E402
+            files = [f for f in files if _infer_subdomain(f) == parsed.subdomain]
 
     report = scan_files(files, knowledge, subdomain=parsed.subdomain)
     _print_summary(report)
 
     if parsed.warn_annotations:
-        for rec in report.get("records", []):
+        for rec in report.get("files_with_issues", []):
             for issue in rec.get("issues", []):
                 fp = rec["filepath"]
                 msg = f"[{issue['issue']}] {issue['message']}"
@@ -249,7 +254,7 @@ def main(argv=None):
         out.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
         print(f"Report written to {out}")
 
-    # Always exit 0 -- WARN-only, never blocks pipeline
+    # Always exit 0 — WARN-only, never blocks pipeline
     sys.exit(0)
 
 

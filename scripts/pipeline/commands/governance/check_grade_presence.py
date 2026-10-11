@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """CI helper: verify that modified content files have grades in frontmatter.
 
 Usage:
@@ -18,14 +17,27 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade  # noqa: E402
-# Inline LOCALE_RE (foss does not have content_discovery)
-import re as _re_mod  # noqa: E402
-LOCALE_RE = _re_mod.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
+from content_discovery import LOCALE_CODES, LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)
+
+
+def _in_locale_directory(path: Path) -> bool:
+    """True for a translation kept in a locale DIRECTORY: content/<site>.aspose.org/<code>/...
+
+    Docs/KB/reference/products store translations that way (no `.<code>.md` suffix). Blog uses
+    suffixes only, so a locale-named blog directory is NOT exempted -- the exemption must never
+    reach an English page. `en` is not in LOCALE_CODES, and only the segment directly under the
+    site counts, so `content/docs.aspose.org/en/cells/no/...` stays checked.
+    """
+    parts = path.parts
+    for i, part in enumerate(parts):
+        if part == "content" and len(parts) > i + 2 and parts[i + 1].endswith(".aspose.org"):
+            return parts[i + 1] != "blog.aspose.org" and parts[i + 2] in LOCALE_CODES
+    return False
 
 
 def _is_english_content(path: Path) -> bool:
     """Return True if the file is English content (not a translation)."""
-    return path.suffix == ".md" and not LOCALE_RE.search(path.name)
+    return path.suffix == ".md" and not LOCALE_RE.search(path.name) and not _in_locale_directory(path)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,11 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.scope == "all":
-        # foss stub: content discovery not available
-        raise ImportError(
-            "content_discovery not available in foss. "
-            "Use --scope modified with explicit file list instead of --scope all."
-        )
+        from content_discovery import discover_content, discover_products  # noqa: E402  (R-1b)
         files = []
         for family, platform in sorted(discover_products()):
             files.extend(discover_content(family, platform))

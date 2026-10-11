@@ -1,0 +1,29 @@
+[
+  {
+    "format": "DVI",
+    "enum": "OutputFormat",
+    "value": "\"dvi\"",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 26,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "PDF",
+    "enum": "OutputFormat",
+    "value": "\"pdf\"",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 26,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "SVG",
+    "enum": "OutputFormat",
+    "value": "\"svg\"",
+    "file": "src/aspose_tex/presentation/__init__.py",
+    "line": 26,
+    "direction": "enum_only",
+    "functional": false
+  }
+]

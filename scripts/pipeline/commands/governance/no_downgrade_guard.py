@@ -1,15 +1,7 @@
 """Deterministic pre-write downgrade guard.
 
-Prevents a newly generated page from silently overwriting a higher-quality
-existing page. Uses content_eval grade as the quality measure.
-
-Ported from aspose.org scripts/pipeline/no_downgrade_guard.py.
-Adapted for foss-launcher-skills-gitlab module structure.
-
-Exit codes:
-  0  ALLOW — write is safe
-  1  WARN  — degradation possible, user should review
-  2  BLOCK — write would regress quality past allowed floor
+Uses the canonical A-F grade scale from content_eval.models and reads
+stored grades from frontmatter when available (fast path).
 """
 
 from __future__ import annotations
@@ -17,19 +9,49 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 import sys
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 
 import yaml
+
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from knowledge_core import Knowledge  # noqa: E402
+from content_discovery import infer_product  # noqa: E402  (R-1b: was knowledge_core)
+from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
+from core.markdown import parse_frontmatter, extract_frontmatter_body  # R-2a: was knowledge_core
+from token_ops import extract_tokens, verify_tokens
+from content_eval.config import SAFETY_OVERRIDE_FINDINGS
+from content_eval.models import compute_grade, Page
+from content_eval.evaluators.type_accuracy import TypeAccuracyEvaluator
+from content_eval.evaluators.install_recipe import InstallRecipeEvaluator
+from grade_writer import read_grade
+
 
 DECISION_ALLOW = "ALLOW"
 DECISION_WARN = "WARN"
 DECISION_BLOCK = "BLOCK"
 
-# Grade ordering (higher index = better)
-_GRADE_ORDER = {"F": 0, "D": 1, "C": 2, "B": 3, "A": 4}
+# TC-24 (TA) + TC-MT015-03 (IR): categories whose findings escalate a WARN
+# decision to BLOCK, since the count-based grade proxy alone under-weighs them.
+# IR covers install_recipe.py's H-16 checks (wrong package name / wrong-platform
+# package manager), added after 3D-NET-REFRESH-002 showed this exact defect class
+# shipping undetected because H-16 existed but was never reachable from here.
+#
+# The install_recipe safety checks (a false PyPI/npm/... publish claim, and a
+# disclosure that a package is unpublished) used to emit "IR" too. They were split
+# into IR_PUBLISH_CLAIM / IR_UNPUBLISHED_DISCLOSURE by PKGINSTALL-GRADE-SAFETY-
+# OVERRIDE (30b4199e4d), and this set silently stopped matching them: an A page
+# regenerated with a false publish claim was only WARNed (found by
+# PKGINSTALL-GRADE-SAFETY-OVERRIDE-REVIEW, fixed by ...-FIX D3). The safety
+# categories are therefore DERIVED from content_eval.config.SAFETY_OVERRIDE_FINDINGS
+# -- the same allowlist that makes them grade-affecting -- so the guard cannot
+# drift from the grade mechanism again.
+_BLOCKING_CATEGORIES = frozenset({"TA", "IR"}) | frozenset(
+    category for _evaluator, category in SAFETY_OVERRIDE_FINDINGS
+)
 
 
 def _read_proposed(args) -> str:
@@ -39,72 +61,57 @@ def _read_proposed(args) -> str:
         return Path(args.proposed_file).read_text(encoding="utf-8")
     if args.proposed_content is not None:
         return args.proposed_content
-    raise ValueError(
-        "Provide proposed content inline, via --proposed-file, or via --stdin."
-    )
+    raise ValueError("Provide proposed content inline, via --proposed-file, or via --stdin.")
 
 
-def _run_eval(path: Path, repo_root: Path) -> str | None:
-    """Run content_eval on a file and return its letter grade, or None on failure."""
+def _evaluate_file(path: Path, family: str, platform: str) -> dict:
+    knowledge = Knowledge(family, platform)
+    if not knowledge.available:
+        raise FileNotFoundError(f"No knowledge available for {family}/{platform}")
+
+    findings = verify_tokens(extract_tokens(path, platform), knowledge, path)
+    findings.extend(verify_evidence(parse_frontmatter(path), knowledge, path))
     try:
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "scripts.pipeline.content_eval",
-                "evaluate",
-                "--files",
-                str(path),
-                "--format",
-                "json",
-            ],
-            cwd=str(repo_root),
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        if result.returncode != 0:
-            return _fallback_grade_from_audit(path, repo_root)
-        data = json.loads(result.stdout)
-        # content_eval JSON structure: {"files": [{"grade": "B", ...}]}
-        files = data.get("files") or data.get("results") or []
-        if files and isinstance(files, list):
-            return files[0].get("grade")
-        return data.get("grade")
-    except (subprocess.TimeoutExpired, json.JSONDecodeError, Exception):
-        return _fallback_grade_from_audit(path, repo_root)
-
-
-def _fallback_grade_from_audit(path: Path, repo_root: Path) -> str:
-    """Fallback: run audit.py and grade by FAIL count."""
-    try:
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(repo_root / "scripts" / "pipeline" / "audit.py"),
-                "--files",
-                str(path),
-            ],
-            cwd=str(repo_root),
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        output = result.stdout + result.stderr
-        fail_count = output.count("FAIL")
-        if fail_count == 0:
-            return "B"
-        if fail_count <= 2:
-            return "C"
-        if fail_count <= 5:
-            return "D"
-        return "F"
+        page = Page.load(path)
     except Exception:
-        return "C"  # Neutral fallback when evaluation is impossible
+        page = None
+    if page is not None:
+        page.family = family
+        page.platform = platform
+        # TC-24: Run type_accuracy evaluator so TA findings reach the guard.
+        try:
+            ta_ev = TypeAccuracyEvaluator()
+            findings.extend(ta_ev.evaluate(page, None))
+        except Exception:
+            pass  # type_accuracy is best-effort in the guard
+        # TC-MT015-03: Run install_recipe evaluator so H-16 package-identity
+        # findings (wrong package name / wrong-platform package manager)
+        # reach the guard. H-16 already existed in content_eval's general
+        # evaluator registry but was never wired into this pre-write gate.
+        try:
+            ir_ev = InstallRecipeEvaluator()
+            findings.extend(ir_ev.evaluate(page, None))
+        except Exception:
+            pass  # install_recipe is best-effort in the guard, same as TA
+    fails = [f for f in findings if f.level == "FAIL"]
+    warns = [f for f in findings if f.level == "WARN"]
+    return {
+        "fail_count": len(fails),
+        "warn_count": len(warns),
+        "grade": compute_grade(len(fails), len(warns)),
+        "findings": [
+            {
+                "level": f.level,
+                "message": f.message,
+                "line": f.line_no,
+                "category": getattr(f, "category", ""),
+            }
+            for f in findings
+        ],
+    }
 
 
 def _decision(existing_grade: str | None, predicted_grade: str, target_exists: bool) -> str:
-    """Apply the no-downgrade decision matrix."""
     if not target_exists or existing_grade is None:
         return DECISION_ALLOW
     if existing_grade in {"D", "F"}:
@@ -121,9 +128,11 @@ def _decision(existing_grade: str | None, predicted_grade: str, target_exists: b
 
 
 def _structural_check(existing_text: str, proposed_text: str) -> tuple[str, str] | None:
-    """Detect catastrophic structural regressions before grade comparison.
+    """Return (decision, reason) if structural regression detected, else None.
 
-    Returns (decision, reason) if regression detected, else None.
+    This catches catastrophic content destruction (e.g. replacing a 500-word page
+    with a 10-word stub) that the grade-comparison path misses because trash
+    content with 0 API tokens gets graded A.
     """
     ex_words = len(existing_text.split())
     pr_words = len(proposed_text.split())
@@ -132,7 +141,6 @@ def _structural_check(existing_text: str, proposed_text: str) -> tuple[str, str]
             DECISION_BLOCK,
             f"structural regression: word count dropped from {ex_words} to {pr_words} (<30%)",
         )
-
     ex_headings = len(re.findall(r"^#{2,3}\s", existing_text, re.MULTILINE))
     pr_headings = len(re.findall(r"^#{2,3}\s", proposed_text, re.MULTILINE))
     if ex_headings >= 3 and pr_headings < ex_headings * 0.5:
@@ -140,7 +148,6 @@ def _structural_check(existing_text: str, proposed_text: str) -> tuple[str, str]
             DECISION_BLOCK,
             f"structural regression: heading count dropped from {ex_headings} to {pr_headings} (<50%)",
         )
-
     ex_code = len(re.findall(r"^```", existing_text, re.MULTILINE))
     pr_code = len(re.findall(r"^```", proposed_text, re.MULTILINE))
     if ex_code >= 2 and pr_code == 0:
@@ -149,9 +156,10 @@ def _structural_check(existing_text: str, proposed_text: str) -> tuple[str, str]
             f"structural regression: code blocks dropped from {ex_code} to 0",
         )
 
-    # Plugin-page (frontmatter-only) check
-    ex_fm_raw = _extract_frontmatter_yaml(existing_text)
-    pr_fm_raw = _extract_frontmatter_yaml(proposed_text)
+    # Plugin-page check: compare frontmatter section presence.
+    # Plugin pages have empty bodies, so body-based checks above are no-ops.
+    ex_fm_raw = extract_frontmatter_body(existing_text)
+    pr_fm_raw = extract_frontmatter_body(proposed_text)
     if ex_fm_raw and pr_fm_raw:
         try:
             ex_fm = yaml.safe_load(ex_fm_raw) or {}
@@ -177,22 +185,17 @@ def _structural_check(existing_text: str, proposed_text: str) -> tuple[str, str]
     return None
 
 
-def _extract_frontmatter_yaml(text: str) -> str | None:
-    """Extract raw YAML from frontmatter block, or None if not present."""
-    match = re.match(r"^---\n(.*?)\n---\n?", text, re.DOTALL)
-    return match.group(1) if match else None
+def compare_content(target_path: Path, proposed_text: str, family: str | None = None, platform: str | None = None, force_regenerate: bool = False) -> dict:
+    inferred_family, inferred_platform = infer_product(target_path)
+    family = family or inferred_family
+    platform = platform or inferred_platform
+    if not family or not platform:
+        raise ValueError("Could not infer product from target path; pass --family and --platform.")
 
-
-def compare_content(
-    target_path: Path,
-    proposed_text: str,
-    repo_root: Path,
-    force_regenerate: bool = False,
-) -> dict:
-    """Core comparison logic. Returns a result dict with decision, grades, reason."""
     target_exists = target_path.exists()
 
-    # Structural regression check (runs before grade comparison)
+    # --- Structural regression check (runs BEFORE grade comparison) ---
+    # Skipped when force_regenerate is set — operator intentionally overriding.
     if target_exists and not force_regenerate:
         existing_text = target_path.read_text(encoding="utf-8")
         structural = _structural_check(existing_text, proposed_text)
@@ -202,54 +205,78 @@ def compare_content(
                 "decision": decision,
                 "reason": reason,
                 "target_exists": target_exists,
+                "family": family,
+                "platform": platform,
                 "target_path": str(target_path),
-                "existing": {"grade": None},
-                "proposed": {"grade": None},
+                "existing": {"grade": None, "fail_count": None, "warn_count": None, "findings": []},
+                "proposed": {"grade": None, "fail_count": None, "warn_count": None, "findings": []},
             }
 
-    # Evaluate existing file
-    existing_grade = None
+    # Fast path: use stored grade if valid (same knowledge version).
+    existing = None
+    from_stored = False
     if target_exists:
-        existing_grade = _run_eval(target_path, repo_root)
+        stored = read_grade(target_path)
+        knowledge = Knowledge(family, platform)
+        if stored and stored["model_sha"] and knowledge.available and stored["model_sha"] == knowledge.repo_sha:
+            existing = {
+                "fail_count": None,
+                "warn_count": None,
+                "grade": stored["grade"],
+                "findings": [],
+                "from_stored": True,
+            }
+            from_stored = True
+        else:
+            existing = _evaluate_file(target_path, family, platform)
 
-    # Evaluate proposed content (write to temp file)
-    proposed_grade = None
-    suffix = target_path.suffix or ".md"
-    with NamedTemporaryFile(
-        mode="w",
-        suffix=suffix,
-        prefix="foss-proposed-",
-        delete=False,
-        encoding="utf-8",
-    ) as tmp:
-        tmp.write(proposed_text)
-        tmp_path = Path(tmp.name)
+    with TemporaryDirectory(prefix="aspose-no-downgrade-") as temp_dir:
+        proposed_path = Path(temp_dir) / (target_path.name or "candidate.md")
+        proposed_path.write_text(proposed_text, encoding="utf-8")
+        proposed = _evaluate_file(proposed_path, family, platform)
 
-    try:
-        proposed_grade = _run_eval(tmp_path, repo_root)
-    finally:
-        tmp_path.unlink(missing_ok=True)
-
+    # When force_regenerate is set, bypass the grade-based decision matrix
+    # and always allow — the operator is intentionally overriding the guard.
     if force_regenerate:
         decision = DECISION_ALLOW
         reason = "force-regenerate: grade downgrade guard bypassed by operator"
     else:
-        decision = _decision(existing_grade, proposed_grade or "C", target_exists)
+        existing_grade = existing["grade"] if existing else None
+        decision = _decision(existing_grade, proposed["grade"], target_exists)
         reason = {
             DECISION_ALLOW: "proposed content is equal or better under deterministic audit proxy",
             DECISION_WARN: "proposed content degrades the target to C-grade risk",
             DECISION_BLOCK: "proposed content regresses beyond the allowed quality floor",
         }[decision]
 
-    return {
+    # Escalate WARN -> BLOCK when a deterministic-correctness category (see
+    # _BLOCKING_CATEGORIES above) causes the grade regression.
+    if decision == DECISION_WARN:
+        blocking_findings = [
+            f for f in proposed["findings"]
+            if f.get("category") in _BLOCKING_CATEGORIES
+        ]
+        if blocking_findings:
+            decision = DECISION_BLOCK
+            categories_hit = sorted({f["category"] for f in blocking_findings})
+            reason = (
+                f"correctness findings block this regression: "
+                f"{len(blocking_findings)} issue(s) in categories {categories_hit}"
+            )
+
+    result = {
         "decision": decision,
         "reason": reason,
         "target_exists": target_exists,
+        "family": family,
+        "platform": platform,
         "target_path": str(target_path),
-        "existing": {"grade": existing_grade},
-        "proposed": {"grade": proposed_grade},
-        "force_regenerate": force_regenerate,
+        "existing": existing,
+        "proposed": proposed,
     }
+    if force_regenerate:
+        result["force_regenerate"] = True
+    return result
 
 
 def _print_result(result: dict, as_json: bool) -> None:
@@ -260,54 +287,51 @@ def _print_result(result: dict, as_json: bool) -> None:
     print(f"Decision: {result['decision']}")
     print(f"Reason: {result['reason']}")
     if result["target_exists"]:
-        ex_grade = result["existing"].get("grade")
-        print(f"Existing grade: {ex_grade or 'unknown'}")
+        ex = result["existing"]
+        if ex.get("from_stored"):
+            print(f"Existing: grade {ex['grade']} (from stored frontmatter)")
+        else:
+            print(
+                f"Existing: grade {ex['grade']} "
+                f"({ex['fail_count']} FAIL, {ex['warn_count']} WARN)"
+            )
     else:
-        print("Target: new file (no prior grade to protect)")
-    print(f"Proposed grade: {result['proposed'].get('grade') or 'unknown'}")
+        print("Target: new file")
+    print(
+        f"Proposed: grade {result['proposed']['grade']} "
+        f"({result['proposed']['fail_count']} FAIL, {result['proposed']['warn_count']} WARN)"
+    )
+    if result["decision"] == DECISION_BLOCK:
+        print("Blocking FAIL findings:")
+        for finding in result["proposed"]["findings"]:
+            if finding["level"] == "FAIL":
+                print(f"  - {finding['message']}")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="no_downgrade_guard",
-        description="Deterministic pre-write downgrade guard based on content quality grades.",
+        description="Deterministic pre-write downgrade guard based on audit failure counts.",
     )
     parser.add_argument("target_path", help="Existing content path to protect")
-    parser.add_argument(
-        "proposed_content", nargs="?", default=None, help="Inline proposed markdown"
-    )
-    parser.add_argument(
-        "--proposed-file", help="Read proposed markdown from a file"
-    )
-    parser.add_argument(
-        "--stdin", action="store_true", help="Read proposed markdown from stdin"
-    )
-    parser.add_argument("--json", dest="as_json", action="store_true")
-    parser.add_argument(
-        "--force-regenerate",
-        action="store_true",
-        help="Bypass structural and grade downgrade guards (operator override)",
-    )
-    parser.add_argument(
-        "--repo-root",
-        default=None,
-        help="Repo root path (default: 2 levels up from this script)",
-    )
+    parser.add_argument("proposed_content", nargs="?", default=None, help="Inline proposed markdown")
+    parser.add_argument("--proposed-file", help="Read proposed markdown from a file")
+    parser.add_argument("--stdin", action="store_true", help="Read proposed markdown from stdin")
+    parser.add_argument("--family", help="Override inferred family")
+    parser.add_argument("--platform", help="Override inferred platform")
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--force-regenerate", action="store_true",
+                        help="Bypass structural and grade downgrade guards (operator override)")
     args = parser.parse_args(argv)
 
-    if args.repo_root:
-        repo_root = Path(args.repo_root).resolve()
-    else:
-        repo_root = Path(__file__).resolve().parent.parent.parent
-
-    proposed_text = _read_proposed(args)
     result = compare_content(
         Path(args.target_path),
-        proposed_text,
-        repo_root=repo_root,
+        _read_proposed(args),
+        family=args.family,
+        platform=args.platform,
         force_regenerate=args.force_regenerate,
     )
-    _print_result(result, args.as_json)
+    _print_result(result, args.json)
     if result["decision"] == DECISION_BLOCK:
         return 2
     if result["decision"] == DECISION_WARN:

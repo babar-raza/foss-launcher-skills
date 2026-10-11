@@ -1,394 +1,935 @@
-[
-  {
-    "name": "project-phase-store",
-    "id": "S-10",
-    "description": ">",
-    "args": "{family} {platform} {site-type} {slug} \\\"{purpose}\\",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "knowledge-diff",
-    "id": "S-12",
-    "description": ">",
-    "args": "{family} {platform} {repo-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "stale-detect",
-    "id": "S-13",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "knowledge-update",
-    "id": "S-14",
-    "description": ">",
-    "args": "{family} {platform} {repo-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "embed-knowledge",
-    "id": "S-15",
-    "description": ">",
-    "args": "{family} {platform} | all",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "page-plan",
-    "id": "S-18",
-    "description": ">",
-    "args": "{family} {platform} {site-type} {slug}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "page-draft",
-    "id": "S-19",
-    "description": ">",
-    "args": "{family} {platform} {site-type} {slug}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "page-update",
-    "id": "S-20",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "page-enhance",
-    "id": "S-21",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "faq-generate",
-    "id": "S-22",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "ground-check",
-    "id": "S-23",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [
-      "path-guard"
-    ],
-    "internal": false
-  },
-  {
-    "name": "eval-page",
-    "id": "S-25",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "heal-page",
-    "id": "S-26",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "truth-sync",
-    "id": "S-30",
-    "description": ">",
-    "args": "{family} {platform} {source-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "truth-index",
-    "id": "S-31",
-    "description": ">",
-    "args": "{family} {platform} | all",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "content-audit",
-    "id": "S-32",
-    "description": ">",
-    "args": "{content-file-path} | {family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "repo-scout",
-    "id": "S-34",
-    "description": ">",
-    "args": "{repo-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "truth-merge",
-    "id": "S-35",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "cross-platform",
-    "id": "S-36",
-    "description": ">",
-    "args": "{family}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "corpus-scan",
-    "id": "S-37",
-    "description": ">",
-    "args": "{family} {platform} {site-type}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "launch-product",
-    "id": "S-38",
-    "description": ">",
-    "args": "{family} {platform} {repo-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "discover-products",
-    "id": "S-39",
-    "description": ">",
-    "args": "[{org}] [--clone]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "batch-eval-fix",
-    "id": "S-41",
-    "description": ">",
-    "args": "{family} {platform} | --eval-report {eval-report-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "code-smoke",
-    "id": "S-63",
-    "description": ">",
-    "args": "{family} {platform} | --files {path1} [path2 ...]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "link-validate",
-    "id": "S-65",
-    "description": ">",
-    "args": "{family} {platform} | all | --files {file1.md} ...",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "register-human-content",
-    "id": "S-66",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "diagnose-skill-failure",
-    "id": "S-67",
-    "description": ">",
-    "args": "{skill-id} {error-summary}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "evidence-repair",
-    "id": "S-72",
-    "description": ">",
-    "args": "{content-file-path} [additional-paths ...] [--dry-run] [--scope claims|apis|both]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "manual-edit",
-    "id": "S-73",
-    "description": ">",
-    "args": "{relative-file-path} --scope {scope} --intent \\\"{intent}\\\" [--section \\\"{heading}\\\"] [--evidence \\\"{id}\\\"]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "commit",
-    "id": "S-76",
-    "description": ">",
-    "args": "[--scope {scope}] [--hint {guidance}] [--force-all]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "session-start",
-    "id": "S-77",
-    "description": ">",
-    "args": "",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "evidence-enhance",
-    "id": "S-78",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "coverage-reconcile",
-    "id": "S-80",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "knowledge-coverage-audit",
-    "id": "S-81",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "page-retire",
-    "id": "S-83",
-    "description": ">",
-    "args": "{content-file-path} | --from-plan {site-plan-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "truth-audit-content",
-    "id": "S-85",
-    "description": ">",
-    "args": "{family} {platform} [--scope all|docs|blog|kb|reference] [--no-llm] [--max-units N] [--unit-types H,P,C,T,L]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "backlog",
-    "id": "S-88",
-    "description": ">",
-    "args": "[subcommand] [args...]",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "truth-audit",
-    "id": "S-90",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "content-check",
-    "id": "",
-    "description": ">",
-    "args": "{relative-file-path}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "new-blog-post",
-    "id": "",
-    "description": ">",
-    "args": "{family} {platform} {slug}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "new-docs-page",
-    "id": "",
-    "description": ">",
-    "args": "{family} {platform} {section} {slug}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "new-kb-faq",
-    "id": "",
-    "description": ">",
-    "args": "{family} {platform}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "new-kb-howto",
-    "id": "",
-    "description": ">",
-    "args": "{family} {platform} {slug}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "new-reference-page",
-    "id": "",
-    "description": ">",
-    "args": "{family} {platform} {classname}",
-    "depends_on": [],
-    "internal": false
-  },
-  {
-    "name": "path-guard",
-    "id": "S-01",
-    "description": ">",
-    "args": "{file-path}",
-    "depends_on": [],
-    "internal": true
-  },
-  {
-    "name": "rubric-align",
-    "id": "S-17",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [],
-    "internal": true
-  },
-  {
-    "name": "evidence-cite",
-    "id": "S-24",
-    "description": ">",
-    "args": "{content-file-path}",
-    "depends_on": [
-      "path-guard",
-      "ground-check"
-    ],
-    "internal": true
-  },
-  {
-    "name": "change-guard",
-    "id": "S-33",
-    "description": ">",
-    "args": "{family} {platform} \\\"{proposed-text}\\",
-    "depends_on": [
-      "path-guard",
-      "ground-check"
-    ],
-    "internal": true
-  }
-]
+{
+  "schema_version": 1,
+  "generated_from": "skills/*.md",
+  "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
+  "skill_count": 115,
+  "skills": [
+    {
+      "id": "S-01",
+      "slug": "path-guard",
+      "name": "Path Guard — Enforce Allowed Write Paths",
+      "description": "Validate that a file path is an allowed write target before any content modification.",
+      "internal": true,
+      "canonical_path": "skills/path-guard.md"
+    },
+    {
+      "id": "S-10",
+      "slug": "project-phase-store",
+      "name": "Project Phase Store — Track Generation Phase State",
+      "description": "Track the current generation phase for a product.",
+      "internal": true,
+      "canonical_path": "skills/project-phase-store.md"
+    },
+    {
+      "id": "S-12",
+      "slug": "knowledge-diff",
+      "name": "Knowledge Diff — Detect Upstream Changes",
+      "description": "Detect changes in the upstream FOSS repository since the last knowledge extraction by comparing",
+      "internal": false,
+      "canonical_path": "skills/knowledge-diff.md"
+    },
+    {
+      "id": "S-13",
+      "slug": "stale-detect",
+      "name": "Stale Detect — Map Changes to Affected Content",
+      "description": "Map upstream repository changes (detected by S-12) to content pages that may need updating.",
+      "internal": false,
+      "canonical_path": "skills/stale-detect.md"
+    },
+    {
+      "id": "S-14",
+      "slug": "knowledge-update",
+      "name": "Knowledge Update - Refresh Knowledge Model from Source",
+      "description": "Refresh the knowledge model for a product by re-running the full knowledge pipeline:",
+      "internal": false,
+      "canonical_path": "skills/knowledge-update.md"
+    },
+    {
+      "id": "S-15",
+      "slug": "embed-knowledge",
+      "name": "Embed Knowledge — Vector Store Generation",
+      "description": "Embed knowledge artifacts into dual vector stores using the three-tier embedding infrastructure",
+      "internal": false,
+      "canonical_path": "skills/embed-knowledge.md"
+    },
+    {
+      "id": "S-17",
+      "slug": "rubric-align",
+      "name": "Rubric Align - Assess Page Against Quality Rubric",
+      "description": "Assess a content page against the quality rubric by running content_eval evaluators and",
+      "internal": true,
+      "canonical_path": "skills/rubric-align.md"
+    },
+    {
+      "id": "S-18",
+      "slug": "page-plan",
+      "name": "Page Plan — Plan Page Structure Before Generation",
+      "description": "Plan a page's structure before drafting.",
+      "internal": false,
+      "canonical_path": "skills/page-plan.md"
+    },
+    {
+      "id": "S-19",
+      "slug": "page-draft",
+      "name": "Page Draft — Draft Page Content from a Page Plan",
+      "description": "Draft page content by consuming the output of S-18 (page-plan).",
+      "internal": false,
+      "canonical_path": "skills/page-draft.md"
+    },
+    {
+      "id": "S-20",
+      "slug": "page-update",
+      "name": "Page Update — Update Page After Knowledge Change",
+      "description": "After a knowledge refresh (S-14), identify which content pages reference changed claims and produce targeted updates.",
+      "internal": false,
+      "canonical_path": "skills/page-update.md"
+    },
+    {
+      "id": "S-21",
+      "slug": "page-enhance",
+      "name": "Page Enhance — Enhance Page to Meet Quality Bar",
+      "description": "Enhance a page that scores below the quality bar (grade C or below from S-17/S-25).",
+      "internal": false,
+      "canonical_path": "skills/page-enhance.md"
+    },
+    {
+      "id": "S-22",
+      "slug": "faq-generate",
+      "name": "FAQ Generate — Generate FAQ Section from Knowledge",
+      "description": "Generate a FAQ page for a product by extracting common patterns, limitations, and capabilities from the knowledge model.",
+      "internal": false,
+      "canonical_path": "skills/faq-generate.md"
+    },
+    {
+      "id": "S-23",
+      "slug": "content-check",
+      "name": "Content Check — Structural Quality Pre-Commit Check",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/content-check.md"
+    },
+    {
+      "id": "S-24",
+      "slug": "evidence-cite",
+      "name": "Evidence Cite - Attach Knowledge Citations",
+      "description": "Write or update the `evidence:` YAML frontmatter block in a content page, linking it to",
+      "internal": true,
+      "canonical_path": "skills/evidence-cite.md"
+    },
+    {
+      "id": "S-25",
+      "slug": "eval-page",
+      "name": "Eval Page — Evaluate Page and Produce Grade",
+      "description": "Evaluate a content page using the content_eval pipeline and produce a letter grade (A-F).",
+      "internal": false,
+      "canonical_path": "skills/eval-page.md"
+    },
+    {
+      "id": "S-26",
+      "slug": "heal-page",
+      "name": "Heal Page — Heal Low-Quality Page",
+      "description": "Heal a page that received grade D or below from S-25 (eval-page).",
+      "internal": false,
+      "canonical_path": "skills/heal-page.md"
+    },
+    {
+      "id": "S-31",
+      "slug": "truth-index",
+      "name": "Truth Index - Generate Knowledge Index",
+      "description": "Generate `index.json` per product from `knowledge/{family}/{platform}/merged/` and",
+      "internal": false,
+      "canonical_path": "skills/truth-index.md"
+    },
+    {
+      "id": "S-32",
+      "slug": "content-audit",
+      "name": "Content Audit — Semantic Knowledge Verification",
+      "description": "Audit content pages against verified knowledge.",
+      "internal": false,
+      "canonical_path": "skills/content-audit.md"
+    },
+    {
+      "id": "S-33",
+      "slug": "change-guard",
+      "name": "Change Guard — Pre-Write Knowledge Gate",
+      "description": "Pre-write gate that validates proposed content changes against verified knowledge before they are written.",
+      "internal": true,
+      "canonical_path": "skills/change-guard.md"
+    },
+    {
+      "id": "S-34",
+      "slug": "repo-scout",
+      "name": "Repo Scout — Extract Truth from FOSS Repository",
+      "description": "Extract truth directly from a FOSS package using tree-sitter analysis.",
+      "internal": false,
+      "canonical_path": "skills/repo-scout.md"
+    },
+    {
+      "id": "S-35",
+      "slug": "truth-merge",
+      "name": "Truth Merge - Scout-Only Promotion with Enrichment",
+      "description": "Promote `knowledge/{family}/{platform}/scout/` plus any `scout/enriched_claims.json`",
+      "internal": false,
+      "canonical_path": "skills/truth-merge.md"
+    },
+    {
+      "id": "S-36",
+      "slug": "cross-platform",
+      "name": "Cross-Platform — Family Consistency Check",
+      "description": "Verify consistency across all platforms within the same product family.",
+      "internal": false,
+      "canonical_path": "skills/cross-platform.md"
+    },
+    {
+      "id": "S-37",
+      "slug": "knowledge-enrich",
+      "name": "Knowledge Enrich - LLM Semantic Enrichment from Scout Artifacts",
+      "description": "Generate LLM-enriched semantic claims from `knowledge/{family}/{platform}/scout/`",
+      "internal": false,
+      "canonical_path": "skills/knowledge-enrich.md"
+    },
+    {
+      "id": "S-38",
+      "slug": "truth-audit",
+      "name": "Truth Audit — Member-Level API Verification",
+      "description": "Verify every API claim in content files against `api_surface.json` at the **member level** — not just class existence but individual methods, properties, constructor signatures, enum values, and types.",
+      "internal": false,
+      "canonical_path": "skills/truth-audit.md"
+    },
+    {
+      "id": "S-40",
+      "slug": "batch-remediate",
+      "name": "Batch Remediate — Full Eval→Fix→LLM→Re-eval Pipeline",
+      "description": "Run the complete remediation pipeline for all content pages of a product: evaluate, triage,",
+      "internal": false,
+      "canonical_path": "skills/batch-remediate.md"
+    },
+    {
+      "id": "S-41",
+      "slug": "batch-eval-fix",
+      "name": "Batch Eval Fix — Quick Eval + Auto-Fix Only",
+      "description": "Lightweight remediation pipeline: evaluate content (or consume an existing report), then apply only deterministic auto-fixes.",
+      "internal": false,
+      "canonical_path": "skills/batch-eval-fix.md"
+    },
+    {
+      "id": "S-42",
+      "slug": "category-fix",
+      "name": "Category Fix — Run Specific Fixer on Files",
+      "description": "Run a specific category fixer on targeted files.",
+      "internal": false,
+      "canonical_path": "skills/category-fix.md"
+    },
+    {
+      "id": "S-43",
+      "slug": "gap-eval",
+      "name": "Gap Eval — Content Verification Against Clone Cache",
+      "description": "Evaluate all content for a family/platform against clone cache ground truth using a three-tier verification architecture (deterministic → vector → LLM).",
+      "internal": false,
+      "canonical_path": "skills/gap-eval.md"
+    },
+    {
+      "id": "S-44",
+      "slug": "gap-plan",
+      "name": "Gap Plan — Wave-Ordered Remediation Planning",
+      "description": "Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan.",
+      "internal": true,
+      "canonical_path": "skills/gap-plan.md"
+    },
+    {
+      "id": "S-45",
+      "slug": "gap-report",
+      "name": "Gap Report — Cross-Product Synthesis",
+      "description": "Synthesize findings across all products into a MASTER-SYNTHESIS update.",
+      "internal": false,
+      "canonical_path": "skills/gap-report.md"
+    },
+    {
+      "id": "S-46",
+      "slug": "gap-apply",
+      "name": "Gap Apply — Execute Wave-Ordered Fix Specs",
+      "description": "Execute the wave-ordered remediation plan produced by S-44 (gap-plan).",
+      "internal": false,
+      "canonical_path": "skills/gap-apply.md"
+    },
+    {
+      "id": "S-47",
+      "slug": "site-plan",
+      "name": "Site Plan — Production-Grade Pre-Generation Site Manifest",
+      "description": "Produce `reports/plans/{family}/{platform}/site_plan.yaml` — a deterministic, evidence-bound manifest of all pages a product needs across all 5 subdomains.",
+      "internal": false,
+      "canonical_path": "skills/site-plan.md"
+    },
+    {
+      "id": "S-48",
+      "slug": "family-sync",
+      "name": "Family Sync — Update Family Page for All Launched Platforms",
+      "description": "Update the family-level `_index.md` at `content/products.aspose.org/en/{family}/_index.md`",
+      "internal": false,
+      "canonical_path": "skills/family-sync.md"
+    },
+    {
+      "id": "S-49",
+      "slug": "launch-product",
+      "name": "Launch Product — 5-Subdomain Full Documentation Launch",
+      "description": "Orchestrate a full 5-subdomain documentation launch for a FOSS product: products, blog, docs,",
+      "internal": false,
+      "canonical_path": "skills/launch-product.md"
+    },
+    {
+      "id": "S-51",
+      "slug": "content-eval",
+      "name": "Content Eval — Multi-Dimensional Content Evaluation",
+      "description": "Run a comprehensive, multi-dimensional evaluation of content pages against repo truth.",
+      "internal": false,
+      "canonical_path": "skills/content-eval.md"
+    },
+    {
+      "id": "S-54",
+      "slug": "knowledge-bootstrap",
+      "name": "Knowledge Bootstrap - Shared Pre-condition Gate",
+      "description": "Single reusable command that detects and resolves knowledge state before any content or validation",
+      "internal": true,
+      "canonical_path": "skills/knowledge-bootstrap.md"
+    },
+    {
+      "id": "S-55",
+      "slug": "no-downgrade-guard",
+      "name": "No-Downgrade Guard — Pre-Write Quality Comparison",
+      "description": "Prevent a newly generated page from silently overwriting a higher-quality existing page.",
+      "internal": true,
+      "canonical_path": "skills/no-downgrade-guard.md"
+    },
+    {
+      "id": "S-56",
+      "slug": "new-docs-page",
+      "name": "New Docs Page — Generate Documentation Page for docs.aspose.org",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/new-docs-page.md"
+    },
+    {
+      "id": "S-57",
+      "slug": "new-blog-post",
+      "name": "New Blog Post — Generate Blog Post for blog.aspose.org",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/new-blog-post.md"
+    },
+    {
+      "id": "S-58",
+      "slug": "new-kb-howto",
+      "name": "New KB How-To — Generate KB How-To Article",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/new-kb-howto.md"
+    },
+    {
+      "id": "S-59",
+      "slug": "new-kb-faq",
+      "name": "New KB FAQ — Generate FAQ Page for Product Platform",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/new-kb-faq.md"
+    },
+    {
+      "id": "S-60",
+      "slug": "new-reference-page",
+      "name": "New Reference Page — Generate API Reference Page",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/new-reference-page.md"
+    },
+    {
+      "id": "S-61",
+      "slug": "new-products-page",
+      "name": "New Products Page — Generate products.aspose.org Landing Page",
+      "description": "Generate or update the products.aspose.org landing page for a FOSS product.",
+      "internal": false,
+      "canonical_path": "skills/new-products-page.md"
+    },
+    {
+      "id": "S-62",
+      "slug": "batch-reference",
+      "name": "Batch Reference — Generate Reference Pages in Bulk",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/batch-reference.md"
+    },
+    {
+      "id": "S-63",
+      "slug": "code-smoke",
+      "name": "Code Smoke — Syntax and Type-Check Code Blocks",
+      "description": "Check that code blocks in content pages are syntactically valid.",
+      "internal": false,
+      "canonical_path": "skills/code-smoke.md"
+    },
+    {
+      "id": "S-64",
+      "slug": "getting-started",
+      "name": "Getting Started - Bootstrap the Repo Environment",
+      "description": "Answer \"I just cloned the repo - what do I do?\" Covers the full 7-step setup from a",
+      "internal": false,
+      "canonical_path": "skills/getting-started.md"
+    },
+    {
+      "id": "S-65",
+      "slug": "link-validate",
+      "name": "Link Validate — Cross-Subdomain Link Validation",
+      "description": "Validate cross-subdomain internal links in content files.",
+      "internal": false,
+      "canonical_path": "skills/link-validate.md"
+    },
+    {
+      "id": "S-66",
+      "slug": "register-human-content",
+      "name": "Register Human Content — Onboard Human-Authored Pages",
+      "description": "Onboard a human-authored content page into the automated quality and provenance systems.",
+      "internal": false,
+      "canonical_path": "skills/register-human-content.md"
+    },
+    {
+      "id": "S-67",
+      "slug": "diagnose-skill-failure",
+      "name": "Diagnose Skill Failure — Governed Diagnostic Procedure",
+      "description": "When a registered skill fails, a pipeline script produces unexpected output, or a quality",
+      "internal": false,
+      "canonical_path": "skills/diagnose-skill-failure.md"
+    },
+    {
+      "id": "S-68",
+      "slug": "update-registry",
+      "name": "Update Registry - Discover and Register FOSS Repositories",
+      "description": "Scan all 26 Aspose GitHub organisations (`aspose-{family}-foss`) for FOSS repositories,",
+      "internal": false,
+      "canonical_path": "skills/update-registry.md"
+    },
+    {
+      "id": "S-69",
+      "slug": "new-kb-index",
+      "name": "New KB Index — Scaffold KB Platform Section Landing Page",
+      "description": "Creates the Hugo section landing page at `content/kb.aspose.org/en/{family}/{platform}/_index.md`",
+      "internal": false,
+      "canonical_path": "skills/new-kb-index.md"
+    },
+    {
+      "id": "S-70",
+      "slug": "new-docs-index",
+      "name": "New Docs Index — Scaffold Docs Platform Section Landing Page",
+      "description": "Creates the Hugo section landing page at",
+      "internal": false,
+      "canonical_path": "skills/new-docs-index.md"
+    },
+    {
+      "id": "S-71",
+      "slug": "new-reference-index",
+      "name": "New Reference Index — Scaffold Reference Platform Section Landing Page",
+      "description": "Creates the Hugo section landing page at",
+      "internal": false,
+      "canonical_path": "skills/new-reference-index.md"
+    },
+    {
+      "id": "S-72",
+      "slug": "evidence-repair",
+      "name": "Evidence Repair — Repair Evidence Frontmatter for Validator-Blocked Pages",
+      "description": "Repair the `evidence:` frontmatter block on a content page that is blocked by the",
+      "internal": false,
+      "canonical_path": "skills/evidence-repair.md"
+    },
+    {
+      "id": "S-73",
+      "slug": "manual-edit",
+      "name": "Manual Edit — Operator-Directed Targeted Content Edit",
+      "description": "Apply an operator-specified targeted change to a single content file under full governance.",
+      "internal": false,
+      "canonical_path": "skills/manual-edit.md"
+    },
+    {
+      "id": "S-74",
+      "slug": "causal-backtrack",
+      "name": "Causal Backtrack — Resolve Upstream Dependency Failures",
+      "description": "The default pipeline behavior writes a grade (e.g.",
+      "internal": false,
+      "canonical_path": "skills/causal-backtrack.md"
+    },
+    {
+      "id": "S-75",
+      "slug": "locale-patch",
+      "name": "locale-patch — Propagate targeted text fixes to locale files",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/locale-patch.md"
+    },
+    {
+      "id": "S-76",
+      "slug": "commit",
+      "name": "Commit Prep — Stage and Commit Working Tree Changes",
+      "description": "Applies a full commit-preparation workflow **scoped to the current session's touched files**.",
+      "internal": false,
+      "canonical_path": "skills/commit.md"
+    },
+    {
+      "id": "S-77",
+      "slug": "session-start",
+      "name": "Session Start — Mandatory Session Initialization Gate",
+      "description": "Ensures the agent has read all mandatory governance files and can correctly",
+      "internal": false,
+      "canonical_path": "skills/session-start.md"
+    },
+    {
+      "id": "S-78",
+      "slug": "evidence-enhance",
+      "name": "Evidence Enhance — Improve Section Evidence Coverage on Passing Pages",
+      "description": "Improve section-level evidence coverage on a content page that **already passes",
+      "internal": false,
+      "canonical_path": "skills/evidence-enhance.md"
+    },
+    {
+      "id": "S-79",
+      "slug": "launch-rollback",
+      "name": "Launch Rollback — Revert One Product's Generated Content",
+      "description": "Revert one product's generated content files without touching system scripts",
+      "internal": false,
+      "canonical_path": "skills/launch-rollback.md"
+    },
+    {
+      "id": "S-80",
+      "slug": "coverage-reconcile",
+      "name": "Coverage Reconcile — Knowledge Unit Disposition Report",
+      "description": "Trace every knowledge unit (claim, API member) to a page disposition",
+      "internal": false,
+      "canonical_path": "skills/coverage-reconcile.md"
+    },
+    {
+      "id": "S-81",
+      "slug": "knowledge-coverage-audit",
+      "name": "Knowledge Coverage Audit — Per-Claim Disposition Table",
+      "description": "Build a per-claim, per-API-class disposition table showing which knowledge units",
+      "internal": false,
+      "canonical_path": "skills/knowledge-coverage-audit.md"
+    },
+    {
+      "id": "S-82",
+      "slug": "delta-site-plan",
+      "name": "Delta Site Plan — Incremental Site Planning After Knowledge Update",
+      "description": "After a knowledge refresh (S-14), compute which pages need to be added, updated, removed,",
+      "internal": false,
+      "canonical_path": "skills/delta-site-plan.md"
+    },
+    {
+      "id": "S-83",
+      "slug": "page-retire",
+      "name": "Page Retire — Retire Obsolete Content Pages",
+      "description": "Retire content pages that are no longer valid because the knowledge they cover has been removed",
+      "internal": false,
+      "canonical_path": "skills/page-retire.md"
+    },
+    {
+      "id": "S-84",
+      "slug": "refresh-product",
+      "name": "Refresh Product",
+      "description": "Start, resume, inspect, verify, recover, bind, or abandon one production product refresh through the registered run-bound refresh_run.py state machine.",
+      "internal": false,
+      "canonical_path": "skills/refresh-product.md"
+    },
+    {
+      "id": "S-85",
+      "slug": "truth-audit-content",
+      "name": "Truth Audit Content — Line-Level Content Truth Audit",
+      "description": "Decompose all English content pages for a family/platform into individually addressable reviewable units (headings, paragraphs, code blocks, table rows, list items), verify each unit against the clone cache and knowledge model, and produce a structured gap ledger with stable finding IDs and evidence chains.",
+      "internal": false,
+      "canonical_path": "skills/truth-audit-content.md"
+    },
+    {
+      "id": "S-86",
+      "slug": "refresh-product-page",
+      "name": "Refresh Product Page — Re-generate Product Landing Page",
+      "description": "Re-generate a single products.aspose.org landing page through the full S-61 pipeline with no-downgrade-guard protection.",
+      "internal": false,
+      "canonical_path": "skills/refresh-product-page.md"
+    },
+    {
+      "id": "S-87",
+      "slug": "system-heal",
+      "name": "System Heal — Audit-Driven Content Healing",
+      "description": "Audit-driven, issue-by-issue healing for a family/platform.",
+      "internal": false,
+      "canonical_path": "skills/system-heal.md"
+    },
+    {
+      "id": "S-88",
+      "slug": "backlog",
+      "name": "Backlog — Unified Planning & Backlog Management",
+      "description": "Maintains a durable backlog system across sessions.",
+      "internal": false,
+      "canonical_path": "skills/backlog.md"
+    },
+    {
+      "id": "S-89",
+      "slug": "heal-batch",
+      "name": "Heal Batch — Batch Healing from Eval Report",
+      "description": "Run the healing pipeline on a batch of findings from a content_eval report.",
+      "internal": false,
+      "canonical_path": "skills/heal-batch.md"
+    },
+    {
+      "id": "S-90",
+      "slug": "publish-readiness-review",
+      "name": "Publish Readiness Review — Agent-Executed Governed Inspection",
+      "description": "Perform bounded manual-style inspection of content pages, make judgment calls against",
+      "internal": false,
+      "canonical_path": "skills/publish-readiness-review.md"
+    },
+    {
+      "id": "S-91",
+      "slug": "plan-normalize",
+      "name": "Plan Normalize — Execution-Safe Plan Quality Gate",
+      "description": "Stop agents from executing mixed-context plans blindly.",
+      "internal": false,
+      "canonical_path": "skills/plan-normalize.md"
+    },
+    {
+      "id": "S-92",
+      "slug": "triage-confirm",
+      "name": "Triage Confirm — Layer 2 Body-Prose Staleness Scanner",
+      "description": "Scan content page body prose for references to API classes or knowledge claims that have",
+      "internal": false,
+      "canonical_path": "skills/triage-confirm.md"
+    },
+    {
+      "id": "S-93",
+      "slug": "repo-patrol",
+      "name": "Repo Patrol -- Scan and Diff",
+      "description": "Scan all 26 Aspose GitHub organisations for new FOSS repositories, diff against the product registry, score discovery confidence, and produce a structured patrol report for operator review.",
+      "internal": false,
+      "canonical_path": "skills/repo-patrol.md"
+    },
+    {
+      "id": "S-94",
+      "slug": "change-sweep",
+      "name": "Change Sweep -- Batch SHA Comparison",
+      "description": "Run a batch SHA comparison across all active launched products to detect upstream repository changes with HIGH/MEDIUM/LOW impact classification and produce a structured sweep report.",
+      "internal": false,
+      "canonical_path": "skills/change-sweep.md"
+    },
+    {
+      "id": "S-95",
+      "slug": "discovery-triage",
+      "name": "Discovery Triage -- Route Reports to Actions",
+      "description": "Read patrol and sweep reports and create structured backlog items for every finding; routes all discoveries and upstream changes to operator-reviewed backlog items and never directly invokes S-12 or S-84 in MVP.",
+      "internal": false,
+      "canonical_path": "skills/discovery-triage.md"
+    },
+    {
+      "id": "S-96",
+      "slug": "section-enhance",
+      "name": "Section Enhance -- Generic Repo-Grounded Section Enhancer",
+      "description": "Inspect any content section in the aspose.org repository -- regardless of subdomain, family, platform, or section depth -- and produce a read-only proposal pack identifying gaps and suggesting improvements grounded in clone-cache truth and knowledge artifacts.",
+      "internal": false,
+      "canonical_path": "skills/section-enhance.md"
+    },
+    {
+      "id": "S-97",
+      "slug": "cleanroom-regen",
+      "name": "Cleanroom Regen — Regenerate, Diff, Review, Apply, Gate",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/cleanroom-regen.md"
+    },
+    {
+      "id": "S-98",
+      "slug": "content-enrich",
+      "name": "Content Enrich -- Post-Launch Cross-Subdomain Enrichment",
+      "description": "Audit content coverage across all five subdomains (products, docs, kb, blog, reference) for a launched product, identify enrichment gaps, generate scored candidates with denominator invariant enforcement, and produce governed execution manifests for downstream skill invocation.",
+      "internal": false,
+      "canonical_path": "skills/content-enrich.md"
+    },
+    {
+      "id": "S-99",
+      "slug": "pipeline-harden",
+      "name": "Pipeline Harden — Parameterized Pipeline Hardening Sprint",
+      "description": "Execute a full pipeline hardening sprint for one `{family}/{platform}`.",
+      "internal": false,
+      "canonical_path": "skills/pipeline-harden.md"
+    },
+    {
+      "id": "S-100",
+      "slug": "blog-migrate",
+      "name": "Blog Migrate — Governed Blog Folder Slug Migration",
+      "description": "Migrate blog post folder slugs from WEAK or BAD quality to OK quality by:",
+      "internal": false,
+      "canonical_path": "skills/blog-migrate.md",
+      "args": "``"
+    },
+    {
+      "id": "S-101",
+      "slug": "new-blog-index",
+      "name": "New Blog Index — Scaffold Blog Platform Section Branch Bundle",
+      "description": "Creates the Hugo branch bundle at",
+      "internal": false,
+      "canonical_path": "skills/new-blog-index.md"
+    },
+    {
+      "id": "S-102",
+      "slug": "grade-remediate",
+      "name": "Grade Remediate — Fix D/F Grade Pages",
+      "description": "After a knowledge refresh or content update cycle, some pages may be graded D or F",
+      "internal": false,
+      "canonical_path": "skills/grade-remediate.md",
+      "args": "`{family} {platform}`"
+    },
+    {
+      "id": "S-103",
+      "slug": "post-sprint-loop",
+      "name": "Post-Sprint Autonomy Loop",
+      "description": "Run the persisted post-sprint autonomy loop through P1 audit, P2 plan hardening, and P3 controlled execution.",
+      "internal": false,
+      "canonical_path": "skills/post-sprint-loop.md",
+      "args": "`[--sprint-id <id>]` (only needed on first run; auto-detected from state thereafter)"
+    },
+    {
+      "id": "S-104",
+      "slug": "semantic-diff",
+      "name": "Semantic Diff",
+      "description": "Convert knowledge_delta.json into typed semantic change objects.",
+      "internal": false,
+      "canonical_path": "skills/semantic-diff.md"
+    },
+    {
+      "id": "S-105",
+      "slug": "body-refresh",
+      "name": "Body Refresh",
+      "description": "Execute body prose updates for docs/KB/blog pages based on semantic changes.",
+      "internal": false,
+      "canonical_path": "skills/body-refresh.md"
+    },
+    {
+      "id": "S-106",
+      "slug": "refresh-oracle",
+      "name": "Refresh Oracle",
+      "description": "Validate refreshed content against source truth after body_refresh execution.",
+      "internal": false,
+      "canonical_path": "skills/refresh-oracle.md"
+    },
+    {
+      "id": "S-107",
+      "slug": "locale-refresh-handoff",
+      "name": "Locale Refresh Handoff",
+      "description": "Queue locale equivalents for re-translation after body refresh updates.",
+      "internal": false,
+      "canonical_path": "skills/locale-refresh-handoff.md"
+    },
+    {
+      "id": "S-108",
+      "slug": "frontmatter-body-consistency",
+      "name": "Frontmatter Body Consistency",
+      "description": "Detect contradictions between frontmatter evidence fields and body prose.",
+      "internal": false,
+      "canonical_path": "skills/frontmatter-body-consistency.md"
+    },
+    {
+      "id": "S-109",
+      "slug": "production-localization-incident",
+      "name": "Production Localization Incident — Contain, Investigate, Repair, Verify, and Close Localized Production Incidents",
+      "description": "Orchestrate production localization incidents without duplicating translation or pipeline-hardening behavior.",
+      "internal": false,
+      "canonical_path": "skills/production-localization-incident.md",
+      "args": "``"
+    },
+    {
+      "id": "S-111",
+      "slug": "baseline-ledger-writer",
+      "name": "Baseline Ledger Writer — Append-Only Baseline SHA History",
+      "description": "Give every product a durable, append-only baseline SHA history instead of the single mutable",
+      "internal": false,
+      "canonical_path": "skills/baseline-ledger-writer.md"
+    },
+    {
+      "id": "S-112",
+      "slug": "triage-verdict-gate",
+      "name": "Triage Verdict Gate — Deterministic Commit Precondition",
+      "description": "Turn S-92 triage-confirm's findings into a real, blocking gate.",
+      "internal": false,
+      "canonical_path": "skills/triage-verdict-gate.md"
+    },
+    {
+      "id": "S-113",
+      "slug": "plan-health-watchdog",
+      "name": "Plan Health Watchdog — Structured Stall Detection",
+      "description": "Make \"is this plan's prose still true, and is any P0 silently stuck?\" a machine-checkable question.",
+      "internal": false,
+      "canonical_path": "skills/plan-health-watchdog.md"
+    },
+    {
+      "id": "S-114",
+      "slug": "regression-classification",
+      "name": "Regression Classification — Cited JUSTIFIED/UNJUSTIFIED Verdicts",
+      "description": "Formalize \"classify a grade regression as JUSTIFIED/UNJUSTIFIED with a cited evidence source\" as a",
+      "internal": false,
+      "canonical_path": "skills/regression-classification.md"
+    },
+    {
+      "id": "S-115",
+      "slug": "workflow-harden",
+      "name": "Workflow Harden — GitHub Actions CI Forensic Audit & Hardening",
+      "description": "Manually review every GitHub Actions workflow in `.github/workflows/` (and any composite",
+      "internal": false,
+      "canonical_path": "skills/workflow-harden.md"
+    },
+    {
+      "id": "S-116",
+      "slug": "seo-review",
+      "name": "SEO Review — Independent-Agent Review Gate for Pending SEO Recommendations",
+      "description": "Load `safe_recommendations.json`, independently re-verify each proposed `description`/",
+      "internal": false,
+      "canonical_path": "skills/seo-review.md"
+    },
+    {
+      "id": "S-117",
+      "slug": "mechanism-sweep",
+      "name": "Mechanism Sweep — Cross-Product Pipeline-Improvement Propagation",
+      "description": "`change-sweep` (S-94) answers \"did the *upstream FOSS repo* change for any launched",
+      "internal": false,
+      "canonical_path": "skills/mechanism-sweep.md"
+    },
+    {
+      "id": "S-118",
+      "slug": "package-publish-watch",
+      "name": "Package Publish Watch — Multi-Registry Publish Detection and Content Healing",
+      "description": "Maven has its own watcher (`publish_watcher.py`, Mission MT008 D-03) because",
+      "internal": false,
+      "canonical_path": "skills/package-publish-watch.md"
+    },
+    {
+      "id": "S-119",
+      "slug": "media-optimize",
+      "name": "Media Optimize — Ensure Every Icon/Banner Slot Has Both WebP and PNG",
+      "description": "Product icons and banner (social-preview) images dropped under",
+      "internal": false,
+      "canonical_path": "skills/media-optimize.md"
+    },
+    {
+      "id": "S-120",
+      "slug": "readme-refresh",
+      "name": "README Refresh",
+      "description": "Generate, verify, and (on explicit approval) push a production-grade README.md refresh for one FOSS product repository, through the registered run-bound readme_refresh_run.py state machine.",
+      "internal": false,
+      "canonical_path": "skills/readme-refresh.md"
+    },
+    {
+      "id": "S-121",
+      "slug": "root-docs-refresh",
+      "name": "Root Docs Refresh",
+      "description": "Repeatable, deterministic-check-driven refresh of the seven root-level operator/governance docs (OPERATOR_GUIDE.md, RUNBOOK.md, CODEX.md, GRADE_CONTRACT.md, LAYMAN_SYSTEM_STATUS_REVIEW.md, TASK_BACKLOG.md, TASK_BACKLOG_20260521.md) through the registered run-bound root_docs_refresh_run.py state machine.",
+      "internal": false,
+      "canonical_path": "skills/root-docs-refresh.md",
+      "args": "none — always operates on the fixed seven-file set."
+    },
+    {
+      "id": "S-122",
+      "slug": "blind-spot-audit",
+      "name": "Blind-Spot Audit",
+      "description": "Read-only, unaided (no-tooling) dual-pass review of one or more products' cloned FOSS repos and generated content, sealed before any system tooling runs, then a system-tooling pass, a manual-vs-system blind-spot comparison matrix, root-cause analysis, solution- options fix planning, and schema-5f taskcard emission via the registered run-bound blind_spot_audit_run.py state machine.",
+      "internal": false,
+      "canonical_path": "skills/blind-spot-audit.md",
+      "args": "`--products family/platform [family/platform ...] --mission-id ID`"
+    },
+    {
+      "id": "S-123",
+      "slug": "forensic-heal-sprint",
+      "name": "Forensic Heal Sprint",
+      "description": "Consumes a mission's schema-5f taskcards (typically emitted by S-122 blind-spot-audit) and drives them through system-heal, content-regen, verify, harden, reverify, a 7-link pilot chain, 12 named adversarial probes, and computed (never asserted) dual verdicts, appending one tracked row to docs/governance/forensic-heal-history.md on close.",
+      "internal": false,
+      "canonical_path": "skills/forensic-heal-sprint.md",
+      "args": "`--mission-id ID [--task-ids ID [ID ...]]`"
+    },
+    {
+      "id": "S-124",
+      "slug": "blog-release-check",
+      "name": "Blog Release Check — Mandatory Per-Release Announcement Trigger",
+      "description": "Checks whether a refresh run's real, non-empty knowledge delta requires a mandatory",
+      "internal": false,
+      "canonical_path": "skills/blog-release-check.md"
+    },
+    {
+      "id": "S-125",
+      "slug": "git-tracking-policy",
+      "name": "Git Tracking Policy — Selectively Track a Subtree of an Ignored Directory",
+      "description": "Some directories in this repo are blanket-gitignored (e.g.",
+      "internal": false,
+      "canonical_path": "skills/git-tracking-policy.md"
+    },
+    {
+      "id": "S-126",
+      "slug": "example-write",
+      "name": "Example Write — Verified Examples for a Capability Ledger",
+      "description": "Produce verified code examples for the units of a capability ledger, taken from code people already wrote and tested, and hand content skills a table of examples they may cite.",
+      "internal": false,
+      "canonical_path": "skills/example-write.md"
+    },
+    {
+      "id": "S-127",
+      "slug": "independent-content-review",
+      "name": "Independent Content Review — Author-Separated Verification Panel",
+      "description": "Verify every new or changed page to production-website standard with fresh read-only reviewers who did not write it, before publication.",
+      "internal": false,
+      "canonical_path": "skills/independent-content-review.md"
+    },
+    {
+      "id": "S-HT-02",
+      "slug": "ht-translate-batch",
+      "name": "HT-Translate-Batch — Batch Translation via Hugo-Translator",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/ht-translate-batch.md"
+    },
+    {
+      "id": "S-HT-01",
+      "slug": "ht-translate",
+      "name": "HT-Translate — Single Page Translation via Hugo-Translator",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/ht-translate.md"
+    },
+    {
+      "id": "S-LG-03",
+      "slug": "llms-coverage",
+      "name": "llms-coverage — Audit Coverage Gap",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-coverage.md"
+    },
+    {
+      "id": "S-LG-04",
+      "slug": "llms-fidelity",
+      "name": "llms-fidelity — Audit Content Fidelity",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-fidelity.md"
+    },
+    {
+      "id": "S-LG-01",
+      "slug": "llms-generate",
+      "name": "llms-generate — Regenerate All LLMs Outputs",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-generate.md"
+    },
+    {
+      "id": "S-LG-05",
+      "slug": "llms-stale",
+      "name": "llms-stale — Detect Stale LLMs Outputs",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-stale.md"
+    },
+    {
+      "id": "S-LG-02",
+      "slug": "llms-verify",
+      "name": "llms-verify — Verify Live .txt Endpoints",
+      "description": "Skill description pending",
+      "internal": false,
+      "canonical_path": "skills/llms-verify.md"
+    }
+  ]
+}

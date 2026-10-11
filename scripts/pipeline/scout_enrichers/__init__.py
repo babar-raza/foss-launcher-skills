@@ -23,6 +23,7 @@ _ENRICHERS: dict[str, Any] = {
     "java": enrich_javadoc,
     "cpp": enrich_doxygen,
     "dotnet": enrich_xml_doc,
+    "net": enrich_xml_doc,
 }
 
 
@@ -36,7 +37,7 @@ def enrich_classes(
     Args:
         classes: Class records from scout.py extraction.
         repo_dir: Root of the source repository.
-        platform: Target platform (java, cpp, dotnet).
+        platform: Target platform (java, cpp, dotnet, net).
 
     Returns:
         Number of items enriched.

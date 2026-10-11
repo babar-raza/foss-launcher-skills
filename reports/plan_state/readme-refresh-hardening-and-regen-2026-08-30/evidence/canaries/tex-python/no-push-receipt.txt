@@ -1,0 +1,1 @@
+Approved locally (run rr-20260831T173823Z-9fc92f92f68f, approved_at 2026-08-31T17:39:29Z). NOT pushed -- per hard rule 1, tex/python may only be pushed after a separate, explicit, per-PR human go-ahead that does not exist yet.

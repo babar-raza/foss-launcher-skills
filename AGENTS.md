@@ -1,206 +1,155 @@
-# AGENTS.md — foss-launcher-skills Content Generation & Maintenance Governance
+# AGENTS.md — Aspose.org Content Generation & Maintenance Governance
 
-> Last updated: 2026-04-27
+> Last updated: 2026-04-28 (governance refactor — sections decomposed to docs/governance/ and docs/workflows/ child documents; see routing matrix below)
 > Authority: Human maintainer only (see Section 4 — this file is in the forbidden write list)
->
-> Source: Adapted from aspose.org/AGENTS.md (2026-04-24) — governance sections added 2026-04-27
+
+<details>
+<summary>Section Index (click to expand)</summary>
+
+| § | Section | Key content |
+|---|---------|-------------|
+| §1 | [Purpose](#1-purpose) | What agents do here |
+| §2 | [Read Order](#2-read-order-always-read-in-this-order-before-doing-any-work) | Mandatory pre-work gate |
+| §2a | [Source-of-Truth Hierarchy](#2a-source-of-truth-hierarchy) | Conflict resolution |
+| §2b | [Shell Execution Policy](#2b-shell-execution-policy-windows-local-operations) | Windows shell rule |
+| §3 | [Mental Model Refresh](#3-mental-model-refresh-protocol) | → [docs/workflows/mental-model-refresh.md](docs/workflows/mental-model-refresh.md) |
+| §4 | [Allowed Write Paths](#4-allowed-write-paths-enforced-by-s-01-path-guard) | → [docs/reference/governance-gates.md](docs/reference/governance-gates.md) |
+| §4b | [Python File Placement](#4b-python-file-placement-rules) | → [docs/development/python-placement.md](docs/development/python-placement.md) |
+| §4c | [Content Filename Conventions](#4c-content-filename-conventions-tc-new-01-enforced-2026-04-25) | → [docs/reference/governance-gates.md](docs/reference/governance-gates.md) |
+| §5 | [Evidence Requirements](#5-evidence-requirements-non-negotiable) | Non-negotiable grounding |
+| §6 | [Skill Chains by Task](#6-skill-chains-by-task) | → [docs/workflows/skill-chains.md](docs/workflows/skill-chains.md) |
+| §6a | [Skill-First Mandate](#6a-skill-first-execution-mandate) | → [docs/governance/dar-table.md](docs/governance/dar-table.md) |
+| §6b | [Gap Escalation](#6b-capability-classification-and-gap-escalation) | → [docs/workflows/gap-escalation.md](docs/workflows/gap-escalation.md) |
+| §6c | [Causal Backtracking](#6c-causal-backtracking-protocol-added-2026-04-03) | → [docs/workflows/causal-backtracking.md](docs/workflows/causal-backtracking.md) |
+| §6f | [Blog Slug Governance](#6f-blog-slug-governance-added-2026-04-08) | Blog URL rules |
+| §7 | [Hard Stop Conditions](#7-hard-stop-conditions) | When to halt |
+| §7a | [Launch-Readiness Gates](#7a-launch-readiness-gates) | Pre-launch requirements |
+| §7b | [Human-Review Risk Tiers](#7b-human-review-risk-tiers) | Risk tiers + S-90 requirements |
+| §7c | [Agent-Executed Governed Inspection](#7c-agent-executed-governed-inspection-canonical-interpretation-of-human-review) | Canonical meaning of "human-review" |
+| §8 | [Escalation Conditions](#8-escalation-conditions-invoke-s-90-first-escalate-to-real-human-only-for-these) | S-90 routing + real escalation conditions |
+| §9 | [Maintenance Workflow](#9-maintenance-workflow) | → [docs/workflows/maintenance.md](docs/workflows/maintenance.md) |
+| §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | → [docs/development/evaluator-changes.md](docs/development/evaluator-changes.md) |
+| §9b | [Regeneration Triggers](#9b-regeneration-after-extraction-script-changes) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
+| §9c | [Change-Trigger Matrix](#9c-change-trigger-matrix) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
+| §10 | [Evidence Proof in Commits](#10-evidence-proof-in-commits) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
+| §10a | [Verification Standards](#10a-verification-standards-for-fixes) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
+| §10b | [Content Provenance Rules](#10b-content-provenance-rules) | → [docs/_archive/pre-refactor/governance/provenance-rules.md](docs/_archive/pre-refactor/governance/provenance-rules.md) |
+| §10c | [Output-Location Discipline](#10c-output-location-discipline) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
+| §11 | [Prohibited Actions](#11-prohibited-actions) | Hard prohibitions |
+| §12 | [File Map](#12-file-map) | All scripts, skills, paths |
+| §13 | [Internal Metadata Policy](#13-internal-metadata-rendering-policy) | Evidence panel hiding |
+| §14 | [Completion Verification](#14-completion-verification-protocol) | → [docs/workflows/completion-verification.md](docs/workflows/completion-verification.md) |
+| §17 | [Planning Discipline](#17-planning-discipline-mission--taskcard-methodology) | → [docs/governance/planning-methodology.md](docs/governance/planning-methodology.md) |
+
+</details>
 
 ## 1. Purpose
 
-Agents operating with this skills set generate and maintain documentation for Aspose FOSS products.
-All content must be grounded in evidence from the knowledge model. This file is the
-authoritative source of operating rules for all agents.
-
-**Standalone repo operation**: This repo owns the skills system. Content lives in an external
-repo configured via `$CONTENT_REPO_PATH` or `config.yaml:content_root`. Set this before
-running any content-writing skill or pipeline script.
+Agents operating on this repo generate and maintain documentation for Aspose FOSS products. All content must be grounded in evidence from the knowledge model. This file is the authoritative source of operating rules for all agents.
 
 ## 2. Read Order (always read in this order before doing any work)
 
 1. This file (AGENTS.md)
 2. Agent instructions file (`CLAUDE.md`, `CODEX.md`, or `.kilocode/rules-code/`) — if present
-3. `knowledge/{family}/{platform}/model.yaml` — for the target product
-4. `knowledge/{family}/{platform}/claims.md` — verify claims are current
-5. `knowledge/{family}/{platform}/merged/api_surface.md` — for API grounding (human-readable, generated by merge.py)
-6. For any multi-session or multi-agent planning task, `docs/governance/planning-methodology.md` — maps this repo's own planning artifacts onto a generic planning/execution state-machine model (added 2026-08-29)
+3. `knowledge/{family}/{platform}/merged/model.yaml` — for the target product
+4. `knowledge/{family}/{platform}/merged/claims.json` — verify claims are current
+5. `knowledge/{family}/{platform}/merged/api_surface.md` — for API grounding (human-readable, generated by promote.py)
+6. Before creating any new `.py` file in `scripts/pipeline/`, read `scripts/pipeline/PIPELINE.md`
+   in full (§ New File Protocol, § Registry Schema, § Shared Module Rules).
+
+New contributor or agent? See the `getting-started` skill for step-by-step fresh-clone setup.
+
+> **New operator or agent?** Before reading further, start here:
+> - [`docs/QUICKSTART.md`](docs/QUICKSTART.md) — 30-minute onboarding (environment, session flow, five workflows)
+> - [`OPERATOR_GUIDE.md`](OPERATOR_GUIDE.md) — What skills are and how to invoke them
+> - [`RUNBOOK.md`](RUNBOOK.md) — Terminal command cheatsheet
+>
+> After completing the quickstart, return here and read AGENTS.md in full before your first content task.
 
 ## 2a. Source-of-Truth Hierarchy
 
-When a conflict exists between two artifacts, this hierarchy governs which one
-is authoritative. Higher items override lower items — never the reverse.
+When a conflict exists between two artifacts, this hierarchy governs which one is authoritative. Higher items in the list override lower items — never the reverse.
 
 | Priority | Source | Scope |
 |----------|--------|-------|
 | 1 | FOSS repo source code (clone cache at `runs/.clone_cache/`) | API surface, class names, method signatures, namespaces |
 | 2 | `knowledge/{family}/{platform}/merged/api_surface.json` | What the scout extracted from source; authoritative for content generation |
-| 3 | `knowledge/{family}/{platform}/merged/formats.json` | Format support; must reconcile with api_surface |
+| 3 | `knowledge/{family}/{platform}/merged/formats.json` | Format support; must reconcile with api_surface (see §9c) |
 | 4 | `knowledge/{family}/{platform}/merged/claims.json` | Enriched semantic claims; must not contradict api_surface or formats |
 | 5 | `knowledge/{family}/{platform}/merged/limitations.md` | Known unimplemented features; overrides positive claims at same priority level |
-| 6 | Generated content in `$CONTENT_REPO_PATH/content/` | Output artifact; must reflect all higher sources |
+| 6 | Generated content in `content/` | Output artifact; must reflect all higher sources |
 
-**Conflict resolution rule**: When a content claim contradicts a higher-priority source,
-fix the content (or the knowledge artifact) — never demote the higher-priority source to
-match the content.
+**Conflict resolution rule**: When a content claim contradicts a higher-priority source, fix the content (or the knowledge artifact) — never demote the higher-priority source to match the content.
 
-**Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout
-reads them; the knowledge layer synthesizes from them.
+**Cloned repos are read-only.** Agents never write to `runs/.clone_cache/`. The scout (S-34) reads them; the knowledge layer synthesizes from them.
 
-**Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and
-`knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they
-contradict the clone cache, re-run the knowledge bootstrap chain
-(repo-scout → truth-merge → truth-index) to regenerate from source.
+**Phase artifacts are not source of truth.** `knowledge/{family}/{platform}/scout/` and `knowledge/{family}/{platform}/merged/` are derived from the clone cache. If they contradict the clone cache, re-run the knowledge bootstrap (S-12 → S-14) to regenerate from source.
 
 ## 2b. Shell Execution Policy (Windows Local Operations)
 
+### Git Push — Non-Interactive Token Auth
+
+The GCM credential dialog does not open in agent Bash sessions (no TTY).
+Use `GH_TOKEN` (always set in the environment) with the `x-access-token` URL scheme:
+
+```bash
+git push "https://x-access-token:${GH_TOKEN}@github.com/Aspose/aspose.org.git" main
+```
+
+Note: `GITHUB_PAT` is also set but does **not** work for push to this repo — only `GH_TOKEN` does.
+The remote URL in `.git/config` uses lowercase `aspose` but GitHub redirects to `Aspose`; both work.
+
 ### Rule
 All local repo operations on Windows MUST be performed in Git Bash
-(MSYS2/MINGW64, provided by Git for Windows). The governance scripts, hooks,
-and pipeline depend on bash semantics and Unix utilities (grep, git, bash
-conditionals, LF line endings).
+(MSYS2/MINGW64, provided by Git for Windows). This is not a preference —
+the governance scripts, hooks, and pipeline depend on bash semantics and
+Unix utilities (grep, git, bash conditionals, LF line endings).
 
 ### Scope
 Applies to:
 - Human operators running scripts, hooks, or pipeline commands locally
 - Agent-driven workflows using the Claude Code Bash tool on Windows
-- Any script invoked during: setup, hook installation, knowledge pipeline,
-  skill execution, content generation or validation
+- Any script invoked during: setup, hook installation, git commit,
 
-Does NOT apply to:
-- CI pipelines (GitHub Actions / GitLab CI): run on ubuntu-latest (native bash)
-- Linux/macOS contributors: already native bash; no change
-- Read-only operations (browsing files, reading docs): no shell requirement
-
-### Accepted shell (Windows)
-Git Bash (Git for Windows) is the only accepted shell on Windows.
-Detection signature: `$MSYSTEM` contains "MINGW" AND `$BASH_VERSION` is set.
-Installation: https://git-scm.com/downloads
-
-### Rejected shells (Windows)
-- **cmd.exe**: No bash, no Unix utilities, wrong path separators
-- **PowerShell / pwsh**: Different quoting, no Unix utilities, CRLF risk
-- **WSL (any version)**: Drops environment variables across the Windows\u2192WSL
-  boundary, breaking governance hooks. Permanently rejected.
-- **Cygwin**: MSYS2-incompatible path semantics. Rejected.
-
-### Ownership
-Human maintainer owns this policy.
-
+> Full detail on invocations,  policy, and repair steps: [docs/registries/file-map.md](docs/registries/file-map.md)
 
 ## 3. Mental Model Refresh Protocol
 
-Before editing any content page for family/platform X:
+> Full detail: [docs/workflows/mental-model-refresh.md](docs/workflows/mental-model-refresh.md)
 
-1. Read `knowledge/{family}/{platform}/model.yaml`
-2. If `stale_since` is not null → the knowledge model is outdated; do not edit content until
-   a knowledge-diff (S-12) and knowledge-update (S-14) have been run
-3. Read `claims.md` and `api_surface.md` for the product
-4. Only then proceed to content tasks
+- **Filesystem hygiene check**: At session start, run `ls | grep '^public-'` in the repo root to detect stale Hugo build artifact directories. If any exist (e.g., `public-sq-*`, `public-as-*`, `public-iv-*`), delete them with `rm -rf <dirname>`. These dirs are gitignored and do not affect `git status`, but waste disk space and may confuse rendered validation scans. Do NOT delete `public/` (Hugo default output, used by `hugo server`).
 
 ## 3a. Platform Folder Naming
 
-The `{platform}` segment in all content and knowledge paths must use the short name:
+> Full detail: [docs/_archive/pre-refactor/governance/naming-conventions.md](docs/_archive/pre-refactor/governance/naming-conventions.md) *(archived)*
 
-| Platform | Folder name | **Never** use |
-|----------|-------------|---------------|
-| .NET / C# | `net` | `dotnet` |
-| Python | `python` | — |
-| Java | `java` | — |
-| C++ | `cpp` | — |
-| TypeScript | `typescript` | `ts` |
+## 3b. `plugin_platform` Display Name (products.aspose.org)
+
+> Full detail: [docs/_archive/pre-refactor/governance/naming-conventions.md](docs/_archive/pre-refactor/governance/naming-conventions.md) *(archived)*
 
 ## 4. Allowed Write Paths (enforced by S-01 path-guard)
 
-All content paths are relative to `$CONTENT_REPO_PATH` (or `config.yaml:content_root`).
-Configure your content root before running any content-writing skill or script.
-
-```
-ALLOWED (relative to content_root):
-  content/docs.aspose.org/en/{family}/{platform}/
-  content/blog.aspose.org/{family}/{platform}/
-  content/kb.aspose.org/en/{family}/{platform}/
-  content/products.aspose.org/en/{family}/
-  content/reference.aspose.org/en/{family}/{platform}/
-
-ALLOWED (relative to this standalone skills repo):
-  knowledge/   (evidence artifacts and model only)
-  reports/     (audit and check reports)
-  evidence/    (Phase 0 evidence pipeline output)
-  plans/       (page structure plans)
-  output/      (generated content during testing)
-
-FORBIDDEN (no agent may write here without explicit human override):
-  themes/
-  layouts/
-  configs/
-  CLAUDE.md
-  CODEX.md
-  AGENTS.md    (this file — only humans may update it)
-  .claude/     (Claude Code config)
-  .agents/     (Codex config)
-  .kilocode/   (Kilo Code config)
-  skills/      (canonical skill source — only humans may update)
-  scripts/     (pipeline scripts — only humans may update)
-```
+> Full detail: [docs/reference/governance-gates.md](docs/reference/governance-gates.md)
 
 ## 4b. Python File Placement Rules
 
-**Agents cannot create `.py` files in this repository without explicit human
-maintainer authorization** (see §4 — `scripts/` is in the FORBIDDEN list).
+> Full detail: [docs/development/python-placement.md](docs/development/python-placement.md)
 
-### When a new script is needed
+## 4c. Content Filename Conventions (TC-NEW-01, enforced 2026-04-25)
 
-Follow the gap escalation protocol (§6b):
-1. Classify the requirement as PARTIAL or NONE
-2. Produce a gap escalation report at `reports/skill-gaps/`
-3. Await human maintainer decision
-
-### When the human maintainer authorizes a new script
-
-Apply this decision tree before placing any `.py` file:
-
-1. **Will a skill or CI step invoke this script?**
-   YES → `scripts/pipeline/`
-
-2. **Is this a CI-only read-only validator?**
-   YES → `scripts/ci/check_{what}.py` or `validate_{what}.py`
-
-3. **Is this a standalone operator-run maintenance script?**
-   YES → `scripts/maintenance/{verb}_{what}_{scope}.py`
-
-4. **Does this belong to the translator, gap-eval, or generator subsystem?**
-   YES → add to that subsystem package directory.
-
-5. **None of the above** → do not create the file; file a gap escalation report.
-
-### Naming conventions
-
-| Directory | Convention | Example |
-|-----------|-----------|---------|
-| `scripts/pipeline/` | `{noun}.py` or `{verb}_{noun}.py` | `audit.py`, `attach_evidence.py` |
-| `scripts/ci/` | `check_{what}.py` or `validate_{what}.py` | `validate_skills.py` |
-| `scripts/maintenance/` | `{verb}_{what}_{scope}.py` | `repair_stale_claims.py` |
-
-### Forbidden Python file locations
-
-- `<repo root>/*.py` — not allowed; use a scripts/ subdirectory
-- `scripts/*.py` — scripts/ root is not in allowlist; use a subdirectory
-
-### Extend-before-create rule
-
-Search `scripts/pipeline/` and `scripts/ci/` before adding any utility function.
-Never create a duplicate helper.
-
+> Full detail: [docs/reference/governance-gates.md](docs/reference/governance-gates.md)
 
 ## 5. Evidence Requirements (non-negotiable)
 
-- Every content page write must pass S-23 (ground-check) before committing.
-  **S-23 implementation**: `python scripts/pipeline/audit.py --files {path}` (deterministic, scriptable).
+- Every content page write must pass S-23 (content-check) before committing.
+  **S-23 implementation**: `python scripts/pipeline/commands/content/audit.py --files {path}` (deterministic, scriptable).
+  Pre-commit hook enforces this automatically; CI workflow blocks PRs with FAILs.
 - Every code block in `content/` must come from a snippet in `knowledge/{family}/{platform}/snippets/`
 - Every factual claim must be traceable to a `claim_id` in `knowledge/{family}/{platform}/claims.json`
 - Claims with `confidence < 0.5` require human review before use
 - An `evidence:` YAML frontmatter block must be present in every content page. Generate it
-  deterministically with `python scripts/pipeline/attach_evidence.py --files {path}` (for pages
-  with code blocks) or manually via S-24 (for prose-only pages). Format:
+  deterministically with `python scripts/pipeline/commands/healing/attach_evidence.py --files {path}` (for pages
+  with code blocks) or manually via S-24 (evidence-cite, for prose-only pages). Format:
   ```yaml
   evidence:
     model_sha: "<repo_sha from merged/model.yaml>"   # anchors to knowledge version
@@ -211,421 +160,72 @@ Never create a duplicate helper.
   ```
   Do **not** include `ground_check:` — it is self-reported and unverifiable.
   Do **not** use inline HTML comments (`<!-- evidence: ... -->`).
-  Frontmatter is the canonical citation store, machine-validated by `audit.py`.
-  After any knowledge model update, rerun `attach_evidence.py {family} {platform}` to refresh stale blocks.
+  Frontmatter is the canonical citation store, machine-validated by `audit.py`. The
+  `evidence-panel` Hugo partial renders this data **only in non-production builds**
+  (see Section 13 — Internal Metadata Rendering Policy). After any knowledge model update,
+  rerun `attach_evidence.py {family} {platform}` to refresh stale blocks.
+
+## 5a. Knowledge Bootstrap Prerequisite (LH-02, added 2026-04-30)
+
+**Knowledge bootstrap is a hard prerequisite for content generation and healing.**
+
+These rules were adopted after the forensic-audit-healing sprint (2026-04-30) confirmed that
+15 of 16 products had no local knowledge, causing content to be generated or evaluated without
+any grounded source to validate against.
+
+### Generation gate
+
+- `/launch-product`, `/new-docs-page`, `/new-blog-post`, `/new-kb-howto`, `/batch-reference`,
+  and all generation skills MUST verify that `knowledge/{family}/{platform}/merged/model.yaml`
+  exists and `stale_since == null` before writing any content page.
+- If knowledge is missing: HARD STOP. Run `/repo-scout`, `/truth-merge` first.
+- If knowledge is stale: HARD STOP. Run `/knowledge-diff`, `/knowledge-update` first.
+- `batch_reference.py` MUST NOT gracefully degrade on missing knowledge. It must exit with
+  error code 1 before writing any pages when `knowledge.available == False`.
+
+### Evaluator gate
+
+- All content evaluators MUST NOT silently return empty findings when knowledge is unavailable.
+- When `knowledge.available == False`, every evaluator MUST return exactly one WARN finding
+  with the text: "UNVERIFIED: knowledge artifacts not available for {family}/{platform}. Claims
+  cannot be validated."
+- Silent skip (returning `[]`) is prohibited -- it causes ungrounded content to pass quality gates.
+
+### Ungrounded content marking
+
+- Content pages generated or evaluated without local knowledge MUST have
+  `provenance.knowledge_status: ungrounded` in their frontmatter.
+- Ungrounded pages MUST NOT receive grade A. The grade ceiling for ungrounded pages is B.
+- Publication readiness review (S-90) MUST fail or produce a WARN when a product has
+  ungrounded pages in any mandatory content section (docs, kb, blog, reference).
+
+### Verification
+
+These rules are enforced by:
+- `scripts/pipeline/tests/content_eval/test_evaluators.py`: `test_no_knowledge_warn()`
+  asserts evaluators return WARN with "UNVERIFIED" on missing knowledge (added STATE 1.5)
+- `scripts/pipeline/tests/test_batch_reference.py`: `test_stale_knowledge_exits` asserts
+  batch_reference exits non-zero when knowledge is stale (covers EH-02 behavior; missing
+  model.yaml path added to same exit code path in STATE 1.5)
+- `audit.py`: will FAIL pages with `knowledge_status: ungrounded` that have grade A
 
 ## 6. Skill Chains by Task
 
-### Initial generation (new page)
-
-```
-S-10 (project phase_store) → S-18 (page-plan) → S-19 (page-draft) → S-22 (faq-generate)
-→ S-23 (ground-check / audit.py) → S-38 (truth-audit, deep) → S-24 (citation-attach) → S-01 (path-guard) → write
-```
-
-### Knowledge bootstrap
-
-```
-S-34 (repo-scout) → S-35 (truth-merge) → S-31 (truth-index)
-```
-
-### FL knowledge import (after a successful FOSS-Launcher promote run)
-
-```
-S-30 (truth-sync) → S-35 (truth-merge) → S-31 (truth-index)
-```
-
-### Maintenance (repo changed)
-
-```
-S-12 (knowledge-diff) → S-13 (stale-detect) → S-14 (knowledge-update) → S-20 (page-update)
-→ S-23 (audit.py) → S-24 → S-01 → write
-```
-
-### Enhancement (below rubric quality)
-
-```
-S-17 (rubric-align) → S-21 (page-enhance) → S-23 → S-01 → write
-```
-
-### Healing (grade D or below)
-
-```
-S-25 (eval-page) → S-26 (heal-page) → S-23 → S-25 → S-01 → write (or escalate)
-```
-
-### Batch remediation
-
-```
-S-40 (batch-remediate) — full eval→fix→LLM→re-eval
-S-41 (batch-eval-fix) — deterministic auto-fix only (no LLM)
-```
-
-### Product launch (full end-to-end — orchestrated by S-38)
-
-```
-Phase 1 (knowledge extraction):
-  S-34 (repo-scout) → S-35 (truth-merge) → S-31 (truth-index)
-  → S-15 (embed-knowledge, conditional) → S-37 (corpus-scan per site type)
-
-Phase 1.5 (evidence materialization):
-  S-44 (evidence-materialize) → S-45 (mental-model) → S-43 (evidence-decide)
-  evidence-decide produces decision.json: create | update | enhance | verify_only | no_change
-  Phase 2 only processes pages with action: create | update
-
-Phase 2 (pages — for each page where decision = create | update):
-  S-10 → S-18 → S-19 → S-22 (conditional) → S-23 (audit.py) → S-24 → S-01 → write
-
-Phase 3 (consistency, conditional):
-  S-36 (cross-platform) — if multiple platforms exist in family
-
-Phase 4 (launch report):
-  reports/launch/{family}-{platform}-{timestamp}.md
-```
+> Full detail: [docs/workflows/skill-chains.md](docs/workflows/skill-chains.md)
 
 ## 6a. Skill-First Execution Mandate
 
-### Rule
-
-Every agent operating on this repo must treat the skill system as the **default and
-required** execution mechanism. This rule has the same enforcement weight as path-guard
-(§4) and evidence requirements (§5).
-
-### What "skill-first" means in practice
-
-1. **Before starting any task**, identify which registered skill(s) in §12 cover it.
-2. **Invoke matching skills** in the order defined by §6 chains. Do not perform
-   equivalent work through inline reasoning, shell one-liners, or ad hoc prompting
-   when a skill exists.
-3. **Activate upstream dependencies automatically.** If a skill requires a precondition
-   (e.g., knowledge bootstrap before page-draft), invoke that precondition skill first
-   even if the user's request did not mention it.
-4. **Do not invent workflows.** If no skill covers the requirement, follow §6b (gap
-   escalation). Do not design a one-off process and execute it.
-
-### Dependency Activation Rule (DAR)
-
-Agents must activate the upstream skill if it has not already been confirmed as passing
-in the current session. "Passing" means: the upstream skill returned a non-STOP status
-in this conversation, no knowledge-modifying skill has run since, and less than one
-hour has elapsed.
-
-| Downstream skill | Required upstream | Trigger condition |
-|-----------------|------------------|------------------|
-| `/page-plan` | `/knowledge-bootstrap` | Always |
-| `/page-draft` | `/knowledge-bootstrap` | Always |
-| `/page-draft` | `/page-plan` | Plan not in session context |
-| `/page-update` | `/knowledge-diff` + `/knowledge-update` | `stale_since` not null |
-| `/page-enhance` | `/eval-page` or `/rubric-align` | Eval not in session context |
-| `/heal-page` | `/eval-page` | Eval not in session context |
-| `/content-check` | `/knowledge-bootstrap` | Always |
-| `/truth-merge` | `/repo-scout` | Scout output absent |
-| `/batch-remediate` | `/knowledge-bootstrap` | Always |
-| `/batch-eval-fix` | `/knowledge-bootstrap` | Always |
-| `/faq-generate` | `/knowledge-bootstrap` | Always |
-| `/new-docs-page` | `/knowledge-bootstrap` | Always |
-| `/new-blog-post` | `/knowledge-bootstrap` | Always |
-| `/new-kb-howto` | `/knowledge-bootstrap` | Always |
-| `/new-kb-faq` | `/knowledge-bootstrap` | Always |
-| `/new-reference-page` | `/knowledge-bootstrap` | Always |
-| `/new-products-page` | `/knowledge-bootstrap` | Always |
-| `/batch-reference` | `/knowledge-bootstrap` | Always |
-| `/change-guard` | `/knowledge-bootstrap` | Always |
-| `/content-audit` | `/knowledge-bootstrap` | Always |
-| `/site-plan` | `/knowledge-bootstrap` | Always |
-| `/family-sync` | `/knowledge-bootstrap` | Always |
-| `/launch-product` | `/site-plan` | Always (must run before Stage 1; produces slug manifest) |
-| `/gap-apply` | `/gap-plan` | Plan not in session context |
-| `/new-docs-index` | `/knowledge-bootstrap` | Always |
-| `/new-kb-index` | `/knowledge-bootstrap` | Always |
-| `/new-reference-index` | `/knowledge-bootstrap` | Always |
-| `/register-human-content` | `/knowledge-bootstrap` | Always |
-| `/evidence-repair` | `/knowledge-diff` + `/knowledge-update` | `stale_since` not null |
-| `/manual-edit` | `/knowledge-diff` + `/knowledge-update` | `stale_since` not null |
-| `/evidence-enhance` | `/knowledge-diff` + `/knowledge-update` | `stale_since` not null |
-| `/delta-site-plan` | `/knowledge-update` | Always (knowledge_delta.json must exist) |
-| `/page-retire` | `/delta-site-plan` | When retiring from plan; or explicit operator path |
-| `/refresh-product` | `/knowledge-diff` | Always (auto-invokes knowledge-update, delta-site-plan, page-retire) |
-| `/truth-audit-content` | `/knowledge-bootstrap` | Always |
-| `/system-heal` | `/gap-eval` | Always (Phase 1 invokes gap-eval --no-llm) |
-| `/system-heal` | `/knowledge-bootstrap` | Always (knowledge must not be stale before healing) |
-| `/publish-readiness-review` | `/knowledge-bootstrap` | Always |
-| `/publish-readiness-review` | `/eval-page` or content_eval | Grades must be current at EVALUATOR_LOGIC_VERSION |
-| `/backlog harvest` | `harvest_ledger.py` + `report_extract.py` | Always |
-| `/discovery-triage` | `/repo-patrol` | When routing patrol findings (patrol_report.json must exist) |
-| `/discovery-triage` | `/change-sweep` | When routing sweep findings (sweep_report.json must exist) |
-| `/section-enhance` | `/knowledge-diff` + `/knowledge-update` | When `stale_since` is not null in knowledge model |
-| Any content write | `/path-guard` | Always (final gate) |
-
-If the upstream skill returns `STOP` or `DENY`, halt immediately and report. Do not
-continue to the downstream skill.
-
-**DAR scope**: Orchestrator skills that invoke upstream dependencies as part of their
-own internal pipeline are not listed — they manage their own dependency chain. The
-test is: "Does this skill require someone else to have already run the upstream skill?"
-
-**DAR maintenance**: When a skill is added, removed, renamed, or split, update this
-table. Run `python scripts/ci/validate_skills.py` to verify registry alignment.
+> Full detail: [docs/governance/dar-table.md](docs/governance/dar-table.md)
 
 ## 6b. Capability Classification and Gap Escalation
 
-Before starting any task that is not a direct invocation of a single registered skill,
-classify capability level and act accordingly.
+> Full detail: [docs/workflows/gap-escalation.md](docs/workflows/gap-escalation.md)
 
-### Capability states (choose exactly one)
+## 6c. Causal Backtracking Protocol (added 2026-04-03)
 
-| State | Definition | Required action |
-|-------|-----------|----------------|
-| **FULL** | Every step of the requirement is covered by a registered skill in §12 | Invoke the skill chain; no gap report needed |
-| **PARTIAL** | Some steps are covered; others are not | Execute skill-covered steps; produce gap escalation report for uncovered steps; do not perform uncovered steps through ad hoc work |
-| **NONE** | No registered skill covers this requirement | Do not start work; produce gap escalation report immediately; await human decision |
-| **BROKEN** | A required skill exists but fails when invoked | Invoke it, capture failure output; produce breakage report; do not bypass; await human decision |
+> Full detail: [docs/workflows/causal-backtracking.md](docs/workflows/causal-backtracking.md)
 
-### Classification output
-
-When starting a novel, multi-part, or ambiguous request, state:
-
-```text
-CAPABILITY ASSESSMENT — {brief task description}
-State: FULL | PARTIAL | NONE | BROKEN
-Skill(s) covering this task: [list skill IDs and names, or "none"]
-Gap (if PARTIAL or NONE): [describe what is not covered]
-Broken skill (if BROKEN): [skill ID, invocation attempted, error observed]
-Planned action: [what you will do next]
-```
-
-For direct invocations of a single skill or a predefined §6 chain, this output is
-implicit — you do not need to print it.
-
-### Gap escalation report format
-
-When state is PARTIAL or NONE, save to `reports/skill-gaps/{YYYY-MM-DD}-{task-slug}.md`:
-
-```text
-SKILL GAP ESCALATION
-Task: {what was requested}
-Capability state: PARTIAL | NONE
-Skills invoked (completed): [list]
-Uncovered requirement: {precise description}
-Impact: {what the user won\u2019t get until this gap is filled}
-
-ENHANCEMENT PLAN
-  Title: {short name for the missing skill}
-  Proposed skill ID: {next available S-xx or descriptive name}
-  Input: {what the skill would receive}
-  Output: {what the skill would produce}
-  Skill file location: skills/{proposed-name}.md
-  Depends on: {upstream skills it would call}
-  Estimated complexity: LOW | MEDIUM | HIGH
-  Workaround available: YES | NO
-```
-
-### Broken skill report format
-
-When state is BROKEN, save to `reports/skill-breakage/{YYYY-MM-DD}-{skill-id}.md`:
-
-```text
-SKILL BREAKAGE REPORT
-Skill: {ID and name}
-Invocation: {exact command or invocation attempted}
-Expected output: {what the skill\u2019s spec says it should produce}
-Actual output / error: {verbatim failure output}
-Impact: {what tasks are blocked until this is fixed}
-Suggested diagnosis: {most likely cause based on the error}
-```
-
-### Novel requirement protocol
-
-If the requirement does not match any task type in §6:
-
-1. Classify capability (FULL / PARTIAL / NONE) — for truly novel requirements this will
-   usually be PARTIAL or NONE.
-2. If PARTIAL: execute skill-covered steps, then produce gap escalation report.
-3. If NONE: produce gap escalation report immediately. Do not attempt the work.
-4. Do not design a new workflow and execute it inline — this is prohibited by §11.
-5. Fill in the "Enhancement Plan" section of the gap escalation report fully.
-
-### Anti-workaround mandate
-
-Before creating any new `.py` file or before writing any inline loop, shell hack, or
-ad hoc Python to work around a missing pipeline step, you MUST:
-
-1. **Check for an existing script** — if broken, classify as BROKEN and file a breakage
-   report. Fix the script; do not invent a parallel workaround.
-2. **Check for an existing skill** — if the task maps to a registered skill, invoke it.
-   If the skill fails, classify as BROKEN.
-3. **If the capability is truly absent** — classify as NONE, produce a gap escalation
-   report immediately, add the missing script or skill with CONTRACT comment, tests, and
-   docs before using it.
-4. **If a workaround is unavoidable** — mark it explicitly as TEMPORARY in a comment,
-   create a tracked remediation item, and include exit criteria.
-5. **Reverify after every fix** — re-run the original failing scenario to prove the
-   workaround is no longer needed.
-
-## 6c. Causal Backtracking Protocol
-
-### Principle
-
-A page grade is only **final** when all evaluation findings are caused by **local content
-defects** that the page itself can fix. If any finding has `cause_class: UPSTREAM_MISSING`
-or `cause_class: BAD_LINK_FORMAT`, the grade is **provisional** and MUST NOT be treated
-as a terminal quality judgment.
-
-This is **required system behavior** — not an optional enhancement.
-
-### When causal backtracking activates
-
-Causal backtracking MUST activate whenever:
-- A `content_eval` evaluation produces findings with `cause_class: UPSTREAM_MISSING`
-  or `cause_class: BAD_LINK_FORMAT`.
-- `/batch-remediate` is run and `triage.upstream_blocked` is non-empty.
-
-### Required action sequence
-
-1. **Do not write a final grade** while `cause_class=UPSTREAM_MISSING` findings exist.
-   Set `grade_final: false` and `grade_stale_reason: upstream_missing`.
-
-2. **Invoke `/causal-backtrack`:**
-   `/causal-backtrack {family} {platform} [--eval-report {path}]`
-
-3. **Read the action plan** from `reports/dependency-backtrack/{run-id}/backtrack-summary.md`.
-
-4. **Execute action items** in order:
-   - `GENERATE` → run `/batch-reference` or `/new-reference-page` for missing reference pages.
-   - `CORRECT_LINK` → run `/manual-edit` with `--scope body-wording` on source pages.
-   - `ESCALATE` → write to human queue; grade remains stale.
-
-5. **Replay evaluation** on all pages listed in `replay_plan`.
-
-6. **Write final grade** only after replay shows zero `UPSTREAM_MISSING` findings.
-
-### Grade policy under this protocol
-
-| Finding state after replay | grade_final | Rule |
-|---------------------------|-------------|------|
-| Zero UPSTREAM_MISSING findings | `true` | Write final grade |
-| UPSTREAM_MISSING findings remain, depth < 3 | `false` | Recurse `/causal-backtrack` |
-| UPSTREAM_MISSING findings remain, depth >= 3 | `false` | ESCALATE; human queue |
-| Only LOCAL_DEFECT findings | `true` | Write final grade (page has fixable defects) |
-
-### Cause classification taxonomy
-
-| cause_class | Meaning | Default action |
-|-------------|---------|----------------|
-| `LOCAL_DEFECT` (default) | Content the page itself must fix | Existing triage flow |
-| `UPSTREAM_MISSING` | Link target absent from file system | `/causal-backtrack` → DependencyVerifier |
-| `BAD_LINK_FORMAT` | Target exists but URL casing/slug is wrong | `/causal-backtrack` → `/manual-edit` CORRECT_LINK |
-| `KNOWLEDGE_STALE` | Finding depends on stale knowledge | Hard stop → `/knowledge-diff` → `/knowledge-update` |
-| `PREREQUISITE_ABSENT` | Evaluation precondition not met | Hard stop; fix prerequisites |
-
-### Safety bounds
-
-- `MAX_BACKTRACK_DEPTH = 3` — at depth >= 3, ESCALATE unconditionally.
-- Cycle detection: if the same target URL is encountered twice in one run, skip it and
-  write `cycle-detected.json`.
-
-### Prohibition
-
-It is **prohibited** to:
-- Write `grade_final: true` on a page that still has `cause_class=UPSTREAM_MISSING` findings.
-- Edit the source page link to a non-existent target to "remove the warning."
-- Skip `/causal-backtrack` and proceed directly to local triage when `upstream_blocked` is non-empty.
-
-### 6d. Heal-Enabled Policy Table
-
-The healing automation system uses a policy table (`scripts/pipeline/heal_policy.py`)
-to route triaged findings to the correct healing strategy.
-
-#### Heal modes
-
-| Mode | Meaning | Automated? |
-|------|---------|------------|
-| `auto` | Deterministic fixer available (frontmatter, placeholder, code fence) | Yes |
-| `llm` | Requires LLM-assisted rewrite grounded in knowledge artifacts | Yes |
-| `regen` | Requires upstream causal backtracking before local fix | Yes |
-| `human` | No automated path — escalate to operator | No |
-| `skip` | INFO-level or not worth fixing | No |
-
-#### Policy resolution order
-
-1. **Exact match** on `(fix_type, category)` — e.g., `(llm, FC)` routes
-   forbidden-claim findings to S-21 with FC-specific prompt constraints.
-2. **Wildcard match** on `(fix_type, *)` — default for that fix type.
-3. **Fallback** to `human` mode if neither matches.
-
-#### Category-specific LLM policies
-
-| Category | Description | Skill | Effort |
-|----------|-------------|-------|--------|
-| AA | API accuracy — verify against api_surface.json | S-21 | medium |
-| FC | Forbidden claims — remove and rewrite | S-21 | medium |
-| PC | Platform contamination — replace with correct platform code | S-21 | medium |
-| PT | Prose truth — correct against enriched_claims.json | S-21 | medium |
-| CP | Code plausibility — replace snippet from clone cache | S-21 | medium |
-| RL | Risk language — context-aware rewrite | S-21 | medium |
-| ST | Structure — regenerate missing sections | S-21 | medium |
-| RV | Role violations (LLM bucket) — restructure page | S-21 | medium |
-
-#### Non-LLM policies
-
-| Fix type | Mode | Skill | Regen after? | Effort |
-|----------|------|-------|--------------|--------|
-| `auto` | auto | — | No | low |
-| `upstream` | regen | S-74 (causal-backtrack) | Yes | high |
-| `human` | human | — | No | high |
-| `skip` | skip | — | No | low |
-
-#### Governance rules
-
-- **Only `auto`, `llm`, and `regen` modes are heal-enabled.** `human` and
-  `skip` are excluded from automated healing pipelines.
-- **The policy table is the single source of truth** for heal-mode routing.
-  Do not hard-code heal-mode decisions outside `heal_policy.py`.
-- **Regression detection is mandatory.** After any healing pass, run
-  `verify.py` to compare before/after findings. If regression severity is
-  `critical` (grade decreased), revert the healing and escalate.
-- **Regen-after findings** (upstream mode) must complete causal backtracking
-  via S-74 before local fixes run.
-
-### 6e. Terminal-Success State (ceiling-reached)
-
-A page is **ceiling-reached** when ALL of the following are true:
-
-1. `audit.py --files {path}` exits 0 (no FAIL findings)
-2. Grade is A or B (0 FAIL, ≤5 WARN)
-3. All remaining WARN findings have been explicitly classified as one of:
-   - Evaluator/linter conflict artifacts (prose softening triggers linter revert;
-     WARN is restored; no stable prose edit resolves it)
-   - Known false positives with a classification record in `reports/skill-gaps/`
-4. A skill run has been attempted to address each WARN and confirmed that no further
-   content change improves the stable outcome
-
-**When a page is ceiling-reached, agents MUST**:
-- Classify it as ceiling-reached in session notes or plan artifacts
-- NOT re-apply prose softening that a prior session confirmed the linter reverts
-- NOT invoke S-21 (page-enhance) again without a changed pre-condition (e.g., new
-  knowledge model, updated evaluator, linter rule change)
-- NOT invoke S-78 (evidence-enhance) again if a prior S-78 run returned ESCAPED and
-  the manual evidence panel is richer than auto-detection output
-
-**Ceiling-reached is not a failure state.** Grade B with 0 FAIL and known
-evaluator-conflict WARNs is publish-ready per the quality rubric.
-
-**Reopening conditions** (any one of these allows retry):
-- Evaluator updated to consult evidence panel
-- Linter rule is identified and found to be configurable or removable
-- Knowledge model is updated (re-run knowledge bootstrap first; re-evaluate)
-- Human explicitly authorizes a retry with specific rationale
-
-#### Quality gate dispatch — development vs launch
-
-| Use case | Correct skill | When to use |
-|----------|---------------|-------------|
-| Iterative development | S-25 (eval-page) or S-48 (content-eval) | During generation/enhancement loops |
-| Pre-launch publishability gate | S-49 (launch-product) | Once per launch cycle |
-| Cross-product quality summary | S-40 (gap-report) | Post-launch or periodic |
-
-### 6f. Blog Slug Governance
+### §6f Blog Slug Governance (added 2026-04-08)
 
 **Features post slug (Post 2, weight 2, mandatory) MUST be cluster-derived.**
 `plan_blog()` in `site_planner.py` derives the Post 2 slug from the highest-claim-count
@@ -638,355 +238,193 @@ slug is preserved as `source: discovered` on every normal re-plan. These slugs a
 overridden automatically — doing so would break deployed URLs without a redirect strategy.
 
 **Migration path (opt-in only).** To replace a legacy features slug with a cluster-derived
-one, a human must explicitly pass `--replan-blog` to `site_planner.py`.
-This flag MUST NOT be called automatically from any orchestration skill.
+one, a human must explicitly run:
+```bash
+python scripts/pipeline/commands/launch/site_planner.py {family} {platform} --replan-blog
+```
+This flag may only be invoked by a human operator with deliberate intent. It MUST NOT be
+called automatically from `/launch-product`, `/refresh-product`, or any orchestration skill.
 After `--replan-blog` is used, the plan's `sections.blog.pages_to_retire` list will contain
-the old post path — run `/page-retire` immediately for the replaced post before committing.
+the old post path — run `/page-retire {family} {platform} {old_slug}` immediately for the
+replaced post before committing.
 
 **`auto_updatable: false` is an unconditional block.** A blog post with `auto_updatable: false`
 in its frontmatter provenance block was authored or edited by a human. Even with `--replan-blog`,
-its slug is never overridden.
+its slug is never overridden. Do not set `auto_updatable: false` on skill-generated content.
 
 **Traceability fields.** All mandatory blog post records in `site_plan.yaml` include:
-- `blog_role: announcement | features | deep-dive`
-- `cluster: {category}` — present on `features` and `deep-dive` records
+- `blog_role: announcement | features | deep-dive` — identifies the post's function
+- `cluster: {category}` — present on `features` and `deep-dive` records; identifies the
+  knowledge cluster that determined the slug
 
-These fields are consumed by `/new-blog-post` to scope content correctly.
-
-
+These fields are consumed by `/new-blog-post` to scope content correctly. Do not strip them.
 
 ## 7. Hard Stop Conditions
 
 The following always cause immediate halt (no agent override):
 
 - S-01 path-guard returns `DENY`
-- S-23 ground-check returns `FAIL` after 2 retries
-- `knowledge/model.yaml.api_confidence = "low"`
+- S-23 content-check returns `FAIL` after 2 retries
+- Knowledge quality gate fails in `/launch-product` Stage 0 — see §7d below
 - Page grade = F (critical finding) from S-25
+- Agent classifies requirement as NONE (no skill covers it) and proceeds with ad hoc work —
+  unconditional STOP; produce a gap escalation report (§6b) instead
+- A required upstream skill (per DAR table in §6a) returns `STOP` or `DENY` — do not
+  proceed to the downstream skill; report the blocking condition to the user
+
+### Blog Content Governance (added 2026-04-03)
+
+**Hard stop: manual blog file creation is PROHIBITED.**
+
+- Blog files MUST be created exclusively via the `/new-blog-post` skill (S-57).
+- Manual file creation (writing directly to `content/blog.aspose.org/` without the
+  skill) bypasses all of: no-downgrade-guard (S-55), `attach_evidence.py`,
+  change-guard (S-33), and the pre-commit API audit.
+- Any file where `provenance.content_origin: unknown` AND `author != "Aspose"` is a
+  rogue-path indicator. DO NOT commit it without manual evidence remediation and
+  explicit human review.
+- Blog posts MUST use the directory structure: `{slug}/index.md`. Flat `.md` leaf files
+  are rejected by pre-commit (`check-blog-slugs.py` P-05 check).
+- `aliases:` lists MUST NOT contain path segments starting with `test` (`check-blog-slugs.py`
+  P-06 check).
+- `evidence.claims` and `evidence.apis` MUST be non-empty before commit
+  (`validate_frontmatter.py` P-03/P-04 checks). Files with
+  `content_origin: manual-remediation` are temporarily exempt.
 
 ## 7a. Launch-Readiness Gates
 
-Before any product launch (new family/platform going live), all automated gates must
-report PASS before a product is considered launch-eligible.
-
-> **Note**: `launch_gate.py` is pending port to this repository (TC-P-10). Until ported,
-> run each gate individually using the scripts listed below.
-
-| Gate | ID | What it checks | Fail behavior |
-|------|----|----------------|---------------|
-| Knowledge freshness | L-01 | `model.yaml stale_since` is null | FAIL — run `/knowledge-diff` → `/knowledge-update` |
-| Evidence coverage | L-02 | All content files have non-empty `evidence:` block | FAIL — run `attach_evidence.py` |
-| Forbidden claims | L-03 | `change_guard.py` reports 0 DENY on active claims | FAIL — remove or correct claim |
-| API accuracy | L-04 | `audit.py` exits 0 FAIL on all content files | FAIL — fix API references |
-| Format truth | L-05 | `content_eval --evaluators format_truth` exits 0 FAIL | FAIL — correct format table |
-| Knowledge reconciliation | L-06 | `promote.py` reconciliation passes | FAIL — fix formats.json or claims |
-| Pipeline tests | L-07 | `pytest tests/` exits 0 | FAIL — fix broken test |
-| Provenance coverage | L-08 | All English content files have `content_origin` set | FAIL — run provenance_backfill.py |
-| Hugo build | L-09 | `hugo` exits 0 | FAIL — fix YAML/template errors |
-
-**Fail-closed policy**: Any FAIL blocks launch. WARN does not block launch but must be logged.
-
-The following gates are executed by `/publish-readiness-review` (S-90):
-
-| Gate | ID | What it checks |
-|------|----|----------------|
-| Prose review | H-01 | Random sample of 5 non-reference pages reviewed for content quality |
-| Reference accuracy | H-02 | Stratified sample of 10 reference pages spot-checked against source |
-| Format table spot-check | H-03 | Format support tables verified against `formats.json` |
-| Link validation | H-04 | All cross-subdomain links resolve in local build |
-| License accuracy | H-05 | Open source license claim matches repo LICENSE file |
-
-### Launch Planning Governance Rules
-
-**Translation staging rule**: Translation is a **terminal stage** in the launch flow.
-No translation command may run before the truth audit stage completes with 0 FAIL.
-All subdomains must be translated in a single consolidated batch after all English pages
-across all subdomains have been generated and validated.
-
-**Proof-of-mechanism rule**: Any planning statement of the form "derived from X" or
-"one page per Z" MUST identify the exact skill, script, output file, and threshold
-involved. Vague derivations are treated as NONE capability (§6b) and must be escalated.
-
-**Computed slug policy**: Blog and KB slugs in launch plans MUST be read from
-`/site-plan` output. Hardcoding slug patterns is prohibited unless the system explicitly
-requires manual operator input.
+> Full detail: [docs/_archive/pre-refactor/governance/launch-gates.md](docs/_archive/pre-refactor/governance/launch-gates.md) *(archived)*
 
 ## 7b. Human-Review Risk Tiers
 
-All generated content is classified into risk tiers. Higher tiers require
-`/publish-readiness-review` before publication; real human escalation only per §7c.
+All generated content is classified into risk tiers. Higher tiers require S-90 governed
+inspection before publication; real human escalation only per §7c.
 
-| Tier | Content type | Review requirement |
-|------|--------------|--------------------|
-| **Tier 1** | Code-heavy reference pages, blog posts with format tables, capability claims | `/publish-readiness-review` review gate (H-01..H-05); real human escalation only per §7c |
-| **Tier 2** | Docs pages, KB how-to articles, FAQ pages | `/publish-readiness-review` spot-check (`--grade-filter C,D,F`) |
-| **Tier 3** | Locale files, pure structural pages (index/_index), products landing pages | Automated gates only; `/publish-readiness-review` optional |
+| Tier | Content type | Review requirement | Examples |
+|------|--------------|--------------------|---------|
+| **Tier 1** | Code-heavy reference pages, blog posts with format tables, capability claims | S-90 (`/publish-readiness-review`) review gate — agent executes H-01..H-05 equivalents (§7a); real human escalation only per §7c conditions | `slides/net` reference pages, blog posts with `## Supported Formats` sections |
+| **Tier 2** | Docs pages, KB how-to articles, FAQ pages | S-90 spot-check (`--scope docs` or `--scope kb`; `--grade-filter C,D,F`) | `docs/getting-started`, `kb/how-to-*` |
+| **Tier 3** | Locale files, pure structural pages (index/_index), products landing pages | Automated gates only; S-90 optional | `_index.md` files, locale translations, products pages |
 
 **Tier 1 classification triggers** (any one is sufficient):
-- Page contains a format support table
-- Page contains code blocks with real API calls
+- Page contains a format support table (markdown table with Import/Export or Read/Write columns)
+- Page contains code blocks with real API calls (not just install snippets)
 - Page makes a capability claim (e.g., "supports conversion", "can export to PDF")
 - Page is a blog post (all blog posts are Tier 1)
 
-## 7c. Agent-Executed Governed Inspection
+**When tiers matter**: Before a product launch, run S-90 on Tier 1 and Tier 2 content. Tier 3
+proceeds on automated gates alone. After EVALUATOR_LOGIC_VERSION bump, re-evaluate Tier 1 first,
+then run S-90 to classify and route any newly failing pages.
+
+## 7c. Agent-Executed Governed Inspection (canonical interpretation of "human-review")
+
+> **Added 2026-04-17** — operationalizes all "human-review" language in the system.
 
 When any skill, plan, report, or governance section says **"human-review required"**,
-**"human action required"**, **"manual review"**, or any equivalent phrase, interpret
-it as follows:
+**"human action required"**, **"manual review"**, **"manual investigation"**,
+**"needs reviewer"**, or any equivalent phrase, interpret it as follows:
 
 > **NOT**: "Stop and wait for a person."
-> **MEANS**: "Invoke `/publish-readiness-review` — the agent performs the bounded
+> **MEANS**: "Invoke S-90 (`/publish-readiness-review`) — the agent performs the bounded
 > inspection, makes judgment calls, routes to fix skills, re-verifies, and emits an
 > evidence-backed verdict."
 
-**Agents MUST invoke `/publish-readiness-review` rather than halting when:**
+**Agents MUST invoke S-90 rather than halting when:**
 - A grade report or audit verdict describes content as "ready for review"
-- A skill escalation path says "escalate to human review" (heal-page, gap-apply, etc.)
+- A skill's escalation path says "escalate to human review" (S-26, S-46 Wave 4, etc.)
 - H-gates H-01 through H-05 are listed as required before launch (§7a)
-- A pipeline evidence report lists "human action required" items
+- A policy note says a finding "requires human triage" (e.g., UNKNOWN_CLASS WARNs in §9a)
+- A pipeline evidence report lists "human action required" items (S-87 Phase 5)
 
 **Escalation to a real human is still required only when:**
-1. Grade F after 2 `/heal-page` passes + 1 batch pass with no improvement
-2. PIPELINE-bucket finding from `/system-heal` (skill breakage, extraction failure)
-3. `tier3_non_determinism_flag: true` findings (evaluator non-determinism)
+1. Grade F after 2 S-26 passes + 1 S-89 batch pass with no improvement
+2. PIPELINE-bucket finding from S-87 (skill breakage, extraction failure, pipeline misconfiguration)
+3. `tier3_non_determinism_flag: true` findings (evaluator non-determinism — agent cannot trust them)
 4. Legal, license, or business claims requiring external verification
-5. `/content-check` `FAIL` persists after full remediation (existing §8 condition 1)
-6. `/knowledge-diff` reveals removed public class or changed method signature
+5. S-23 `FAIL` persists after full remediation (existing §8 condition 1)
+6. S-12 diff reveals removed public class or changed method signature (existing §8 condition 2)
 
-**For all other cases, `/publish-readiness-review` is the governed execution path.**
+**For all other cases, S-90 is the governed execution path.** Do not halt and write an
+escalation item where S-90 can perform the inspection. The distinction between "inspection"
+(agent-executable) and "escalation" (truly external dependency) is governed by this section.
 
-## 8. Escalation Conditions (invoke /publish-readiness-review first; escalate to real human only for these)
+## 7d. Agent-Executable Knowledge Quality Gate
 
-> Agents must invoke `/publish-readiness-review` before escalating. It will classify
-> which items need real human escalation and which it can resolve.
+> **Added 2026-07-07** — replaces the `api_confidence` hard-stop (removed 2026-07-07, was unimplemented).
 
+When executing `/launch-product` (S-49) Stage 0 (Knowledge Bootstrap), the agent MUST run
+the knowledge quality check before advancing to Stage 0.5. This gate is **agent-executable**:
+the agent performs the check, not a human.
 
-- S-23 `FAIL` persists after remediation
-- S-12 diff reveals removed public class or changed method signature
-- `stale_report` shows > 30% of page claims are orphaned
-- Heal loop (S-26) fails to improve grade after 2 attempts
+**Minimum thresholds** (read from `knowledge/{family}/{platform}/merged/model.yaml`):
+
+| Field | Minimum | Source path |
+|-------|---------|-------------|
+| `stats.class_count` | 5 | `model.yaml` |
+| `stats.total_claims` | 20 | `model.yaml` |
+| `stats.snippet_count` | 3 | `model.yaml` |
+| `enrichment_status` | not `"error"` and not absent | `model.yaml` |
+
+**Gate behavior**:
+- **All thresholds met**: advance to Stage 0.5.
+- **Any threshold fails**: HARD BLOCK — do not advance to Stage 0.5. Print which thresholds
+  failed and their current vs. minimum values. The block can only be lifted by:
+  1. Improving the knowledge model (re-run `/knowledge-bootstrap` after FOSS repo is more complete), OR
+  2. Explicit human override: the human types `KNOWLEDGE_QUALITY_OVERRIDE: {reason}` in
+     the session. The agent records the override in the evidence bundle and proceeds with
+     reduced scope expectations.
+
+**This gate is part of the skill chain** — agents execute it, not humans. The §7c interpretation
+("invoke S-90 rather than halting") does NOT apply here; this gate runs before any content
+exists. If the knowledge model fails these thresholds, S-90 has nothing to inspect.
+
+## 8. Escalation Conditions (invoke S-90 first; escalate to real human only for these)
+
+> **Updated 2026-04-17** — agents must invoke S-90 (`/publish-readiness-review`) before
+> escalating. S-90 will classify which items need real human escalation and which it can
+> resolve. The conditions below are the only ones that produce real human escalation output
+> from S-90.
+
+- S-23 `FAIL` persists after full remediation by S-90 (S-90 condition 5)
+- S-12 diff reveals removed public class or changed method signature (S-90 condition 6)
+- `stale_report` shows > 30% of page claims orphaned — run S-90; if still failing after
+  S-26 passes, escalate
+- Heal loop (S-26) fails to improve grade after 2 attempts AND S-89 batch pass also fails —
+  escalate with S-90 evidence record (S-90 condition 1)
+- Skill breakage report is filed (§6b) — a broken skill cannot be bypassed; human must
+  diagnose and repair the skill before affected task types can proceed (S-90 condition 2)
 
 ## 9. Maintenance Workflow
 
-**Trigger**: `knowledge/model.yaml.stale_since` is not null (repo has changed)
-
-1. S-12 (diff) — identify which files changed
-2. S-13 (stale-detect) — which content pages are affected
-3. For each affected page: S-14 → S-20 → S-25
-4. S-15 (sync-vector) — sync vector store if used
-5. Commit: `knowledge/` changes + `content/` changes together
+> Full detail: [docs/workflows/maintenance.md](docs/workflows/maintenance.md)
 
 ## 9a. Evaluator Change Checklist
 
-Run this checklist whenever you modify logic in `scripts/pipeline/content_eval/evaluators/`
-in a way that changes which findings are emitted, their level (FAIL/WARN), or their category.
-Non-grade-affecting edits (comments, docstrings, test additions) do not require a bump.
-
-### When to bump `EVALUATOR_LOGIC_VERSION`
-
-Bump `EVALUATOR_LOGIC_VERSION` in `scripts/pipeline/content_eval/__init__.py` if:
-- A new FAIL or WARN finding is added to any evaluator
-- An existing FAIL or WARN condition is changed, removed, or reclassified
-- A threshold value that gates a FAIL or WARN is changed
-- A new evaluator is added to `DEFAULT_EVALUATORS`
-
-Do NOT bump for:
-- Comment or docstring changes
-- Refactoring with identical output
-- Adding an INFO-level finding only
-- Adding a new evaluator to `ALL_EVALUATORS` but not `DEFAULT_EVALUATORS`
-
-### How to bump
-
-1. Increment the string in `content_eval/__init__.py`:
-   ```
-   EVALUATOR_LOGIC_VERSION = "2"  # was "1"
-   ```
-2. Re-grade all pages to stamp the new version.
-   Pages with a different (or missing) `graded_logic_version` will be re-evaluated
-   on the next `--skip-graded` run.
-
-### What `graded_logic_version` means
-
-`graded_logic_version` in page frontmatter records which version of the evaluator logic
-produced the stored grade. When `--skip-graded` is used, a page is only skipped when:
-
-| Condition | Frontmatter field checked |
-|-----------|--------------------------|
-| Graded with the full default evaluator set | `graded_evaluators: full` |
-| Knowledge has not changed since grading | `graded_model_sha` matches current `repo_sha` |
-| Evaluator logic has not changed since grading | `graded_logic_version` matches `EVALUATOR_LOGIC_VERSION` |
-| Knowledge enrichment quality has not improved | `graded_enrichment_status` matches current `enrichment_status` |
-
-### Universal Skill Contract
-
-Applies to all skills that modify content files:
-
-1. If a skill materially changes page body content, it MUST invoke the grading system
-   in its verify/persist path.
-2. If a skill performs analysis only (no body edit), it MAY run report-only evaluation.
-3. A skill MUST NOT write canonical frontmatter for operational-only changes.
-4. A skill MUST respect canonical/experimental separation.
-
-### Emergency Grading-Change Protocol
-
-**When this protocol applies:**
-- A canonical evaluator produces confirmed false results on real pages
-- A safety defect: a canonical evaluator misses genuinely dangerous content
-
-**Steps:**
-1. Document the defect — cite specific affected pages.
-2. Obtain human approval — owner must explicitly approve.
-3. Fix the evaluator — minimum necessary change.
-4. Bump ELV — update `EVALUATOR_LOGIC_VERSION`.
-5. Create migration log entry.
-6. Re-evaluate affected pages only.
+> Full detail: [docs/development/evaluator-changes.md](docs/development/evaluator-changes.md)
 
 ## 9b. Regeneration After Extraction Script Changes
 
-When a change is made to `scripts/pipeline/extraction/scout.py` or `scripts/pipeline/enrich.py`
-that alters what is extracted or how claims are synthesized:
-
-1. **Re-run the knowledge bootstrap** for ALL affected products:
-   ```
-   python scripts/pipeline/scout.py {family} {platform}
-   python scripts/pipeline/enrich.py {family} {platform}
-   python scripts/pipeline/promote.py {family} {platform}
-   ```
-2. **Check for knowledge drift**: compare merged/api_surface.json and merged/formats.json.
-3. **Re-evaluate all content** for affected products.
-4. **Re-run the launch gate** before promoting any affected product.
-
-**Scope**: Applies to changes to scout.py, enrich.py, and any extractor plugin under
-`scripts/pipeline/extraction/`. Does NOT apply to content-evaluation logic (`content_eval/evaluators/`).
+> Full detail: [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md)
 
 ## 9c. Change-Trigger Matrix
 
-| Changed artifact | Required action | Scope |
-|-----------------|-----------------|-------|
-| Clone cache updated (upstream repo changed) | Run knowledge-diff → knowledge-update → re-evaluate | Per product |
-| `scout.py` or `enrich.py` logic changed | Re-run knowledge bootstrap + full re-evaluate (§9b) | All products |
-| `promote.py` logic changed | Re-run promote for all products | All products |
-| `content_eval/evaluators/*.py` logic changed | Bump EVALUATOR_LOGIC_VERSION; re-grade all pages (§9a) | All products |
-| Content page changed | Run content-check + audit.py + attach_evidence.py | Per file |
-| `knowledge/{family}/{platform}/merged/*.json` updated | Re-run attach_evidence.py for affected product | Per product |
-| `skills/*.md` skill file changed | Test with 1 representative run | Per skill |
-| `scripts/pipeline/path_guard.py` changed | Run `pytest scripts/pipeline/tests/test_path_guard.py` | Self-test |
-| `AGENTS.md` changed | Verify CLAUDE.md alignment | Self |
-
+> Full detail: [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md)
 
 ## 10. Evidence Proof in Commits
 
-Every commit touching `content/` MUST include in the commit message:
-
-- Knowledge model SHA: `knowledge/{family}/{platform}/model.yaml` `repo_sha` value
-- Ground-check result: `PASS` (with report path)
-- Skills invoked: `[S-xx, S-yy, ...]`
-
-The `evidence:` frontmatter block in each page is the persistent inline evidence record.
-`model_sha` anchors it to the knowledge version; `audit.py` detects staleness automatically.
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 10a. Verification Standards for Fixes
 
-Every fix — whether to a script, evaluator, content page, or knowledge artifact — must
-meet these verification standards before being declared complete.
-
-### Required evidence per fix
-
-| Fix type | Before evidence | After evidence | Tool |
-|----------|----------------|----------------|------|
-| Content page fix | `audit.py` FAIL count before fix | `audit.py` FAIL count after fix (must be <= before) | `python scripts/pipeline/audit.py --files {path}` |
-| Evaluator logic fix | Evaluation output before change | Evaluation output after change (same test page) | `python -m scripts.pipeline.content_eval.cli evaluate ...` |
-| Knowledge artifact fix | Artifact state before fix (git diff) | Artifact state after fix (git diff) | `git diff knowledge/` |
-| Script/pipeline fix | Script invocation output before fix | Script invocation output after fix | Per script |
-
-### Regression check requirement
-
-After any fix, verify that the fix does not break previously passing content. Minimum:
-
-```bash
-python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --write-grade
-```
-
-If any previously-passing page now FAILs, the fix introduced a regression. Investigate
-before committing.
-
-### Before/after evidence trail
-
-Every fix commit message MUST include:
-- What was broken (symptom)
-- Root cause (one sentence)
-- What changed (file + function/line)
-- Before: [tool output or count before fix]
-- After: [tool output or count after fix]
-- Regression check: PASS / FAIL
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 10b. Content Provenance Rules
 
-Every `.md` content file carries a `provenance:` block in its YAML frontmatter. This
-block is **internal metadata** — never rendered in Hugo templates.
-
-### Provenance fields
-
-```yaml
-provenance:
-  content_origin: skill-generated | agent-drafted | human-authored | unknown
-  content_created_at: <ISO-8601 UTC; set once at page creation; never updated>
-  content_hash: <first 32 hex chars of SHA-256 of body text after frontmatter>
-  last_mechanism: skill | agent-edit | human-edit | page-update | page-enhance | heal-page | translator | content-fixer | unknown
-  auto_updatable: true | false
-```
-
-### Key lifecycle rules
-
-| Event | Fields updated |
-|-------|----------------|
-| Skill generates a new English page | `content_origin: skill-generated`, `last_mechanism: skill`, `auto_updatable: true` |
-| Human edits content | `last_mechanism: human-edit`, `content_hash` updated, `auto_updatable: false` |
-| Agent edits content directly | `last_mechanism: agent-edit`, `content_hash` updated |
-| Translator produces a locale file | `translation_origin`, `source_file`, `source_sha`, `last_mechanism: translator`, `auto_updatable: true` |
-| Evidence attachment | `evidence:` block updated. `last_mechanism` is NOT updated. |
-| Grade write | Grade fields written. `last_mechanism` is NOT updated. |
-
-**Skill provenance contract**: Every creation-path skill MUST write a `provenance:` block
-containing `content_origin: skill-generated` and `last_mechanism: skill` in the same
-Write call that creates the page frontmatter.
-
-**`auto_updatable: false`**: Set this to protect a file from automated overwrite. The
-translator sync will skip files with `auto_updatable: false`.
-
-**`content_created_at` is write-once.** Once set, it must never be overwritten. It records
-when the English page was first committed to the repository.
-
-### Translator overwrite decision
-
-```
-locale file does not exist → translate (new file)
-locale file exists AND auto_updatable == true → translate (overwrite)
-locale file exists AND auto_updatable == false → skip, log reason
-```
+> Full detail: [docs/_archive/pre-refactor/governance/provenance-rules.md](docs/_archive/pre-refactor/governance/provenance-rules.md) *(archived)*
 
 ## 10c. Output-Location Discipline
 
-All agent-generated artifact files must be written to their designated location.
-
-| Artifact type | Correct location | Never write to |
-|---------------|-----------------|----------------|
-| Content pages (docs, blog, kb, reference, products) | `$CONTENT_REPO_PATH/content/{site}/en/{family}/{platform}/` | `reports/`, `knowledge/`, repo root |
-| Knowledge artifacts (api_surface, claims, formats, etc.) | `knowledge/{family}/{platform}/` | `content/`, `reports/`, repo root |
-| Audit and evaluation reports | `reports/` (gitignored, local-only) | `content/`, `knowledge/`, repo root |
-| Launch gate results | `reports/launch-gate/` | `content/`, `knowledge/`, git-tracked paths |
-| Skill gap escalation reports | `reports/skill-gaps/` | Any git-tracked path |
-| Skill breakage reports | `reports/skill-breakage/` | Any git-tracked path |
-| Evidence repair logs | `reports/evidence-repair/` | Any git-tracked path |
-| Override tokens | `reports/overrides/pending/` | Any git-tracked path |
-| Discovery patrol/sweep reports | `reports/discovery/`, `reports/discovery/history/` | Any git-tracked path |
-
-**`reports/` is a strict local artifact boundary.** Nothing under `reports/` may ever be
-staged or committed.
-
-**Do not write reports to the repo root.** Use `reports/` exclusively.
-
+> Full detail: [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) *(archived)*
 
 ## 11. Prohibited Actions
 
@@ -994,255 +432,238 @@ staged or committed.
 - Write API method names not present in `knowledge/{family}/{platform}/merged/api_surface.md`
 - Write format claims not present in `knowledge/{family}/{platform}/formats.md`
 - Generate code blocks using LLM — all code must come from `snippets/`
-- Skip S-23 ground-check for any reason
+- Skip S-23 content-check for any reason
 - Write to forbidden paths listed in Section 4
+- Bypass a registered skill by performing its equivalent function through manual reasoning,
+  inline shell commands, or ad hoc prompting — even if the output appears correct
+- Perform a targeted content edit — wording change, frontmatter update, code block replacement,
+  or section rewrite — on any content file without invoking S-73 (manual-edit). This applies
+  regardless of the size of the change. A one-word typo fix is still subject to S-73's
+  path-guard and post-edit validation. "It's just a small change" is not an exemption.
+- Perform any step of a requirement classified as PARTIAL or NONE without first producing a
+  gap escalation report (§6b) and receiving explicit human approval for the uncovered portion
+- Invent a new workflow or process for a requirement type not covered by §6 — produce the
+  gap escalation report and enhancement plan defined in §6b instead, then halt
+- Classify work as "forensic", "ad-hoc", "diagnostic", "manual", "one-off",
+  "operator-directed", or any other label to imply exemption from skill-first
+  execution (§6a). All work falls under the skill system or gap escalation (§6b).
+  There is no third category.
+- Set, recommend setting, or reference any SKIP_* environment variable. Bypass
+  variables are operator-only infrastructure not accessible to agents.
+- Proceed with PARTIAL or NONE capability without producing a gap escalation
+  report and halting for human approval. Claiming "operator direction" does not
+  substitute for gap escalation when no matching skill exists.
+- **Clone cache canonical location (anti-regression)**: The FOSS clone cache lives
+  exclusively at `runs/.clone_cache/` inside this repo.
+  - Windows canonical path: `D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/`
+  - Resolver: `scripts/pipeline/core/clone_cache.py` → `cache_root()` (checks `ASPOSE_CLONE_CACHE`
+    env var first, then defaults to `<repo-root>/runs/.clone_cache/`)
+  - `ASPOSE_CLONE_CACHE` may override the default, but must not point to any `foss-launcher` path.
+    If it does, the resolver will fail with an error.
+  - **Prohibited**: searching for, inferring, or falling back to any `foss-launcher` clone-cache
+    path (`foss-launcher/runs/.clone_cache/`, `../foss-launcher/runs/.clone_cache/`, etc.) <!-- HISTORICAL_OBSOLETE_FOSS_LAUNCHER_REFERENCE: prohibition example, not an active instruction -->
+  - **Prohibited**: treating a `foss-launcher` sibling directory as clone cache
+  - If clone cache resolution fails, inspect `scripts/pipeline/core/clone_cache.py` and
+    `runs/.clone_cache/` — never look in obsolete `foss-launcher` paths.
+  - Any plan, prompt, memory entry, or documentation that presents `foss-launcher` as the current
+    clone-cache location is invalid and must be corrected before use.
+- Commit a `.md` file whose sole staged diff from HEAD is a changed `graded_at:` timestamp. The pre-commit hook Step 10 auto-reverts such files; using `--no-verify` to bypass this gate is prohibited.
+- **No `hugo -d <relative-path>` from the Bash tool.** All agent Hugo builds must write to a system temp dir (`$(mktemp -d)` in bash, `tempfile.mkdtemp()` in Python subprocesses). Any relative destination (including patterns like `public-as-*`, `public-iv-*`, `public-sq-*`, or any other `public-<suffix>` name) writes full-site HTML artifacts into the repo root, bloating git status and risking accidental commits. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Use `tmpdir=$(mktemp -d)` in Bash or `tempfile.mkdtemp()` in Python instead. Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`). Reference implementation: `scripts/ci/hooks/check_hugo_build.sh`. Rule documentation: `docs/_archive/pre-refactor/governance/write-boundaries.md §Hugo Output Discipline`.
+- **Local Hugo binary location (this dev machine, confirmed 2026-09-10).** Hugo is installed
+  at `D:/hugo/` (NOT on `PATH`, and NOT a bare executable at that path — it's a directory of
+  versioned subdirectories). Three versions are present: `hugo_0.110.0/`, `hugo_0.136.0/`,
+  `hugo_0.140.1/`, each containing its own `hugo.exe`. The newest, confirmed working via
+  `hugo version`, is `D:/hugo/hugo_0.140.1/hugo.exe` (`v0.140.1-a9b0b95ef4`,
+  windows/amd64). From the Bash tool (Git Bash/MSYS path form): `/d/hugo/hugo_0.140.1/hugo.exe`.
+  Do not conclude Hugo is unavailable in this environment without checking this path first —
+  it was previously (incorrectly) believed absent for an extended period. The `mktemp -d`
+  output-directory rule immediately above still applies unchanged to any build run with this
+  binary.
+- **`git reset` is prohibited in any form, in any agent-issued or interactive Bash command** — bare `git reset`, `git reset HEAD`, `--soft`/`--mixed`/`--hard`, any target (remote ref, SHA, `HEAD~N`), with or without a `-- <file>` suffix. A concurrent-session `git reset` mid-commit (2026-07-14) emptied the staging index and produced an empty commit pushed to `main` (`b860c6fb92`). To unstage files use `git restore --staged <path>`; to restore file content from a commit use `git checkout <sha> -- <path>`. This does not apply to `scripts/pipeline/core/clone_cache.py`'s guarded `git reset --hard origin/HEAD` call, which refreshes the read-only FOSS clone cache via a direct Python subprocess (never the Bash tool) behind a toplevel-path safety guard. **Using `SKIP_DESTRUCTIVE_BASH_CHECK=1` to bypass this block is prohibited for agent sessions.** Enforcement: PreToolUse Bash hook (`scripts/ci/hooks/check_destructive_bash_hook.sh`).
+- **A disposable test fixture must never be filesystem-linked — symlink, junction, or hardlink
+  — to real, shared, mutable repository state** (`.venv`, `.git`, credentials, or anything else
+  a concurrent session depends on). Build each fixture's own copy of what it needs (e.g. its own
+  `python -m venv`) directly inside the fixture, even if that costs a rebuild every fixture run.
+  Real incident (2026-08-31, GOV-03/`plans/healing/2026-08-31-governance-structural-gaps.md`):
+  an early design for `scripts/pipeline/tests/precommit_full_run_harness.py` linked a `git
+  worktree add` fixture's `.venv` to the real repo's `.venv` via an NTFS junction to avoid a
+  second package install; `git worktree remove`'s own internal deletion routine followed the
+  junction into the real, shared venv every concurrent session in this repo depends on and
+  deleted most of its `Lib/site-packages`, even though the junction had already been explicitly
+  unlinked first as a precaution. Recovered same-session; the shipped harness never links to
+  anything real, as a direct, permanent consequence — see that module's own docstring for the
+  full incident note and the resolved fixture-design pattern (a `git worktree add` cone-mode
+  sparse checkout with its own disposable venv built in place).
+
+## 11a. Deletion Governance (DGR Protocol)
+
+> Full detail: [docs/DELETION_GOVERNANCE.md](docs/DELETION_GOVERNANCE.md)
+> Plan: `humming-wondering-storm`
+> Added: 2026-07-04
+
+**D-1: No tracked file may be deleted without a Deletion Governance Record (DGR).**
+A DGR is a YAML file committed to `deletion-approvals/` that records the approver,
+reason, affected paths, tier classification, and a 7-day expiry.
+
+**D-2: Deletion scope.**
+All of the following on tracked paths require a DGR: `git rm`, `os.remove`,
+`Path.unlink`, `shutil.rmtree`. Renames (`git mv`) of T-00/T-01 source paths
+also require a DGR.
+
+**D-3: Content retirement = `draft: true`, never `git rm`.**
+Mark obsolete content pages with `draft: true` via skill S-83 (page-retire).
+Do not delete content files with `git rm` — always retire via draft mechanism.
+
+**D-4: Human gate procedure for T-01 deletions.**
+1. Create DGR: `python scripts/pipeline/commands/governance/deletion_governance_manager.py create --files <path> --reason '...' --plan '<plan>' --class T-01`
+2. Stage and commit the DGR to `deletion-approvals/`
+3. Stage the deletion: `git rm <path>`
+4. Commit with token: message body must include `Deletion-Approved: DGR-<id>`
+5. Consume: `deletion_governance_manager.py consume --dgr-id <id> --commit-sha <sha>`
+
+**D-5: T-00 paths can never be deleted.**
+T-00 includes: AGENTS.md, CLAUDE.md, path_guard.py, all `scripts/ci/hooks/` files,
+and any path under FORBIDDEN_PREFIXES. No DGR path exists for T-00 paths.
+Pre-commit Step 0b, commit-msg hook, and CI GUARD-DEL-01 all block T-00 deletions.
+
+**D-6: Rename of T-00/T-01 source path requires DGR with redirect plan.**
+`git mv content/old/_index.md content/new/_index.md` exposes the source path as D/R
+in git diff. If the source is T-01, a DGR with `operation: rename` and
+`redirect_plan` field is required. If source is T-00, the rename is blocked.
+
+**Tier summary:**
+
+| Tier | Paths | Gate |
+|------|-------|------|
+| T-00 | FORBIDDEN_EXACT + FORBIDDEN_PREFIXES | Always blocked; no DGR path |
+| T-01 | content/, knowledge/, scripts/pipeline/, scripts/ci/, tests/, data/, scripts/seo/ | DGR required |
+| T-02 | docs/, scripts/maintenance/ | Advisory warning only |
+| T-03 | Gitignored / unprotected | Silent pass |
+
+**Implementation artifacts:**
+- `scripts/ci/checks/check_staged_deletions.py` — pre-commit gate
+- `scripts/pipeline/commands/governance/deletion_governance_manager.py` — DGR manager CLI
+- `scripts/ci/checks/check_pr_deletion_approvals.py` — CI gate
+- `scripts/ci/checks/validate_dgr_token.py` — commit-msg DGR token validator
+- `deletion-approvals/` — tracked DGR storage (CI-visible)
+- `docs/DELETION_GOVERNANCE.md` — operator documentation
 
 ## 12. File Map
 
-### Content paths (all relative to `$CONTENT_REPO_PATH`)
+> Full detail: [docs/registries/file-map.md](docs/registries/file-map.md) (content paths, environment, scripts reference)
+> Skills registry: [docs/registries/skills.md](docs/registries/skills.md)
 
-| Path | Purpose |
-|------|---------|
-| `content/docs.aspose.org/en/{family}/{platform}/` | Per-platform documentation pages |
-| `content/products.aspose.org/en/{family}/` | Product landing pages |
+### Content paths
 
-### Knowledge paths (relative to this standalone skills repo CWD)
+> Full detail: [docs/registries/file-map.md](docs/registries/file-map.md)
 
-| Path | Purpose |
-|------|---------|
-| `knowledge/{family}/{platform}/model.yaml` | Knowledge model + staleness flag |
-| `knowledge/{family}/{platform}/claims.json` | Structured evidence claims |
-| `knowledge/{family}/{platform}/claims.md` | Human-readable claim summary |
-| `knowledge/{family}/{platform}/merged/api_surface.md` | Public API surface — human-readable (generated by merge.py) |
-| `knowledge/{family}/{platform}/merged/api_surface.json` | API identifiers + import allowlist |
-| `knowledge/{family}/{platform}/snippets/` | Pre-approved code snippets |
-| `knowledge/{family}/{platform}/formats.md` | Supported format claims |
+### Environment & Dependencies
+
+> Full detail: [docs/registries/file-map.md](docs/registries/file-map.md)
+
+### Scripts reference
+
+> Full detail: [docs/registries/file-map.md](docs/registries/file-map.md)
 
 ### Skills reference
 
-| Skill | ID | Purpose |
-|-------|----|---------|
-| path-guard | S-01 | Enforce allowed write paths |
-| knowledge-diff | S-12 | Detect upstream repo changes |
-| stale-detect | S-13 | Identify stale content pages |
-| knowledge-update | S-14 | Refresh knowledge model from source |
-| embed-knowledge | S-15 | Sync vector store for retrieval |
-| rubric-align | S-17 | Align content to quality rubric |
-| page-plan | S-18 | Plan page structure |
-| page-draft | S-19 | Draft initial page content |
-| page-update | S-20 | Update page after knowledge change |
-| page-enhance | S-21 | Enhance page to meet quality bar |
-| faq-generate | S-22 | Generate FAQ section |
-| ground-check | S-23 | Pre-write safety gate |
-| evidence-cite | S-24 | Attach evidence citations |
-| eval-page | S-25 | Evaluate page grade |
-| heal-page | S-26 | Heal low-quality page |
-| truth-sync | S-30 | Import FOSS-Launcher knowledge into fl/ |
-| truth-index | S-31 | Generate knowledge index |
-| content-audit | S-32 | Semantic knowledge verification |
-| change-guard | S-33 | Pre-write knowledge gate |
-| repo-scout | S-34 | Extract truth from FOSS repository |
-| truth-merge | S-35 | Scout-only merge (scout → merged) |
-| cross-platform | S-36 | Family consistency check |
-| corpus-scan | S-37 | Build golden corpus profile |
-| truth-audit | S-38 | Member-level API verification (deep) |
-| discover-products | S-39 | GitHub org product discovery |
-| batch-remediate | S-40 | Full eval→fix→LLM→re-eval pipeline |
-| batch-eval-fix | S-41 | Quick eval + auto-fix only |
-| category-fix | S-42 | Run specific fixer on targeted files |
-| evidence-decide | S-43 | Determine per-page content actions (create/update/enhance/verify_only/no_change) |
-| evidence-materialize | S-44 | Build canonical Product Evidence File (PEF) from merged knowledge |
-| mental-model | S-45 | Build product mental model from PEF (capability tiers, gaps, readiness) |
-
-> **Note on skill IDs S-44 and S-45**: `evidence-materialize` (S-44) and `mental-model` (S-45) were
-> previously assigned S-40 and S-41 in their skill file frontmatter (colliding with `batch-remediate`
-> and `batch-eval-fix`). They have been renumbered to S-44 and S-45 to resolve the collision.
+> Full detail: [docs/registries/skills.md](docs/registries/skills.md)
 
 ### Enforcement scripts
 
-Two complementary validation tools exist. Understand which to use when:
-
-| Script | Skill | Role | When to use |
-|--------|-------|------|-------------|
-| `scripts/pipeline/audit.py` | S-23 ground-check | **Pre-write truth gate** | Before writing any content page; enforces evidence frontmatter; verifies API tokens against api_surface.json |
-| `scripts/pipeline/content_eval/` | S-25 / S-40 | **Post-write quality grading** | After writing pages; assigns A–F grades; runs content evaluators; generates remediation plans |
-
-**audit.py** is the hard gate — content that fails audit must not be committed.
-**content_eval** measures quality — content that scores low should be improved but is not blocked.
-These are complementary systems covering different layers of the quality pipeline.
-
-Usage:
-```bash
-python scripts/pipeline/audit.py slides python       # Single product
-python scripts/pipeline/audit.py all                  # All products
-python scripts/pipeline/audit.py --files path1.md     # Specific files (pre-commit)
-python scripts/pipeline/audit.py all --json           # Machine-readable output
-```
-
-**Configuring content root** (required for audit to find content):
-```bash
-# Option A: environment variable
-export CONTENT_REPO_PATH=/path/to/your/content-repo
-
-# Option B: config.yaml
-# content_root: "/path/to/your/content-repo"
-```
-
-### Skill locations (per agent)
-
-| Agent | Skills path | Instructions file |
-|-------|------------|-------------------|
-| Claude Code | `.claude/commands/{name}.md` | `CLAUDE.md` |
-| Codex CLI | `.agents/skills/{name}/SKILL.md` | `CODEX.md` + `AGENTS.md` |
-| Kilo Code | `.kilocode/skills/{name}/SKILL.md` | `.kilocode/rules-code/` |
-| Canonical source | `skills/{name}.md` | — |
+> Full detail: [docs/registries/skills.md](docs/registries/skills.md)
 
 ## 13. Internal Metadata Rendering Policy
 
-The `evidence:` frontmatter block is **internal provenance data** that must never appear on
-the public-facing website. It exists solely for pipeline validation and debugging.
+The `evidence:` frontmatter block is **internal provenance data** that must never appear on the public-facing website. It exists solely for pipeline validation and debugging.
 
 ### Design
 
-In Hugo-based deployments, the evidence panel partial should be gated on the build environment:
+The `layouts/partials/evidence-panel.html` partial is gated in all four public-facing theme base templates (`products`, `docs`, `kb`, `blog`) with:
 
 ```html
 {{- if ne hugo.Environment "production" }}{{- partial "evidence-panel.html" . -}}{{- end }}
 ```
 
-| Build context | Panel renders? |
-|--------------|----------------|
-| CI production build | **No** |
-| CI staging build | Yes (QA only) |
-| Local dev server | Yes (dev only) |
+This means:
+
+| Build context | `hugo.Environment` | Panel renders? |
+|--------------|-------------------|----------------|
+| CI production build (`--environment production`) | `"production"` | **No** |
+| CI staging build (`--environment staging`) | `"staging"` | Yes (QA only) |
+| Local `hugo server` | `"development"` | Yes (dev only) |
+| Plain local `hugo` (no `--environment` flag) | `"production"` (default) | **No** |
+
+### CI workflow requirement
+
+All site build workflows in `aspose.org-workflows` **must** pass `--environment "${{ github.event.inputs.environment }}"` to the `hugo` build command. This ensures the `workflow_dispatch` `environment` input (already used for deploy targeting) is also forwarded to Hugo's template context. All 7 site workflows already do this.
+
+If a new site workflow is added, the same flag is required on the `hugo` build step. Omitting it is safe (Hugo defaults to `"production"` → panel hidden) but must be explicit.
 
 ### What must not change
 
 - The `evidence:` frontmatter block must remain in content files — it is required by
-  `audit.py` and `attach_evidence.py` for validation and staleness detection.
-- Do not remove or relocate the evidence block.
-- Do not expose the evidence panel unconditionally in production builds.
+  `audit.py`, `attach_evidence.py`, and `evidence_depth.py` for validation and staleness
+  detection. Do not remove or relocate it.
+- Do not call `evidence-panel.html` unconditionally from any base template. The partial
+  itself contains a comment warning against this.
+- Do not gate the panel on URL patterns (e.g. `-qa.aspose.org`) — the `hugo.Environment`
+  mechanism is the correct and durable approach.
 
 ---
+
 
 ## 14. Completion Verification Protocol
 
-When reviewing whether a task, sprint, or acceptance criterion is complete, assign one
-of the following verification tiers. A lower tier cannot substitute for a higher tier.
+> Full detail: [docs/workflows/completion-verification.md](docs/workflows/completion-verification.md)
 
-| Tier | Label | Meaning |
-|------|-------|---------|
-| 1 | Written | File was edited. No verification performed. Mark as `[written]`, not `[x]`. |
-| 2 | Tested | Automated test covers the criterion. Test was run and passed. |
-| 3 | Runtime-validated | Script or tool confirmed behavior at runtime. |
-| 4 | Behaviorally proven | Confirmed in real agent execution, not only in file state. |
+## 15. Metrics Obligation
 
-### Rules
+All workflows and pipeline commands that call `llm.professionalize.com` — directly or
+through `LLMRouter` — carry a mandatory metrics obligation.
 
-1. A criterion is `[x]` (complete) only when it reaches the minimum tier required by the
-   governing plan. Where no minimum is stated, Tier 2 (Tested) is the default minimum.
-2. `[written]` is not completion — it is the start of the work.
-3. Sprint summaries must include a tier breakdown (count per tier).
-4. Any criterion marked complete without a named verification action is automatically
-   treated as OPEN on the next review cycle.
-5. Claims about behavioral compliance require at minimum Tier 4 (Behaviorally proven).
+**Requirements:**
 
----
+- Every professionalize HTTP call must be captured as a `MetricsEvent` using the approved
+  infrastructure: `ProfessionalizeClient`, `LLMRouter`, or a registered adapter entry in
+  `scripts/pipeline/config/metrics_callsite_registry.yaml`.
+- Each completed work-slice must aggregate captured events into a validated `MetricsRow`
+  (17 fields) via `RunMetrics`, and persist it locally before any submission is attempted.
+- New professionalize call sites must be registered in `metrics_callsite_registry.yaml`.
+  Unregistered direct calls will fail CI (`check_professionalize_call_sites.py`).
+- Default submission mode is dry-run. Production submission requires explicit owner approval
+  and both `AGENT_METRICS_ENDPOINT` and `AGENT_METRICS_TOKEN` environment variables set
+  locally. Token values must never be committed, printed, or stored in evidence bundles.
+- Non-professionalize calls (Gemini, Ollama, M2M, local models) are excluded from
+  professionalize `token_usage` and `api_calls_count` metrics. Do not mix them.
+- Test rows must use `job_type="test"` and `item_name` prefix `[TEST]`. Maximum 2 per sprint,
+  hard limit 3.
+- Metrics failures must never crash or block the parent pipeline job.
 
-## 15. Contextual Backlog Surfacing Policy
+**Governance scripts:** `scripts/ci/checks/check_professionalize_call_sites.py`,
+`check_metrics_taxonomy.py`, `check_metrics_no_secrets.py`,
+`check_metrics_test_post_limit.py`, `check_metrics_event_ledger_schema.py`,
+`check_metrics_sheet_payload_schema.py`, `check_metrics_docs_propagation.py`.
 
-After completing any substantive response, scan the response for subsystem signals. If
-≥2 signals are detected, call `/backlog surface` with 3–7 extracted signal tokens and
-append the result to the response.
-
-### Trigger signals (≥2 required to activate)
-
-- A file path or script name is mentioned (`scripts/`, `content/`, any `.py` or `.md` file)
-- A product family or platform is mentioned
-- A skill ID is mentioned (`S-` followed by digits)
-- A backlog item ID is mentioned
-- A subsystem term is mentioned (`gap-eval`, `knowledge`, `grading`, `pipeline`, `scout`, `enrichment`)
-
-### Suppression rules
-
-- Do NOT surface if the response was itself a `/backlog` command output (avoid recursion)
-- Do NOT surface if the response is a brief acknowledgement (fewer than 3 sentences)
-- Do NOT surface if `/backlog surface` returns nothing
-- Do NOT surface if the surfacing block would be longer than the main response body
-
----
-
+**Reference:** `METRICS-PLAN-001` (`scripts/pipeline/config/metrics_taxonomy.yaml`,
+`metrics_callsite_registry.yaml`).
 
 ## 16. Testing Seam Contract — Tiered Monkeypatch Policy
 
-Pipeline test code is governed by a four-tier model that classifies every mock/patch
-usage by risk. Tiers 1–2 are **banned**; Tier 3 requires annotation; Tier 4 is permitted.
+> Full detail: [docs/development/testing-seams.md](docs/development/testing-seams.md) *(moved)*
 
-### 16.1 Tier Definitions
+## 17. Planning Discipline (Mission & Taskcard Methodology)
 
-| Tier | Name | Examples | Required Alternative | Enforcement |
-|------|------|---------|---------------------|-------------|
-| **T1** | Path constant patching | `monkeypatch.setattr(mod, "REPO_ROOT", ...)`, `@patch("mod.CONTENT_ROOT")` | `configure()` seam or constructor/parameter DI | Block (CI + pre-commit) |
-| **T2** | Internal function replacement | `monkeypatch.setattr(mod, "_private_func", ...)` | DI via constructor, callback, protocol, or strategy | Block (CI ratchet + pre-commit) |
-| **T3** | External I/O boundary mocking | `sys.argv`, `subprocess.run`, HTTP clients, `sys.stdout` | Prefer `main(argv=None)` for CLI; structured annotation required | Lint: require annotation |
-| **T4** | Environment/dict patching | `patch.dict(os.environ, ...)`, `patch.dict(sys.modules, ...)` | None required | No enforcement |
+> Full detail: [docs/governance/planning-methodology.md](docs/governance/planning-methodology.md)
 
-### 16.2 Guarded Path Constants
+Before any newly-authored multi-step plan — including Claude Code Plan Mode output (before
+`ExitPlanMode` is accepted as final) and Codex's own multi-step planning — is treated as ready
+to execute, it must pass the Planning Review Checklist and Taskcard Readiness Checklist in
+[docs/reference/planning-execution-state-machine.md](docs/reference/planning-execution-state-machine.md).
+Multi-session or multi-agent missions bind to this repo's existing mission-contract
+(`MISSION_AUTHORITY.yaml` shape) and taskcard (schema 5f) mechanisms — see the concordance
+table in the linked doc — never a new parallel tracker.
 
-The following module-level constants are T1-guarded. Any `monkeypatch.setattr`,
-`patch.object`, `@patch`, or direct test-scope assignment targeting these names is a
-T1 violation:
+## Operating Standard
 
-`REPO_ROOT`, `KNOWLEDGE_ROOT`, `CONTENT_ROOT`, `_SESSION_DIR`, `_DEFAULT_CACHE`,
-`_DEFAULT_REPO_ROOT`, `_DEFAULT_KNOWLEDGE_ROOT`, `_DEFAULT_CONTENT_ROOT`,
-`_REPO_ROOT`, `_DEFAULT_MANIFEST_PATH`, `REPORTS_ROOT`, `_ROOT`, `_HERE`.
-
-### 16.3 Seam Pattern — `configure()` for Legacy Modules
-
-For every pipeline script that defines a module-level path constant:
-
-1. **`configure()` function required** — Expose a module-level `configure()` function that
-   accepts keyword arguments matching the path constants and overrides their values.
-   Calling `configure()` with no arguments MUST reset all constants to built-in defaults.
-
-2. **CLI arg required for tools with a `main()`** — Scripts with a CLI MUST also expose
-   injectable paths as optional arguments (e.g. `--repo-root`) that call `configure()`
-   before execution.
-
-3. **Tests MUST use `configure()`, never `monkeypatch`** — Use `configure(path=tmp_path)`
-   before the call and `configure()` in a `finally` block or `yield`-based fixture.
-
-### 16.4 T3 Annotation Schema
-
-Every T3 mock MUST have a conforming comment on the preceding line:
-
-```python
-# T3-MOCK: target=sys.argv reason="CLI main() does not accept argv param" removal=TC-MP-XX
-monkeypatch.setattr("sys.argv", ["script", "--flag"])
-```
-
-Fields: `target`, `reason`, `removal` (taskcard ID or `PERMANENT` with human approval).
-
-### 16.5 Agent Output Requirements
-
-Agents MUST NOT recommend T1 or T2 monkeypatch patterns in plans, reports, or code
-suggestions. When test isolation is needed:
-- For path constants → recommend `configure()` seam or constructor DI
-- For internal functions → recommend parameter injection, protocol, or callback DI
-- For I/O boundaries → recommend T3 with annotation
-
-### 16.6 Scope
-
-This policy applies to all Python test files in:
-- `scripts/pipeline/tests/`
-- `scripts/ci/tests/`
-- `scripts/translator/tests/`
-- `tests/`
-
-### 16.7 Enforcement
-
-| Mechanism | Location | Mode |
-|-----------|----------|------|
-| AST-first linter | `scripts/ci/check_monkeypatch_lint.py` | `--tier 1,2 --strict` (blocking) |
-| CI workflow | `.github/workflows/` | Ratchet + baseline comparison |
-
+Every agent operating on this repository is expected to behave as a disciplined user of a governed skill system — not as an autonomous reasoner inventing its own processes. The skill system is the documented, human-reviewed record of how content work is done here. When skills cover a requirement, they must be used. When they do not, the gap must be reported and recorded so the skill system can grow. An agent that silently bypasses skills, fabricates workflows, or completes tasks partially without disclosure violates the operating contract of this repository regardless of whether the output appears correct. Correctness of output does not retroactively legitimize non-compliant process. The test is not "did it work?" — the test is "did it work through the skill system, with the skill system's evidence and path rules intact?"

@@ -1,0 +1,9 @@
+Loaded 1 files
+[content_eval] WARNING: enrichment_status='scout-only' for email/cpp — claim-based evaluators may report false gaps
+
+Evaluation complete:
+  Pages: 1
+  FAIL: 1
+  WARN: 0
+  INFO: 0
+  Report: reports\plan_state\ST198-2026-09-18-KB-VERB-VOCAB-HARDENING\evidence\raw-logs\03-03-eval-oneoff\content_eval\eval-20260923-100519.json

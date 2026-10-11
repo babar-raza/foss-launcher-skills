@@ -1,0 +1,778 @@
+[
+  {
+    "format": "FBX6100ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX6100_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7200ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7200_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7300ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7300_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7400ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7400_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7500ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7500_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7600ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7600_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7700ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "FBX7700_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "MAYA_ASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "MAYA_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "STL_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "STLASCII",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "DISCREET_3DS",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "COLLADA",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "UNIVERSAL_3D",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "GLTF",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "GLTF2_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "GLTF_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "PDF",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "BLENDER",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "DXF",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "PLY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "X_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "X_TEXT",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "DRACO",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "MICROSOFT_3MF",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "RVM_TEXT",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "RVM_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "ASE",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "IFC",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "SIEMENS_JT8",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "SIEMENS_JT9",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "AMF",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "VRML",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "ASPOSE_3D_WEB",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "HTML5",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "ZIP",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "USD",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "USDA",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "USDZ",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "XYZ",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "PCD",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "PCD_BINARY",
+    "enum": "FileFormat",
+    "value": "None",
+    "file": "aspose/threed/FileFormat.py",
+    "line": 8,
+    "direction": "detect"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/collada/ColladaExporter.py",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/collada/ColladaImporter.py",
+    "line": 12,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/fbx/FbxExporter.py",
+    "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/fbx/FbxImporter.py",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/gltf/GltfExporter.py",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/gltf/GltfImporter.py",
+    "line": 13,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/obj/ObjExporter.py",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/obj/ObjImporter.py",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/stl/StlExporter.py",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/stl/StlImporter.py",
+    "line": 12,
+    "direction": "import"
+  },
+  {
+    "format": "A3dw",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/A3dwSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Amf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/AmfSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/ColladaLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/ColladaSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Draco",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/DracoSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/FbxLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/FbxSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/GltfLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/GltfSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Html5",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/Html5SaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Jt",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/JtLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/ObjLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/ObjSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/PdfLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/PdfSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/PlyLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/PlySaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/RvmLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/RvmSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/StlLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/StlSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/U3dLoadOptions.py",
+    "line": 1,
+    "direction": "import"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/U3dSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Usd",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/UsdSaveOptions.py",
+    "line": 1,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/collada/ColladaLoadOptions.py",
+    "line": 4,
+    "direction": "import"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/collada/ColladaSaveOptions.py",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/fbx/FbxLoadOptions.py",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/fbx/FbxSaveOptions.py",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/gltf/GltfLoadOptions.py",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/gltf/GltfSaveOptions.py",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/obj/ObjLoadOptions.py",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/obj/ObjSaveOptions.py",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/stl/StlLoadOptions.py",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/formats/stl/StlSaveOptions.py",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "degree",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/entities/EndPoint.py",
+    "line": 8,
+    "direction": "import"
+  },
+  {
+    "format": "radian",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/entities/EndPoint.py",
+    "line": 13,
+    "direction": "import"
+  },
+  {
+    "format": "points",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/entities/Line.py",
+    "line": 19,
+    "direction": "import"
+  },
+  {
+    "format": "absolute",
+    "enum": "",
+    "value": "",
+    "file": "aspose/threed/utilities/RelativeRectangle.py",
+    "line": 17,
+    "direction": "export"
+  }
+]

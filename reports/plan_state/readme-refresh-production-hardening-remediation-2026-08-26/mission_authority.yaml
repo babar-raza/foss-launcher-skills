@@ -1,0 +1,23 @@
+mission_authority:
+  mission_id: readme-refresh-production-hardening-remediation-2026-08-26
+  mission_summary: "Follow-on remediation mission for the readme-refresh (S-120) system, implementing the RC-* candidates filed by the closed readme-refresh-forensic-trust-audit-2026-08-25 mission and the deeper structural redesign in that mission's phase6b-production-hardening-design.md. Per the audit's own explicit boundary ('every item here is a candidate for a separate, future remediation mission') and the user's explicit priority ('fix the system/skill first, then reuse the healed system to fix the outcomes'), this mission implements Stage 1a (cheap wins) through later stages of phase6b's sequencing, system machinery first, before any portfolio-wide candidate regeneration is attempted. Bounded to code/test changes in the readme-refresh backing scripts and their test suites; does not push, approve, or regenerate any product candidate."
+  governing_plan_path: "reports/plan_state/readme-refresh-forensic-trust-audit-2026-08-25/phase6b-production-hardening-design.md"
+  current_phase: "Stage 1a in progress: cheap wins (Navigation TOC parity check, Cluster H write-path marker fix) implemented and tested."
+  in_scope_outcomes:
+    - "Stage 1a: RC-verification-marker-write-path-fix (hash real on-disk bytes not newline-translated text; preserve prior bound run_id on unchanged-content audit-only writes) and a new Navigation TOC parity hard gate (Phase 4 row 22) -- both with failing-first regression tests, verified against the full readme-refresh scoped test suite (845 tests)."
+    - "Stage 1b onward (identity/coverage migration, freshness manifest, publication reconciliation, claim verification, generation instrumentation, approval-gate hardening) per phase6b's own sequencing -- to be taken up in subsequent sessions of this same mission, each following the build-fails-closed-fix-regression-test-portfolio-rollup Repair Loop."
+  out_of_scope_items:
+    - "Any push, approve, or candidate regeneration against a real product or target repository -- Stage 4 of phase6b (re-running generation across the portfolio) is explicitly deferred until the machinery stages are canary-proven, per the mission's own system-first mandate."
+    - "Any write to root MISSION_AUTHORITY.yaml -- still occupied by the live MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL mission, unrelated to readme-refresh; this mission's contract is hand-authored directly at its archive location instead, per the same precedent the audit mission itself established."
+    - "Re-opening or modifying the closed readme-refresh-forensic-trust-audit-2026-08-25 mission's own taskcards.jsonl -- its RC-* cards remain at TODO by that mission's own permanent acceptance criteria; this mission's taskcards reference them by id but live in this mission's own separate ledger."
+  mandatory_acceptance_criteria:
+    - "Every code/test change ships with a failing-first regression test reproducing the exact confirmed defect, verified to pass after the fix."
+    - "The full readme-refresh scoped test suite (test_readme_refresh_run.py, test_readme_refresh_checks.py, test_readme_refresh_scope.py) passes with a test count >= the pre-mission baseline (845) at every checkpoint -- no regression."
+    - "git status/diff reviewed before and after every change to confirm only the intended files were touched."
+    - "No target product repository or push/publication ledger is modified by this mission."
+  conflicts_found:
+    - "Checked live via mission_authority.py status --json (2026-08-26): locks: [] (empty); skill_context.sessions initially showed session fdc96303-ac73-42c1-ac4c-57b39bb4c6d1 (skill S-76) holding scope over scripts/pipeline/**, confirmed via a live skill_context.py begin refusal (CONFLICT, not just risk assessment) -- that session was later confirmed complete by the user and had aged past the staleness threshold (262.9m); skill_context.py begin --skill S-120 succeeded once stale. Only this session's own registration (a2fdb8ba-3ca1-4e5a-a9b1-eb9fdce5dd02) is active at mission open."
+    - "Root MISSION_AUTHORITY.yaml confirmed still occupied by MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL (unrelated, website-content audit) -- this mission deliberately does not open the root slot, per out_of_scope_items above."
+  mission_locked: false
+  _archive_status: open
+  _archived_at: "2026-08-26T08:15:00Z"

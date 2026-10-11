@@ -1,16 +1,19 @@
-# Adapted from aspose.org
 # CONTRACT: scripts/pipeline/commands/diagnostics/description_coverage_audit.py
 #   purpose: per-product member-doc description coverage audit against ERC api-kind claims
 #   inputs: knowledge/{family}/{platform}/merged/claims.json + api_surface.json (all products)
 #   outputs: stdout coverage table + knowledge/description_coverage_report.json
 #   exit code: 0 = all products pass threshold; 1 = one or more products below threshold or skipped
 #   idempotent: yes — read-only scan; report file overwritten on each run
+#   verified: 2026-04-12
 
 """description_coverage_audit.py — Per-product member-doc description coverage report.
 
 Scans knowledge/{family}/{platform}/merged/claims.json and api_surface.json for
 each registered product, counts ERC api-kind member-doc claims vs total public
 members, and emits a per-product coverage table to stdout plus a JSON report.
+
+Usage:
+    python scripts/pipeline/commands/diagnostics/description_coverage_audit.py [--report PATH]
 
 The JSON report is written to knowledge/description_coverage_report.json by default.
 Exit code 1 if any product is below the minimum threshold (--min-coverage, default 20%).
@@ -20,15 +23,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
-KNOWLEDGE_ROOT = Path(os.environ.get("FOSS_KNOWLEDGE_ROOT", "knowledge"))
+KNOWLEDGE_ROOT = Path("knowledge")
 
 _LOAD_WARNINGS: list[str] = []
 
+# Same pattern used by _build_erc_member_index in batch_reference.py
 _MEMBER_PREFIX_RE = re.compile(
     r"^(?:The |Calling )?([A-Za-z]\w+)\.([A-Za-z_]\w*)\b"
 )
@@ -76,7 +79,13 @@ def _count_erc_member_claims(claims: list[dict]) -> int:
 
 
 def audit(min_coverage: float = 0.20) -> tuple[list[dict], bool, list[str]]:
-    """Run coverage audit across all products."""
+    """Run coverage audit across all products.
+
+    Returns (rows, all_pass, skipped) where rows is a list of per-product dicts,
+    all_pass is True if every product meets the min_coverage threshold, and
+    skipped is a list of "family/platform" strings for products with missing or
+    malformed data files.
+    """
     rows: list[dict] = []
     all_pass = True
     skipped: list[str] = []

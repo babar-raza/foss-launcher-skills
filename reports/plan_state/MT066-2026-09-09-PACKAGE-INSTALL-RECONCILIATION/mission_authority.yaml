@@ -1,0 +1,105 @@
+mission_authority:
+  mission_id: MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION
+  mission_summary: 'Retroactive registration (bound 2026-09-09, this session) of a
+    package-installation-instruction reconciliation plan that had already been through
+    several rounds of Claude Code Plan Mode authoring/review across a prior session
+    (plan file: <local-plan-cache>/this-chat-is-about-polymorphic-brook.md)
+    without ever being bound to a mission contract -- discovered only when this session
+    resumed the plan file and AGENTS.md''s mandatory read-order gate (Section 17 /
+    docs/governance/planning-methodology.md GOV-02) required registration before continuing.
+    Trigger: pdf/java''s 26.8.0 Maven Central republish (Mission MT036) exposed that
+    package-registry version detection is automatic but applying a detected change
+    to data/package_registry.json, healing affected content, committing, and confirming
+    deployment has always required a human running /package-publish-watch (S-118)
+    interactively. The plan''s scope grew from ''auto-commit the registry JSON'' to
+    a full continuous reconciliation system spanning identity discovery (all 6 registries:
+    Maven, PyPI, NuGet, npm, crates.io, Go), version propagation, a literal-vs-shortcode
+    install-instruction inventory across the whole content portfolio (docs/kb/blog/products.aspose.org,
+    all locales), execution of the already-designed-but-unexecuted ST-054 inline-install-text
+    remediation plan (plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md,
+    11 taskcards TC-01..TC-11, all open), and a cross-repo deploy-trigger fix in Aspose/aspose.org-workflows.
+    A self-administered review against this doc''s own Planning review checklist /
+    Taskcard readiness checklist (docs/reference/ planning-execution-state-machine.md)
+    found the plan PLAN_NEEDS_REPAIR, not ready to execute: a real production-safety
+    defect (observation-only fields proposed for data/package_registry.json, a Hugo-consumed
+    file, would cause daily spurious full-portfolio rebuilds once the deploy-trigger
+    fix ships), no taskcard structure bound to schema 5f, an internal Phase 3/4 numbering
+    inconsistency, no override-token handling for the protected paths it touches (layouts/shortcodes/,
+    .github/workflows/), a dropped retroactive skill-run-record wiring the plan''s
+    own earlier draft had, and no baseline-SHA anchor for its content-census counts.
+    This mission contract exists to track that repair and the subsequent execution,
+    not to claim either is done.'
+  governing_plan_path: <local-plan-cache>/this-chat-is-about-polymorphic-brook.md
+  in_scope_outcomes:
+  - Registry-state auto-detect/verify/apply/commit for all 6 package registries (Maven,
+    PyPI, NuGet, npm, crates.io, Go), including new live-version extraction for the
+    4 registries that currently lack it and is_corroborated_match() wired into the
+    scheduled watchers' unpublished-check path (currently only used by the manual
+    registry_backfill.py tool)
+  - A portfolio-wide install-instruction page inventory (shortcode vs. literal vs.
+    missing vs. wrong-registry, across all locales) built from existing detectors
+    (install_recipe.py H-16, package_install_literal.py), not new parsers
+  - 'Execution of the already-designed ST-054 plan (TC-01 through TC-11): inline-safe
+    shortcode sibling to maven-gav, install_block_updater.py durability fix, fresh
+    full-repo sweep, per-product identity-collision classification, mechanical migration
+    + locale propagation via S-75, recurring sweep'
+  - GitHub-fallback rendering wired to data/products.json's repo_url/clone_url for
+    the 5 registry types that currently only render soft unlinked prose
+  - 'The confirmed 3-layer deployment-trigger fix: this repo''s commit/push path,
+    a SHARED_DATA_CONSUMERS mapping fix in the sibling Aspose/aspose.org-workflows
+    repo''s detect_changes.py (separately reviewed PR, not bundled), and a post-commit
+    verification poll in this repo'
+  - The plan itself repaired to PLAN_READY per this doc's own checklist and bound
+    to schema 5f taskcards (reports/plan_state/MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION/taskcards.jsonl)
+    before any of the above is executed
+  out_of_scope_items:
+  - The 6,242/6,364-mention literal-text count's already-fixed subset (Mission MT032,
+    5 products, English/docs-kb-products only) -- not re-touched, only the remaining
+    tail is in scope
+  - reference.aspose.org's hardcoded v0.1.0-alpha frontmatter defect (S-62/batch-reference
+    generation path) -- a different generation mechanism entirely, tracked separately,
+    though the same 0.1.0-alpha placeholder value also turned up live in this plan's
+    own content census and may share a root cause worth a follow-up investigation
+  - Full yank/unlisted/deprecated/retracted registry-specific removal semantics for
+    PyPI/NuGet/npm/Go -- explicitly deferred to a later phase per the plan; only crates.io's
+    yanked flag is in scope now since it directly affects version selection
+  - Merging the Aspose/aspose.org-workflows PR and authorizing the first live production
+    deployment cycle -- both require explicit operator sign-off, not agent auto-merge/auto-deploy,
+    regardless of what else in this mission runs unattended
+  mandatory_acceptance_criteria:
+  - The plan passes this doc's own Planning review checklist and Taskcard readiness
+    checklist before any taskcard enters IN_PROGRESS -- currently PLAN_NEEDS_REPAIR,
+    not yet true
+  - Every actionable item in the plan is a schema-5f taskcard with allowed/forbidden
+    paths, dependencies, acceptance checks, and rollback -- not prose-only phases
+  - No control-plane observation state (per-run timestamps, debounce counters, reconciliation-state
+    caches) is added to any Hugo-consumed data/ file
+  - The registry-state and content-healing circuit breakers are independently verified
+    to fail closed before the first live scheduled run
+  - The cross-repo PR to Aspose/aspose.org-workflows and the first live production
+    deploy cycle each have an explicit, recorded operator go-ahead -- never inferred
+    from a prior unrelated approval
+  human_authority_boundaries:
+  - Approving the merge of the Aspose/aspose.org-workflows detect_changes.py PR
+  - Authorizing the first live, unattended production deployment cycle triggered by
+    this system
+  - Any relaxation of the 'never auto-revert published:true to false' invariant, or
+    of the DRIFT_SUSPECTED/IDENTITY_CONFLICT human-gated states
+  conflicts_found:
+  - 'Checked live at mission open (2026-09-09, this session): git status --porcelain
+    MISSION_AUTHORITY.yaml -> clean, not locally dirty. mission_authority.py list
+    shows the root slot''s most recent archived snapshot as MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING
+    with mission_locked: false in the root file itself -- safe to take over, matching
+    the same precedent MT058 itself recorded when it took over from MT040.'
+  - Mission-ID collision avoided using the now-sanctioned allocator (ST-157, mission_authority.py
+    allocate --track main --slug PACKAGE-INSTALL-RECONCILIATION), not a manual grep
+    -- it returned MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, confirmed independently
+    unclaimed across reports/plan_state/, .supervisor/, plans/, backlog/, and the
+    separate docs/readme-refresh/ sequence before use.
+  - This plan file was NOT created fresh this session -- it was authored, reviewed,
+    and found PLAN_NEEDS_REPAIR in a prior session, then resumed here after a SessionStart:resume
+    hook. Per GOV-02 (docs/governance/planning-methodology.md), that is exactly the
+    trigger requiring registration before continuing, not after.
+  mission_locked: true
+  _archive_status: open
+  _archived_at: '2026-09-09T17:04:27Z'

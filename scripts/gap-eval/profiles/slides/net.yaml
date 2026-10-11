@@ -1,0 +1,31 @@
+family: slides
+platform: net
+version: 1
+
+discovery_hints:
+  package_source_file: src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj
+  package_extraction: "xpath://PackageId"
+  language: csharp
+  format_source_glob: "src/**/Export/**/*.cs"
+  stub_search_hints:
+    - "throw new NotImplementedException"
+    - "// TODO"
+  runtime_requirement_source: src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj
+
+discovered_actuals:
+  package_name: "Aspose.Slides.Foss"
+  package_source_actual: src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj
+  format_files_found: null
+  last_baseline_sha: bd19e16057b628310b4a04330585d366cb40e9b7
+
+language_conventions:
+  method_naming: PascalCase
+  enum_values: PascalCase
+  pass_by: value
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

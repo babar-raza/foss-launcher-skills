@@ -1,0 +1,25 @@
+[promote] Preserved 1 note/manual format entries not present in scout output (formats.json).
+Promote: cells/java
+  Scout: 2869 claims, 183 api_surface entries
+  Enriched: 2109 claims (from enrich.py)
+  Total claims: 4978
+  WARNING: 99 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (102 excess removed)
+    CLM-cells-a24b40: 5 occurrences
+    CLM-cells-e9a596: 2 occurrences
+    CLM-cells-7322b1: 2 occurrences
+    CLM-cells-9df4cd: 2 occurrences
+    CLM-cells-1632db: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 450 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 183 entries (183 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 183 classes, 110596 bytes
+  Forbidden claims: 8
+  All artifacts written to knowledge\cells\java\merged.staging.9d020516-7123-41dc-9428-f17ecc140717
+  WARNING: format-claims contradiction: format='XLSX' direction='export' claim='Saving workbooks is currently limited to the XLSX format; attempts to save in other formats are not supported.'
+  WARNING: format-claims contradiction: format='XLSX' direction='both' claim='Saving workbooks is currently limited to the XLSX format; attempts to save in other formats are not supported.'
+  Reconciliation report written to reports\knowledge-reconciliation\cells-java.md
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 9d020516-7123-41dc-9428-f17ecc140717 promoted for cells/java
+
+PROMOTE: PASS

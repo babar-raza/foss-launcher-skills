@@ -1,0 +1,41 @@
+mission_authority:
+  mission_id: MT029-2026-08-09-GIT-OBJECT-STORE-INTEGRITY
+  mission_summary: >
+    Fixed a reflog-protected broken git object-store link (tree 06efd189... -> missing blob
+    ce166537...) at minimal blast radius, root-caused and fixed the structural condition that
+    produced it (a corrupted-but-unreachable loose object was making git gc fail outright,
+    exit 128, not merely racing - this explains a 2-week, 38K-object maintenance backlog),
+    disabled ambient gc.auto to stop the underlying concurrency race across this repo's 5
+    active worktrees, added an advisory git-repo-health script, and left a durable governance
+    record (gap-escalation report + real taskcard records) where the 2026-08-06 first
+    occurrence of this incident class left only an agent-memory note.
+  governing_plan_path: '<local-plan-cache>/bright-skipping-garden.md'
+  current_phase: "CLOSED"
+  in_scope_outcomes:
+    - "TC-MT029-02: broken link no longer reachable to git fsck's default walk - VERIFIED"
+    - "TC-MT029-03: gc.auto disabled locally - VERIFIED"
+    - "TC-MT029-04: loose-object backlog cleared (38322 -> 15) - VERIFIED"
+    - "TC-MT029-05: advisory git-repo-health script + registry entry - VERIFIED (exit 0, HEALTHY)"
+    - "TC-MT029-06/07: gap-escalation report filed + skill_context.py gap context recorded - VERIFIED"
+    - "TC-MT029-08: new tracked files committed via governed path - VERIFIED (046f91c0, pushed, remote-confirmed)"
+    - "TC-MT029-09: durable memory record (new dated subsection, 2026-08-06 entry preserved) - VERIFIED"
+  out_of_scope_items:
+    - "Full cross-tool maintenance coordinator - filed as TC-MT029-11, backlog follow-up only, not executed"
+    - "root MISSION_AUTHORITY.yaml slot - deliberately never touched (concurrent-toasting-biscuit was live-open at mission start)"
+  mandatory_acceptance_criteria:
+    - "git fsck --no-progress prints no 'broken link' warning post-fix — MET (verified twice: immediately post-fix and again at final closeout)"
+    - "git rev-list --objects --all --reflog | grep 06efd189 returns empty post-fix — MET"
+    - "other 3 unrelated worktrees' reflogs unchanged (line-count proof) — MET (3/1/1 lines, before and after, identical)"
+    - "loose object count drops by at least 1 order of magnitude — MET (38322 -> 15, ~2555x reduction)"
+    - "all mandatory taskcards reach CLOSED with evidence_refs populated — MET (TC-MT029-01 through 09 all CLOSED)"
+  conflicts_found:
+    - "Root MISSION_AUTHORITY.yaml slot was live-occupied by concurrent-toasting-biscuit at mission start (mission_authority.py list: [open]). Never called mission_authority.py open — this mission's contract lives only in this self-contained archive directory, per the concordance table's documented pattern. No overlap occurred: this mission touched zero files in concurrent-toasting-biscuit's scope."
+    - "A live S-99 lock (session d0a4bedb) was observed at mission start and reconfirmed during TC-MT029-01; its scope (plans/master-plan.md, MT019-related paths, backlog/BACKLOG.md) never overlapped this mission's allowed_paths - no BLOCKED_LOCAL triggered."
+    - "Real-time concurrent activity was continuously observed throughout execution (heavy static/media/* icon regeneration from an independent session, matching the known 'media-icon-generation-2026-08-06' mission name) - confirmed non-overlapping via diff attribution at TC-MT029-04 and TC-MT029-10."
+  corrections_during_execution:
+    - "TC-MT029-02: the safety-net ref (refs/rollback/2026-08-09-git-object-store-incident) was found, live, to re-protect the exact corrupted tree it was meant to help recover from, blocking the mission's own goals. Removed; forensic value preserved via plain-text SHA/metadata record in taskcards.jsonl and this file instead of a live ref."
+    - "TC-MT029-04: plain 'git gc' failed outright (exit 128) on the first attempt due to the still-present corrupted object; 'git prune' first, then 'git gc', is the correct ordering - now documented in memory for future recurrences."
+    - "TC-MT029-06: its CLOSED transition was initially missed and only caught by this taskcard's own final re-verification pass - backfilled honestly, not silently."
+  mission_locked: true
+  _archive_status: closed
+  _closed_at: "2026-08-09T12:53:21Z"

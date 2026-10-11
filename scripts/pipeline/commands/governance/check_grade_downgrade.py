@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """CI helper: detect grade downgrades in modified content files.
 
 Compares the grade on origin/main vs the working-tree version for each
@@ -11,6 +10,7 @@ current operational grade than stale frontmatter (due to WP-01 write policy).
 Usage:
     python scripts/pipeline/commands/governance/check_grade_downgrade.py file1.md file2.md
     python scripts/pipeline/commands/governance/check_grade_downgrade.py --strict file1.md
+    python scripts/pipeline/commands/governance/check_grade_downgrade.py --files-from list.txt
 """
 import argparse
 import json
@@ -27,10 +27,8 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade  # noqa: E402
-# Inline LOCALE_RE (foss does not have content_discovery)
-import re as _re_mod
-LOCALE_RE = _re_mod.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
-from no_downgrade_guard import _decision, DECISION_BLOCK, DECISION_WARN  # noqa: E402  # same directory
+from content_discovery import LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)
+from no_downgrade_guard import _decision, DECISION_BLOCK, DECISION_WARN  # noqa: E402
 
 _MANIFEST_PATH = "reports/grade_manifest.json"
 
@@ -101,12 +99,30 @@ def main(argv: list[str] | None = None) -> int:
         prog="check_grade_downgrade",
         description="Detect grade downgrades in modified content files.",
     )
-    parser.add_argument("files", nargs="+", help="Modified .md files to check")
+    parser.add_argument("files", nargs="*", help="Modified .md files to check")
+    parser.add_argument("--files-from", dest="files_from", metavar="FILE",
+                        help="Read paths to check (one per line) from FILE. "
+                             "Merged with any positional paths. Empty lines are ignored. "
+                             "Avoids OS argument-list-too-long errors on large commits.")
     parser.add_argument("--strict", action="store_true",
                         help="WARNs also fail CI (not just BLOCKs)")
     parser.add_argument("--allow-regrade", action="store_true",
                         help="Allow downgrades if graded_model_sha changed")
+    parser.add_argument("--blocked-files-out", default=None, dest="blocked_files_out",
+                        help="HARDEN-A8: write the BLOCKED file paths (one per line) here "
+                             "so the pre-commit hook can check override-token coverage "
+                             "for exactly the blocked files, not every staged file")
     args = parser.parse_args(argv)
+
+    files = list(args.files)
+    if args.files_from:
+        try:
+            extra = Path(args.files_from).read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            print(f"ERROR: cannot read --files-from '{args.files_from}': {exc}", file=sys.stderr)
+            return 1
+        files.extend(p for p in extra if p.strip())
+    args.files = files
 
     # --allow-regrade: skip all downgrade checks (used for rubric/evaluator changes)
     if args.allow_regrade:
@@ -153,6 +169,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"BLOCKED: {len(blocks)} grade downgrade(s):", file=sys.stderr)
         for f, old, new in blocks:
             print(f"  {f}: {old} → {new}", file=sys.stderr)
+
+    if args.blocked_files_out:
+        # newline="\n" pins LF regardless of platform: this file is read by
+        # pre-commit-audit.sh's `while read -r` loop, and Windows Python's
+        # default write_text() translates \n -> os.linesep (\r\n) here,
+        # leaving a trailing \r on every path that silently breaks the
+        # downstream override_manager.py validate-for-path exact-match check.
+        Path(args.blocked_files_out).write_text(
+            "".join(f"{f}\n" for f, _old, _new in blocks), encoding="utf-8", newline="\n")
 
     if warns:
         print(f"WARN: {len(warns)} grade degradation(s):", file=sys.stderr)

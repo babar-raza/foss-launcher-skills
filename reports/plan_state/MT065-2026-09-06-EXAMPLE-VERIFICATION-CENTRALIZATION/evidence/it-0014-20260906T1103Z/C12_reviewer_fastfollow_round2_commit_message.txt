@@ -1,0 +1,49 @@
+fix(example-verification): C12 fast-follow round 2 -- fix 2 more real bugs a re-review found in the round-1 JavaRunner fix
+
+A fresh independent re-review of commit fad43671a5 (C12's first fast-
+follow, fixing 2 bugs from an initial REJECT) confirmed both original
+fixes work, but found 2 more real, reproducible bugs in the same problem
+space -- both using a different trigger shape than what the first fix's
+own tests covered:
+
+1. _wrap_fragment's import-hoisting loop only recognized `//` line
+   comments as skippable preamble before an import -- a leading `/* ... */`
+   BLOCK comment (which can itself span multiple lines) stopped hoisting
+   early, landing the import back inside main() and reproducing the exact
+   "illegal start of expression" bug the round-1 fix claimed to have
+   closed. Fixed: the hoisting loop now tracks an open, not-yet-closed
+   `/*` across lines (`in_block_comment`) the same way a real Java
+   tokenizer would, so a leading block comment -- single-line or
+   multi-line -- is correctly hoisted as preamble alongside imports.
+
+2. _strip_comments's block-comment regex (`/\*.*?\*/`) was not
+   string-literal-aware. A string literal containing `/*` with no real
+   closing `*/` of its own (e.g. `"/* unterminated"`) let the non-greedy
+   regex span from inside that literal all the way to an unrelated, LATER
+   real `*/` elsewhere in the block, deleting real code -- including a
+   real `public class` declaration -- along with it. _class_name_for then
+   picked the WRONG (non-public) class, reproducing the exact "class X is
+   public, should be declared in a file named X.java" bug the round-1 fix
+   claimed to have closed. Fixed: a new combined regex
+   (_JAVA_STRING_OR_COMMENT_RE) matches string/char literals FIRST in the
+   same pass as comments, so a literal is always consumed and preserved as
+   one token before the comment-matching alternative ever gets a chance to
+   misinterpret characters inside it -- the standard technique for this
+   exact class of problem.
+
+New regression tests added directly to test_example_verification_java.py
+(2 tests). Confirmed mechanically real: reverted both fixes locally via
+git stash, re-ran both new tests, watched both fail with the exact real
+javac errors described above (the string-literal test required a REAL
+trailing `/* ... */` elsewhere in the block to reproduce -- without one,
+the naive regex has no real closer to span to and never corrupts anything,
+which is why the test's exact shape matters), restored the fixes,
+confirmed all 24 tests pass again.
+
+Verification: full test_example_verification_java.py (24 tests, 2 new)
+green. check_monkeypatch_lint.py: 0 violations.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C12 (pending re-review before deciding closure)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

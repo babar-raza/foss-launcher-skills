@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """run_content_eval.py — Wrapper entrypoint for content_eval.
 
 Allows invoking content_eval from the repo root without any PYTHONPATH prefix:
@@ -18,13 +17,9 @@ from pathlib import Path
 # when invoked directly — all sibling packages (core, content_eval, extraction, …)
 # are therefore importable without any PYTHONPATH prefix.
 _HERE = Path(__file__).resolve().parent
-_PIPELINE = _HERE.parents[1]
-_SCRIPTS = _HERE.parents[2]
-for _path in (_SCRIPTS, _PIPELINE):
-    if str(_path) not in sys.path:
-        sys.path.insert(0, str(_path))
-
-from config_loader import resolve_content_repo  # noqa: E402
+_PIPELINE_ROOT = _HERE.parent.parent  # commands/content/ -> commands/ -> pipeline/
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
 
 from content_eval.cli import main
 

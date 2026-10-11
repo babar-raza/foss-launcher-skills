@@ -1,0 +1,63 @@
+[
+  {
+    "name": "Scene",
+    "methods": [
+      {"name": "open", "return_type": "", "params": ["filename"]},
+      {"name": "save", "return_type": "", "params": ["filename"]},
+      {"name": "create_child_node", "return_type": "Node", "params": []},
+      {"name": "from_file", "return_type": "Scene", "params": ["path"]}
+    ],
+    "properties": [
+      {"name": "root_node", "type": "Node", "line": 10},
+      {"name": "asset_info", "type": "AssetInfo", "line": 20}
+    ],
+    "enum_members": [],
+    "bases": []
+  },
+  {
+    "name": "Node",
+    "methods": [
+      {"name": "create_child_node", "return_type": "Node", "params": ["name"]},
+      {"name": "get_bounding_box", "return_type": "BoundingBox", "params": []}
+    ],
+    "properties": [
+      {"name": "name", "type": "str", "line": 10},
+      {"name": "transform", "type": "Transform", "line": 20}
+    ],
+    "enum_members": [],
+    "bases": ["A3DObject"]
+  },
+  {
+    "name": "FileFormat",
+    "methods": [],
+    "properties": [],
+    "enum_members": [
+      {"name": "OBJ", "value": "0"},
+      {"name": "STL", "value": "1"},
+      {"name": "GLTF", "value": "2"},
+      {"name": "FBX", "value": "3"}
+    ],
+    "bases": []
+  },
+  {
+    "name": "AssetInfo",
+    "methods": [],
+    "properties": [
+      {"name": "title", "type": "str", "line": 10},
+      {"name": "author", "type": "str", "line": 20}
+    ],
+    "enum_members": [],
+    "bases": []
+  },
+  {
+    "name": "A3DObject",
+    "methods": [
+      {"name": "__init__", "return_type": "", "params": ["name"]}
+    ],
+    "properties": [
+      {"name": "name", "type": "str", "line": 5}
+    ],
+    "enum_members": [],
+    "bases": []
+  }
+]

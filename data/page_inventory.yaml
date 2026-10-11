@@ -1,0 +1,227 @@
+# Page Inventory — Mandatory and Optional Pages Per Product
+# Used by agents to verify product completeness
+# Schema version: 1
+schema_version: 1
+updated: "2026-03-26"
+
+# Global templates: apply to all products unless overridden
+# Subdomain keys: docs, kb, blog, products, reference
+# Each entry: {slug, page_role, mandatory: true/false, description}
+global_templates:
+  docs:
+    - slug: getting-started/_index
+      page_role: docs
+      mandatory: true
+      description: "Getting started overview"
+    - slug: getting-started/installation
+      page_role: docs
+      mandatory: true
+      description: "Installation instructions"
+    - slug: getting-started/license
+      page_role: docs
+      mandatory: true
+      description: "License information"
+    - slug: developer-guide/_index
+      page_role: docs
+      mandatory: true
+      description: "Developer guide overview"
+    - slug: developer-guide/features
+      page_role: docs
+      mandatory: true
+      description: "Key features reference"
+  kb:
+    - slug: faq
+      page_role: faq
+      mandatory: true
+      description: "Frequently asked questions"
+  products:
+    - slug: _index
+      page_role: products
+      mandatory: true
+      description: "Product landing page"
+  blog:
+    - slug: "introducing-{family}-foss-{platform}/index"
+      page_role: blog
+      mandatory: true
+      description: "Product launch announcement blog post"
+  reference:
+    - slug: _index
+      page_role: reference
+      mandatory: false
+      description: "API reference landing"
+
+# Per-product overrides and additions
+# Format: {family}/{platform}: {overrides}
+products:
+  3d/python:
+    docs:
+      extra:
+        - slug: developer-guide/format-support
+          page_role: docs
+          mandatory: true
+          description: "Supported 3D file formats"
+        - slug: developer-guide/scene-graph
+          page_role: docs
+          mandatory: false
+          description: "Scene graph and node hierarchy"
+        - slug: developer-guide/rendering
+          page_role: docs
+          mandatory: false
+          description: "Rendering and visualization"
+        - slug: developer-guide/model-loading
+          page_role: docs
+          mandatory: false
+          description: "Loading 3D models"
+  3d/java:
+    docs:
+      extra:
+        - slug: developer-guide/format-support
+          page_role: docs
+          mandatory: true
+          description: "Supported 3D file formats"
+        - slug: developer-guide/scene-graph
+          page_role: docs
+          mandatory: false
+          description: "Scene graph and node hierarchy"
+  3d/net:
+    docs:
+      extra:
+        - slug: developer-guide/format-support
+          page_role: docs
+          mandatory: true
+          description: "Supported 3D file formats"
+  3d/dotnet:
+    docs:
+      extra:
+        - slug: developer-guide/format-support
+          page_role: docs
+          mandatory: true
+          description: "Supported 3D file formats"
+  3d/typescript:
+    docs:
+      extra:
+        - slug: developer-guide/format-support
+          page_role: docs
+          mandatory: true
+          description: "Supported 3D file formats"
+        - slug: developer-guide/scene-graph
+          page_role: docs
+          mandatory: false
+          description: "Scene graph"
+        - slug: developer-guide/rendering
+          page_role: docs
+          mandatory: false
+          description: "Rendering"
+  cells/python:
+    docs:
+      extra:
+        - slug: developer-guide/spreadsheet-operations
+          page_role: docs
+          mandatory: true
+          description: "Core spreadsheet operations"
+        - slug: developer-guide/formula-calculation
+          page_role: docs
+          mandatory: false
+          description: "Formula evaluation"
+  note/python:
+    docs:
+      extra:
+        - slug: developer-guide/text-extraction
+          page_role: docs
+          mandatory: true
+          description: "Text extraction from OneNote"
+        - slug: developer-guide/pdf-export
+          page_role: docs
+          mandatory: false
+          description: "Export to PDF"
+        - slug: developer-guide/tables
+          page_role: docs
+          mandatory: false
+          description: "Working with tables"
+        - slug: developer-guide/images-and-attachments
+          page_role: docs
+          mandatory: false
+          description: "Images and file attachments"
+  email/python:
+    docs:
+      extra:
+        - slug: developer-guide/email-operations
+          page_role: docs
+          mandatory: false
+          description: "Core email operations"
+  slides/python:
+    docs:
+      extra:
+        - slug: developer-guide/working-with-images
+          page_role: docs
+          mandatory: false
+          description: "Images and media"
+        - slug: developer-guide/working-with-3d-effects
+          page_role: docs
+          mandatory: false
+          description: "3D visual effects"
+        - slug: developer-guide/working-with-comments
+          page_role: docs
+          mandatory: false
+          description: "Slide comments"
+        - slug: developer-guide/working-with-connectors
+          page_role: docs
+          mandatory: false
+          description: "Shape connectors"
+  slides/java:
+    docs:
+      extra:
+        - slug: developer-guide/working-with-images
+          page_role: docs
+          mandatory: false
+          description: "Images and media"
+        - slug: developer-guide/working-with-3d-effects
+          page_role: docs
+          mandatory: false
+          description: "3D visual effects"
+        - slug: developer-guide/working-with-comments
+          page_role: docs
+          mandatory: false
+          description: "Slide comments"
+        - slug: developer-guide/working-with-connectors
+          page_role: docs
+          mandatory: false
+          description: "Shape connectors"
+  slides/cpp:
+    docs:
+      extra:
+        - slug: developer-guide/working-with-images
+          page_role: docs
+          mandatory: false
+          description: "Images and media"
+        - slug: developer-guide/working-with-3d-effects
+          page_role: docs
+          mandatory: false
+          description: "3D visual effects"
+        - slug: developer-guide/working-with-comments
+          page_role: docs
+          mandatory: false
+          description: "Slide comments"
+        - slug: developer-guide/working-with-connectors
+          page_role: docs
+          mandatory: false
+          description: "Shape connectors"
+  slides/dotnet:
+    docs:
+      extra:
+        - slug: developer-guide/working-with-images
+          page_role: docs
+          mandatory: false
+          description: "Images and media"
+        - slug: developer-guide/working-with-3d-effects
+          page_role: docs
+          mandatory: false
+          description: "3D visual effects"
+        - slug: developer-guide/working-with-comments
+          page_role: docs
+          mandatory: false
+          description: "Slide comments"
+        - slug: developer-guide/working-with-connectors
+          page_role: docs
+          mandatory: false
+          description: "Shape connectors"

@@ -1,0 +1,38 @@
+bundle_generated_at: '2026-09-24T14:24:16.140762+00:00'
+bundle_id: 09fa1b86-7468-4371-b51c-f2f58be9fda7
+config_sha: 8b1fe257c09be32f
+enrichment_status: scout-only
+extractor_hash: 4900f4cab6786779
+family: 3d
+generator_fingerprint: 47ad08067148d602dc12a041cdd801e4d8b3f9d29ef818cfdd5639859cc99da7
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 99506b014683dd232794bb2058a92f7b1269903d0b0999828b0b1ac51d494183
+  extractor_config_sha: 8b1fe257c09be32f
+  products_json_entry_sha: 982a822733792427957c4522975dc7221841791114c0ded87b55a6a33b78484f
+  scout_api_surface_sha: c8ef879c954e6dea2a4907202633f0fc9c1f858664bcb87ba67d36108f82c7af
+  scout_claims_sha: 3f443e7095292649e949b482c2245be7695647da5ae724ac37907cf128e4b9d9
+license: ''
+module_assignment_version: 1
+platform: java
+product_name: aspose-3d-foss
+promoted_at: '2026-09-24T14:24:16.893804+00:00'
+repo_sha: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
+repo_url: https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java.git
+schema_version: 2
+source: scout_only
+stale_since: null
+stats:
+  class_count: 266
+  classes:
+    public_documented: 266
+    raw_entries_including_non_class: 266
+    total_declared: 266
+  enriched_claims: 0
+  forbidden_count: 80
+  scout_claims: 3011
+  snippet_count: 72
+  supplemental_claims: 0
+  total_claims: 2982
+version: 26.5.0

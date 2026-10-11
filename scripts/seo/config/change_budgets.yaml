@@ -1,0 +1,78 @@
+# Change-Budget Guard config (Contract G, SEO-CHANGE-BUDGET-GUARD, Finding #75/#80)
+#
+# A computational (LLM call) budget is not a production-content-change
+# budget -- this mission already has the former (get_keywords.py --max-calls,
+# quota-paced rollout, circuit breakers) and never had the latter. These caps
+# bound how many real pages/entries a single run may propose to change, and
+# feed change_budget.py's rolling-baseline anomaly check.
+#
+# Two consumers, two different units of "change", same cap names (v14's own
+# naming, reused rather than duplicated):
+#   - apply.py's pre-flight (mechanism: title_description_writes): "pages"
+#     are real content/ files; "sites" are aspose.org subdomains.
+#   - check_merge_safety.py's Gate 5 (mechanism: schema_a_refresh): "pages"
+#     are keyword entries regenerated in one keywords/{family}.json file;
+#     "sites" are families (this mechanism has no concept of a site). This
+#     mapping is change_budget.py's own disclosed interpretation -- v14 named
+#     the integration point but not this exact unit mapping.
+#
+# Static caps are checked on every run regardless of warm-up state -- only
+# the rolling-baseline anomaly check has a warm-up grace period (below).
+max_pages_per_run: 15
+max_pages_per_site_per_run: 10
+max_title_changes_per_run: 10
+max_description_changes_per_run: 15
+max_total_metadata_changes_per_run: 20
+
+# Anomaly check: refuse (fail closed, never silently truncate) if a run's
+# PROPOSED total_metadata_changes for a given (family, mechanism) exceeds
+# anomaly_multiplier times the mean of that (family, mechanism)'s last N
+# actual run totals. First 3 runs for any (family, mechanism) are warm-up:
+# static caps only, anomaly check explicitly logged INACTIVE, never silently
+# skipped without a visible marker (Finding #80).
+anomaly_multiplier: 3.0
+warmup_runs: 3
+
+# schema_a_refresh operates at a completely different scale than
+# title_description_writes: it regenerates internal LLM-topic-guess keyword
+# entries (Contract A's own doctrine: "a query proves demand, never truth";
+# Schema A is a fallback signal only, not a real content write), not real
+# content/ pages. Confirmed live against the actual 2026-08-30 PR #69 commit
+# (c27b98fc03, cited in this mission's own Finding #4): it regenerated 105
+# entries in keywords/3d.json in one legitimate run while completing that
+# family's platform-label migration -- the shared title_description_writes
+# caps above (15/10) would have wrongly blocked that already-successful
+# production run. These overrides replace max_pages_per_run/
+# max_pages_per_site_per_run (only -- schema_a_refresh has no title/
+# description split, so max_title_changes_per_run/
+# max_description_changes_per_run/max_total_metadata_changes_per_run are
+# inert for it by construction, always 0 <= cap) for mechanism="schema_a_refresh".
+schema_a_refresh_max_pages_per_run: 150
+schema_a_refresh_max_pages_per_site_per_run: 150
+
+# registry_watch (MT075-T8, 2026-09-28): the package-registry watcher's own
+# cross-run velocity/anomaly gate, reusing this module rather than building a
+# new one. Unlike title_description_writes/schema_a_refresh, this mechanism
+# has no "site" concept and no title/description split -- items_by_scope is
+# always left empty by its caller (check_registry_merge_safety.py) so the
+# per-site check never fires, and title_changes/description_changes stay 0 by
+# construction (same "inert by construction" pattern schema_a_refresh already
+# uses, see below). total_items is 1 per registry entry the gate is about to
+# auto-apply; max_pages_per_run mirrors check_registry_merge_safety.py's own
+# existing static MAX_ENTRIES_PER_BATCH=5 per-run cap (so the static half of
+# this check never disagrees with the cap already enforced elsewhere) -- what
+# this integration actually ADDS is the rolling-baseline anomaly check across
+# RUNS, which had no equivalent anywhere in the registry-watch pipeline before
+# this (a sustained pattern under the per-run cap, run after run, previously
+# passed every time).
+registry_watch_max_pages_per_run: 5
+registry_watch_max_pages_per_site_per_run: 5
+
+# Cross-mechanism ceiling (Finding #80): a family could receive auto-merged
+# Schema A keyword changes AND autonomous title/description writes in the
+# same week, each individually within its own mechanism's cap, with no check
+# on combined change velocity. This is the shared weekly ceiling per family,
+# checked in addition to (not instead of) each mechanism's own budget above.
+# The actual invariant wiring is SEO-EXECUTION-INVARIANTS' (Contract J) job;
+# this module only provides the counter + check function it will call.
+max_cross_mechanism_changes_per_family_per_week: 20

@@ -1,14 +1,16 @@
 ---
 name: refresh-product-page
-id: S-59
+id: S-86
 description: >
-  Re-generate a single products.aspose.org landing page through the full
-  new-products-page (S-66) pipeline with no-downgrade-guard protection. Use when
-  the generation template has been improved and existing pages should benefit.
+  Re-generate a single products.aspose.org landing page through the full S-61
+  pipeline with no-downgrade-guard protection. Use when the generation template
+  (S-61) has been improved and existing pages should benefit.
 args: "{family} {platform}"
 ---
 
-# S-59: Refresh Product Page — Re-generate Product Landing Page
+> Cross-skill references like `/new-products-page` refer to sibling skills in this directory.
+
+# S-86: Refresh Product Page — Re-generate Product Landing Page
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` — e.g. `words python` or `slides java`
@@ -16,60 +18,98 @@ Expected format: `{family} {platform}` — e.g. `words python` or `slides java`
 ## Purpose
 
 Re-generate a single `products.aspose.org` landing page when the generation template
-(S-66) has been improved and existing pages should benefit from the improvement.
+(S-61) has been improved. Unlike S-49 Stage 1 (which skips if the page exists and passes
+audit), this skill always regenerates and uses the no-downgrade-guard to prevent regressions.
 
-This is distinct from S-84 (refresh-product) which refreshes content after upstream
-knowledge changes. S-59 refreshes the layout and template quality of an existing page
-without a knowledge change trigger.
+**When to use**:
+- S-61 template was updated (new steps, better constraints, structural improvements)
+- Product page has `graded_evaluators: audit` and needs full evaluation
+- Product page is missing sections that the updated S-61 would produce
+- Manual quality review identified content issues that regeneration would fix
+
+**When NOT to use**:
+- Upstream FOSS repo changed → use `/refresh-product` (S-84) instead
+- Page needs minor edits → use `/manual-edit` (S-73) instead
+- Page needs healing from grade D/F → use `/heal-page` (S-26) instead
 
 ## Pre-conditions
 
-1. `knowledge/{family}/{platform}/merged/model.yaml` with `stale_since: null`
-2. Existing products page at `$CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/_index.md`
+1. Existing product page must exist at `content/products.aspose.org/en/{family}/{platform}/_index.md`
+2. Knowledge model must be available: `knowledge/{family}/{platform}/merged/` exists
+3. S-61 (`/new-products-page`) must be available
 
 ## Steps
 
-1. **Parse arguments**: Extract `{family}` and `{platform}`.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-86 --scope "*"
+> ```
 
-2. **Knowledge bootstrap check**:
+
+1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
+
+2. **Verify existing page**: Confirm the product page exists. If not, abort:
+   "No existing product page found. Use `/new-products-page {family} {platform}` for first generation,
+   or `/launch-product {family} {platform}` for full 5-subdomain launch."
+
+3. **Snapshot existing page**: Read and store the current page content for comparison:
    ```bash
-   /knowledge-bootstrap {family} {platform}
+   cp content/products.aspose.org/en/{family}/{platform}/_index.md content/products.aspose.org/en/{family}/{platform}/_index.md.bak
    ```
-   Proceed only on `READY`, `BOOTSTRAPPED`, or `WARN:conflicts`.
 
-3. **Read the existing page** and record its current grade:
-   ```bash
-   python -m scripts.pipeline.content_eval evaluate \
-     --files $CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/_index.md \
-     --format json
+4. **Record existing grade**: Read the current `grade`, `graded_evaluators`, and
+   `graded_at` from frontmatter. Print:
+   ```
+   Existing page: grade {grade}, evaluators: {graded_evaluators}, graded: {graded_at}
    ```
 
-4. **Invoke no-downgrade-guard** (S-56) in strict mode:
-   The existing page grade is the baseline. If the re-generated page would score lower,
-   BLOCK the write and report the regression.
-
-5. **Re-generate** by invoking S-66 (new-products-page):
-   ```bash
+5. **Regenerate via S-61**: Run the full generation pipeline:
+   ```
    /new-products-page {family} {platform}
    ```
-   This runs the full generation pipeline including structural completion, evidence attach,
-   structural validation, audit, content eval, and smoke test.
+   S-61 Step 9 (no-downgrade-guard) will compare proposed vs existing content.
+   - If BLOCK: S-61 will halt. Print the blocking reason and restore backup:
+     ```bash
+     mv content/products.aspose.org/en/{family}/{platform}/_index.md.bak content/products.aspose.org/en/{family}/{platform}/_index.md
+     ```
+     Abort with: "Regeneration blocked by no-downgrade-guard: {reason}. Existing page preserved."
+   - If WARN: Print the warning. Ask for confirmation before proceeding.
+   - If ALLOW: Continue.
 
-6. **Compare before/after**:
+6. **Compare results**: After S-61 completes successfully, diff the backup against the new page:
+   ```bash
+   diff content/products.aspose.org/en/{family}/{platform}/_index.md.bak content/products.aspose.org/en/{family}/{platform}/_index.md
+   ```
+   Print a summary of what changed (sections added/removed/modified, grade change).
+
+7. **Clean up backup**:
+   ```bash
+   rm content/products.aspose.org/en/{family}/{platform}/_index.md.bak
+   ```
+
+8. **Print result**:
    ```
    REFRESH PRODUCT PAGE — {family}/{platform}
-   Grade before: {grade}
-   Grade after:  {grade}
-   Result: IMPROVED | UNCHANGED | BLOCKED (no-downgrade-guard)
+   Previous: grade {old_grade}, evaluators: {old_evaluators}
+   Current:  grade {new_grade}, evaluators: {new_evaluators}
+   Status: {REGENERATED | BLOCKED | NO_CHANGE}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-86 --status completed
+> ```
 
 ## Post-conditions
 
-- Products page regenerated with latest template
-- Grade same or improved
-- Audit passes; evidence attached
+- Product page has been regenerated through the current S-61 pipeline
+- No-downgrade-guard verified no regression occurred
+- `graded_evaluators` reflects the evaluation tier used (should be `full` per S-61 Step 15)
+- Backup file removed
+- No other files modified (family page, blog, docs, etc. are NOT touched)
 
-## When NOT to use
+## Error handling
 
-- After an upstream knowledge change — use S-84 (refresh-product) instead
-- When the page content is wrong — use S-26 (heal-page) or S-78 (manual-edit) instead
+- If S-61 fails for any reason other than no-downgrade-guard BLOCK, restore the backup
+  and report the failure. Do not leave the page in a partially-generated state.
+- If the backup file already exists (interrupted previous run), warn and ask before overwriting.

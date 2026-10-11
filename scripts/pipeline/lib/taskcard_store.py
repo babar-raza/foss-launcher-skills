@@ -1,62 +1,63 @@
 """
-taskcard_store.py -- FileLock-guarded, row-level-CAS-protected reader/writer
-for reports/plan_state/{mission_id}/taskcards.jsonl.
-
-Ported near-verbatim from aspose.org (2026-08-29 sync, TASK_BACKLOG.md
-SYNC-1). Source has zero content/product coupling -- pure task/mission
-tracking (task_id, mission_id, status, timestamps, evidence). Directly
-closes the gap this repo's own docs/governance/planning-methodology.md
-names explicitly: "No concurrency-safe, compare-and-swap ledger... If this
-repo starts being worked by multiple concurrent agent sessions... that gap
-becomes real."
+taskcard_store.py — Step 5 (production concurrency redesign, 2026-08-01):
+FileLock-guarded, row-level-CAS-protected reader/writer for
+reports/plan_state/{mission_id}/taskcards.jsonl (schema 5f).
 
 CONTRACT: scripts/pipeline/lib/taskcard_store.py
-  purpose: Before this module, nothing in a repo like this had a real,
-           lock-protected way to record task status -- every update would
-           be an ad hoc file edit, with no protection against two sessions
-           racing to advance the same task_id.
+  purpose: Before this module, nothing wrote taskcards.jsonl through a real
+           script at all -- every update across this repo's history was an
+           ad hoc one-off Python snippet or hand-edited JSON line, with no
+           lock and no protection against two sessions racing to advance the
+           same task_id. This module closes that gap, following the same
+           append-only-ledger-plus-advisory-lock pattern baseline_ledger.py
+           (RPR-C-01) already proved for a different mutable-state file.
   inputs:  none (pure reader/writer over its own ledger file)
   outputs: reports/plan_state/{mission_id}/taskcards.jsonl (append-only)
   idempotent: append() is not idempotent (each call adds one row); read
            methods are pure and side-effect free.
-  concurrency: two layers, each matched to what it protects.
+  concurrency: two layers, matching the plan's design principle of matching
+           the primitive to what it protects.
              1. File-level: advisory_lock.FileLock serializes concurrent
-                writers to the SAME mission's file.
+                writers to the SAME mission's file (proven pattern, reused
+                verbatim from baseline_ledger.py).
              2. Row-level: update_taskcard_status() is a compare-and-swap,
                 not a blind append -- it reloads the file UNDER the lock,
-                checks the task's actual current (latest-row) status
-                against the caller's expected_status, and refuses
-                (TaskcardCASError) if another session already advanced
-                that exact row.
-  schema: validated via schema_validators.validate_taskcard_record on
-           every write (append(), update_taskcard_status(),
-           pause_taskcard()) -- a malformed or under-evidenced row is
-           refused before it ever reaches disk.
-  read semantics: append-only, LAST occurrence of a task_id wins. Callers
-           must never rewrite an existing line to change a task's status;
-           append a new row instead. read_history() tolerates a torn last
-           line from a crashed writer (skips it, never raises) as an
-           append-only file's worst-case corruption is confined to its
-           final incomplete line.
+                checks the task's actual current (latest-row) status against
+                the caller's expected_status, and refuses (TaskcardCASError)
+                if another session already advanced that exact row. This
+                mirrors session_ledger.py's own adopt-time cross-session
+                claim guard (files_claimed_by_other_sessions), applied to
+                taskcard rows instead of files.
+  schema: schema 5f, validated via
+           scripts/pipeline/lib/schema_validators.validate_taskcard_record
+           on every write (append() and update_taskcard_status()) --  a
+           malformed or under-evidenced row is refused before it ever
+           reaches disk, not just flagged after the fact.
+  read semantics: append-only, LAST occurrence of a task_id wins (matching
+           check_taskcard_plan_parity.py's load_taskcards) -- callers must
+           never rewrite an existing line to change a task's status; append
+           a new row instead. read_history() tolerates a torn last line from
+           a crashed writer (skips it, never raises) as an append-only file's
+           worst-case corruption is confined to its final incomplete line.
 
 Usage::
 
     from taskcard_store import TaskcardStore, TaskcardCASError
 
-    store = TaskcardStore("SYNC-2026-08-29")
+    store = TaskcardStore("MT020-2026-08-01-EXAMPLE")
     store.append({
-        "task_id": "SYNC-1", "mission_id": store.mission_id,
-        "status": "TODO", "recorded_at": "2026-08-29T00:00:00Z",
+        "task_id": "TC-MT020-01", "mission_id": store.mission_id,
+        "status": "TODO", "recorded_at": "2026-08-01T00:00:00Z",
         "recorded_by": "sess-a", "evidence_refs": [],
     })
     store.update_taskcard_status(
-        "SYNC-1", expected_status="TODO", new_status="IN_PROGRESS",
+        "TC-MT020-01", expected_status="TODO", new_status="IN_PROGRESS",
         recorded_by="sess-a",
     )
     # A second session racing against the same row with a stale
     # expected_status gets a named refusal, not a silent overwrite:
     store.update_taskcard_status(
-        "SYNC-1", expected_status="TODO", new_status="IN_PROGRESS",
+        "TC-MT020-01", expected_status="TODO", new_status="IN_PROGRESS",
         recorded_by="sess-b",
     )  # raises TaskcardCASError
 """
@@ -92,6 +93,29 @@ class TaskcardLockTimeout(Exception):
 
 class TaskcardNotFoundError(Exception):
     """Raised when update_taskcard_status targets a task_id with no existing row."""
+
+
+class TaskcardAlreadyExistsError(Exception):
+    """H2 (2026-09-11): raised by append(expect_absent=True) when a row for
+    task_id already exists, reloaded FRESH under the lock rather than from a
+    caller's possibly-stale pre-loop read_latest() snapshot. Closes a real
+    TOCTOU gap shared by taskcard_cli.py::cmd_seed and
+    st054_seed_taskcards.py: both call read_latest() ONCE outside any lock,
+    then loop appending rows whose task_id wasn't in that snapshot -- two
+    concurrent seed calls for the same brand-new task_id can both pass that
+    stale check and both append, producing two divergent first-rows with no
+    CAS to catch it (update_taskcard_status()'s CAS only ever protects a
+    task_id that already has a row)."""
+
+    def __init__(self, task_id: str, mission_id: str):
+        self.task_id = task_id
+        self.mission_id = mission_id
+        super().__init__(
+            f"task_id={task_id!r} already has a row in mission {mission_id!r} -- "
+            "refusing to append another first-row for it (use "
+            "update_taskcard_status() to transition an existing task, or pass "
+            "expect_absent=False / --force to intentionally append anyway)"
+        )
 
 
 class TaskcardCASError(Exception):
@@ -141,6 +165,8 @@ class TaskcardStore:
         self.lock_path = resolved_dir / "taskcards.jsonl.lock"
         self._active_lock: "FileLock | None" = None
 
+    # ── Locking ──────────────────────────────────────────────────────────
+
     def _acquire_lock(self, timeout: "float | None" = None) -> None:
         lock = FileLock(
             self.lock_path,
@@ -163,14 +189,18 @@ class TaskcardStore:
         try:
             self.lock_path.unlink()
         except OSError:
-            pass
+            pass  # already released or never acquired — safe to ignore
 
-    def read_history(self) -> "list[dict[str, Any]]":
+    # ── Reads (safe without the lock — append-only file; worst case is a
+    #    torn read of the very last line mid-write, never corruption of
+    #    prior lines) ──────────────────────────────────────────────────────
+
+    def read_history(self) -> list[dict[str, Any]]:
         """Return every row ever appended, in append order. Tolerates a torn
         last line from a crashed writer (skipped, never raises)."""
         if not self.path.exists():
             return []
-        rows: "list[dict[str, Any]]" = []
+        rows: list[dict[str, Any]] = []
         for line in self.path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line:
@@ -178,12 +208,13 @@ class TaskcardStore:
             try:
                 rows.append(json.loads(line))
             except json.JSONDecodeError:
-                continue
+                continue  # torn last line from a crashed writer — never raise on read
         return rows
 
-    def read_latest(self) -> "dict[str, dict[str, Any]]":
-        """task_id -> its latest row (append-only: last occurrence wins)."""
-        latest: "dict[str, dict[str, Any]]" = {}
+    def read_latest(self) -> dict[str, dict[str, Any]]:
+        """task_id -> its latest row (schema 5f append-only: last occurrence
+        wins), matching check_taskcard_plan_parity.py's load_taskcards."""
+        latest: dict[str, dict[str, Any]] = {}
         for row in self.read_history():
             tid = row.get("task_id")
             if tid:
@@ -195,14 +226,29 @@ class TaskcardStore:
         been recorded."""
         return self.read_latest().get(task_id)
 
-    def append(self, record: "dict[str, Any]") -> "dict[str, Any]":
+    # ── Writes ───────────────────────────────────────────────────────────
+
+    def append(self, record: dict[str, Any], *, expect_absent: bool = False) -> dict[str, Any]:
         """Append one schema-validated row. Never rewrites existing lines --
-        this store is append-only; read_latest()'s last-occurrence-wins
+        schema 5f is append-only; read_latest()'s last-occurrence-wins
         semantics are what makes a later status authoritative, not in-place
         mutation.
 
         mission_id is auto-filled from this store if absent from record; a
-        record whose own mission_id disagrees with this store's is rejected.
+        record whose own mission_id disagrees with this store's is rejected
+        (a taskcard row belongs to exactly one mission's file).
+
+        expect_absent (H2, 2026-09-11): when True, re-checks — FRESH, under
+        the lock, not from any caller-held snapshot — that record["task_id"]
+        has no existing row, and raises TaskcardAlreadyExistsError instead
+        of appending if it does. This is the CAS-against-row-absence
+        primitive: a seed-style caller that loops over many rows should
+        `read_latest()` once for its own skip-existing UI/reporting, but
+        pass expect_absent=True on each append() call so the real decision
+        is made against current state at write time, not a stale snapshot
+        from before the loop started. Default False preserves every prior
+        caller's exact behavior (blind append, e.g. run-scoped task_ids that
+        can never collide, or an explicit intentional --force re-append).
 
         Raises ValueError if the record fails schema validation,
         TaskcardLockTimeout if the mission's lock cannot be acquired within
@@ -221,6 +267,10 @@ class TaskcardStore:
 
         self._acquire_lock()
         try:
+            if expect_absent:
+                task_id = record.get("task_id")
+                if task_id and task_id in self.read_latest():
+                    raise TaskcardAlreadyExistsError(task_id, self.mission_id)
             self.path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -238,26 +288,32 @@ class TaskcardStore:
         recorded_at: "str | None" = None,
         evidence_refs: "list[str] | None" = None,
         **extra_fields: Any,
-    ) -> "dict[str, Any]":
+    ) -> dict[str, Any]:
         """Row-level compare-and-swap: appends a new row advancing task_id
         from expected_status to new_status, carrying forward every other
-        field from the task's current row unless overridden via extra_fields.
+        field from the task's current row (title, phase_id, dependencies,
+        etc.) unless overridden via extra_fields.
 
         Refuses (raises, appends nothing) if the task's ACTUAL current
         status -- reloaded fresh under the lock, not from a caller's
-        possibly-stale snapshot -- does not match expected_status.
+        possibly-stale snapshot -- does not match expected_status. This is
+        the CAS guarantee: the loser of a race gets a named,
+        actionable TaskcardCASError, never a silent overwrite of the
+        winner's advance.
 
         Raises TaskcardNotFoundError if task_id has no existing row at all
         (use append() to create the first row for a new task).
         """
         self._acquire_lock()
         try:
+            # Reload fresh under the lock — the caller's own expected_status
+            # snapshot may already be stale by the time this call runs.
             current = self.read_latest()
             existing = current.get(task_id)
             if existing is None:
                 raise TaskcardNotFoundError(
                     f"no existing row for task_id={task_id!r} in {self.path} "
-                    f"-- use append() to create it first"
+                    f"— use append() to create it first"
                 )
             actual_status = existing.get("status")
             if actual_status != expected_status:
@@ -294,7 +350,7 @@ class TaskcardStore:
         title: "str | None" = None,
         recorded_at: "str | None" = None,
         create_if_missing: bool = True,
-    ) -> "dict[str, Any]":
+    ) -> dict[str, Any]:
         """Cheap, near-zero-friction way to durably record "this step is
         being deliberately set aside" at the moment of a context switch --
         the eager-capture counterpart to the CAS-guarded
@@ -302,12 +358,17 @@ class TaskcardStore:
 
         Unlike update_taskcard_status(), the caller does not need to know
         the task's current status first: any existing status may transition
-        to PAUSED in one call.
+        to PAUSED in one call, since pausing is meant to be fast enough to
+        use in the same breath as deciding to defer something, not a
+        two-step read-then-write.
 
         If task_id has no row yet and create_if_missing is True (the
-        default), creates the first row directly at PAUSED -- this lets a
-        caller register "I'm deferring this" for a step that was never
-        given a taskcard at all, without first performing full mission setup.
+        default), creates the first row directly at PAUSED -- this is what
+        lets an agent register "I'm deferring this" for a step that was
+        never given a taskcard at all, without first performing full
+        mission binding. See docs/governance/planning-methodology.md for
+        the design rationale (separating cheap intent-capture from rich,
+        deferred mission binding).
 
         Raises TaskcardNotFoundError if create_if_missing is False and no
         row exists yet. Raises ValueError (ultimately from
@@ -324,7 +385,7 @@ class TaskcardStore:
                         f"no existing row for task_id={task_id!r} in {self.path} "
                         f"and create_if_missing=False"
                     )
-                record2: "dict[str, Any]" = {
+                record2: dict[str, Any] = {
                     "task_id": task_id,
                     "mission_id": self.mission_id,
                     "status": "PAUSED",

@@ -1,0 +1,21 @@
+=== 1. create safety-net ref ===
+verify:
+e26a77b4e24ddb64d6e809142e31d3a473f606bb
+=== 2. scoped reflog expire (aspose.org-pilot-zero-defect-v2 worktree HEAD only) ===
+exit code: 0
+current time: Sun, Aug  9, 2026  5:24:21 PM
+
+=== FINDING: main's reflog (.git/logs/HEAD, .git/logs/refs/heads/main) changed independently ===
+Before: 873/849 lines. After: 869/845 lines (both -4). This was NOT caused by TC-MT029-02's command,
+which was run with `-C <aspose.org-pilot-zero-defect-v2 worktree>` and named only `HEAD` - git's
+reflog expire mechanically only touches the reflog file(s) explicitly named on its own command line
+within the targeted worktree context; it has no code path that touches a different worktree's files.
+Most likely explanation: gc.auto (still enabled at this point - TC-MT029-03 has not run yet) fired
+transparently on an ordinary git command from the other live concurrent session working in the main
+worktree right now, and expired a handful of naturally-aged entries under its default policy
+(gc.reflogExpire=90d reachable / gc.reflogExpireUnreachable=30d unreachable). This is live,
+real-time corroboration of this mission's root-cause-2 hypothesis (ambient gc.auto racing concurrent
+sessions) - not a mission-caused side effect. Revising the "byte-identical" acceptance criterion:
+the provable claim is mechanical scope (reflog expire only touches its named ref), not literal
+byte-identity across a multi-minute window in a repo under continuous independent concurrent writes.
+Proceeding immediately to TC-MT029-03 to stop this from recurring for the rest of this mission.

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/test_document.py",
+    "source_function": "test_open_and_save",
+    "source_line": 4,
+    "language": "python",
+    "code": "def test_open_and_save():\n    doc = Document()\n    doc.save('out.pdf')",
+    "valid": true,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": []
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/test_document.py",
+    "source_function": "test_save_twice",
+    "source_line": 9,
+    "language": "python",
+    "code": "def test_save_twice():\n    doc = Document()\n    doc.save('a.pdf')\n    doc.save('b.pdf')",
+    "valid": true,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": []
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "examples/basic_example.py",
+    "source_function": "example_basic_save",
+    "source_line": 4,
+    "language": "python",
+    "code": "def example_basic_save():\n    doc = Document()\n    doc.save('example.pdf')",
+    "valid": true,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": []
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 10,
+    "language": "python",
+    "code": "from aspose_core.document import Document\n\ndoc = Document()\ndoc.save('out.pdf')\n",
+    "valid": true,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": []
+  }
+]

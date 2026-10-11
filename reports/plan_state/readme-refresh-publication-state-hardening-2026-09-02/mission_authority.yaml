@@ -1,0 +1,48 @@
+mission_authority:
+  mission_id: readme-refresh-publication-state-hardening-2026-09-02
+  mission_summary: 'User-directed investigation (2026-09-02): 3d/python (aspose-3d-foss) was
+    published to PyPI on 2026-08-29; does /readme-refresh (S-120) detect a package publication
+    during regeneration, and if so does it enhance the candidate accordingly? Answer: NO on both
+    counts. Publication state inside the skill is a static checked-in flag
+    (data/package_registry.json, 3d/python backfilled published:false on 2026-08-01) that only a
+    human applying the daily package_publish_watch proposal ever refreshes (proposals #67/#70/#72/#74
+    have sat open since 2026-08-29). Nothing in the skill probes a registry live; the one gate that
+    reads the flag (check_installation_matches_package_registry) was made ADVISORY on 2026-08-12
+    precisely because the flag was found stale in both directions -- a data-freshness problem
+    treated as a tiering problem. This mission makes publication state a live-probed, evidenced
+    fact at plan time (static record = fallback with a named source), lets composition, badges,
+    gates and the verify-examples runner consume that one fact, surfaces registry drift, then
+    regenerates 3d/python through the hardened skill to AWAITING_REVIEW for manual review.'
+  governing_plan_path: reports/plan_state/readme-refresh-publication-state-hardening-2026-09-02/FINDINGS.md
+  binding_pattern: hand-authored record (root MISSION_AUTHORITY.yaml slot held by MT058), same as
+    readme-refresh-at-a-glance-retention-hardening-2026-09-02
+  in_scope_outcomes:
+  - 'TC-01: publication probe -- scripts/pipeline/lib/publication_probe.py reusing the
+    package_registries adapters; pypi details (latest version, upload time, artifact kinds,
+    requires_python, license, project_urls, repo corroboration); effective_published = live when
+    unambiguous, else the registry record with source named; drift flag; metadata_findings'
+  - 'TC-02: _detect_install_info consumes the probe (single decision point) -- badges, runner and
+    every gate follow; configure(publication_prober=) seam; README_REFRESH_OFFLINE env; in-process
+    memo; factpack["install"]["publication"]; manifest pinned_inputs.publication; plan prints a
+    PUBLICATION line; approve re-probes and treats a publication change as input drift'
+  - 'TC-03: check_installation_matches_live_publication (HARD gate, active only on an unambiguous
+    live probe) + check_published_version_matches_manifest (advisory)'
+  - 'TC-04: runner v2 records environment {install_source, package, version}; published installs
+    are pinned to the probed version'
+  - 'TC-05: skills/readme-refresh.md composition rule "Installation by publication state" + badge
+    rule + plan-output contract + registry-metadata-defects-are-upstream-issues rule; mirrors; docs;
+    contract JSON 115->117; CHECKS_MODULE_VERSION 6; registry.yaml'
+  - 'TC-06: apply the verified watcher proposal for 3d/python to data/package_registry.json
+    (independently verified: wheel 26.1.0 == repo HEAD d9f3bfe, 358/358 files) and close the four
+    open proposal issues with the evidence'
+  - 'TC-REGEN-3D: start -> plan (PUBLICATION line live) -> compose -> ingest -> verify-examples
+    --python-runner (installs aspose-3d-foss==26.1.0 from PyPI) -> recheck -> retention-report ->
+    AWAITING_REVIEW; then a manual live-vs-candidate review (COMPARISON.html pattern)'
+  out_of_scope:
+  - 'content/ literal install-text healing (package_install_migrator.py, 392 files flagged by the
+    watcher) -- operator-gated S-110 Phase B, not S-120'
+  - 'auto-mutating data/package_registry.json from inside S-120 -- the watcher''s human-approved
+    flip stays the only write path; S-120 only surfaces drift'
+  - 'push/PR for 3d/python -- stops at AWAITING_REVIEW unless the user instructs otherwise'
+  recorded_at: 2026-09-02T14:05:00Z
+  recorded_by: session-9d8aa2aa

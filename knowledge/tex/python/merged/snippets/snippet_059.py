@@ -1,0 +1,1 @@
+def test_vrule_in_horizontal_mode_appends_rule_node(self) -> None:

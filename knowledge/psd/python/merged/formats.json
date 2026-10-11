@@ -1,0 +1,22 @@
+[
+  {
+    "format": "psd",
+    "enum": "",
+    "value": "",
+    "file": "aspose_psd_foss/psdimage.py",
+    "line": 294,
+    "direction": "both",
+    "manual": true,
+    "note": "PSDPY-FORMATSGAP-001 override -- see knowledge/_overrides/psd/python/formats_overrides.json"
+  },
+  {
+    "format": "psb",
+    "enum": "",
+    "value": "",
+    "file": "aspose_psd_foss/psdimage.py",
+    "line": 294,
+    "direction": "both",
+    "manual": true,
+    "note": "PSDPY-FORMATSGAP-001 override -- see knowledge/_overrides/psd/python/formats_overrides.json"
+  }
+]

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Production-safe Agent Metrics API submission layer.
 
 Provides MetricsSubmitter — a controlled submission layer that enforces

@@ -1,0 +1,50 @@
+[
+  {
+    "format": "Cfb",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Cfb/CfbReader.cs",
+    "line": 7,
+    "direction": "import"
+  },
+  {
+    "format": "Cfb",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Cfb/CfbWriter.cs",
+    "line": 5,
+    "direction": "export"
+  },
+  {
+    "format": "Mime",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Msg/Mime/MimeReader.cs",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Mime",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Msg/Mime/MimeWriter.cs",
+    "line": 5,
+    "direction": "export"
+  },
+  {
+    "format": "Msg",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Msg/MsgReader.cs",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Msg",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Email.Foss/Msg/MsgWriter.cs",
+    "line": 5,
+    "direction": "export"
+  }
+]

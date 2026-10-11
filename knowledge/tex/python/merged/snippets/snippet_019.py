@@ -1,0 +1,1 @@
+def test_nested_def_inside_def_body_parses(self) -> None:

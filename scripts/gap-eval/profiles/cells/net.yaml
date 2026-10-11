@@ -1,0 +1,32 @@
+discovered_actuals:
+  format_files_found: null
+  last_baseline_sha: b5965a725ecca4d07b05d17aebd060806bf72e5c
+  package_name: Aspose.Cells.FOSS
+  package_source_actual: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+discovery_hints:
+  format_source_glob: src/**/*Format.cs
+  language: csharp
+  package_extraction: xpath://PackageId
+  package_source_file: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+  runtime_requirement_source: src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj
+  stub_search_hints:
+  - throw new NotImplementedException
+  - // TODO
+expected_sections:
+- mandatory: true
+  site: products
+- mandatory: true
+  site: docs
+- mandatory: true
+  site: kb
+- mandatory: true
+  site: reference
+- mandatory: false
+  site: blog
+family: cells
+language_conventions:
+  enum_values: PascalCase
+  method_naming: PascalCase
+  pass_by: value
+platform: net
+version: 1

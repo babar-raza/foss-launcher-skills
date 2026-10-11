@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """content_origin_recover.py — Infer content_origin for files with unknown origin.
 
 Two confidence rules (both require grade A or B):
@@ -28,26 +27,14 @@ from typing import Any
 import yaml
 
 _HERE = Path(__file__).resolve().parent
-_PIPELINE = _HERE.parents[1]
-_SCRIPTS = _HERE.parents[2]
-_COMMANDS = _HERE.parent
-for _path in (_SCRIPTS, _PIPELINE):
-    if str(_path) not in sys.path:
-        sys.path.insert(0, str(_path))
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
+    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+    if _LIB_DIR not in sys.path:
+        sys.path.insert(0, _LIB_DIR)
 
-from config_loader import resolve_content_repo  # noqa: E402
-
-try:
-    from provenance import read_provenance, write_provenance  # noqa: E402
-except ImportError:
-    def read_provenance(fp): return None
-    def write_provenance(fp, prov): return False
-try:
-    from core.markdown import _FRONTMATTER_WRITER_RE as _FRONTMATTER_RE  # noqa: E402
-except ImportError:
-    import re as _re
-    _FRONTMATTER_WRITER_RE = _re.compile(r"^(---\s*\n)(.*?)(\n---\s*\n)", _re.DOTALL)
-    _FRONTMATTER_RE = _FRONTMATTER_WRITER_RE
+from provenance import read_provenance, write_provenance  # noqa: E402
+from core.markdown import _FRONTMATTER_WRITER_RE as _FRONTMATTER_RE  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Frontmatter parser (partial — reads evidence + grade without round-tripping)
@@ -211,7 +198,7 @@ def main() -> None:
     if args.path:
         scan_root = Path(args.path).resolve()
     else:
-        scan_root = (_resolve_repo_root() / "content").resolve()
+        scan_root = (_HERE / ".." / ".." / ".." / ".." / "content").resolve()
 
     if not scan_root.exists():
         print(f"ERROR: scan path does not exist: {scan_root}", file=sys.stderr)

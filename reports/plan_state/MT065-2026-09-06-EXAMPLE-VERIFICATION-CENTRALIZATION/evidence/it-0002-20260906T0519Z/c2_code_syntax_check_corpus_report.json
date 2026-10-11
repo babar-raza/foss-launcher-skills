@@ -1,0 +1,139 @@
+{
+  "files_with_any_delta": 7873,
+  "new_counts": {
+    "FAIL": 533,
+    "PASS": 30341,
+    "WARN-BRACKET": 0
+  },
+  "old_counts": {
+    "FAIL": 0,
+    "PASS": 0,
+    "WARN-BRACKET": 30874
+  },
+  "sample_delta_files": [
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\developer-guide\\working-with-cells-foss-model.md",
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\developer-guide\\working-with-internalvalidation.md",
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\developer-guide\\working-with-spreadsheet-management.md",
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\developer-guide\\working-with-xlsx-packaging.md",
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\developer-guide\\working-with-xml-processing.md",
+    "content\\docs.aspose.org\\pt\\cells\\cpp\\getting-started\\installation.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\features.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\working-with-3d-effects.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\working-with-comments.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\working-with-connectors.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\working-with-images.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\_index.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\getting-started\\installation.md",
+    "content\\docs.aspose.org\\ms\\slides\\cpp\\getting-started\\_index.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\faq.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\how-to-add-comments-java.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\how-to-add-images-java.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\how-to-add-shapes-java.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\how-to-apply-3d-effects-java.md",
+    "content\\kb.aspose.org\\cs\\slides\\java\\how-to-connect-shapes-java.md"
+  ],
+  "sample_new_fails_previously_warn_only": [
+    {
+      "file": "content\\docs.aspose.org\\ms\\slides\\cpp\\developer-guide\\features.md",
+      "lang": "cpp",
+      "start_line": 344
+    },
+    {
+      "file": "content\\kb.aspose.org\\cs\\slides\\java\\how-to-connect-shapes-java.md",
+      "lang": "java",
+      "start_line": 117
+    },
+    {
+      "file": "content\\kb.aspose.org\\cs\\slides\\java\\how-to-get-started-slides-java.md",
+      "lang": "java",
+      "start_line": 216
+    },
+    {
+      "file": "content\\kb.aspose.org\\no\\slides\\java\\how-to-connect-shapes-java.md",
+      "lang": "java",
+      "start_line": 113
+    },
+    {
+      "file": "content\\kb.aspose.org\\no\\slides\\java\\how-to-get-started-slides-java.md",
+      "lang": "java",
+      "start_line": 216
+    },
+    {
+      "file": "content\\docs.aspose.org\\uk\\pdf\\java\\developer-guide\\security.md",
+      "lang": "java",
+      "start_line": 89
+    },
+    {
+      "file": "content\\docs.aspose.org\\uk\\pdf\\java\\getting-started\\installation.md",
+      "lang": "java",
+      "start_line": 109
+    },
+    {
+      "file": "content\\kb.aspose.org\\id\\slides\\java\\how-to-connect-shapes-java.md",
+      "lang": "java",
+      "start_line": 113
+    },
+    {
+      "file": "content\\kb.aspose.org\\id\\slides\\java\\how-to-get-started-slides-java.md",
+      "lang": "java",
+      "start_line": 218
+    },
+    {
+      "file": "content\\kb.aspose.org\\en\\cells\\cpp\\faq.md",
+      "lang": "cpp",
+      "start_line": 134
+    },
+    {
+      "file": "content\\docs.aspose.org\\id\\slides\\java\\getting-started\\license.md",
+      "lang": "java",
+      "start_line": 37
+    },
+    {
+      "file": "content\\docs.aspose.org\\fi\\pdf\\java\\developer-guide\\security.md",
+      "lang": "java",
+      "start_line": 89
+    },
+    {
+      "file": "content\\reference.aspose.org\\tr\\3d\\java\\material.md",
+      "lang": "java",
+      "start_line": 67
+    },
+    {
+      "file": "content\\kb.aspose.org\\ro\\slides\\cpp\\how-to-add-images-cpp.md",
+      "lang": "cpp",
+      "start_line": 91
+    },
+    {
+      "file": "content\\kb.aspose.org\\sv\\slides\\java\\how-to-connect-shapes-java.md",
+      "lang": "java",
+      "start_line": 113
+    },
+    {
+      "file": "content\\kb.aspose.org\\sv\\slides\\java\\how-to-get-started-slides-java.md",
+      "lang": "java",
+      "start_line": 216
+    },
+    {
+      "file": "content\\docs.aspose.org\\lv\\slides\\java\\getting-started\\license.md",
+      "lang": "java",
+      "start_line": 37
+    },
+    {
+      "file": "content\\docs.aspose.org\\fi\\slides\\cpp\\developer-guide\\features.md",
+      "lang": "cpp",
+      "start_line": 344
+    },
+    {
+      "file": "content\\docs.aspose.org\\hi\\email\\cpp\\getting-started\\quickstart.md",
+      "lang": "cpp",
+      "start_line": 191
+    },
+    {
+      "file": "content\\docs.aspose.org\\ar\\email\\cpp\\getting-started\\license.md",
+      "lang": "cpp",
+      "start_line": 34
+    }
+  ],
+  "total_blocks_considered": 31555,
+  "total_files_scanned": 59180
+}

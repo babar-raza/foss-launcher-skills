@@ -2,91 +2,102 @@
 name: rubric-align
 id: S-17
 description: >
-  Evaluate a content page against a quality rubric and produce a gap analysis
-  showing what needs improvement per dimension.
-args: "{content-file-path}"
+  Assess a content page against the quality rubric using content_eval.
+args: "{relative-file-path}"
 ---
 
-# S-17: Rubric Align — Quality Gap Analysis
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-17: Rubric Align - Assess Page Against Quality Rubric
 
 **Arguments**: $ARGUMENTS
-Expected format: `{content-file-path}`
+Expected format: `{relative-file-path}` - e.g. `content/docs.aspose.org/en/3d/python/developer-guide/rendering.md`
 
 ## Purpose
-Evaluate a content page against a quality rubric and produce a detailed gap analysis. Unlike S-25 (eval-page) which assigns a grade, rubric-align produces actionable improvement recommendations for S-21 (page-enhance) to execute.
+
+Assess a content page against the quality rubric by running content_eval evaluators and
+producing a rubric score card. This identifies which quality dimensions need improvement
+before enhancement (S-21) is applied.
 
 ## Pre-conditions
-1. Content file must exist
-2. Knowledge model must exist: `knowledge/{family}/{platform}/merged/index.json`
 
-## Rubric Dimensions
-
-| Dimension | Grade A (excellent) | Grade B (good) | Grade C (adequate) | Grade D (poor) | Grade F (failing) |
-|-----------|--------------------|----|----|----|---|
-| Completeness | Covers >90% of relevant claims | 75–90% | 60–74% | 40–59% | <40% |
-| Evidence density | >90% factual paragraphs cited | 75–90% | 60–74% | 40–59% | <40% |
-| Code quality | All blocks verified, language IDs | Minor gaps | Some unverified | Multiple issues | No verification |
-| Structure | Perfect template compliance | Minor deviations | Noticeable gaps | Missing sections | Broken structure |
-| API accuracy | 100% verified API | 1–2 minor issues | Some unverified | Multiple errors | Fabricated API |
-| Freshness | Knowledge current, all citations valid | Minor staleness | Some orphaned cites | Significant staleness | Stale knowledge |
-| Golden conformance | Score >= 0.75 | 0.55–0.74 | 0.35–0.54 | 0.20–0.34 | < 0.20 |
+1. The file at `{relative-file-path}` exists and is a content page under `content/`
+2. Detect `{family}` and `{platform}` from the file path
+3. `knowledge/{family}/{platform}/merged/` exists with `claims.json` and `api_surface.json`
+4. `scripts/pipeline/content_eval` module is available
 
 ## Steps
 
-1. **Read the content file** at $ARGUMENTS
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-17 --scope "*"
+> ```
 
-2. **Identify product**: Extract `{family}` and `{platform}` from path
 
-3. **Load knowledge**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`
+1. **Parse arguments**: Extract file path from $ARGUMENTS.
+2. **Detect product**: Parse `{family}` and `{platform}` from the file path.
+3. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/model.yaml` and verify `stale_since` is null. If stale, warn but continue (results may be against outdated knowledge).
+4. **Run content_eval evaluators**:
+   ```bash
+   cd scripts/pipeline
+   .venv/Scripts/python -m content_eval evaluate --files ../../{relative-file-path} --format json
+   ```
+5. **Build rubric score card** from evaluator results. Score each dimension 0-100:
 
-4. **Score each dimension** (A through F):
-   - **Completeness**: Count relevant claims from claims.json; count how many appear in content
-   - **Evidence density**: Count factual sections and compare them with claim/API coverage in the YAML `evidence:` frontmatter block
-   - **Code quality**: Check language identifiers, API verification, snippet provenance
-   - **Structure**: Check frontmatter, headings, dividers, template section order
-   - **API accuracy**: Cross-reference all class/method names against api_surface.json
-   - **Freshness**: Check stale flag, orphaned citations, lastmod vs last_merged
-   - **Golden conformance**: Run `python scripts/golden_conformance.py {content-file-path} {page_role}` and read the conformance score. If script/index unavailable, skip this dimension.
+   | Dimension | Evaluator(s) | Weight |
+   |-----------|-------------|--------|
+   | API Accuracy | api_accuracy (AA) | 25% |
+   | Content Structure | structure (ST), page_role (RV) | 20% |
+   | Evidence Backing | evidence_depth (EG) | 15% |
+   | Prose Truth | prose_truth (PT), forbidden_claims (FC) | 15% |
+   | Code Quality | code_plausibility (CP) | 10% |
+   | Platform Purity | platform_purity (PC) | 10% |
+   | Risk Language | risk_language (RL) | 5% |
 
-5. **Produce gap analysis**: For each dimension below B:
-   - List specific items that need fixing
-   - Provide the knowledge source that supports the fix
-   - Estimate effort (minor / moderate / significant)
+6. **Compute overall rubric score**: Weighted average of all dimensions.
+7. **Assign grade**:
+   - A: 90-100 (publication ready)
+   - B: 75-89 (minor improvements needed)
+   - C: 60-74 (significant gaps - run S-21 page-enhance)
+   - D: 40-59 (major issues - run S-26 heal-page)
+   - F: 0-39 (critical failures - escalate to human)
 
-6. **Compute overall grade**: Lowest dimension grade determines overall
+8. **Output score card**:
+   ```
+   RUBRIC ALIGNMENT - {file-path}
+   Product: {family}/{platform}
 
-7. **Write rubric report** to `reports/rubric/{family}-{platform}-{slug}-{timestamp}.md`
+   DIMENSION SCORES
+     API Accuracy:      [score]/100  (weight 25%)
+     Content Structure:  [score]/100  (weight 20%)
+     Evidence Backing:   [score]/100  (weight 15%)
+     Prose Truth:        [score]/100  (weight 15%)
+     Code Quality:       [score]/100  (weight 10%)
+     Platform Purity:    [score]/100  (weight 10%)
+     Risk Language:      [score]/100  (weight 5%)
 
-## Output
+   OVERALL: [weighted score]/100 - Grade [A-F]
 
-```
-RUBRIC ALIGNMENT — {content-file-path}
-Knowledge: {family}/{platform}
+   TOP ISSUES (sorted by impact):
+     1. [dimension]: [specific finding]
+     ...
 
-Dimension Grades:
-  Completeness:       {grade} — {brief finding}
-  Evidence density:   {grade} — {brief finding}
-  Code quality:       {grade} — {brief finding}
-  Structure:          {grade} — {brief finding}
-  API accuracy:       {grade} — {brief finding}
-  Freshness:          {grade} — {brief finding}
-  Golden conformance: {grade} — {brief finding}
+   RECOMMENDED NEXT STEP: [S-21 / S-26 / publish / escalate]
+   ```
 
-Overall: {lowest grade}
-
-Gap Analysis:
-  {dimension}: {grade}
-    - {specific gap} (effort: {minor|moderate|significant})
-    - {specific gap} ...
-
-Report: reports/rubric/{report-filename}
-```
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-17 --status completed
+> ```
 
 ## Post-conditions
-- If overall grade is C or below → recommend running S-21 (page-enhance)
-- If overall grade is D or F → recommend running S-25/S-26 (healing chain) instead
-- Rubric report is consumed by S-21 to guide enhancement
+
+- Score card is printed with per-dimension scores
+- Grade is assigned (A-F)
+- Next step recommendation is provided
+- No file modifications made (read-only skill)
 
 ## Error handling
-- If knowledge not found → mark Completeness, Evidence, API, Freshness as "unable to assess"
-- If content file not found → abort
+
+- If content_eval is not available, fall back to manual rubric assessment using content-check patterns
+- If knowledge model is missing, score Evidence Backing and Prose Truth as 0 and note in output

@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """
 helpers for S-73 manual-edit skill — section detection, scope validation, and rule loading.
 

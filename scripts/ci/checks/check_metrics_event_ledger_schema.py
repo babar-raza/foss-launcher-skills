@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_event_ledger_schema.py — CI gate: validate JSONL event ledger files.
 
 Inspects reports/metrics/events/*.jsonl and validates:
@@ -8,6 +7,8 @@ Inspects reports/metrics/events/*.jsonl and validates:
 
 Reports line numbers for invalid rows. Missing events directory is OK
 unless --require-events is passed.
+
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
 
 Usage:
     python scripts/ci/checks/check_metrics_event_ledger_schema.py
@@ -24,12 +25,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_EVENTS_DIR = _REPO_ROOT / "reports" / "metrics" / "events"
 _PIPELINE_ROOT = _REPO_ROOT / "scripts" / "pipeline"
 

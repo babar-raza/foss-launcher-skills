@@ -47,7 +47,7 @@ class EvidenceAttachFixer(BaseFixer):
         if not filepath:
             return page_text
 
-        script = Path(__file__).resolve().parents[3] / "attach_evidence.py"
+        script = Path(__file__).resolve().parents[3] / "commands" / "healing" / "attach_evidence.py"
         if not script.exists():
             return page_text
 
@@ -56,6 +56,8 @@ class EvidenceAttachFixer(BaseFixer):
                 [sys.executable, str(script), "--files", str(filepath), "--force"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=60,
             )
         except (subprocess.TimeoutExpired, OSError):

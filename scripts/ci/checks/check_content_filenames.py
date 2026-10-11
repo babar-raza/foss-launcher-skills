@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """
 check_content_filenames.py — Content filename convention validator.
 
@@ -64,7 +62,7 @@ def _is_reference_tree(path: Path, content_root: Path) -> bool:
         rel = path.relative_to(content_root)
     except ValueError:
         return False
-    return bool(rel.parts) and rel.parts[0].startswith(os.environ.get('REFERENCE_DIR_PREFIX', 'reference.'))
+    return bool(rel.parts) and rel.parts[0] == 'reference.aspose.org'
 
 
 def is_valid_filename(path: Path, content_root: Path) -> tuple[bool, str]:

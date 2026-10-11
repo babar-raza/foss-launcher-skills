@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """fix_last_mechanism.py — Repair stale last_mechanism values in the corpus.
 
@@ -10,7 +9,7 @@ Scans content files for ``last_mechanism: grade-writer`` (and optionally
 Usage:
     python fix_last_mechanism.py                          # dry-run (default)
     python fix_last_mechanism.py --apply                  # write changes
-    python fix_last_mechanism.py --path content/blog/
+    python fix_last_mechanism.py --path content/blog.aspose.org/
     python fix_last_mechanism.py --values grade-writer evidence-attach
 """
 from __future__ import annotations
@@ -21,12 +20,12 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/  # scripts/pipeline/
+    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
     _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
     if _LIB_DIR not in sys.path:
         sys.path.insert(0, _LIB_DIR)
 
-from lib.provenance import read_provenance, update_mechanism  # noqa: E402
+from provenance import read_provenance, update_mechanism  # noqa: E402
 
 # Stale mechanism values to repair (default)
 _DEFAULT_STALE_VALUES = frozenset({"grade-writer"})

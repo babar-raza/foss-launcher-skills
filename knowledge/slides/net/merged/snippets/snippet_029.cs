@@ -1,0 +1,1 @@
+internal static string TableWithExtension => PathTo("TableWithExtension.pptx");

@@ -1,0 +1,9 @@
+=== 7. reflog byte-counts, all 5 worktrees, before ===
+.git/logs/HEAD : 873 lines, 169949 bytes
+.git/logs/refs/heads/main : 849 lines, 166047 bytes
+.git/worktrees/blog-url-frontmatter-fix/logs/HEAD : 3 lines, 488 bytes
+.git/worktrees/format-denominator-hardening/logs/HEAD : 1 lines, 135 bytes
+.git/worktrees/feather-colt/logs/HEAD : 1 lines, 211 bytes
+.git/worktrees/aspose.org-pilot-zero-defect-v2/logs/HEAD : 75 lines, 15730 bytes
+=== confirm the broken link is present (proves baseline matches the reported incident) ===
+06efd189251f5e9d54e574c9b151241f2e38e72e content/blog.aspose.org/cells/rust/cells-spreadsheet-management-rust

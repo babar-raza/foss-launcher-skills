@@ -1,0 +1,27 @@
+{
+  "mission_id": "MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH",
+  "session_id": "d57461a0-3a00-4229-8f89-53e75a68457d",
+  "plan_file": "<local-plan-cache>/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md",
+  "generated_at": "2026-08-31T10:51:23.457721+00:00",
+  "head": "e69005b9b5cc5499ae1616f5f8db2bb8802da572",
+  "head_sha_start": "3b3cfcb61fb9ba6a04b9075210358bde5349a7b1",
+  "head_sha_end": "e69005b9b5cc5499ae1616f5f8db2bb8802da572",
+  "files": {
+    "00-final-verdict.md": "sha256:6ae13d7d7be67498aee3f8b6872e033d5790cc0efbf44c0a50c51a62e6342243",
+    "baseline/BASE_SHA": "sha256:9326c95b4e21fac8483d92fa4938cae139fbbf244c2055f42f02e8c311ff773b",
+    "baseline/git-log-5.txt": "sha256:f66554f75bf6142df8545374b81e68815f632cff866ccd97a198f5e7e187ccc9",
+    "baseline/git-status-porcelain.txt": "sha256:2ce8d88237d492cd7c24d8ce17e642e90c3d2cc249008e9f09f14730bea5ca06",
+    "baseline/plan-at-start.md": "sha256:da6f42e065528a8d58bb9b8cb6d37b3eaabeb79bf9ca4e0d2cd64154c6fc1ed5",
+    "bundle-validation.json": "sha256:c87362edfb15b374cbb962630fbcc7e734105afe96dcd47732ea3cb699e0e738",
+    "cards/TC-MT040-32-QUALITY-GATES/summary.md": "sha256:4d04b2b36bf4743c34dd2bb6de511176d4e26ffc664e0d94fafa397cd9800d96",
+    "commit-log-segment.txt": "sha256:008a6e3c9c529b144cf32538ad7c2bfdf75026fafaa9fe2f596c0277d2c08424",
+    "evidence-checksums.sha256": "sha256:63131a1594e4600442246ab25abf8be08f53dbe13c503bc3ddf89f005118f983",
+    "evidence-manifest.json": "sha256:4961653acbbffccfd312045f5b12f9102aa889705c2eb80173a716055c2ab81f",
+    "knowledge-model-BASELINE-before-hardening.yaml": "sha256:52e830ca3caf258cb522d180264f9dc40c4409a4140d1a3423739d43040a401a",
+    "launch-gate-BASELINE-pre-hardening.txt": "sha256:bf459c409f6049679e451780e6372fb06cb6c1eb71a036bb37366b0a91c7c617",
+    "prescan-formats-baseline.json": "sha256:881813f174df02a88dae6e97a67fc28cc54da62de647c20fe1618bde12f92e97",
+    "taskcard-state.json": "sha256:28f024eaa776079ca23e85bfc261f33504e9e7654550070795c2ea003f9d9c0c",
+    "test-baseline-run1.txt": "sha256:e27fa234d7f8e58c105f0e6317439f3a2f1a0c2a9328c5ac0eb38e2d926d713e",
+    "truth-audit.md": "sha256:eb62db98280d63a4dbf441d6ac87302c7237c12f599a234cb0b027f7edc7b2d2"
+  }
+}

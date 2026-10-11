@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DependencyRegistry",
+  "description": "Per-surface dependency registry for the S-84 refresh architecture",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/SurfaceEntry"
+  },
+  "definitions": {
+    "SurfaceEntry": {
+      "type": "object",
+      "required": [
+        "description",
+        "fingerprints_required",
+        "content_root",
+        "expected_output_source",
+        "regeneration_triggers",
+        "reconciliation_triggers",
+        "supports_targeted_run",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this surface"
+        },
+        "backing_generator": {
+          "type": ["string", "null"],
+          "description": "Path to backing Python script, or null for agent-executed surfaces"
+        },
+        "backing_skill": {
+          "type": ["string", "null"],
+          "description": "Skill ID(s) that generate this surface (e.g. 'S-62 (batch-reference)')"
+        },
+        "fingerprints_required": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "List of input fingerprint field names that apply to this surface"
+        },
+        "template_paths": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Paths to Hugo theme template directories for this surface"
+        },
+        "config_path": {
+          "type": ["string", "null"],
+          "description": "Path to Hugo config file for this subdomain"
+        },
+        "content_root": {
+          "type": "string",
+          "description": "Content root path template (may contain {family} and {platform} placeholders)"
+        },
+        "expected_output_source": {
+          "type": ["string", "null"],
+          "enum": ["site_planner_output", "registry_rules", "product_inventory", null],
+          "description": "How expected output paths are derived for reconciliation"
+        },
+        "regeneration_triggers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Input fingerprint names that trigger full regeneration when changed"
+        },
+        "reconciliation_triggers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Conditions that trigger output reconciliation check"
+        },
+        "triage_checker": {
+          "type": ["string", "null"],
+          "description": "Module.function for Layer 2 triage scanning (e.g. 'triage_confirm.triage_confirm')"
+        },
+        "supports_targeted_run": {
+          "type": "boolean",
+          "description": "Whether this surface can be refreshed independently without a full S-84 run"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["supported", "validate_only", "unsupported"],
+          "description": "Operational status: supported=script-backed, validate_only=agent-executed, unsupported=no generator"
+        }
+      }
+    }
+  }
+}

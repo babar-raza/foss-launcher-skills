@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-font-python-001",
+  "root_cause_id": "RC-font-python-01",
+  "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-01",
+  "system_fix_diff_ref": "3fe99aa038",
+  "regen_command": "S-73 manual-edit per reports/manual-edits/2026-08-09-docs-font-python-index-tc03.json, landed in commit d21d35c62b (content(font/python): fix private-import-path code examples across docs/kb)",
+  "verification_before_hash": "06d6763d51503f18f6f7df64d1cab004b1829fbacff819603246af545b9cd854",
+  "verification_after_hash": "2f99c35b313b29ae3f55cf401a1549970788bcbd98a9c2ef1b03181f340c3422",
+  "agentic_consumption_recheck_passed": true
+}

@@ -1,135 +1,77 @@
-# Dependency Activation Rule (DAR) Table — foss-launcher
+# Dependency Authority Registry (DAR)
 
-**Source**: Adapted from aspose.org `docs/governance/dar-table.md`
-**Adapted**: 2026-05-15 (PAR-013 GV-005)
-**IDs**: foss-launcher IDs (see `docs/id-mapping.md` for aspose.org cross-reference)
+Status: Current
+Audience: Agent, Operator
+Last verified: 2026-07-16 (full skill-ID audit against docs/registries/skills.md — 8 stale mappings corrected; see aspose-org-foss-refresh-tidy-lightning.md RPR-A-04)
 
----
+## Summary
 
-## Skill-First Execution Mandate
+The DAR maps downstream skills to their upstream knowledge dependencies.
+Skills that consume knowledge artifacts must declare their dependency here
+so that stale-knowledge risks are visible and CI can enforce bootstrap order.
 
-Every agent must treat the skill system as the **default and required** execution mechanism.
+See AGENTS.md §6a for the full DAR governance rules.
 
-1. **Before starting any task**, identify which registered skill(s) in `skills/registry.yaml` cover it.
-2. **Invoke matching skills** in defined order. Do not perform equivalent work through inline reasoning.
-3. **Activate upstream dependencies automatically.** If a skill requires a precondition, invoke it first.
-4. **Do not invent workflows.** If no skill covers the requirement, file a gap escalation report.
+## DAR Table
 
-## Dependency Activation Rule (DAR) Table
+| Downstream skill | Upstream skill | Trigger |
+|---|---|---|
+| `/batch-eval-fix` (S-41) | `/knowledge-bootstrap` | Knowledge artifacts must exist before evaluation |
+| `/batch-reference` (S-62) | `/knowledge-bootstrap` | Requires api_surface.json for page generation |
+| `/batch-remediate` (S-40) | `/knowledge-bootstrap` | Requires knowledge for remediation grounding |
+| `/blog-release-check` (S-124) | `/refresh-product` (S-84) | Reads `manifest["blog_announcement_required"]` from the run's own `manifest.json` — a signal `refresh_run.py`'s `prepare_run()` computes from `knowledge_delta.json` (any of its 7 change lists non-empty) and never meaningful before that run has reached at least `INPUTS_PINNED` (mission-plan-the-end-to-end-vast-hejlsberg.md Task 6, closes G6). This skill directs — never performs — the actual announcement draft via `/new-blog-post` (S-57), which keeps its own, separately-declared `/knowledge-bootstrap` dependency below unchanged. |
+| `/change-guard` | `/knowledge-bootstrap` | Requires knowledge to assess change impact |
+| `/content-audit` (S-32) | `/knowledge-bootstrap` | Requires knowledge for semantic verification |
+| `/content-check` (S-23) | `/knowledge-bootstrap` | Requires knowledge for accuracy audit |
+| `/content-enrich` (S-98) | `/knowledge-bootstrap` | Requires knowledge for cross-subdomain enrichment |
+| `/example-write` (S-126) | `/knowledge-bootstrap` | Candidates are selected from the product's harvested `merged/snippets/` and matched to capability-unit symbols; without bootstrapped knowledge there is nothing mechanical to choose from |
+| `/example-write` (S-126) | `/refresh-product` (S-84) | Reads the capability ledger that `refresh_run.py`'s `prepare_run()` builds (`manifest["capability_ledger"]`) and writes example evidence back through `capability_ledger.py set-disposition`; no ledger means no units to serve |
+| `/family-sync` (S-48) | `/knowledge-bootstrap` | Requires knowledge to sync family page |
+| `/faq-generate` (S-22) | `/knowledge-bootstrap` | Requires knowledge for FAQ grounding |
+| `/gap-apply` (S-46) | `/knowledge-bootstrap` | Requires knowledge for fix spec execution |
+| `/heal-page` (S-26) | `/knowledge-bootstrap` | Requires knowledge for page healing |
+| `/independent-content-review` (S-127) | `/knowledge-bootstrap` | Reviewers independently re-derive counts and claims against the knowledge model and source (rubric R1.5, R7); the model must be current before a page can be judged against it |
+| `/new-blog-post` (S-57) | `/knowledge-bootstrap` | Requires knowledge for blog content grounding |
+| `/new-blog-post` (S-57) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` below (Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-02: S-57 was found ungrounded and additionally sourcing package identity from `scout/model.yaml.canonical_import` — a full-repo audit found this exact skill's output responsible for a large share of the ~5,000+ pages carrying fabricated or never-published install commands). |
+| `/new-docs-index` (S-70) | `/knowledge-bootstrap` | Requires knowledge for docs index scaffold |
+| `/new-docs-page` (S-56) | `/knowledge-bootstrap` | Requires knowledge for docs page grounding |
+| `/new-docs-page` (S-56) | `data/package_registry.json` | Install-instruction rendering (maven-coord/maven-gav/cargo-crate/package-install shortcodes) reads this file directly — a data-file dependency, not a skill-form one, since no skill currently maintains it end-to-end (root cause 1, Mission MT015-2026-07-30-PACKAGE-REGISTRY: this exact gap — a mandated grounding source with no producer — is what let 3D-NET-REFRESH-002's wrong NuGet command ship undetected). `/repo-scout` (S-34) + `naming_convention_candidate()` (TC-MT015-07) populate the "candidate" side; the planned `/package-publish-watch` (TC-MT015-09, not yet built) will be the live-verification producer for `verification.published`. |
+| `/new-kb-faq` (S-59) | `/knowledge-bootstrap` | Requires knowledge for KB FAQ generation |
+| `/new-kb-faq` (S-59) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` below (Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-02: added grounding guidance for the "How do I install?" FAQ answer, which previously had none). |
+| `/new-kb-howto` (S-58) | `/knowledge-bootstrap` | Requires knowledge for KB how-to generation |
+| `/new-kb-howto` (S-58) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` below (Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-02: S-58 was found ungrounded for python/net/typescript, literally instructing `pip install`/`dotnet add package`/`npm install` — a full-repo audit found this exact skill's output responsible for a large share of the ~5,000+ pages carrying fabricated or never-published install commands). |
+| `/new-kb-index` (S-69) | `/knowledge-bootstrap` | Requires knowledge for KB index scaffold |
+| `/new-products-page` (S-61) | `/knowledge-bootstrap` | Requires knowledge for products page generation |
+| `/new-products-page` (S-61) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` above (root cause 1, Mission MT015-2026-07-30-PACKAGE-REGISTRY) — see that row for detail. |
+| `/new-reference-index` (S-71) | `/knowledge-bootstrap` | Requires knowledge for reference index scaffold |
+| `/new-reference-page` (S-60) | `/knowledge-bootstrap` | Requires knowledge for reference page generation |
+| `/page-draft` (S-19) | `/knowledge-bootstrap` | Requires knowledge for draft grounding |
+| `/page-plan` (S-18) | `/knowledge-bootstrap` | Requires knowledge for page planning |
+| `/publish-readiness-review` (S-90) | `/knowledge-bootstrap` | Requires knowledge for publish verification |
+| `/readme-refresh` (S-120) | `data/package_registry.json` | `plan_run()`'s factpack step reads this directly for install-command/package-identity rendering, the same read-only-consumer boundary every other skill in this table respects — never written by S-120 (Dependency section, plan: `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`). |
+| `/readme-refresh` (S-120) | `data/diagram_archetypes.json` | `plan_run()` reads the product's archetype (transform/hybrid/generative/compile) to decide the At-a-glance diagram's structural/title shape, defaulting to `transform` when no override row exists (MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY). |
+| `/readme-refresh` (S-120) | `data/diagram_capability_dependencies.json` | `plan_run()`/`ingest_candidate()` read the product's recorded pipeline_edges (or `None` if never traced — a real, deliberate absence-semantics distinct from `diagram_archetypes.json`'s, never read as "confirmed independent") to hard-gate `check_diagram_matches_capability_dependencies` (MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY). |
+| `/refresh-product` (S-84) | `/knowledge-bootstrap` | Requires knowledge for product refresh |
+| `/refresh-product` (S-84) | `reports/handoff/{mission_id}/fact-pack.json` | `prepare_run()`'s `INPUTS_PINNED` step searches `reports/handoff/*/fact-pack.json` for one matching the run's `product.family`/`product.platform` (mission-plan-the-end-to-end-vast-hejlsberg.md Task 4, S9.2, reconciles F3/F9) and, when found, reconciles its `version.new`/`maven.*` fields against `data/package_registry.json`'s current `candidate.*` — a real coordinate mismatch blocks the run outright. A data-file dependency, not a skill-form one: the fact pack is written by the publishing lane's own Track C (Task 3, cross-lane, not this lane's to implement); no fact pack for a product yet is a documented, non-blocking fallback (`fact_pack_ref: null`), not a hard requirement. |
+| `/register-human-content` (S-66) | `/knowledge-bootstrap` | Requires knowledge for evidence attachment |
+| `/seo-review` (S-116) | `/knowledge-bootstrap` | Grounding-check step independently re-verifies each recommendation against claims.json/formats.json before approving |
+| `/site-plan` (S-47) | `/knowledge-bootstrap` | Requires knowledge for site planning |
+| `/system-heal` (S-87) | `/knowledge-bootstrap` | Requires knowledge for system healing |
+| `/truth-audit-content` (S-85) | `/knowledge-bootstrap` | Requires knowledge for truth audit |
 
-Agents must activate the upstream skill if it has not already been confirmed as passing in
-the current session. "Passing" means: non-STOP status returned in this conversation, no
-knowledge-modifying skill has run since, and less than one hour has elapsed.
+## Exceptions
 
-| Downstream skill | Required upstream | Trigger condition |
-|-----------------|------------------|------------------|
-| `/page-plan` (S-18) | S-49 `/knowledge-bootstrap` | Always |
-| `/page-draft` (S-19) | S-49 `/knowledge-bootstrap` | Always |
-| `/page-draft` (S-19) | S-18 `/page-plan` | Plan not in session context |
-| `/page-update` (S-20) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
-| `/page-enhance` (S-21) | S-25 `/eval-page` or S-17 `/rubric-align` | Eval not in session context |
-| `/heal-page` (S-26) | S-25 `/eval-page` | Eval not in session context |
-| `/ground-check` (S-23) | S-49 `/knowledge-bootstrap` | Always |
-| `/truth-merge` (S-35) | S-34 `/repo-scout` | Scout output absent |
-| `/batch-remediate` (S-40) | S-49 `/knowledge-bootstrap` | Always |
-| `/batch-eval-fix` (S-41) | S-49 `/knowledge-bootstrap` | Always |
-| `/faq-generate` (S-22) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-docs-page` (S-51) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-blog-post` (S-52) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-kb-howto` (S-53) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-kb-faq` (S-54) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-reference-page` (S-55) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-products-page` (S-66) | S-49 `/knowledge-bootstrap` | Always |
-| `/batch-reference` (S-67) | S-49 `/knowledge-bootstrap` | Always |
-| `/change-guard` (S-33) | S-49 `/knowledge-bootstrap` | Always |
-| `/content-audit` (S-32) | S-49 `/knowledge-bootstrap` | Always |
-| `/site-plan` (S-57) | S-49 `/knowledge-bootstrap` | Always |
-| `/family-sync` (S-58) | S-49 `/knowledge-bootstrap` | Always |
-| `/launch-product` (S-38) | S-57 `/site-plan` | Always (produces slug manifest) |
-| `/gap-apply` (S-65) | S-63 `/gap-plan` | Plan not in session context |
-| `/new-docs-index` (S-75) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-kb-index` (S-74) | S-49 `/knowledge-bootstrap` | Always |
-| `/new-reference-index` (S-76) | S-49 `/knowledge-bootstrap` | Always |
-| `/register-human-content` (S-71) | S-49 `/knowledge-bootstrap` | Always |
-| `/evidence-repair` (S-77) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
-| `/manual-edit` (S-78) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
-| `/evidence-enhance` (S-83) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | `stale_since` not null |
-| `/delta-site-plan` (S-87) | S-14 `/knowledge-update` | Always (knowledge_delta.json must exist) |
-| `/page-retire` (S-88) | S-87 `/delta-site-plan` | When retiring from plan |
-| `/refresh-product` (S-84) | S-12 `/knowledge-diff` | Always (auto-invokes S-14, S-87, S-88 in sequence) |
-| `/truth-audit-content` (S-90) | S-49 `/knowledge-bootstrap` | Always |
-| `/system-heal` (S-93) | S-62 `/gap-eval` | Always (Phase 1 invokes gap-eval --no-llm) |
-| `/system-heal` (S-93) | S-49 `/knowledge-bootstrap` | Always (knowledge must not be stale) |
-| `/publish-readiness-review` (S-95) | S-49 `/knowledge-bootstrap` | Always |
-| `/publish-readiness-review` (S-95) | S-25 `/eval-page` | Grades must be current |
-| `/backlog harvest` (S-98) | `report_extract.py` | Always |
-| `/discovery-triage` (S-104) | S-102 `/repo-patrol` | When routing patrol findings |
-| `/discovery-triage` (S-104) | S-103 `/change-sweep` | When routing sweep findings |
-| `/section-enhance` (S-105) | S-12 `/knowledge-diff` + S-14 `/knowledge-update` | When `stale_since` is not null |
-| `/content-enrich` (S-108) | S-49 `/knowledge-bootstrap` | Always (knowledge artifacts must exist) |
-| `/content-enrich` (S-108) | S-57 `/site-plan` | Always (site plan must exist) |
-| Any content write | S-01 `/path-guard` | Always (final gate) |
+Skills in the `DAR_EXCEPTIONS` set in `scripts/ci/checks/check_dar_coverage.py`
+are excluded from this table. See the script for justifications (Category B
+orchestrators managing their own chains, Category C false positives).
 
-If the upstream skill returns `STOP` or `DENY`, halt immediately and report.
-Do not continue to the downstream skill.
+## Metrics Obligation
 
-## Capability Classification
+Pipeline workflows using `llm.professionalize.com` carry a metrics obligation. Decision records
+that approve new professionalize call sites must note the corresponding `metrics_callsite_registry.yaml`
+entry and the `AGENT_METRICS` capture method. See `AGENTS.md §15`.
 
-Before starting any novel task, classify capability:
+## Related
 
-| State | Definition | Required action |
-|-------|-----------|----------------|
-| **FULL** | Every step covered by a registered skill | Invoke the skill chain |
-| **PARTIAL** | Some steps covered; others not | Execute covered steps; file gap escalation for uncovered |
-| **NONE** | No registered skill covers this requirement | File gap escalation immediately; await human decision |
-| **BROKEN** | Required skill exists but fails | Capture failure; file breakage report; do not bypass |
-
-### Gap escalation report format
-
-Save to `reports/skill-gaps/{YYYY-MM-DD}-{task-slug}.md`:
-
-```
-SKILL GAP ESCALATION
-Task: {what was requested}
-Capability state: PARTIAL | NONE
-Skills invoked (completed): [list]
-Uncovered requirement: {precise description}
-Impact: {what the user won't get until this gap is filled}
-
-ENHANCEMENT PLAN
-  Title: {short name for the missing skill}
-  Proposed skill ID: {next available S-xx}
-  Input: {what the skill would receive}
-  Output: {what the skill would produce}
-  Skill file location: skills/{proposed-name}.md
-  Depends on: {upstream skills}
-  Estimated complexity: LOW | MEDIUM | HIGH
-```
-
-### Broken skill report format
-
-Save to `reports/skill-breakage/{YYYY-MM-DD}-{skill-id}.md`:
-
-```
-SKILL BREAKAGE REPORT
-Skill: {ID and name}
-Invocation: {exact command attempted}
-Expected output: {spec says it should produce}
-Actual output / error: {verbatim failure output}
-Impact: {what tasks are blocked}
-Suggested diagnosis: {most likely cause}
-```
-
-## DAR Maintenance
-
-When a skill is added, removed, renamed, or split, update this table.
-Add a row using this template:
-
-```
-| `/skill-name` (S-XX) | S-YY `/upstream-skill` | Trigger condition (Always | specific condition) |
-```
-
-Steps:
-1. Add the row to the table in the correct logical position.
-2. Ensure the downstream skill's `## Pre-conditions` section documents the same dependency.
-3. Verify the skill file precondition text and the DAR row are aligned.
+- [AGENTS.md §6a](../../AGENTS.md) — DAR governance rules
+- [check_dar_coverage.py](../../scripts/ci/checks/check_dar_coverage.py) — CI validator

@@ -1,0 +1,36 @@
+discovered_actuals:
+  format_files_found: null
+  last_baseline_sha: 44597f1a09feb16ed1b6f29a1c6b939df4415863
+  # package_name uses Maven groupId:artifactId coordinate format, not a plain Java package name.
+  # Extracted by xpath://groupId + ':' + //artifactId from pom.xml.
+  # validate_profile.py supports this format via _read_build_package (commit e8a821b5fe).
+  package_name: org.aspose.slides.foss:aspose-slides-foss
+  package_source_actual: pom.xml
+discovery_hints:
+  format_source_glob: src/**/export/*Exporter.java
+  language: java
+  package_extraction: xpath://groupId + ':' + //artifactId
+  package_source_file: pom.xml
+  runtime_requirement_source: pom.xml
+  stub_search_hints:
+  - throw new UnsupportedOperationException
+  - // not implemented
+  - TODO
+expected_sections:
+- mandatory: true
+  site: products
+- mandatory: true
+  site: docs
+- mandatory: true
+  site: kb
+- mandatory: true
+  site: reference
+- mandatory: false
+  site: blog
+family: slides
+language_conventions:
+  enum_values: UPPER_CASE
+  method_naming: camelCase
+  pass_by: reference
+platform: java
+version: 1

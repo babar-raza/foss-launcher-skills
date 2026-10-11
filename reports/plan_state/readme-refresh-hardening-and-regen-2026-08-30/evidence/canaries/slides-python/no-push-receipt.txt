@@ -1,0 +1,1 @@
+Approved locally (run rr-20260831T193318Z-ad86dd3f443b, approved_at 2026-08-31T19:35:47Z). NOT pushed. This product was resolved from STALE_ORPHANED via a real re-scout (S-34/S-35), not one of the mission's original 3 named canaries, but treated with the same round-trip discipline.

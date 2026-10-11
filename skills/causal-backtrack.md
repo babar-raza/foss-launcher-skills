@@ -1,100 +1,224 @@
----
-name: causal-backtrack
-id: S-79
-description: >
-  Resolve upstream dependency failures by tracing broken links or missing
-  upstream pages back to their root cause and routing to the responsible skill.
-  Implements causal backtracking and forward replay per AGENTS.md §6c.
-args: "{family} {platform} [--eval-report {path}] [--dry-run]"
----
+<!-- CONTRACT: scripts/pipeline/commands/healing/backtrack_controller.py + scripts/pipeline/lib/dependency_resolver.py -->
+# S-74: Causal Backtrack — Resolve Upstream Dependency Failures
 
-# S-79: Causal Backtrack — Resolve Upstream Dependency Failures
+**Skill ID:** S-74
+**Trigger:** Any evaluation finding with `cause_class: UPSTREAM_MISSING` or
+`cause_class: BAD_LINK_FORMAT` — i.e., when a page receives a WARN because a
+linked target does not exist or uses the wrong URL format.
 
-**Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} [--eval-report {path}] [--dry-run]`
+**Arguments:**
+```
+/causal-backtrack {family} {platform} [--eval-report {path}] [--dry-run]
+```
 
 - `family` — product family (e.g. `slides`)
 - `platform` — platform (e.g. `net`)
-- `--eval-report` — path to an `eval-*.json` from `content_eval evaluate`. If omitted, the most recent eval report for the family/platform is used.
+- `--eval-report` — path to an `eval-*.json` from `content_eval evaluate`. If omitted, the
+  most recent eval report for the family/platform is used.
 - `--dry-run` — write evidence files but do not invoke any downstream skills.
+
+---
 
 ## Purpose
 
-When a content page receives a WARN because a linked target does not exist or uses the wrong
-URL format (`cause_class: UPSTREAM_MISSING` or `cause_class: BAD_LINK_FORMAT`), this skill
-traces the broken link back to its upstream cause, determines the correct remediation, and
-routes control to the responsible skill.
+The default pipeline behavior writes a grade (e.g. B) when evaluation finds broken links.
+This skill prevents that: it **traces the broken link back to its upstream cause**, determines
+the correct remediation, and routes control to the responsible stage/skill.
 
-Implements the **causal backtracking and forward replay** system defined in AGENTS.md §6c.
+This implements the **causal backtracking and forward replay** system defined in AGENTS.md §6c
+(full detail: [docs/workflows/causal-backtracking.md](../docs/workflows/causal-backtracking.md)).
 
-**Do not use for**: content quality issues unrelated to missing upstream pages (use S-26 or S-21).
+---
 
-## Trigger
+## When to Use
 
-Activate when `content_eval` reports findings with:
-- `cause_class: UPSTREAM_MISSING` — a linked page/section does not exist
-- `cause_class: BAD_LINK_FORMAT` — a link uses an incorrect URL format
+Invoke this skill:
+1. Automatically — as a pre-triage step in `/batch-remediate` when the triage result
+   contains `upstream_blocked` items.
+2. Manually — when a page is stuck at grade B/C due to link WARNs and you want the
+   system to investigate the root cause rather than edit the page.
 
-## Steps
+Do NOT invoke this skill:
+- For findings without `cause_class: UPSTREAM_MISSING|BAD_LINK_FORMAT`.
+- When knowledge is stale (`stale_since != null`). Run S-12 → S-14 first.
 
-1. **Load eval report**: Read `{eval-report-path}` or find the most recent eval report under `reports/`.
+---
 
-2. **Extract dependency failures**: Filter findings to `cause_class IN [UPSTREAM_MISSING, BAD_LINK_FORMAT]`.
+## Procedure
 
-3. **For each failure, trace the upstream cause**:
-   - Extract the broken link target from the finding
-   - Determine whether the target is: a page that doesn't exist, a section that doesn't exist, or a URL format mismatch
-   - Read `knowledge/{family}/{platform}/merged/model.yaml` to check if the target capability is known
+### Step 1 — Locate or run evaluation
 
-4. **Classify each failure**:
+1. If `--eval-report` is provided, load that report.
+2. Otherwise, run: `python -m scripts.pipeline.content_eval evaluate {family} {platform}`
+   and use the latest report from `reports/content_eval/`.
+3. Filter findings to those with `cause_class` in `{UPSTREAM_MISSING, BAD_LINK_FORMAT}`.
+4. If no such findings: print `SKIP: no upstream-blocked findings` and stop.
 
-   | Failure type | Root cause | Responsible skill |
-   |---|---|---|
-   | Missing index page (`_index.md`) | Scaffolding not run | S-74 (new-kb-index), S-75 (new-docs-index), or S-76 (new-reference-index) |
-   | Missing content page | Page generation not run | S-19 (page-draft) or appropriate generation skill |
-   | Wrong URL format | Link pattern mismatch | S-78 (manual-edit) with `--scope body-wording` |
-   | Missing capability in knowledge | Knowledge incomplete | S-12 (knowledge-diff) → S-14 (knowledge-update) |
+### Step 2 — Run BacktrackController
 
-5. **Route to responsible skill**:
-   - For each failure, emit a directive:
-     ```
-     ROUTE: {family}/{platform} failure at {source-page}
-       Cause: {UPSTREAM_MISSING | BAD_LINK_FORMAT}
-       Target: {broken-link}
-       Action: invoke {skill-id} ({skill-name}) {args}
-     ```
-   - If `--dry-run`: emit directives only, do not invoke skills.
-   - If not dry-run: invoke each responsible skill in dependency order.
+```bash
+.venv/Scripts/python scripts/pipeline/commands/healing/backtrack_controller.py \
+    --eval-report {eval-report-path} \
+    --family {family} \
+    --platform {platform} \
+    [--dry-run]
+```
 
-6. **Forward replay verification**:
-   After all upstream fixes are applied, re-run content_eval on the original failing pages:
-   ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {source-pages} --format json
-   ```
-   Verify that the `UPSTREAM_MISSING`/`BAD_LINK_FORMAT` findings are resolved.
+The controller writes all evidence to `reports/dependency-backtrack/{run-id}/`.
+Read the output `backtrack-summary.md` to understand the action plan.
 
-7. **Summary report**:
-   ```
-   CAUSAL BACKTRACK — {family}/{platform}
-   Findings processed: N
-   Failures classified: N
-     UPSTREAM_MISSING: N
-     BAD_LINK_FORMAT:  N
-   Skills invoked: {list}
-   Forward replay: PASS | FAIL | SKIPPED (dry-run)
-   ```
+### Step 3 — Execute action items
 
-## Post-conditions
+For each action item in the backtrack report's `action_items` array:
 
-- All `UPSTREAM_MISSING` failures have upstream pages created
-- All `BAD_LINK_FORMAT` failures have link formats corrected
-- Forward replay confirms original failing pages now pass
+**If action_type == GENERATE:**
+```
+/batch-reference {family} {platform} --classes {target_slug}
+```
+Or for a single class:
+```
+/new-reference-page {family} {platform} {ClassName}
+```
+After generation: verify the file exists at
+`content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md`.
 
-## Error handling
+**If action_type == CORRECT_LINK:**
+For each source page listed:
+```
+/manual-edit {source-page-path} \
+    --scope body-wording \
+    --intent "Correct reference URL: replace `{wrong_url}` with `{correct_url}`"
+```
 
-| Error | Action |
-|-------|--------|
-| No eval report found | Prompt operator to run `content_eval evaluate` first |
-| No UPSTREAM_MISSING/BAD_LINK_FORMAT findings | Report: "No causal failures found — use other skills for other failure types" |
-| Responsible skill invocation fails | Log failure; continue with remaining failures; report at end |
-| Knowledge model stale | Halt: run S-12 + S-14 first |
+**If action_type == ESCALATE:**
+The broken link cannot be automatically resolved. The page's grade is marked
+`grade_final: false` with `grade_stale_reason: escalated_to_human`. No further
+automatic action is taken. The source page is added to the human queue at
+`reports/dependency-backtrack/needs-human-{YYYYMMDD}.md`.
+
+### Step 4 — Write invoked-skill record
+
+After executing each action item, append to
+`reports/dependency-backtrack/{run-id}/invoked-skill-record.json`:
+```json
+{
+  "skill": "{skill_id}",
+  "args": "{skill_args}",
+  "source_pages": [...],
+  "target_url": "{url}",
+  "completed_at": "{ISO timestamp}",
+  "result": "success | partial | failed"
+}
+```
+
+### Step 5 — Replay evaluation on affected pages
+
+For each page in the backtrack report's `replay_plan`:
+```bash
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {page-path}
+```
+Write results to `reports/dependency-backtrack/{run-id}/revalidation-report.json`.
+
+Verify: the count of `cause_class=UPSTREAM_MISSING` findings on these pages is now 0.
+If upstream-missing findings remain AND recursion depth < 3:
+→ Re-invoke this skill with `--depth {depth+1}`.
+If depth >= 3: ESCALATE — write to human queue, stop.
+
+### Step 6 — Update grades
+
+For each page in the replay plan where revalidation passes (0 UPSTREAM_MISSING findings):
+```bash
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py {page-path} \
+    --grade {new-grade} --grade-final true
+```
+Or via the Python API:
+```python
+write_grade(
+    filepath=Path(page_path),
+    grade=new_grade,
+    model_sha=knowledge_sha,
+    grade_final=True,   # grade is now final — all dependencies resolved
+)
+```
+
+For pages with ESCALATE verdicts, set `grade_final: false`:
+```python
+write_grade(
+    filepath=Path(page_path),
+    grade=current_grade,
+    grade_final=False,
+    grade_stale_reason="escalated_to_human",
+    grade_stale_targets=["reference.aspose.org/slides/net/SomeMissingClass"],
+)
+```
+
+### Step 7 — Write final-grade-decision record
+
+Append to `reports/dependency-backtrack/{run-id}/final-grade-decision.json`:
+```json
+{
+  "page": "{path}",
+  "prior_grade": "{A|B|C|D|F}",
+  "new_grade": "{A|B|C|D|F}",
+  "grade_final": true|false,
+  "grade_stale_reason": "{reason or empty}",
+  "trigger_chain": ["S-74", "{action_skill}", "content_eval", "grade_writer"],
+  "decided_at": "{ISO timestamp}"
+}
+```
+
+---
+
+## Evidence Files
+
+All files written to `reports/dependency-backtrack/{family}-{platform}-{YYYYMMDD-HHMMSS}/`:
+
+| File | Written by |
+|------|-----------|
+| `backtrack-report.json` | BacktrackController |
+| `backtrack-summary.md` | BacktrackController |
+| `cause-classification.json` | BacktrackController |
+| `dependency-verification.json` | BacktrackController + DependencyVerifier |
+| `remediation-decision.json` | BacktrackController |
+| `invoked-skill-record.json` | Agent (Step 4) |
+| `generated-artifact-manifest.json` | S-60/S-62 (via attach_evidence.py) |
+| `revalidation-report.json` | Agent (Step 5) |
+| `final-grade-decision.json` | Agent (Step 7) |
+
+If escalated: `reports/dependency-backtrack/needs-human-{YYYYMMDD}.md`
+
+---
+
+## Hard Stops
+
+- If `model.yaml.stale_since != null`: HALT. Run S-12 → S-14 first.
+- If S-01 path-guard returns DENY on any generated file: skip that file, log error.
+- If `backtrack_depth >= 3`: ESCALATE unconditionally, write human queue entry.
+- If the same target URL appears twice in the visited set: HALT recursion on that URL,
+  write `cycle-detected.json`, continue with others.
+
+---
+
+## Grade Policy
+
+| Condition | grade_final | Action |
+|-----------|-------------|--------|
+| All upstream findings resolved after replay | `true` | Write final grade post-replay |
+| Some upstream findings still present after replay | `false` | Mark stale; recurse or escalate |
+| Verdict ESCALATE (no auto-fix possible) | `false` | Mark stale; write human queue |
+| All findings are LOCAL_DEFECT after replay | `true` | Write final grade |
+
+**Key principle:** A grade is only written as `grade_final: true` after a complete
+replay evaluation shows zero `UPSTREAM_MISSING` findings on the page.
+
+---
+
+## Dependency Activation Rule (DAR)
+
+This skill depends on:
+- Knowledge model current (`stale_since == null`) — verify before running
+- `api_surface.json` present at `knowledge/{family}/{platform}/merged/` — required by DependencyVerifier
+- S-01 (path-guard) available — checked for each generated file
+
+This skill is a prerequisite for:
+- Final grade assignment on any page with `cause_class=UPSTREAM_MISSING` findings

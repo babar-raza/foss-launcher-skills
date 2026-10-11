@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Taxonomy display-name resolution helpers for RunMetrics.
 
 Reads scripts/pipeline/config/metrics_taxonomy.yaml and provides

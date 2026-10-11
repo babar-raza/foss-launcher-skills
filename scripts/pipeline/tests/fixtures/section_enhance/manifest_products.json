@@ -1,0 +1,10 @@
+{
+  "run_id": "test-products-adapter",
+  "subdomain": "products",
+  "platform": null,
+  "adapters_activated": ["products", "clone-cache", "package-metadata"],
+  "adapters_NOT_activated": ["docs", "kb", "blog", "reference"],
+  "clone_count": 2,
+  "clone_candidates": ["fake_cells_net", "fake_cells_python"],
+  "proposals_generated": 0
+}

@@ -1,0 +1,36 @@
+........................................................................ [ 28%]
+........................................................................ [ 56%]
+.............................................FF......................... [ 85%]
+......................................                                   [100%]
+================================== FAILURES ===================================
+______________ TestExtractTopicNoun.test_strips_raw_verb_synonym ______________
+
+self = <test_topic_grounding.TestExtractTopicNoun object at 0x0000021686536060>
+
+    def test_strips_raw_verb_synonym(self):
+        # ST-198: a slug led by a raw verb synonym (not the canonical form
+        # detect_kb_verb() would have produced) must still be recognised.
+>       assert tg._extract_topic_noun("how-to-read-msg-files-cpp", "cpp") == "msg-files"
+E       AssertionError: assert 'read-msg-files' == 'msg-files'
+E         
+E         - msg-files
+E         + read-msg-files
+E         ? +++++
+
+scripts\pipeline\tests\content_eval\test_topic_grounding.py:163: AssertionError
+_ TestExtractTopicNoun.test_evaluator_uses_shared_parser_with_no_local_vocabulary _
+
+self = <test_topic_grounding.TestExtractTopicNoun object at 0x000002168659ED50>
+
+    def test_evaluator_uses_shared_parser_with_no_local_vocabulary(self):
+        # ST-198: the duplicated vocabulary/loop is gone -- this module
+        # delegates to site_planner's single implementation.
+>       assert not hasattr(tg, "_KNOWN_VERBS")
+E       AssertionError: assert not True
+E        +  where True = hasattr(tg, '_KNOWN_VERBS')
+
+scripts\pipeline\tests\content_eval\test_topic_grounding.py:169: AssertionError
+=========================== short test summary info ===========================
+FAILED scripts/pipeline/tests/content_eval/test_topic_grounding.py::TestExtractTopicNoun::test_strips_raw_verb_synonym
+FAILED scripts/pipeline/tests/content_eval/test_topic_grounding.py::TestExtractTopicNoun::test_evaluator_uses_shared_parser_with_no_local_vocabulary
+2 failed, 252 passed in 26.27s

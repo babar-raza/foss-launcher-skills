@@ -1,0 +1,28 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/email-net-readme.md.orig	2026-08-06 16:27:55.810887600 +0500
++++ reports/repo-presenter/email/net/readme.md	2026-08-06 16:28:05.861727300 +0500
+@@ -37,7 +37,8 @@
+     C1["CfbReader / CfbWriter"]
+     C2["MsgReader / MsgWriter / MsgDocument"]
+     C3["MapiMessage high-level API"]
+-    C4["EML <-> MSG bridging"]
++    C4a["Export MapiMessage to EML (SaveToEml)"]
++    C4b["Import EML as MapiMessage (LoadFromEml)"]
+   end
+ 
+   subgraph Outputs["Outputs"]
+@@ -52,11 +53,13 @@
+   PRODUCT --- C1
+   PRODUCT --- C2
+   PRODUCT --- C3
+-  PRODUCT --- C4
++  PRODUCT --- C4b
+   C1 --- O1
+   C2 --- O2
+   C3 --- O2
+-  C4 --- O3
++  C3 --- C4a
++  C4a --- O3
++  C4b --- O2
+ ```
+ 
+ ## Key capabilities

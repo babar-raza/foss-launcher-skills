@@ -1,0 +1,156 @@
+{
+  "aspose-com-targets-watch.yml": {
+    "approved_baseline_sha256": "8dd0bb9be08c902274a0daeda83865169f31816b22850867149bb2febe1775f0",
+    "baseline_recorded_at": "2026-09-17T15:50:58.879103Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/aspose-com-targets-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "backlink-compliance-watch.yml": {
+    "approved_baseline_sha256": "362043763cae5327d198815fbb018001352b316ddea652cb611cbd1cc1761f56",
+    "baseline_recorded_at": "2026-09-17T17:03:55.195572Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/backlink-compliance-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "ci-onboarding-integrity-weekly.yml": {
+    "approved_baseline_sha256": "6f6ad7782262f34b200a3e5c36897a3ef2be8756d848a303346d8538461c3356",
+    "baseline_recorded_at": "2026-09-18T04:41:46.381160Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/ci-onboarding-integrity-weekly.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "governance-tests-windows.yml": {
+    "approved_baseline_sha256": "98cad26297283cffed9eb20766eebf32d75fd9716c739db750c528936fda30f0",
+    "baseline_recorded_at": "2026-09-19T12:02:25.918127Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/governance-tests-windows.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "install-literal-sweep.yml": {
+    "approved_baseline_sha256": "7c87a2a9a6e5fb18314881e8b5122741f8a4f29c119579584d43ee26e2e2359e",
+    "baseline_recorded_at": "2026-09-17T18:30:09.764907Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/install-literal-sweep.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "launch-dashboard-weekly.yml": {
+    "approved_baseline_sha256": "f95becc431c9faff172b626d6f9571f1d2349517fc5bda76030ddff1a4022503",
+    "baseline_recorded_at": "2026-09-18T04:41:48.134788Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/launch-dashboard-weekly.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "llms-generation.yml": {
+    "approved_baseline_sha256": "6e121aa96b800b2aeb7257a37e9d98febad80a6b61ac157b0426e0471973efdb",
+    "baseline_recorded_at": "2026-09-23T13:29:47.349407Z",
+    "baseline_source": "approved_after_review: HC-12: adds a genuine pre-regeneration cross-run drift check (persisted manifest artifact) and the --manifest-path CLI parameterization it needs; existing post-regen self-consistency check unchanged. Reviewed diff; new machinery soft-launched continue-on-error.",
+    "deployed_path": ".github/workflows/llms-generation.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "maven-publish-watcher.yml": {
+    "approved_baseline_sha256": "0a09b2fe2f0131c87373d9e2611260e5483ef18253eac94895ab0322bc882c2f",
+    "baseline_recorded_at": "2026-09-28T13:06:13.476875Z",
+    "baseline_source": "approved_after_review: MT075-T7 cutover 2026-09-28: retired scheduled trigger, superseded by registry-watch.yml; committed by user as f9370fa",
+    "deployed_path": ".github/workflows/maven-publish-watcher.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "package-publish-watch.yml": {
+    "approved_baseline_sha256": "525f0e421d789ca17915792e182216bd4d45d7ea2237ae6f071279bedd46da49",
+    "baseline_recorded_at": "2026-09-28T13:06:39.939997Z",
+    "baseline_source": "approved_after_review: MT075-T7 cutover 2026-09-28: retired scheduled trigger, superseded by registry-watch.yml; committed by user as f9370fa",
+    "deployed_path": ".github/workflows/package-publish-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "registry-watch.yml": {
+    "approved_baseline_sha256": "7f0ee73cdd68091ebeae6a83034b624345373564031112e494ae5aff881e8731",
+    "baseline_recorded_at": "2026-10-07T15:40:25.785364Z",
+    "baseline_source": "approved_after_review: MT074 W2/W3 reviewed: non-blocking release-trigger step, hardening; workflows PR #66 merged after independent review PASS (commit ec01e5c084)",
+    "deployed_path": ".github/workflows/registry-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "runner-availability-watch.yml": {
+    "approved_baseline_sha256": "b8374f0cdf73b1624ba17f53d884fb6029a12cf26a3aceb62cfd9f03ab65047a",
+    "baseline_recorded_at": "2026-09-18T18:56:18.785039Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/runner-availability-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "selfhosted-host-probe.yml": {
+    "approved_baseline_sha256": "711599d7a4a4bb5b9968e01c96b3e6f4f2774247cd23d8df116cee877decff55",
+    "baseline_recorded_at": "2026-09-18T18:32:04.357454Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/selfhosted-host-probe.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "selfhosted-runner-smoke-test.yml": {
+    "approved_baseline_sha256": "a7edd0bf9d071de8e29b5ee8cf9738454a67ec43ecb4feb1fd919284f6895d94",
+    "baseline_recorded_at": "2026-09-19T00:10:00.000000Z",
+    "baseline_source": "approved_after_review: workflows-repo commit a549958d (comment-only; every changed line is a '#' comment; prior baseline a6ab33e9 verified equal to its parent blob) -- MT069 HC-03/HC-06",
+    "deployed_path": ".github/workflows/selfhosted-runner-smoke-test.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-analysis.yml": {
+    "approved_baseline_sha256": "6e68c88c7221b84b5ab4499bb6424c11b9f6317506b0e736e1e5ceff14c3c806",
+    "baseline_recorded_at": "2026-09-05T19:29:23.732296Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-analysis.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-apply.yml": {
+    "approved_baseline_sha256": "1131e2ba2335b533413911bf00a1711739d1d1bb2e1d0f69e1b80d9ca06d26c0",
+    "baseline_recorded_at": "2026-09-05T19:29:24.628157Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-apply.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-keyword-refresh.yml": {
+    "approved_baseline_sha256": "11aa1e61d4b8303947ca552f71dd67b11fd9f87b82b6ed08bd424ec7dc93f4cb",
+    "baseline_recorded_at": "2026-09-05T19:29:25.525020Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-keyword-refresh.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-review.yml": {
+    "approved_baseline_sha256": "c4652d0b2c2f45538692c434cb0b5671b68cd18948e8c94365f1f07c00259baf",
+    "baseline_recorded_at": "2026-09-05T19:29:26.252904Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-review.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-token-liveness.yml": {
+    "approved_baseline_sha256": "e5b8ade4b01f19ec009d0ce62cbba88d3debcc9793d3d3e06e9bf61d1dce9561",
+    "baseline_recorded_at": "2026-09-18T18:40:00.000000Z",
+    "baseline_source": "approved_after_review: workflows-repo commit 9a760a28 (one file, +22/-7: a dead fallback-only GH_TOKEN is now an advisory warning instead of exit 1; prior baseline b5f335b3 verified equal to its parent blob) -- MT069 HC-07",
+    "deployed_path": ".github/workflows/seo-token-liveness.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-weekly-analysis.yml": {
+    "approved_baseline_sha256": "93d8b6a5ef350dbd9d5390369d05d13afdf3a2f6d935c79a0dcd05583f946823",
+    "baseline_recorded_at": "2026-09-17T17:03:56.241657Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-weekly-analysis.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "upstream-monitor.yml": {
+    "approved_baseline_sha256": "1e57a39b69127e6b309941fbe328e33aefbb6938bf9358a34d27ca49d5cd91cc",
+    "baseline_recorded_at": "2026-10-07T15:40:03.823747Z",
+    "baseline_source": "approved_after_review: MT074 W1/W3 reviewed: clone-free fleet drift, gate, state PR; workflows PR #66 merged after independent review PASS (commit ec01e5c084)",
+    "deployed_path": ".github/workflows/upstream-monitor.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "workflow-cost-telemetry.yml": {
+    "approved_baseline_sha256": "181703a3c7813771bcae16a0b49479f7e67358d8c80791d416aeac5eec7aa039",
+    "baseline_recorded_at": "2026-09-23T14:22:53.467598Z",
+    "baseline_source": "approved_after_review: HC-15: adds the soft-launch deadline watch (data/soft_launch_deadlines.json + check_soft_launch_deadlines.py) as two new steps + an alert issue; existing collector logic unchanged.",
+    "deployed_path": ".github/workflows/workflow-cost-telemetry.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "workflow-drift-watch.yml": {
+    "approved_baseline_sha256": "0701c679288bcfd5d24e562a674d499dfbe1af92a44d0dc24337a9770d0e635e",
+    "baseline_recorded_at": "2026-09-18T19:25:14.037823Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/workflow-drift-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  }
+}

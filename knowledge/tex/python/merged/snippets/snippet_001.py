@@ -1,0 +1,1 @@
+def test_active_char_macro_dispatches(self) -> None:

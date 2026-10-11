@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiffReport",
+  "description": "Before/after content classification output.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "generated_at", "counts", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "generated_at": { "type": "string" },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "added": { "type": "integer" },
+        "edited": { "type": "integer" },
+        "deleted": { "type": "integer" },
+        "unchanged": { "type": "integer" },
+        "generated_identical": { "type": "integer" },
+        "out_of_scope": { "type": "integer" },
+        "churn_only": { "type": "integer" }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "category"],
+        "properties": {
+          "path": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["ADDED", "EDITED", "DELETED", "UNCHANGED", "GENERATED_IDENTICAL", "OUT_OF_SCOPE", "CHURN_ONLY"]
+          },
+          "baseline_sha": { "type": ["string", "null"] },
+          "current_sha": { "type": ["string", "null"] },
+          "change_bytes": { "type": ["integer", "null"] },
+          "unified_diff": { "type": ["string", "null"] },
+          "churn_signals": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

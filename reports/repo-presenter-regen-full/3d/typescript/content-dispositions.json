@@ -1,0 +1,1462 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "![Aspose.3D FOSS for TypeScript](https://products.aspose.org/media/3d/typescript/banner-readme.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "Aspose.3D FOSS for TypeScript is a free, open-source, MIT-licensed library for building, loading,\nand exporting 3D scenes in Node.js and TypeScript. It exposes a strongly-typed scene-graph API —\n`Scene`, `Node`, `Entity`, `Mesh`, `Camera`, `Light`, and `Transform` — together with importers and\nexporters for OBJ, glTF 2.0/GLB, STL, 3MF, FBX, and COLLADA.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/index.ts"
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [At a glance](#at-a-glance)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Key capabilities](#key-capabilities)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick start](#quick-start)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional examples](#additional-examples)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API reference](#api-reference)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & resources](#documentation--resources)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and limitations](#scope-and-limitations)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and testing](#development-and-testing)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "**Format support** — `scene.save()`/`scene.open()` pick the format from the target extension or an\nexplicit format object; every format below supports both directions except where noted:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "restructured into the corrected 'At a Glance' diagram + Key Capabilities prose rather than reproduced as a standalone table; the underlying claim (format dispatched from extension) is still true and unchanged.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "| Format | Import | Export |\n|---|---|---|\n| OBJ (with `.mtl` materials) | ✅ | ✅ |\n| glTF 2.0 / GLB | ✅ | JSON/ASCII ✅ — binary (`.glb`) currently broken, see [Scope and limitations](#scope-and-limitations) |\n| STL (ASCII and binary) | ✅ | ✅ |\n| 3MF | ✅ | ✅ |\n| FBX | ✅ | ✅ |\n| COLLADA (.dae) | ✅ | ✅ |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "this exact format-support matrix (independently re-verified this session with real executable proof: GLB import works, binary GLB export throws RangeError; see the new Scope and Limitations bullets) is now represented via the corrected diagram Outputs/Starting Points containers plus the new GLB-export-broken Scope and Limitations bullet, not a standalone table -- restructured, not dropped.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "**Scene management**\n- Build 3D scenes from scratch with `Scene`, `Node`, `Mesh`, and `Transform`, or load existing files\n  with `Scene.open()` / `Scene.openFromBuffer()`.\n- Hierarchical node structure via `Node.childNodes`/`parentNode`, with entity and material\n  attachment per node.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "**Materials**\n- Apply `LambertMaterial`, `PhongMaterial`, and `PbrMaterial` materials, including glTF-style\n  metallic/roughness PBR channels.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PbrMaterial.ts"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "**Mesh operations**\n- Triangulate arbitrary polygons with `Mesh.triangulate()` or the standalone\n  `PolygonModifier.triangulate()`.\n- Manage per-vertex data through the typed `VertexElement` subclasses (normals, UVs, vertex\n  colors, smoothing groups).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/PolygonModifier.ts"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "**3D primitives**\n- Vector/matrix math — `Vector2`, `Vector3`, `Vector4`, `Matrix4`, `Quaternion`, `BoundingBox`,\n  `BoundingBox2D`.\n- `Camera` and `Light` scene objects.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/Vector3.ts"
+    },
+    "salient_tokens": [
+      "Vector3",
+      "Matrix4",
+      "Quaternion",
+      "BoundingBox",
+      "Camera",
+      "Light"
+    ]
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "**Animation**\n- Keyframe animation types — `AnimationClip`, `KeyframeSequence`, `Interpolation`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/AnimationClip.ts"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "Fully typed API compiled under strict TypeScript settings (`noImplicitAny`, `strictNullChecks`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "tsconfig.json strict-mode flags are a real, still-true build fact (independently re-verified: noImplicitAny/strictNullChecks both true) but the candidate's own Installation section does not restate individual compiler-flag names; not a factual loss, a presentation choice already established for this product.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tsconfig.json"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "An npm package has not been published yet. Install from source:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "`npm run build` compiles `src/` to `dist/` with `tsc`, mirroring the source layout — the scene-graph\nAPI ends up at `dist/aspose/threed`, and each format module at `dist/aspose/threed/formats/<format>`\n(for example `dist/aspose/threed/formats/obj`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tsconfig.json"
+    },
+    "salient_tokens": [
+      "npm run build"
+    ]
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "Built and tested against TypeScript `^5.8.3` (`tsconfig.json` targets `ES2020`, output `commonjs`).\n`package.json` declares no minimum Node.js version; development uses `@types/node` `^22.15.17`.\nThis is a Node.js library — it reads files via the `fs` module directly, so consuming it in a\nbrowser would need a bundler and has not been verified there.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    },
+    "salient_tokens": [
+      "TypeScript"
+    ]
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Load an OBJ file and inspect the imported scene:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/obj/ObjImporter.ts"
+    },
+    "salient_tokens": [
+      "Scene"
+    ]
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Save the same scene as binary STL:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/stl/StlExporter.ts"
+    },
+    "salient_tokens": [
+      "STL"
+    ]
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Every example below is exercised by the project's own test suite. See the [`tests`](tests/)\ndirectory for the full set (there is no separate `examples/` directory). The most common\noperations are collected below.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "the old README's own claim (every example is exercised by the test suite; no separate examples/ directory) is still independently true today (re-verified: no examples/ directory anywhere in the repo) but the candidate's own Additional Examples intro sentence does not restate this bookkeeping note -- not a factual loss, a presentation choice.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/test_gltf_exporter.test.ts"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Binary glTF (`.glb`, `binaryMode = true`) currently throws a `RangeError` for any\nnon-empty mesh — see [Scope and limitations](#scope-and-limitations). Use the\nJSON/ASCII form (`binaryMode = false`, the default) shown above until that is\nfixed upstream.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "The public entry points are the scene-graph module (`Scene`, `Node`, `Entity`, `Mesh`, `Transform`,\n…) and one submodule per format (`formats/obj`, `formats/gltf`, `formats/stl`, `formats/threemf`,\n`formats/fbx`, `formats/collada`) plus `entities`, `animation`, `shading`, and `utilities`. This\nlibrary exposes 142 public classes and enums in total; the sections below cover the classes most\napplications interact with directly.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "candidate's own API Reference intro sentence covers the entry-point framing without repeating the stale '142 public classes and enums' figure -- independently re-verified this session against the real, current reference.aspose.org index (same repo_sha as this clone, 7b959706f2ad976db929f26ec079f43a07d578e1): the real count is 78 H3 class headings, not 142.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/index.ts"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `Scene` (extends `SceneObject`)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `open(fileOrStream, options?) -> void` — accepts a file path (read via `fs`) or a readable stream",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `openFromBuffer(buffer, options?) -> void` — detects format from magic bytes/content",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `save(fileOrStream, formatOrOptions?, options?) -> void`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    },
+    "salient_tokens": [
+      "Scene"
+    ]
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- `saveToBuffer(format?, options?) -> Buffer`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `static fromFile(fileName) -> Scene`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    },
+    "salient_tokens": [
+      "Scene"
+    ]
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- `clear() -> void`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `createAnimationClip(name) -> AnimationClip`, `getAnimationClip(name) -> AnimationClip | null`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    },
+    "salient_tokens": [
+      "Scene"
+    ]
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- Properties: `rootNode: Node`, `subScenes: Scene[]`, `library: CustomObject[]`,\n    `assetInfo: AssetInfo`, `animationClips: AnimationClip[]`, `currentAnimationClip`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Scene.ts"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `Node` (extends `SceneObject`)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `addEntity(entity)`, `removeEntity(entity)`, `clearEntities()`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    },
+    "salient_tokens": [
+      "Node"
+    ]
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `addChildNode(node)`, `createChildNode(nodeName, entity?, material?) -> Node`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `getChild(indexOrName) -> Node | null`, `merge(node)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    },
+    "salient_tokens": [
+      "Node"
+    ]
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `evaluateGlobalTransform(withGeometricTransform) -> Matrix4`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    },
+    "salient_tokens": [
+      "Node"
+    ]
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `getBoundingBox() -> BoundingBox`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- Properties: `parentNode`, `childNodes: Node[]`, `entities: Entity[]`, `entity`,\n    `materials: Material[]`, `material`, `transform: Transform`, `globalTransform`, `visible`,\n    `excluded`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `Entity` (extends `SceneObject`) — base for `Mesh`, `Camera`, `Light`; `getBoundingBox()`,\n  `parentNodes`, `excluded`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Entity.ts"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `SceneObject` (extends `A3DObject`) — adds `scene: Scene | null`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/SceneObject.ts"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `A3DObject` (implements `INamedObject`) — `findProperty`, `getProperty`, `setProperty`,\n  `removeProperty`, `name`, `properties: PropertyCollection`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/A3DObject.ts"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Transform` (extends `A3DObject`) — `setTranslation`, `setScale`, `setEulerAngles`,\n  `setRotation`, `setPreRotation`/`setPostRotation`, `setGeometricTranslation`/`Scaling`/`Rotation`;\n  properties `translation`, `scaling`, `rotation`, `eulerAngles`, `transformMatrix`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Transform.ts"
+    },
+    "salient_tokens": [
+      "Transform"
+    ]
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `GlobalTransform` — read-only `translation`, `scale`, `eulerAngles`, `rotation`,\n  `transformMatrix`, built from `constructor(matrix)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/GlobalTransform.ts"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `Geometry` (extends `Entity`) — `addControlPoint`, `createElement`, `createElementUV`,\n  `addElement`, `getElement`, `getVertexElementOfUV`; properties `vertexElements`, `controlPoints`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Geometry.ts"
+    },
+    "salient_tokens": [
+      "Geometry"
+    ]
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `Mesh` (extends `Geometry`) — `createPolygon(...)` (variadic: 3 or 4 indices, or an index array),\n  `getPolygonSize(index)`, `triangulate() -> Mesh`, `getBoundingBox()`; properties `edges`,\n  `polygonCount`, `polygons: number[][]`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Mesh.ts"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `VertexElement`, `VertexElementFVector`, `VertexElementIntsTemplate` and the typed subclasses\n  `VertexElementNormal`, `VertexElementTangent`, `VertexElementBinormal`, `VertexElementUV`,\n  `VertexElementVertexColor`, `VertexElementSmoothingGroup` — `setData`, `setIndices`, `clear`,\n  `copyTo`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/VertexElement.ts"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `PolygonModifier.triangulate(arg1, arg2, arg3?, arg4?) -> any` — standalone triangulation utility",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/PolygonModifier.ts"
+    },
+    "salient_tokens": [
+      "PolygonModifier"
+    ]
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `Material` (extends `A3DObject`) — `getTexture(slotName)`, `setTexture(slotName, texture)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/Material.ts"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `LambertMaterial` (extends `Material`) — `emissiveColor`, `ambientColor`, `diffuseColor`,\n  `transparentColor`, `transparency`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/LambertMaterial.ts"
+    },
+    "salient_tokens": [
+      "LambertMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `PhongMaterial` (extends `LambertMaterial`) — adds `specularColor`, `specularFactor`,\n  `shininess`, `reflectionColor`, `reflectionFactor`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PhongMaterial.ts"
+    },
+    "salient_tokens": [
+      "PhongMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `PbrMaterial` (extends `Material`) — `constructor(name?, albedo?)`, `static fromMaterial(material)`;\n  properties `albedo`, `albedoTexture`, `normalTexture`, `metallicFactor`, `roughnessFactor`,\n  `metallicRoughness`, `occlusionTexture`, `occlusionFactor`, `emissiveTexture`, `emissiveColor`,\n  `transparency`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PbrMaterial.ts"
+    },
+    "salient_tokens": [
+      "PbrMaterial"
+    ]
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `TextureBase` (extends `A3DObject`) — `content`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/TextureBase.ts"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `Camera` (extends `Entity`) — `moveForward`, `getBoundingBox`; properties `nearPlane`, `farPlane`,\n  `aspect`, `orthoHeight`, `fieldOfView`, `fieldOfViewX/Y`, `projectionType`, `apertureMode`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Camera.ts"
+    },
+    "salient_tokens": [
+      "Camera"
+    ]
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `Light` (extends `Camera`) — adds `lightType: string`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Light.ts"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `ProjectionType` — `PERSPECTIVE`, `ORTHOGRAPHIC`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/ProjectionType.ts"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `LightType` — `POINT`, `DIRECTIONAL`, `SPOT`, `AREA`, `VOLUME`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/LightType.ts"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `Vector2(x, y)` — `equals`, `parse(input)`, index accessors. `Vector3(x, y, z)` — `dot`, `cross`,\n  `normalize`, `equals`, `parse(input)`, index accessors — the only one of the three with `dot`,\n  `cross`, or `normalize`. `Vector4(x, y, z, w)` — `equals` and index accessors only (no `dot`,\n  `normalize`, or `parse`)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/Vector2.ts"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `Matrix4()` / `Matrix4(matrix)` — `transpose`, `concatenate`, `inverse`, `decompose`, `setTRS`,\n  `translate`, `scale`, `rotateFromEuler`, `rotate`, `toArray`; `identity()`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/Matrix4.ts"
+    },
+    "salient_tokens": [
+      "Matrix4"
+    ]
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `Quaternion(w, x, y, z)` — `normalize`, `conjugate`, `inverse`, `dot`, `concat`, `eulerAngles`,\n  `fromEulerAngle`, `fromAngleAxis`, `fromRotation`, `slerp`, `toMatrix`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/Quaternion.ts"
+    },
+    "salient_tokens": [
+      "Quaternion"
+    ]
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `BoundingBox` — `merge`, `contains`, `overlapsWith`, static `null`/`infinite`; properties\n  `minimum`, `maximum`, `center`, `size`, `extent`. `BoundingBox2D` — `merge`, `overlapsWith`\n  (no `contains`), static `null`/`infinite`; `getCenter()`, `getSize()`. `BoundingBoxExtent` — a\n  plain value holder (`extentX`, `extentY`, `extentZ`, static `null`/`finite`/`infinite`); no\n  `merge`, `contains`, or `overlapsWith`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/BoundingBox.ts"
+    },
+    "salient_tokens": [
+      "BoundingBox"
+    ]
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `AnimationClip` (extends `SceneObject`) — `createAnimationNode(nodeName)`; `animations`,\n  `description`, `start`, `stop`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/AnimationClip.ts"
+    },
+    "salient_tokens": [
+      "AnimationClip"
+    ]
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `AnimationNode` (extends `A3DObject`) — `findBindPoint`, `getBindPoint`, `createBindPoint`,\n  `getKeyframeSequence`; `bindPoints`, `subAnimations`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/AnimationNode.ts"
+    },
+    "salient_tokens": [
+      "AnimationNode"
+    ]
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `AnimationChannel` (extends `KeyframeSequence`) — `componentType`, `defaultValue`,\n  `keyframeSequence`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/AnimationChannel.ts"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `KeyframeSequence` (extends `A3DObject`) — `reset`, `add(time, value, interpolation)`,\n  `setBindPoint`; `keyFrames`, `postBehavior`, `preBehavior`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/KeyframeSequence.ts"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `KeyFrame` — `time`, `value`, `interpolation`, `tangentWeightMode`, `stepMode`, tangent fields",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/KeyFrame.ts"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `Interpolation` — `CONSTANT`, `LINEAR`, `BEZIER`, `B_SPLINE`, `CARDINAL_SPLINE`, `TCB_SPLINE`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/Interpolation.ts"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `Extrapolation` / `ExtrapolationType` — `CONSTANT`, `GRADIENT`, `CYCLE`, `CYCLE_RELATIVE`,\n  `OSCILLATE`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/Extrapolation.ts"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `StepMode` — `PREVIOUS_VALUE`, `NEXT_VALUE`; `WeightedMode` — `NONE`, `OUT_WEIGHT`,\n  `NEXT_IN_WEIGHT`, `BOTH`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/StepMode.ts"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "Base classes shared by every format: `FileFormat`, `Importer`, `Exporter`, `LoadOptions`,\n`SaveOptions`, `FormatDetector`, `Plugin`, `IOConfig`, `IOService`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/FormatDetector.ts"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "Each of the six formats below follows the same `<Format>Format` / `<Format>Importer` /\n`<Format>Exporter` / `<Format>LoadOptions` / `<Format>SaveOptions` / `<Format>FormatDetector` /\n`<Format>Plugin` pattern, obtained through a singleton `getInstance()`:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfFormat.ts"
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- **OBJ** (`formats/obj`) — `ObjLoadOptions`: `flipCoordinateSystem`, `enableMaterials`, `scale`,\n  `normalizeNormal`. `ObjSaveOptions`: `applyUnitScale`, `pointCloud`, `verbose`, `serializeW`,\n  `enableMaterials`, `flipCoordinateSystem`, `axisSystem`. The OBJ importer itself parses\n  vertices (`v`), texture coordinates (`vt`), vertex normals (`vn`), faces (`f`, including\n  multiple index formats), object/group/smoothing-group markers (`o`/`g`/`s`), and\n  `usemtl`/`mtllib` material references.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/obj/ObjImporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- **glTF** (`formats/gltf`) — `GltfLoadOptions`: `flipTexCoordV`. `GltfSaveOptions`: `binaryMode`,\n  `flipTexCoordV`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfSaveOptions.ts"
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- **STL** (`formats/stl`) — `StlLoadOptions`: `flipCoordinateSystem`, `scale`. `StlSaveOptions`:\n  `flipCoordinateSystem`, `scale`, `binaryMode`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/stl/StlSaveOptions.ts"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- **3MF** (`formats/threemf`) — `ThreeMfLoadOptions`: `flipCoordinateSystem`. `ThreeMfFormat` adds\n  `isBuildable`, `getTransformForBuild`, `setBuildable`, `setObjectType`, `getObjectType`.\n  `ThreeMfSaveOptions`: `enableCompression`, `buildAll`, `flipCoordinateSystem`, `unit`,\n  `prettyPrint`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/threemf/ThreeMfFormat.ts"
+    },
+    "salient_tokens": [
+      "ThreeMfFormat"
+    ]
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- **FBX** (`formats/fbx`) — `FbxLoadOptions`: `keepBuiltinGlobalSettings`. `FbxSaveOptions`:\n  `embedTextures`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/fbx/FbxLoadOptions.ts"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- **COLLADA** (`formats/collada`) — `ColladaLoadOptions`: `flipCoordinateSystem`,\n  `enableMaterials`, `scale`, `normalizeNormal`. `ColladaSaveOptions`: `flipCoordinateSystem`,\n  `enableMaterials`, `indented`. `ColladaTransformStyle`: `COMPONENTS`, `MATRIX`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/collada/ColladaSaveOptions.ts"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- `Property(name, value)` — `getExtra`, `setExtra`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Property.ts"
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- `PropertyCollection` — `findProperty`, `get`, `removeProperty`, iterable, `count`, `length`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/PropertyCollection.ts"
+    },
+    "salient_tokens": [
+      "PropertyCollection"
+    ]
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- `CustomObject` (extends `A3DObject`) — free-form property bag",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/CustomObject.ts"
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- `AssetInfo` (extends `A3DObject`) — scene-level metadata container",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/AssetInfo.ts"
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- `ImageRenderOptions` — `width`, `height`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/ImageRenderOptions.ts"
+    },
+    "salient_tokens": [
+      "ImageRenderOptions"
+    ]
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `VertexDeclaration`, `VertexField`, `Vertex` — vertex-buffer layout and per-vertex field access\n  (`readVector3`, `readFVector4`, `readFloat`, …)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "VertexDeclaration/VertexField/Vertex (low-level raw per-vertex-buffer read helpers) are real, current classes confirmed present in source, but are not part of the API Reference table's curated subset -- the higher-level VertexElement hierarchy (which the table does cover) is the mechanism most applications actually interact with for per-vertex data.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/VertexDeclaration.ts"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `FVector2` — single-precision counterpart with arithmetic `add`, `sub`, `mul`, `div`, plus `dot`,\n  `length`, `normalize`, static `parse(input)`. `FVector3` — `normalize`, static\n  `zero`/`one`/`unitX`/`unitY`/`unitZ`, index accessors (no arithmetic operators). `FVector4` —\n  field accessors and `equals` only",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "FVector2 (a single-precision vector helper) is a real, current class confirmed present in source, but only its sibling FVector3 is part of the API Reference table's curated subset.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/FVector2.ts"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `MathUtils` — `toDegree`, `toRadian`, `calcNormal`, `findIntersection`, `pointInsideTriangle`,\n  `rayIntersect`, `clamp`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "MathUtils is a real, current utility class confirmed present in source, but is not part of the API Reference table's curated subset (the table covers the vector/matrix/quaternion types most applications interact with directly, not every standalone helper).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/MathUtils.ts"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `TransformBuilder` — fluent composition of `scale`, `rotateDegree`/`rotateRadian`, `translate`,\n  `append`/`prepend`, producing a `Matrix4`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "TransformBuilder is a real, current fluent-composition helper confirmed present in source, but is not part of the API Reference table's curated subset.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/TransformBuilder.ts"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `BindPoint` (extends `A3DObject`) — `addChannel`, `getKeyframeSequence`, `createKeyframeSequence`,\n  `bindKeyframeSequence`, `getChannel`, `resetChannels`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "BindPoint is a real, current internal animation-binding class confirmed present in source, but is not part of the API Reference table's curated subset (AnimationClip/AnimationNode/AnimationChannel, which the table does cover, are the classes most applications interact with directly for animation).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/animation/BindPoint.ts"
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/3d/typescript/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/typescript/)** — task-focused answers for common 3D-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/3d/typescript/)** — the complete, browsable reference for all 142 public types (the [API reference](#api-reference) section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- **[Contributor guide](AGENTS.md)** — architecture notes and conventions for contributors.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "AGENTS.md"
+    ]
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-TypeScript/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "- This is a from-scratch TypeScript port of the Aspose.3D scene-graph model, not a native\n  binding — there are no compiled add-ons to install.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    },
+    "salient_tokens": [
+      "TypeScript"
+    ]
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "- A number of methods are present in the public API surface but currently throw `not\n  implemented` errors rather than performing the operation: mesh boolean operations\n  (`Mesh.union()`, `Mesh.difference()`, `Mesh.intersect()`, `Mesh.doBoolean()`,\n  `Mesh.optimize()`, `Mesh.isManifold()`), `Watermark.encodeWatermark()`/\n  `Watermark.decodeWatermark()`, path-based scene queries\n  (`Node.selectSingleObject()`/`Node.selectObjects()`), `Scene.render()`, and the standalone\n  `FileSystem` helpers (`createZipFileSystem`, `readFile`, `writeFile`,\n  `createLocalFileSystem`, `createDummyFileSystem`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Mesh.ts"
+    }
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "- 3MF import/export (`ThreeMfImporter`/`ThreeMfExporter`) requires the `adm-zip` package at\n  runtime — see [upstream-issues.md](upstream-issues.md) for a real packaging gap that affects\n  consumers of the published package.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/threemf/ThreeMfImporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "- Binary glTF export (`binaryMode: true`) currently fails — JSON/ASCII glTF export (the\n  default) is unaffected. See [upstream-issues.md](upstream-issues.md) for details.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "- Re-importing a glTF file this library exported can produce extra, duplicate top-level nodes\n  not present in the original scene — see [upstream-issues.md](upstream-issues.md) for details.\n  Importing glTF files produced by other tools is unaffected.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfImporter.ts"
+    }
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "These limitations don't apply to\n[Aspose.3D — Enterprise Edition](https://products.aspose.com/3d/), which adds rendering,\nadditional exchange formats, and full production feature completeness.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "Install dependencies and build:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "<details>\n<summary>Full Test and Type-Check Commands</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "the candidate's Development and Testing section uses two plain, always-visible bash blocks instead of a collapsible <details> wrapper -- a real structural choice, not a content drop; every command the old wrapper enclosed (test/typecheck/lint) is still present.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0110",
+    "excerpt": "Run the test suite (Jest via `ts-jest`, covering `tests/**/*.test.ts`):",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "jest.config.js"
+    },
+    "salient_tokens": [
+      "test suite"
+    ]
+  },
+  {
+    "unit_id": "u0111",
+    "excerpt": "Type-check without emitting output:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0112",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "closes the same <details> wrapper as u0109 in the old README; the candidate's Development and Testing section does not use that wrapper at all -- see u0109's own excluded_reason.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "u0113",
+    "excerpt": "This project is licensed under the MIT License. The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  }
+]

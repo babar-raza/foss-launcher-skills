@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """apply_origin_decisions.py — KR-6: Apply human review decisions from decisions CSV.
 
@@ -33,12 +32,12 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/  # scripts/pipeline/
+    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
     _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
     if _LIB_DIR not in sys.path:
         sys.path.insert(0, _LIB_DIR)
 
-from lib.provenance import read_provenance, write_provenance  # noqa: E402
+from provenance import read_provenance, write_provenance  # noqa: E402
 
 _DEFAULT_REPO_ROOT = (_HERE / ".." / ".." / ".." / "..").resolve()
 _REPO_ROOT = _DEFAULT_REPO_ROOT

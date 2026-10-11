@@ -1,0 +1,47 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "superseded_by_duplicate",
+    "new_badge_unit_id": "b0004",
+    "category": "ci_build_status",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "notes": "Old badge pointed at the stale 'aspose-note/aspose-note-python' GitHub org; this repository's real, current origin is 'aspose-note-foss/Aspose.Note-FOSS-for-Python' (confirmed via pyproject.toml's [project.urls] and this knowledge base's own model.yaml -- the same stale-org finding recorded in upstream-issues.md). The candidate's own CI badge (b0004) is the same category pointed at the correct, currently-running workflow."
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "package_version",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "language_version",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "b0004",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "license",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

@@ -1,87 +1,96 @@
 ---
 name: no-downgrade-guard
-id: S-56
 description: >
-  Pre-write quality comparison guard. Prevents generated content from silently
-  overwriting a higher-quality existing page. Returns ALLOW, WARN, or BLOCK.
-args: "{target-path} {proposed-content | --proposed-file | --stdin}"
+  Pre-write quality comparison to prevent downgrade
+args: "{target_path} {proposed_content}"
 ---
 
-# S-56: No-Downgrade Guard — Pre-Write Quality Comparison
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-55: No-Downgrade Guard — Pre-Write Quality Comparison
 
 **This is a sub-routine, not a user-facing command.**
 
 **Calling convention**: Invoked by generation skills before any file write.
-**Protocol**: Returns `ALLOW | WARN | BLOCK`
+**Protocol**: `no-downgrade-guard {target_path} {proposed_content}` → `ALLOW | WARN | BLOCK`
 
 ## Purpose
 
 Prevent a newly generated page from silently overwriting a higher-quality existing page.
-Uses content_eval grade as a quality proxy for both the existing and proposed content.
+Uses `audit.py` FAIL count as a quality proxy for proposed content.
 
-## Invocation
+## Steps
 
-```bash
-# Inline proposed content:
-python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} "{proposed-markdown}"
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-55 --scope "*"
+> ```
 
-# From a file:
-python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md
 
-# From stdin:
-cat /tmp/draft.md | python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --stdin
+1. **Check if target file exists**:
+   - If `{target_path}` does NOT exist → return `ALLOW:new-file`
+   - Print: "NEW FILE: no prior grade to protect — proceeding."
 
-# JSON output:
-python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --json
+2. **Grade existing file**:
+   ```bash
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {target_path} --format json
+   ```
+   - Parse: `existing_grade` = output `grade` field (A/B/C/D/F)
+   - If eval fails (module unavailable): fallback — run `python scripts/pipeline/commands/content/audit.py --files {target_path}`; grade by FAIL count: 0→B, 1-2→C, 3-5→D, 6+→F
 
-# Operator override (bypass guard):
-python scripts/pipeline/commands/governance/no_downgrade_guard.py {target-path} --proposed-file /tmp/draft.md --force-regenerate
-```
+3. **Pre-check proposed content** (write to temp location first):
+   - Write proposed content to: `/tmp/aspose-proposed-{basename}` (or OS temp dir)
+   - Run: `python scripts/pipeline/commands/content/audit.py --files /tmp/aspose-proposed-{basename}`
+   - Count FAIL lines from output → `proposed_fail_count`
+   - Assign `predicted_grade`:
+     - 0 FAIL → predicted B
+     - 1-2 FAIL → predicted C
+     - 3-5 FAIL → predicted D
+     - 6+ FAIL → predicted F
+   - Delete temp file
 
-## Decision Matrix
+4. **Decision matrix**:
 
-| Existing Grade | Proposed Grade | Decision |
-|---|---|---|
-| A or B | D or F | **BLOCK** |
-| A or B | C | **WARN** |
-| A or B | A or B | ALLOW |
-| C | D or F | **BLOCK** |
-| C | C or better | ALLOW (lateral or improvement) |
-| D or F | any | ALLOW (anything is better or equal) |
-| new file | any | ALLOW |
+   | Existing Grade | Predicted Grade | Decision |
+   |---|---|---|
+   | A | D or F | **BLOCK** |
+   | A | C | **WARN** |
+   | A | A or B | ALLOW |
+   | B | D or F | **BLOCK** |
+   | B | C | **WARN** |
+   | B | A or B | ALLOW |
+   | C | D or F | **BLOCK** |
+   | C | C | ALLOW (lateral — no regression) |
+   | C | A or B | ALLOW |
+   | D or F | any | ALLOW (anything is better or equal) |
+   | new file | any | ALLOW |
 
-## Structural Regression Checks (run before grade comparison)
+5. **Output**:
+   - **BLOCK**: Print "BLOCK: Proposed content predicted {grade} vs existing {grade}. Fix API issues first." + list the audit FAIL lines. **Do NOT write the file.**
+   - **WARN**: Print "WARN: Proposed content predicted {grade} vs existing {grade}. Review before writing." Generation skill must confirm with user before proceeding.
+   - **ALLOW**: Print "ALLOW: {reason}." Generation skill proceeds with write.
 
-Independent of grade, the guard also blocks on:
-- Word count drops below 30% of existing (catastrophic content destruction)
-- Heading count drops below 50% when ≥3 headings existed
-- All code blocks removed when ≥2 existed (WARN)
-- Plugin-page enabled sections removed
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-55 --status completed
+> ```
 
-## Exit Codes
+## Limitations
 
-| Code | Meaning |
-|------|---------|
-| 0 | ALLOW — write is safe |
-| 1 | WARN — degradation possible, user should review |
-| 2 | BLOCK — write would regress quality |
+- Cannot fully eval proposed content without writing it first; uses `audit.py` FAIL count as a proxy.
+- This catches API accuracy regressions (D/F overwriting A/B) but may not catch prose quality regressions that do not involve API token errors.
+- If `content_eval` module is unavailable, the fallback grading by FAIL count is used; it is less precise.
 
 ## Integration
 
-Add a call to this sub-routine **before the write step** in generation skills:
+Add a call to this sub-routine **before the write step** in these generation skills:
 `new-blog-post`, `new-docs-page`, `new-kb-faq`, `new-kb-howto`, `new-reference-page`,
 `page-draft`, `page-update`
 
-Pattern:
+**Pattern to add before each write step:**
 ```
-Before writing: invoke no-downgrade-guard {target-path} {proposed-content}
-- If BLOCK → do not write; report blocking reason to user
-- If WARN → present warning to user; await confirmation before writing
+Before writing: invoke no-downgrade-guard {target_path} {proposed_content}
+- If BLOCK → do not write; report the blocking reason to the user
+- If WARN → present the warning to the user; await confirmation before writing
 - If ALLOW → proceed with write
 ```
-
-## Notes
-
-- If `content_eval` is unavailable, falls back to audit.py FAIL count for grading
-- `--force-regenerate` bypasses all guards (operator override, for batch refresh operations)
-- Source: ported from aspose.org S-55; assigned foss-launcher ID S-56

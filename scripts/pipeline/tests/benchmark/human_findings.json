@@ -1,0 +1,227 @@
+[
+  {
+    "_doc": "LIVE entries: real content files. slides/java,net,python excluded due to known PPTX knowledge gap (formats.json missing import direction).",
+    "type": "live",
+    "file": "content/products.aspose.org/en/3d/java/_index.md",
+    "family": "3d",
+    "platform": "java",
+    "human_findings": [],
+    "human_verdict": "WOULD_PASS",
+    "human_verdict_reason": "Content is accurate after prior sprint fixes"
+  },
+  {
+    "type": "live",
+    "file": "content/products.aspose.org/en/cells/net/_index.md",
+    "family": "cells",
+    "platform": "net",
+    "human_findings": [],
+    "human_verdict": "WOULD_PASS",
+    "human_verdict_reason": "Content is accurate after prior sprint fixes"
+  },
+
+  {
+    "_doc": "SEEDED entries: synthetic pages with injected issues",
+    "type": "seeded",
+    "seed_id": "seed-vc-java-wrong-version",
+    "family": "slides",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.Slides FOSS for Java",
+      "description": "Open-source Java library for presentations.",
+      "plugin_description": "Open-source Java library for presentations.",
+      "overview": {
+        "enable": true,
+        "content": "Aspose.Slides FOSS for Java requires JDK 11 or later. Add a Maven dependency to get started."
+      }
+    },
+    "body": "",
+    "human_findings": [
+      {
+        "id": "HF-S01",
+        "category": "version-claim",
+        "severity": "HIGH",
+        "description": "States JDK 11 but repo requires JDK 21"
+      }
+    ],
+    "human_verdict": "WOULD_BLOCK",
+    "human_verdict_reason": "Critical factual error in runtime version requirement"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-vc-python-wrong-version",
+    "family": "slides",
+    "platform": "python",
+    "subdomain": "kb",
+    "frontmatter": {
+      "title": "Slides Python FAQ",
+      "description": "FAQ for Aspose.Slides FOSS for Python.",
+      "type": "kb"
+    },
+    "body": "## System Requirements\n\nAspose.Slides FOSS for Python requires Python 3.6 or later.\n\nInstall via pip:\n```\npip install aspose-slides-foss\n```\n",
+    "human_findings": [
+      {
+        "id": "HF-S02",
+        "category": "version-claim",
+        "severity": "HIGH",
+        "description": "States Python 3.6 but repo requires >=3.10"
+      }
+    ],
+    "human_verdict": "WOULD_BLOCK",
+    "human_verdict_reason": "Wrong Python version could lead to install failures"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-vc-dotnet-wrong-version",
+    "family": "slides",
+    "platform": "net",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.Slides FOSS for .NET",
+      "description": "Open-source .NET library for presentations.",
+      "plugin_description": "Open-source .NET library for presentations.",
+      "overview": {
+        "enable": true,
+        "content": "Built for .NET 6.0 applications. Add a NuGet package to get started."
+      }
+    },
+    "body": "",
+    "human_findings": [
+      {
+        "id": "HF-S03",
+        "category": "version-claim",
+        "severity": "HIGH",
+        "description": "States .NET 6.0 but repo requires net9.0"
+      }
+    ],
+    "human_verdict": "WOULD_BLOCK",
+    "human_verdict_reason": "Wrong .NET version — users targeting .NET 6 will get build errors"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-cf-fbx-export",
+    "family": "3d",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.3D FOSS for Java",
+      "description": "Open-source 3D library for Java.",
+      "plugin_description": "Open-source 3D library for Java.",
+      "overview": {
+        "enable": true,
+        "content": "Export your 3D scenes to FBX format easily with our library."
+      }
+    },
+    "body": "",
+    "human_findings": [
+      {
+        "id": "HF-S04",
+        "category": "capability-claim",
+        "severity": "HIGH",
+        "description": "Claims FBX export but FBX is import-only in formats.json"
+      }
+    ],
+    "human_verdict": "WOULD_BLOCK",
+    "human_verdict_reason": "False capability claim — FBX export not supported"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-vc-correct-no-finding",
+    "family": "slides",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.Slides FOSS for Java",
+      "description": "Open-source Java library for presentations.",
+      "plugin_description": "Open-source Java library for presentations.",
+      "overview": {
+        "enable": true,
+        "content": "Requires JDK 21 or later. Pure Java, no native extensions."
+      }
+    },
+    "body": "",
+    "human_findings": [],
+    "human_verdict": "WOULD_PASS",
+    "human_verdict_reason": "Version claim is correct — JDK 21 matches knowledge model"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-cf-obj-both-ok",
+    "family": "3d",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.3D FOSS for Java",
+      "description": "Open-source 3D library for Java.",
+      "plugin_description": "Open-source 3D library for Java.",
+      "overview": {
+        "enable": true,
+        "content": "Import and export OBJ files for 3D mesh processing."
+      }
+    },
+    "body": "",
+    "human_findings": [],
+    "human_verdict": "WOULD_PASS",
+    "human_verdict_reason": "OBJ supports both import and export — claim is correct"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-vc-negation-ok",
+    "family": "slides",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.Slides FOSS for Java",
+      "description": "Open-source Java library for presentations.",
+      "plugin_description": "Open-source Java library for presentations.",
+      "overview": {
+        "enable": true,
+        "content": "This library does not require Java 11 — it needs JDK 21 or later."
+      }
+    },
+    "body": "",
+    "human_findings": [],
+    "human_verdict": "WOULD_PASS",
+    "human_verdict_reason": "Java 11 in negation context — should not trigger finding"
+  },
+  {
+    "type": "seeded",
+    "seed_id": "seed-multi-issue",
+    "family": "3d",
+    "platform": "java",
+    "subdomain": "products",
+    "frontmatter": {
+      "layout": "plugin",
+      "title": "Aspose.3D FOSS for Java",
+      "description": "Open-source 3D library for Java.",
+      "plugin_description": "Open-source 3D library for Java.",
+      "overview": {
+        "enable": true,
+        "content": "Built for JDK 11. Export your scenes to FBX and OBJ formats."
+      }
+    },
+    "body": "",
+    "human_findings": [
+      {
+        "id": "HF-S05",
+        "category": "version-claim",
+        "severity": "HIGH",
+        "description": "States JDK 11 but repo requires JDK 21"
+      },
+      {
+        "id": "HF-S06",
+        "category": "capability-claim",
+        "severity": "HIGH",
+        "description": "Claims FBX export but FBX is import-only"
+      }
+    ],
+    "human_verdict": "WOULD_BLOCK",
+    "human_verdict_reason": "Wrong version AND false capability claim"
+  }
+]

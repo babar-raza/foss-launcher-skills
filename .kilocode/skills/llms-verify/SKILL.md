@@ -1,51 +1,73 @@
 ---
 name: llms-verify
-id: S-119
+id: S-LG-02
 description: >
-  Verify live HTTP endpoints for deployed llms-output pages, for sites that
-  have a base_url configured. Generalized from aspose.org's llms-verify
-  skill (S-LG-02) -- ported 2026-08-29 (TASK_BACKLOG.md SYNC-6).
-args: "[--output llms-output] [--gate 95] [--report path.json]"
+  Skill description pending
 ---
 
-# S-119: LLMs Verify -- Verify Live .txt Endpoints
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-**Arguments**: $ARGUMENTS (all optional)
+# S-LG-02: llms-verify — Verify Live .txt Endpoints
 
-## Purpose
-After a deploy, confirm the generated llms-output pages are actually
-reachable and structurally sane at their live URLs.
+## Description
 
-## Pre-conditions
-1. Run `/llms-generate` first, and ensure a deploy has actually happened.
-2. At least one site in `config.yaml`'s `sites:` block has a `base_url` set.
-   Sites without one are silently skipped -- there is no requirement that
-   every site be publicly deployed.
+Verifies live HTTP endpoints for all deployed llms-output .txt pages.
+Samples ~50% of URLs per domain (plus pilot pages), checks HTTP 200 status,
+content type, and structural content quality checks. Run after production deploy.
+
+## Contract
+
+**Backing script**: `scripts/generator/verify_live_txt_endpoints.py`
+**Input**: `reports/llms-txt-verification/generated-txt-inventory.json`
+**Output**: `reports/llms-txt-verification/live-verification-results.json` (local only)
+
+## Prerequisite
+
+Run `/llms-generate` first, then ensure a deploy has occurred (via aspose.org-workflows).
+The inventory JSON must exist:
+```bash
+ls reports/llms-txt-verification/generated-txt-inventory.json
+```
+
+If missing, run `/llms-generate` + `.venv/Scripts/python scripts/generator/build_txt_inventory.py`
 
 ## Steps
 
-1. Run verification:
+1. Run basic HTTP verification (50% sample per domain):
    ```bash
-   .venv/bin/python scripts/llms_verify.py --output llms-output --report reports/llms-verify.json
+   .venv/Scripts/python scripts/generator/verify_live_txt_endpoints.py
    ```
 
-2. Enforce a gate:
+2. Run with deep content validation (10% sample, checks H2/code/tables):
    ```bash
-   .venv/bin/python scripts/llms_verify.py --output llms-output --gate 95
+   .venv/Scripts/python scripts/generator/verify_live_txt_endpoints.py --deep
    ```
 
-## URL construction (stated plainly, this is a v1)
-`base_url` + `/` + the page's relative path under `llms-output/{site}/`.
-This mirrors `llms_generate.py`'s own flat output layout exactly. If a
-site's real deployed URL structure differs from its llms-output/ layout,
-this script will not find it -- that gap is real, not hidden; a
-URL-mapping extension is a natural follow-up if it's ever needed.
+3. Check results:
+   ```bash
+   cat reports/llms-txt-verification/live-verification-results.json
+   ```
 
-## Checks per page
-`http_200`, `content_type_text`, and (only when the fetch succeeded)
-`no_shortcode`, `no_evidence_leak`, `has_content` -- the same structural
-vocabulary as `/llms-fidelity`.
+## Content Quality Checks (applied to fetched bodies)
+
+- `no_angle_shortcodes` — no `{{` in output
+- `no_percent_shortcodes` — no `{%` in output
+- `has_title` — H1 heading present
+- `no_evidence` — no `claim_id` or `model_sha` leakage
+- `no_grading` — no `graded_content_hash` leakage
+- `even_code_fences` — code fences come in pairs (no unclosed fences)
+- `table_rows_valid` — tables have header + separator or none at all
+- `h2_present_if_long` — pages >300 chars have at least one H2
+
+## TC-07 Decision
+
+Script reports `TC-07 decision: DEFERRED (all text/plain)` when no octet-stream content type detected.
 
 ## Related Skills
-- `/llms-generate` -- regenerate outputs before verifying
-- `/llms-coverage` / `/llms-fidelity` -- local checks, no HTTP required
+
+- `/llms-generate` — regenerate outputs before verifying
+- `/llms-coverage` — audit local coverage (no HTTP required)
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It performs HTTP verification of deployed endpoints only.

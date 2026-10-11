@@ -17,39 +17,17 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path(__file__).resolve().parents[4] / "knowledge"
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
 
 
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
+def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+    """Override module-level path constants for testing."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
+
 # Direction verbs
 _EXPORT_VERB_RE = re.compile(
     r"\b(?:export|save|write|convert\s+to|render\s+to)\b",
@@ -145,6 +123,14 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "none"
             else:
                 direction = "import"
+        elif entry.get("functional") is False:
+            # FIX-G30: functional=False can appear on entries whose raw direction
+            # is already "import"/"export"/"both" (not just "enum_only") — a format
+            # genuinely gated behind a throw at the dispatch layer, per formats.py's
+            # FOSS-gate scanning. Without this, the gated format's raw direction is
+            # taken at face value and reported as real capability. (Same root cause
+            # and fix as format_truth.py's _load_formats(), found 2026-07-23.)
+            direction = "none"
 
         existing = lookup.get(ext)
         if existing is None:
@@ -175,7 +161,14 @@ def _claim_direction(text: str, start: int, end: int) -> str | None:
     """Guess claimed direction from context around the format mention."""
     # 80 chars before and after the format match
     window_start = max(0, start - 80)
-    window = text[window_start:end + 80]
+    window_end = end + 80
+    # If the right edge falls mid-word, extend to the next word boundary so
+    # regex  anchors don't fire falsely at the truncation point
+    # (e.g. "human-read" from "human-readable" would match read at EOS).
+    if window_end < len(text) and text[window_end - 1 : window_end].isalpha():
+        while window_end < len(text) and text[window_end].isalpha():
+            window_end += 1
+    window = text[window_start:window_end]
 
     has_export = bool(_EXPORT_VERB_RE.search(window))
     has_import = bool(_IMPORT_VERB_RE.search(window))
@@ -197,7 +190,20 @@ def _direction_compatible(claimed: str, actual: str) -> bool:
     if claimed == actual:
         return True
     if actual == "detect":
-        return False  # detect means identification only, no I/O
+        # 2026-09-11 (imaging/net launch): _claim_direction() has no verb
+        # pattern for "detect" itself (only import/export/both) -- it could
+        # therefore never match actual="detect" via the `claimed == actual`
+        # branch above, guaranteeing a FAIL for every prose sentence near a
+        # detect-only format mention that used ANY import-shaped verb
+        # (read/open/load/parse), which is unavoidable in natural language
+        # describing a header-probing library ("reads the header to detect
+        # the format"). Format detection is inherently a read-only
+        # operation -- it never writes anything -- so an "import"-shaped
+        # claim is a correct description of a detect-only capability, not
+        # an overclaim. Only "export"/"both" claims (implying the library
+        # can also WRITE this format) remain genuine overclaims and are
+        # still rejected below.
+        return claimed == "import"
     if actual == "none":
         return False
     return False
@@ -220,6 +226,26 @@ class CapabilityClaimCheckEvaluator(BaseEvaluator):
         from .version_claim_check import _extract_scannable_lines
 
         for line_no, text in _extract_scannable_lines(page):
+            # Properties/Methods table rows on reference pages are generated
+            # verbatim from api_surface.json's per-member `doc` field -- the
+            # description column often mentions a format name in an unrelated
+            # technical sense (e.g. a property description naming HTML/MHTML
+            # as part of what that ONE property controls, not a claim that
+            # the class itself supports HTML export). Mirrors the identical
+            # fix already applied to prose_claim_binding.py/prose_truth.py.
+            # Found 2026-07-23 via words/net's HtmlSaveOptions/HtmlLoadOptions
+            # reference pages.
+            if is_markdown_table_row(text):
+                continue
+            # A question is never itself a capability assertion, regardless of
+            # phrasing — "Can X export to Y?" states nothing about whether X can;
+            # only its (separately-scanned) answer does. Without this guard, FAQ
+            # question text (faq.list[].question, scanned independently of its
+            # paired answer per _extract_scannable_lines) produces false FAILs on
+            # the natural "Can <product> export to <format>?" / "No, ..." pattern
+            # used across every product's FAQ. Found 2026-07-23 via words/net.
+            if text.rstrip().endswith("?"):
+                continue
             # Normalize table access columns ("| Read |", "| Write |") to neutral "| - |"
             # before scanning, preventing column headers from polluting direction context.
             scan_text = _TABLE_ACCESS_COL_RE.sub(" - ", text)
@@ -242,6 +268,13 @@ class CapabilityClaimCheckEvaluator(BaseEvaluator):
                     continue
                 pre_char = scan_text[m.start() - 1 : m.start()] if m.start() > 0 else ""
                 if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
+                    continue
+                # ST-029 FP guard: a format token immediately followed by ".<identifier>" is a
+                # member/property access on a variable named like the format, not a format claim.
+                # e.g. `doc.Save(ms)`, `doc.ToArray()` — the variable `doc` is NOT the DOC format.
+                # (Measured: 39 such false "Claims DOC export" findings across 19 pdf/net pages,
+                #  because `doc` is the near-universal idiom for an Aspose Document variable.)
+                if tail[:1] == "." and (tail[1:2].isalpha() or tail[1:2] == "_"):
                     continue
 
                 claimed = _claim_direction(scan_text, m.start(), m.end())

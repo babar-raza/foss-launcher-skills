@@ -1,0 +1,52 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/barcode-python-readme.md.orig	2026-08-06 14:43:36.030666100 +0500
++++ reports/repo-presenter/barcode/python/readme.md	2026-08-06 14:43:50.333613200 +0500
+@@ -26,7 +26,11 @@
+ flowchart LR
+   subgraph Inputs["Input data and options"]
+     I1["Text and binary payload data"]
+-    I2["Per-symbology encode options"]
++    I2a["Code128Options: mode selection and GS1"]
++    I2b["Code39Options: full ASCII and check digit"]
++    I2c["EAN/UPC check-digit and number-system options"]
++    I2d["QrOptions: version, mask, ECC level, and encoding mode"]
++    I3["RenderOptions: scale, colors, quiet zone, and text styling"]
+   end
+ 
+   PRODUCT["Aspose.BarCode FOSS for Python"]
+@@ -36,8 +40,7 @@
+     C2["Code 39 and Code 39 Extended encoding"]
+     C3["EAN-13, EAN-8, UPC-A, and UPC-E encoding"]
+     C4["QR Code Model 2 encoding"]
+-    C5["SVG and PNG rendering"]
+-    C6["RenderOptions styling and layout"]
++    C5["SVG and PNG rendering, styled by RenderOptions"]
+   end
+ 
+   subgraph Outputs["Outputs"]
+@@ -46,21 +49,21 @@
+   end
+ 
+   I1 --- PRODUCT
+-  I2 --- PRODUCT
++  I2a --- PRODUCT
++  I2b --- PRODUCT
++  I2c --- PRODUCT
++  I2d --- PRODUCT
++  I3 --- PRODUCT
+   PRODUCT --- C1
+   PRODUCT --- C2
+   PRODUCT --- C3
+   PRODUCT --- C4
+-  PRODUCT --- C5
+-  PRODUCT --- C6
+   C1 --- C5
+   C2 --- C5
+   C3 --- C5
+   C4 --- C5
+   C5 --- O1
+   C5 --- O2
+-  C6 --- O1
+-  C6 --- O2
+ ```
+ 
+ ## Key capabilities

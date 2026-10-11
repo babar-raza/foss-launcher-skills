@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """content_discovery.py — Content file discovery helpers.
 
 Extracted from knowledge_core.py (R-1a). Provides constants and functions for
@@ -19,7 +18,6 @@ compatibility with existing consumers (Sprint R-1a). Constants are defined
 here (zero stdlib deps) to avoid a circular import.
 """
 from __future__ import annotations
-import os
 
 import re
 from pathlib import Path
@@ -29,10 +27,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_DEFAULT_REPO_ROOT = Path(os.environ.get(
-    "CONTENT_REPO_PATH",
-    str(_SCRIPT_DIR.parent.parent.parent),  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
-))
+_DEFAULT_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
@@ -58,8 +53,12 @@ SITE_PATHS = [
     ("kb.aspose.org", str(_REPO_ROOT / "content/kb.aspose.org/en/{family}/{platform}")),
 ]
 
-# Locale codes to skip (translation files)
-LOCALE_RE = re.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
+# Locale codes used by folder-based sites and translation filename suffixes.
+LOCALE_CODES = frozenset(
+    "ar bg ca cs da de el es et fa fi fr he hi hr hu id it ja ko lt lv ms "
+    "nl no pl pt ro ru sk sl sr sv th tr uk vi zh".split()
+)
+LOCALE_RE = re.compile(rf"\.(?:{'|'.join(sorted(LOCALE_CODES))})\.md$")
 
 
 def _infer_subdomain(filepath: Path) -> str | None:
@@ -132,16 +131,68 @@ def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
     for i, p in enumerate(parts):
         if p in ("products.aspose.org", "reference.aspose.org",
                   "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
-            # Path structure: .../site/[en/]{family}/{platform}/...
+            # Folder-based localized sites use .../site/{locale}/{family}/{platform}.
+            # English uses the same topology with ``en`` as the locale segment.
+            # Blog paths omit the locale directory and remain family/platform.
             remaining = parts[i + 1:]
-            if remaining and remaining[0] == "en":
+            if remaining and (remaining[0] == "en" or remaining[0] in LOCALE_CODES):
                 remaining = remaining[1:]
             if len(remaining) >= 2:
                 family = remaining[0]
                 platform = remaining[1]
+                # Family-root pages (e.g. content/products.aspose.org/en/{family}/_index.md)
+                # have exactly 2 remaining segments where the second IS the
+                # filename, not a platform directory. Without this check,
+                # `platform` silently became a bogus value like "_index.md"
+                # that no knowledge lookup could ever match, instead of the
+                # (None, None) "no specific platform" signal callers already
+                # check for (HARDEN-words-net, 2026-07-23).
+                if len(remaining) == 2 and platform.endswith((".md", ".markdown")):
+                    return None, None
                 knowledge_platform = PLATFORM_MAP.get(platform, platform)
                 return family, knowledge_platform
     return None, None
+
+
+def english_counterpart_path(filepath: Path) -> "Path | None":
+    """Return the English counterpart of a locale content file, or None when
+    *filepath* already looks like English or doesn't match a known site
+    shape.
+
+    Handles both localization conventions this repo uses: a `{locale}`
+    directory segment (docs/kb/reference/products.aspose.org, e.g.
+    content/docs.aspose.org/ar/pdf/typescript/file.md ->
+    content/docs.aspose.org/en/pdf/typescript/file.md) and a `.{locale}.md`
+    filename suffix (blog.aspose.org's page-bundle translations, e.g.
+    content/blog.aspose.org/pdf/typescript/post/index.ar.md ->
+    .../index.md -- blog's own English path omits the locale directory
+    entirely, per SITE_PATHS above and infer_product()'s own comment).
+
+    Reuses LOCALE_CODES/LOCALE_RE as the single source of truth for what
+    counts as a locale (ST-155 precedent: a second, independent
+    reimplementation of locale detection is exactly the bug class that
+    finding closed in content_eval/models.py -- don't repeat it here).
+
+    TC-TSGAP's ST-214 (2026-09-24) is the motivating case: install_recipe.py
+    needs to cross-check a non-English page's finding against its English
+    source rather than reimplementing yet another ad hoc path rewrite.
+    """
+    parts = filepath.parts
+    for i, p in enumerate(parts):
+        if p in ("products.aspose.org", "reference.aspose.org",
+                  "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
+            name = filepath.name
+            if LOCALE_RE.search(name):
+                # Filename-suffix locale: strip the ".{locale}" segment,
+                # keep ".md".
+                return filepath.with_name(LOCALE_RE.sub(".md", name))
+            remaining = parts[i + 1:]
+            if remaining and remaining[0] in LOCALE_CODES:
+                new_parts = list(parts)
+                new_parts[i + 1] = "en"
+                return Path(*new_parts)
+            return None  # already English (an "en" segment, or blog with no locale dir)
+    return None  # not under any known content site
 
 
 def discover_products() -> list[tuple[str, str]]:

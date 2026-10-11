@@ -1,126 +1,144 @@
+<!-- CONTRACT: scripts/pipeline/content_eval/cli.py evaluate
+     purpose: evaluate page content and produce a quality grade (A-F)
+     preconditions: target file exists under content/; knowledge model available for full evaluation
+     postcondition: grade assigned with findings report and remediation plan; no file modifications
+     idempotent: yes — deterministic evaluators produce same grade for same input
+     verified: 2026-04-11
+-->
 ---
 name: eval-page
-id: S-25
 description: >
-  Evaluate a content page and assign a letter grade (A–F) based on structure,
-  evidence grounding, completeness, code quality, freshness, and golden conformance.
-args: "{content-file-path}"
+  Evaluate page content and produce a quality grade
+args: "{relative-file-path}"
 ---
 
-# S-25: Eval Page — Content Quality Grade
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-25: Eval Page — Evaluate Page and Produce Grade
 
 **Arguments**: $ARGUMENTS
-Expected format: `{content-file-path}`
+Expected format: `{relative-file-path}` — e.g. `content/docs.aspose.org/en/3d/python/developer-guide/rendering.md`
 
 ## Purpose
-Evaluate a content page and assign a letter grade (A–F) based on a weighted rubric. Used to identify pages that need healing (grade D or below) and to measure quality improvements over time.
+Evaluate a content page using the content_eval pipeline and produce a letter grade (A-F). This is the primary quality gate for deciding whether a page needs enhancement (S-21) or healing (S-26).
+
+## Batch mode
+
+For batch evaluation of all pages in a product, use S-51 (content-eval):
+```bash
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+```
 
 ## Pre-conditions
-1. Content file must exist
-2. Knowledge model must exist: `knowledge/{family}/{platform}/merged/index.json`
-
-## Rubric Dimensions
-
-| Dimension | Weight | What it measures |
-|-----------|--------|-----------------|
-| Structure | 15% | Frontmatter validity, correct headings, dividers, template compliance |
-| Evidence | 25% | Citation density, claim traceability, no forbidden claims |
-| Completeness | 20% | Coverage of relevant claims from knowledge model |
-| Code quality | 15% | Language identifiers, verified API usage, snippet provenance |
-| Freshness | 10% | Knowledge staleness, orphaned citations, outdated API references |
-| Golden conformance | 15% | Structural alignment with golden template (section coverage, order, depth, block types, code density) |
-
-> **Rubric version**: 2 — includes golden conformance dimension. Version 1 reports used 5 dimensions with different weights.
+1. The file at `{relative-file-path}` exists under `content/`
+2. `scripts/pipeline/content_eval` module is available
+3. Detect `{family}` and `{platform}` from the file path
+4. `knowledge/{family}/{platform}/merged/` should exist for full evaluation (degraded mode without it)
 
 ## Steps
 
-1. **Read the content file** at the path given in $ARGUMENTS
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-25 --scope "*"
+> ```
 
-2. **Identify product**: Extract `{family}` and `{platform}` from the file path
 
-3. **Load knowledge**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`
+1. **Parse arguments**: Extract file path from $ARGUMENTS.
 
-4. **Score Structure (15%)**:
-   - Frontmatter: valid YAML, has required fields (title, description, type/layout)
-   - Headings: proper hierarchy (no skipped levels), follows template for page type
-   - Dividers: section separators where expected (KB articles use `---`)
-   - Template compliance: matches expected section order for page type
-   - Score: 0–100
+2. **Run content_eval**:
+   ```bash
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {relative-file-path} --format json --remediation
+   ```
 
-5. **Score Evidence (25%)**:
-   - Inspect the YAML `evidence:` frontmatter block for claim/API coverage
-   - Citation density = cited paragraphs / total factual paragraphs
-   - Check all `claim_id` references exist in claims.json
-   - Check no forbidden claims are asserted
-   - Penalize: orphaned citations (claim_id not in claims.json), missing citations on factual content
-   - Score: 0–100
+2b. **Run smoke test** (all platforms — Python, Java, C#, TypeScript, C++, Rust):
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/diagnostics/smoke_test.py --files {relative-file-path}
+   ```
+   - Exit code 2 (FAIL): count each failing block as one additional FAIL finding
+   - Exit code 1 (WARN): count each warning block as one additional WARN finding
+   - Exit code 0 (PASS): no additional findings from smoke test
+   - If smoke_test.py not found: skip silently (tool not yet installed)
 
-6. **Score Completeness (20%)**:
-   - Identify claims in claims.json relevant to this page's topic
-   - Count how many are covered (referenced or paraphrased) in the content
-   - Coverage = covered claims / relevant claims
-   - Penalize: major topics in knowledge model with no page coverage
-   - Score: 0–100
+3. **Parse output**: Extract findings categorized by severity:
+   - **FAIL**: Critical issues that must be fixed
+   - **WARN**: Issues that should be fixed
+   - **INFO**: Suggestions for improvement
 
-7. **Score Code Quality (15%)**:
-   - All code blocks have language identifiers
-   - Class/method names exist in api_surface.json
-   - Code examples come from snippets or use only verified API
-   - No placeholder code (`// TODO`, `...`, `pass` without context)
-   - Score: 0–100
+4. **Count findings**:
+   - `fail_count` = number of FAIL findings
+   - `warn_count` = number of WARN findings
 
-8. **Score Freshness (10%)**:
-   - Knowledge model `stale` flag
-   - Citations referencing claims that have changed since last page update
-   - API references to methods that have been renamed/removed
-   - `lastmod` date compared to knowledge `last_merged` date
-   - Score: 0–100
+5. **Assign grade** based on finding counts:
 
-9. **Score Golden Conformance (15%)**:
-   - Determine the page_role from the file path and site type (docs developer-guide → `workflow_page`, kb howto → `howto_article`, etc.)
-   - Run: `python scripts/golden_conformance.py {content-file-path} {page_role}`
-   - Read the output from `reports/conformance/{slug}-conformance.json`
-   - Use the `conformance_score` (0.0–1.0) scaled to 0–100
-   - If the script is not available or golden index missing → score 50 (neutral) and note in findings
-   - Score: 0–100
+   | Grade | Criteria |
+   |-------|----------|
+   | A | 0 FAIL, 0-2 WARN |
+   | B | 0 FAIL, 3-5 WARN |
+   | C | 0 FAIL, 6+ WARN; or 1-2 FAIL |
+   | D | 3-5 FAIL |
+   | F | 6+ FAIL, or any critical finding (forbidden claim used, wrong platform code) |
 
-10. **Compute grade**:
-   - Weighted total = (structure × 0.15) + (evidence × 0.25) + (completeness × 0.20) + (code × 0.15) + (freshness × 0.10) + (golden_conformance × 0.15)
-   - A: 90–100 | B: 80–89 | C: 70–79 | D: 60–69 | F: below 60
+6. **Determine next action**:
+   - Grade A: Ready for publication
+   - Grade B: Minor polish — run S-21 (page-enhance) optionally
+   - Grade C: Run S-21 (page-enhance)
+   - Grade D: Run S-26 (heal-page)
+   - Grade F: Escalate to human review
 
-11. **Write report** to `reports/eval/{family}-{platform}-{slug}-{timestamp}.md`
-    - Include `rubric_version: 2` in the report header
+7. **Output evaluation report**:
+   ```
+   EVAL PAGE — {file-path}
+   Product: {family}/{platform}
 
-## Output
+   FINDINGS
+     FAIL ({fail_count}):
+       [{evaluator}] {description}
+       ...
+     WARN ({warn_count}):
+       [{evaluator}] {description}
+       ...
 
-```
-PAGE EVALUATION — {content-file-path}
-Knowledge: {family}/{platform} (sha: {repo_sha})
+   GRADE: {letter} ({fail_count} FAIL, {warn_count} WARN)
 
-Rubric version: 2
-Dimension Scores:
-  Structure:          {score}/100 (weight: 15%)
-  Evidence:           {score}/100 (weight: 25%)
-  Completeness:       {score}/100 (weight: 20%)
-  Code Quality:       {score}/100 (weight: 15%)
-  Freshness:          {score}/100 (weight: 10%)
-  Golden Conformance: {score}/100 (weight: 15%)
+   REMEDIATION PLAN (if grade < A):
+     Priority 1 (FAIL fixes):
+       - {specific fix instruction}
+     Priority 2 (WARN fixes):
+       - {specific fix instruction}
 
-Weighted Total: {total}/100
-GRADE: {A|B|C|D|F}
+   NEXT STEP: {recommendation}
+   ```
 
-Key Findings:
-  {bulleted list of specific issues}
-
-Report: reports/eval/{report-filename}
-```
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-25 --status completed
+> ```
 
 ## Post-conditions
-- If grade is D or F → trigger S-26 (heal-page)
-- If grade is F → this is a hard stop condition (AGENTS.md Section 7)
-- If grade is A or B → no action needed
-- If grade is C → recommend S-17 (rubric-align) for enhancement
+- Evaluation report is printed with grade and findings
+- Grade is one of A, B, C, D, F
+- Remediation plan is included for grades below A
+- Next step recommendation references the correct downstream skill
+- No file modifications made (read-only skill)
 
 ## Error handling
-- If knowledge model missing → grade Freshness as 0, note in findings
-- If content file empty → grade F immediately
+- If content_eval module is not available, fall back to running `python scripts/pipeline/commands/content/audit.py --files {path}` for API accuracy check only, and assign grade based on audit results alone
+- If knowledge model is missing, note in output that evaluation is partial (API accuracy and evidence checks will be limited)
+- If the file does not exist, abort with clear message
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

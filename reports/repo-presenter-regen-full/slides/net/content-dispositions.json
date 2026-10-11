@@ -1,0 +1,818 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "An MIT-licensed .NET library that creates, reads and edits PowerPoint `.pptx` presentations by\nbuilding the Office Open XML package itself \u2014 no PowerPoint installation, no COM interop, no native\ndependency and no NuGet dependencies at all.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "It is for developers who need to generate or modify decks on a server or in a build, and who are\nworking *inside* the PowerPoint file format. It is not a renderer or a converter: it does not\nproduce PDF, HTML or images, and the things it cannot do are listed in full under\n[What it cannot do](#what-it-cannot-do).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "The diagram is an overview, not a contract. Each box is expanded, with the XML it produces, under\n[What it can do](#what-it-can-do); the boundaries are under\n[What it cannot do](#what-it-cannot-do).",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "| | |\n|---|---|\n| Target framework | `net9.0` |\n| Package dependencies | none \u2014 the library declares no `PackageReference` |\n| Native dependencies | none \u2014 no `DllImport`, no `LibraryImport`, no `unsafe` code |\n| Platforms | the CI workflow builds and runs every test on `ubuntu-latest`, `windows-latest` and `macos-latest` |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "A `net9.0` assembly also loads on later .NET runtimes by roll-forward, but CI does not exercise\nthat, so this file does not promise it.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "**There is no NuGet package yet.** `Aspose.Slides.Foss` is the package id the project builds under,\nbut nothing has been published to nuget.org, so `dotnet add package Aspose.Slides.Foss` will not\nresolve. The two routes that work today are source and CI artefacts.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "excluded",
+    "excluded_reason": "not_actually_true: Installation sections must never disclose publication status per the standing rule -- our candidate installs from source directly instead"
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "Then reference the project from your own:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "Every push, on any branch, whose tests pass produces a `.nupkg` and a symbol `.snupkg` as workflow\nartefacts. Download them from the\n[Actions](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/actions) tab \u2014 GitHub\nhands you a `.zip`, so extract it first; NuGet reads a folder of `.nupkg` files, not a zip of them \u2014\nput the extracted files in a folder, and point NuGet at that folder:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "`26.8.0` is the version in `Directory.Build.props` today; use whatever the artefact you downloaded\nis called.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Directory.Build.props"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "Output:",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "A new `Presentation` is a 13-part package with one slide, one master, one layout and a slide size of\n`9144000 \u00d7 6858000` EMU \u2014 4:3, `type=\"screen4x3\"`. There is no API to change the slide size.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "`IBaseSlide.Shapes` is declared `IShapeCollection?` and returns `null` for a slide that is not backed\nby a package part; a few other members are annotated the same way. The samples here use the\nnull-forgiving operator so that they compile without warnings in a project with\n`<Nullable>enable</Nullable>`, which is the default for new .NET projects. Every sample on this page\nwas compiled with nullable enabled and produced zero warnings.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/IBaseSlide.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "Every example below was compiled and executed against this revision, and the values quoted after each\none were read out of the `.pptx` it wrote by an independent ZIP/XML reader \u2014 not by asking the\nlibrary to read its own file back.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "Three namespaces cover every sample on this page, and each sample below assumes all three:",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "`Color` and `PointF` are this library's own types in `Aspose.Slides.Foss.Drawing`; they are not the\n`System.Drawing` types of the same name, and neither namespace is in scope by default.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Drawing/Color.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "Those three are this library's own namespaces. The samples also use `Console`, `DateTime`, `File`,\n`FileStream` and `MemoryStream`, which come from `System` and `System.IO`: `<ImplicitUsings>` brings\nboth into scope and is on by default in a project from `dotnet new console` \u2014 the same default this\npage relies on for `Nullable` above. Turn implicit usings off and you add those two `using` lines\nyourself.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "In `ppt/slides/slide1.xml`: `<a:rPr b=\"1\" sz=\"2400\">`, `<a:latin typeface=\"Verdana\"/>`,\n`<a:pPr algn=\"ctr\">`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Portion.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "Four `<a:tc>` cells, two of them carrying a merge attribute.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Table.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "One `<a:blip r:embed=\"\u2026\">` in the slide and one part under `ppt/media/`. There is **no** overload\nthat takes a file path \u2014 read the bytes yourself, as above.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Image.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "All eight effects were enabled one at a time, each into its own file, and each produced its element\ninside `<a:effectLst>`: `a:outerShdw`, `a:innerShdw`, `a:glow`, `a:softEdge`, `a:reflection`,\n`a:blur`, `a:prstShdw`, `a:fillOverlay`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/EffectFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Writes `ppt/notesSlides/notesSlide1.xml` with its `ppt/notesMasters/notesMaster1.xml`, and the\nclassic comment pair `ppt/commentAuthors.xml` + `ppt/comments/comment1.xml`. It does **not** write\nthe modern `ppt/threadedComments/` part \u2014 see [What it cannot do](#what-it-cannot-do).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/NotesSlideManager.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "Two `<p14:section>` elements in `ppt/presentation.xml`. A `Section` has no public constructor: it is\ncreated through `Sections.AddSection` or `Sections.AppendEmptySection`, which bind it to the\npresentation whose slides it divides.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Section.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "`Presentation` opens from a path or a `Stream`, with or without `ILoadOptions`, and `Save` has the\nmatching overloads including a slide-subset one.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Everything in this list was exercised through the public API and then confirmed by reading the XML\ninside the file that came out.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- **Presentations** \u2014 create, open a path or a stream, save to a path or a stream, save a subset of\n  slides, `IDisposable` throughout.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- **Slides** \u2014 add empty, insert, remove (the slide part is removed from the package, not just from\n  the list), clone, hide (`<p:sld show=\"0\">`), enumerate; masters and layouts are enumerable and a\n  master can be cloned.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/SlideCollection.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "- **Sections** \u2014 add, append, remove, remove with slides, reorder with slides.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/SectionCollection.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- **Shapes** \u2014 AutoShapes for 187 of the 189 `ShapeType` values: each of the 187 was written into its\n  own file and each produced its own distinct `<a:prstGeom prst=\"\u2026\">`. The two exceptions are\n  `ShapeType.NotDefined` and `ShapeType.Custom`, which have no preset to write; `AddAutoShape`\n  accepts them without complaint and the shape comes out as `prst=\"rect\"`. Also picture frames,\n  tables, connectors bound to shapes by connection site, `Reorder` for z-order, and adjust values on\n  geometry shapes.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/ShapeType.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- **Text** \u2014 text frames, paragraphs, portions; character formatting (bold, italic, underline,\n  strikethrough, size, spacing, caps, latin/east-asian/complex-script/symbol fonts), paragraph\n  formatting (alignment, indent, margins, spacing, symbol and numbered bullets), text-frame\n  formatting (margins, wrap, anchor, autofit, columns, rotation, vertical text).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/TextFrame.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- **Fill** \u2014 solid, gradient (stops, direction, shape, angle, tile flip), pattern, picture (with\n  crop, stretch, tile and fill mode), no-fill; the same fill model applies to shapes, lines, text\n  portions and table cells.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/FillFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- **Lines** \u2014 width, dash style and custom dash pattern, cap, join, miter limit, compound style,\n  alignment, and arrowheads at both ends with style, width and length.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/LineFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- **Effects** \u2014 outer shadow, inner shadow, glow, soft edge, reflection, blur, preset shadow, fill\n  overlay.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/EffectFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- **3-D** \u2014 bevel top and bottom, extrusion height and colour, contour width and colour, material\n  preset, a camera with a preset, field of view, zoom and rotation, and a light rig with a preset,\n  direction and rotation.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/ThreeDFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- **Tables** \u2014 rows, columns, cells, cell merge (splitting optional), cell fill, the six cell\n  borders, cell margins and anchoring, and a table style preset written as `<a:tableStyleId>`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Table.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- **Pictures** \u2014 embed from a byte array or a stream, deduplicated by content.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Image.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- **Notes** \u2014 a notes slide per slide, written with the notes master it requires, plus footer text,\n  footer visibility and slide-number visibility on the notes slide.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/NotesSlideManager.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- **Comments** \u2014 authors, comments with position and timestamp, on the classic comment list.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/CommentCollection.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- **Document properties** \u2014 core, extended and custom; `docProps/core.xml`, `docProps/app.xml` and\n  `docProps/custom.xml` are all written.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/DocumentProperties.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- **Unknown parts** \u2014 parts the library does not model are carried through a load and a save\n  unchanged.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "This section is the point of this file. Nothing below is a \"coming soon\"; it is what the API does\nnot contain today.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "| | |\n|---|---|\n| Charts | `IShapeCollection.AddChart` does not exist |\n| SmartArt, OLE objects, video, audio | no `AddSmartArt` / `AddOleObjectFrame` / `AddVideoFrame` / `AddAudioFrame` |\n| Mathematical text | not modelled \u2014 no `a:m` / `oMath` element is read or written |\n| Group shapes | no `AddGroupShape`. `IGroupShape` is declared but nothing implements it, and the public `GroupShape` class adds nothing to `Shape` \u2014 so no shape can hold child shapes |\n| Animations and slide transitions | no `ISlide.Timeline`, no `ISlide.SlideShowTransition` |\n| Hyperlinks | no `HyperlinkClick` on a shape or on a text portion. `IHyperlinkContainer` is declared and many shape types implement it, but it has no members at all \u2014 implementing it gives you nothing |\n| Slide backgrounds | no `ISlide.Background` |\n| Themes | no `IPresentation.MasterTheme` |\n| Slide size | no `IPresentation.SlideSize` \u2014 a new deck is 4:3 and cannot be changed |\n| Adding or cloning a layout | `ILayoutSlideCollection` declares an indexer, `GetByType` and two collection views \u2014 nothing that adds or clones. A new deck has exactly one layout and its `LayoutType` is `Custom`, so `GetByType` answers only for `Custom` and returns `null` for every other value. A Title or Title-and-Content layout can only come from a deck you opened |\n| Threaded comments | replies are held in memory; no `ppt/threadedComments/` part is written |\n| Encryption and protection | no `IPresentation.Protect` |\n| Rendering and conversion | no PDF, HTML, SVG, image or text export of any kind |\n| VBA macros, digital signatures | not modelled |\n| Reordering slides | `IShapeCollection.Reorder` exists for shapes; `ISlideCollection` has no equivalent |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/IGroupShape.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "`SaveFormat` declares **21** values. `Save` writes **three** of them and raises\n`NotSupportedException` for the other **eighteen** \u2014 it never writes a package under a name that\nclaims to be a format it did not produce.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Export/SaveFormat.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "| Written | Refused |\n|---|---|\n| `Pptx`, `Ppsx`, `Potx` | `Ppt`, `Pdf`, `Xps`, `Tiff`, `Odp`, `Pptm`, `Ppsm`, `Potm`, `Html`, `Swf`, `Otp`, `Pps`, `Pot`, `Fodp`, `Gif`, `Html5`, `Md`, `Xml` |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "The three that are written are three genuinely different packages, each with its own main-part\ncontent type:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "The refusal says what to do instead:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "Give the file the extension that matches the format you asked for \u2014 `.pptx`, `.ppsx`, `.potx`.\nOffice keys off the name as well as the content type, and a file whose two disagree may be refused.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "Opening a deck and saving it again preserves every part, and preserves the great majority of them\nbyte for byte. It does not rewrite nothing at all. Measured on this repository's own 46-part\nPowerPoint-authored fixture (`tests/test_data/PowerPointDeck.pptx`, `<Application>Microsoft Office\nPowerPoint</Application>`):",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/test_data/PowerPointDeck.pptx"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "| | |\n|---|---|\n| Parts in / out | 46 / 46 |\n| Parts dropped | 0 |\n| Parts added | 0 |\n| Parts byte-identical afterwards | 42 of 46 |\n| Parts rewritten | `[Content_Types].xml`, `docProps/app.xml`, `docProps/core.xml`, `ppt/presentation.xml` |\n| Slide text runs | identical, in order |",
+    "classification": "4_verifiable_history",
+    "verification": {
+      "status": "verified_by_corroboration",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "`docProps/core.xml` is rewritten because saving stamps a modification time; `docProps/app.xml` is\nregenerated from the presentation; the other two are rebuilt from the package model. Parts this\nlibrary has no model for \u2014 `presProps`, `viewProps`, `tableStyles`, thumbnails, extra themes, unused\nlayouts \u2014 are among the 42 that come back unchanged. That is a specific, measured claim about one\nreal deck, and it is deliberately narrower than \"full fidelity\".",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "A deck written by this library contains no `lang=` attribute anywhere and no `<a:rPr>` on a portion\nthat was never formatted. PowerPoint will apply the authoring machine's default language rather than\na language the file states.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "There are four editions of this library and they are **not** interchangeable. Three of them \u2014\n.NET, Java and C++ \u2014 are the same design in three languages; Python is a larger and different one.\nThe table below was measured on 2026-08-16 by running each edition and reading the XML in the file\nit produced.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "| | .NET | Java | C++ | Python |\n|---|---|---|---|---|\n| Create, open, round-trip, save | yes | yes | yes | yes |\n| Text, tables, connectors, fills, all 8 effects, 3-D | yes | yes | yes | yes |\n| Notes and classic comments | yes | yes | yes | yes |\n| Threaded comment part | no | yes | no | yes |\n| Save to a stream | yes | yes | **no** | yes |\n| Add a picture from a stream | yes | yes | **no** | yes |\n| Sections | **yes** | no | no | no |\n| Charts | no | no | no | **yes** |\n| Animations | no | no | no | **yes** |\n| Slide transitions | no | no | no | **yes** |\n| Themes | no | no | no | **yes** |\n| Slide backgrounds | no | no | no | **yes** |\n| Group shapes | no | no | no | **yes** |\n| Hyperlinks | no | no | no | **yes** |\n| Markdown export | no | no | no | **yes** |\n| Formats `Save` writes | 3 | 3 | 6 | 7 |\n| Default slide size of a new deck | 4:3 | 4:3 | 4:3 | **16:9** |\n| Layouts in a new deck | 1 | 1 | 1 | **11** |",
+    "classification": "4_verifiable_history",
+    "verification": {
+      "status": "verified_by_corroboration",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "AGENTS.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "The short version: **if you need charts, animations, transitions, themes, backgrounds, group shapes\nor hyperlinks, none of them exist in this edition \u2014 use the Python one.** If you need sections, this\nis the only edition that has them. Code written against the Python examples does not port to the\nother three, and a new deck is not even the same shape.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- [Aspose.Slides FOSS for Java](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- [Aspose.Slides FOSS for C++](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- [Aspose.Slides FOSS for Python](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "This library mirrors the naming of the commercial **Aspose.Slides for .NET** product, so that\nproduct's documentation is usually the fastest way to understand what a shared type name means.\nIt describes a much larger API: check the tables above before relying on anything you read there.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- [Aspose.Slides for .NET \u2014 product page](https://products.aspose.com/slides/net/)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- [Documentation](https://docs.aspose.com/slides/net/)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- [API reference](https://reference.aspose.com/slides/net/)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- [Knowledge base](https://kb.aspose.com/slides/net/)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- [Free support forum](https://forum.aspose.com/c/slides/11)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "**When you want the commercial product instead of this one:** if you need to render or convert \u2014\nPDF, images, HTML, thumbnails \u2014 or need charts, SmartArt, animations, OLE objects or macro-enabled\nfiles, or need a supported product with a licence, none of that is here and none of it is planned in\nthis repository. This library is the right choice when you are reading and writing `.pptx` and want\nan MIT-licensed dependency with no other dependencies at all.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "Bugs and feature requests for **this** library belong in\n[this repository's issue tracker](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/issues),\nnot in the commercial product's forum.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "Pull requests are welcome. Read\n[CONTRIBUTING.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CONTRIBUTING.md)\nfirst \u2014 it explains the build, the three test suites, and the one rule that is specific to this\nproject: **a writer fix ships with a test that asserts on the produced `.pptx` package, not on what\nthe library reads back.**",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "By participating you agree to the\n[Code of Conduct](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CODE_OF_CONDUCT.md).\nChanges are recorded in\n[CHANGELOG.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/CHANGELOG.md).",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "Do not report a vulnerability in a public issue. See\n[SECURITY.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/SECURITY.md)\nfor the reporting route.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "MIT \u2014 see [LICENSE](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET/blob/main/LICENSE).\nCopyright (c) 2026 Aspose Pty Ltd.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License"
+  }
+]

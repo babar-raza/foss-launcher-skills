@@ -1,103 +1,169 @@
----
-name: faq-generate
-id: S-22
-description: >
-  Generate FAQ questions and answers from the knowledge model and append them
-  to an existing content page or create a standalone FAQ section.
-args: "{content-file-path}"
----
-
-# S-22: FAQ Generate — Knowledge-Based FAQ Creation
+# S-22: FAQ Generate — Generate FAQ Section from Knowledge
 
 **Arguments**: $ARGUMENTS
-Expected format: `{content-file-path}` — path to the content page to add FAQ to
+Expected format: `{family} {platform}` — e.g. `3d python`
 
 ## Purpose
-Generate FAQ questions and answers grounded in the knowledge model. Can append a FAQ section to an existing content page or generate standalone FAQ content. Each answer must be traceable to verified claims.
+Generate a FAQ page for a product by extracting common patterns, limitations, and capabilities from the knowledge model. Produces Q&A pairs grounded in verified claims.
+
+## Note
+
+For KB FAQ pages specifically, prefer S-59 (new-kb-faq) which includes the full KB site template, evidence citations, and Hugo frontmatter. This skill (S-22) generates FAQ content sections that can be embedded in any page type.
 
 ## Pre-conditions
-1. Content file must exist (the page to add FAQ to)
-2. Knowledge model must exist: `knowledge/{family}/{platform}/merged/index.json`
-3. Knowledge must not be stale
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → halt (see printed message)
+   - Any other status (`READY`, `BOOTSTRAPPED`, `REFRESHED`, `WARN:conflicts`) → continue
+2. `knowledge/{family}/{platform}/merged/` must have after bootstrap:
+   - `claims.json` — structured claims
+   - `api_surface.json` — API surface
+   - `formats.json` — format support matrix
+   - `limitations.md` — known limitations
 
 ## Steps
 
-1. **Read the content file** at $ARGUMENTS
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-22 --scope "*"
+> ```
 
-2. **Identify product**: Extract `{family}` and `{platform}` from file path
 
-3. **Load knowledge**:
-   - `claims.json` — for factual answers
-   - `api_surface.json` — for API usage questions
-   - `formats.json` — for format support questions
-   - `limitations.md` — for limitation-aware answers
-   - `forbidden_claims` from index.json — to avoid forbidden assertions
+1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
-4. **Analyze page topic**: Read the page content to understand what topic it covers:
-   - Extract main headings and key terms
-   - Identify the primary API classes/methods discussed
-   - Note any formats or features mentioned
+2. **Load knowledge artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md`
+   - Read `knowledge/{family}/{platform}/merged/install.md`
 
-5. **Generate FAQ categories** (select relevant ones based on page topic):
+3. **Extract FAQ categories** from knowledge:
 
-   a. **API Usage** (2–4 questions):
-      - "How do I {action} using {ClassName}?"
-      - Based on methods in api_surface.json relevant to the page topic
-      - Each answer must reference verified API
+   **Getting Started** (from install.md + api_surface.json):
+   - Installation questions
+   - Basic setup / import questions
+   - Supported platforms/runtimes
 
-   b. **Format Support** (1–3 questions, if formats are relevant):
-      - "Does {product} support {format} {import/export}?"
-      - Answers sourced from formats.json
-      - Include direction specifics (import, export, or both)
+   **Format Support** (from formats.json + claims):
+   - "What formats are supported for import/export?"
+   - Format-specific questions (derived from format matrix)
+   - Conversion questions (format A → format B)
 
-   c. **Limitations & Troubleshooting** (1–3 questions):
-      - "Can I {action that has a limitation}?"
-      - Source from limitations.md and forbidden_claims
-      - Honest answers acknowledging what is NOT supported
+   **Capabilities** (from claims.json, kind=capability):
+   - "Can I do X?" questions derived from capability claims
+   - Feature availability questions
 
-   d. **Installation & Setup** (1–2 questions, if relevant):
-      - "What are the prerequisites for {product}?"
-      - Source from install.md in knowledge
+   **Limitations** (from limitations.md):
+   - "Why does X not work?" questions from NotImplementedError items
+   - Known restriction questions
+   - Workaround suggestions where available
 
-6. **Deduplicate**: If the page already has a FAQ section:
-   - Read existing questions
-   - Skip any generated questions that overlap with existing ones
-   - Only add genuinely new questions
+   **API Usage** (from api_surface.json + claims):
+   - Common class/method usage questions
+   - Parameter questions for frequently-used methods
 
-7. **Format questions**: Use consistent format:
+   **Keyword-seeded topics** (SEO-FAQ-KEYWORD-SEEDING, optional, additive only):
+   Call `scripts/seo/pipeline/faq_keyword_seeding.py::suggest_faq_question_topics(family)`
+   for real search-demand topic hints (Schema B GSC data, family-level). **Anti-fabrication
+   guard**: every suggestion returned is evidence of real search DEMAND, never evidence that
+   a claim about it is TRUE, and carries no answer text — it is a topic hint only. Before
+   turning a suggested topic into an actual FAQ question, verify it against
+   `claims.json`/`formats.json`/`limitations.md` exactly as you would any other question in
+   this step; if nothing in the knowledge model grounds it, drop the topic — do not answer it
+   from general knowledge. An empty suggestion list (the common case — real GSC signal is
+   thin) changes nothing about the rest of this step.
+
+4. **Generate Q&A pairs**: For each extracted question:
+   - Write a clear, concise question
+   - Write an answer grounded in specific claims (reference claim IDs)
+   - Include a short code snippet from `snippets/` if applicable
+   - Use hedging language for claims with confidence < 0.7
+
+5. **Format as FAQ page**:
+
+   **IMPORTANT**: FAQ Q&A pairs must appear as `### Question?` headings in the markdown body.
+   Never write a `faq:` or `faq.list` frontmatter block — it is invisible to the Hugo renderer
+   and will trigger `_check_faq` Rule 3 FAIL on the next evaluation.
+
+   Title follows the `kb_faq` skeleton in `scripts/pipeline/config/title_templates.yaml`
+   (product-first, resolves the prior S-22/S-59/production-reality title conflict).
+
    ```markdown
-   ### {Question}?
+   ---
+   title: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
+   description: "Common questions about Aspose.{Family} FOSS for {Platform}"
+   type: topic
+   date: '{today}'
+   lastmod: '{today}'
+   keywords: [{family}, {platform}, faq, ...]
+   evidence:
+     model_sha: "{repo_sha}"
+     model_version: "{version}"
+     claims: [CLM-xxx, ...]
+     apis: []
+     formats: []
+   ---
 
-   {Answer paragraph grounded in claims.json}
+   ## Getting Started
+
+   ### Q: How do I install Aspose.{Family} for {Platform}?
+   A: ...
+
+   ---
+
+   ## Format Support
+
+   ### Q: What file formats are supported?
+   A: ...
+
+   ---
+   ...
    ```
 
-8. **Append to page**: Add FAQ section (or append to existing one):
-   - If no FAQ section exists, add `## Frequently Asked Questions` heading
-   - Append generated Q&A pairs
-   - Ensure each answer is factual and traceable
+6. **Write the file** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`.
 
-## Output
+7. **Run ground-check**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md
+   ```
 
-```
-FAQ GENERATE — {content-file-path}
-Product: {family}/{platform}
+8. **Report**: Print summary — number of Q&A pairs generated, categories covered, claims referenced.
 
-Questions generated: {count}
-  API Usage:      {n}
-  Format Support: {n}
-  Limitations:    {n}
-  Setup:          {n}
-
-Deduplicated (skipped): {n}
-Questions added: {count}
-```
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-22 --status completed
+> ```
 
 ## Post-conditions
-- After adding FAQ, the chain continues:
-  1. S-23 (ground-check) — verify all FAQ answers are grounded
-  2. S-24 (evidence-cite) — attach citations to FAQ answers
+- FAQ page is written to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+- Every answer is grounded in at least one claim from `claims.json`
+- No fabricated API names or format claims
+- Ground-check passes
+- Evidence frontmatter lists all referenced claim IDs
 
 ## Error handling
-- If knowledge not found → abort
-- If page already has comprehensive FAQ (>10 questions) → skip with message
-- If no relevant claims for FAQ → add 0 questions with note
+- If knowledge model is stale, the pre-condition bootstrap handles refresh automatically.
+- **Insufficient claims (< 3 claims total)**: Return `STOP:insufficient_knowledge` immediately.
+  Do NOT generate a partial FAQ. Print: "FAQ generation halted: fewer than 3 claims available
+  in merged/claims.json. Run S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (truth-merge)
+  to populate the knowledge model before retrying."
+- **Sparse claims (3–4 claims)**: Log a WARN that the FAQ will be sparse. Continue generation
+  but limit output to the categories that have at least one grounded claim. Omit empty categories.
+- If no limitations found, skip the Limitations category entirely.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

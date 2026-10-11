@@ -1,0 +1,58 @@
+[
+  {
+    "task_id": "MT069-PHB-01-MIGRATION-RUN-STATE-MACHINE",
+    "status": "TODO",
+    "title": "Build the migration-run state machine",
+    "description": "AUTHORIZED 2026-09-18 by explicit user decision (ahead of Phase A completion). Build the per-workflow migration-run state machine (CREATED -> BASELINE_PINNED -> TEMPLATE_BUILT -> CANARY_DEPLOYED -> CANARY_OBSERVING -> CANARY_CONFIRMED -> CUTOVER_STAGED -> CUTOVER_LIVE -> STABILIZED, BLOCKED/ABANDONED/ROLLED_BACK) per the Phase B design section of plans/from_backlog/2026-09-16-gha-minutes-rearchitecture.md -- modeled on scripts/pipeline/commands/ops/refresh_run.py, adapted for scripts/pipeline/commands/foss/readme_refresh_run.py + scripts/pipeline/lib/publication_reconciler.py external-effect lessons. OR, per the documented tradeoff, the lighter-weight library-call version (FileLock + git_plumb_commit/bind_commit reused directly) if 11 one-time migrations don't justify the full 9-state CLI -- this decision itself should be surfaced to the user before committing to the heavy build. CANNOT ACTUALLY START until Phase A TC-10 (per-workflow dossiers) closes -- seeded now only to record authorized intent and dependency graph. STOP GATE: on reaching IMPLEMENTED (or any terminal state), stop and report; do not begin PHB-02 without the user's explicit go-ahead in that session, even though PHB-02 would otherwise be ready.",
+    "dependencies": ["MT069-TC-10-PER-WORKFLOW-DOSSIERS"]
+  },
+  {
+    "task_id": "MT069-PHB-02-RECONCILER-COMPONENT",
+    "status": "TODO",
+    "title": "Build the reconciler component",
+    "description": "AUTHORIZED 2026-09-18. Build the reconciler component (ask-GitHub-what-actually-happened, modeled directly on scripts/pipeline/lib/publication_reconciler.py) that gates the migration-run state machine's CANARY_OBSERVING -> CANARY_CONFIRMED transition: polls gh api against both Aspose/aspose.org and Aspose/aspose.org-workflows, confirming real runs land publicly, zero new runs fire privately, and (once available) the billing-cycle trend -- never trusting a push/deploy call's own return value as sufficient evidence. STOP GATE: on reaching IMPLEMENTED, stop and report; do not begin PHB-03 without the user's explicit go-ahead, even if PHB-03's own prerequisite (TC-13's gap report) is separately ready.",
+    "dependencies": ["MT069-PHB-01-MIGRATION-RUN-STATE-MACHINE"]
+  },
+  {
+    "task_id": "MT069-PHB-03-COST-TELEMETRY-CIRCUIT-BREAKER",
+    "status": "TODO",
+    "title": "Build the cost-telemetry collector + magnitude-cap circuit breaker",
+    "description": "AUTHORIZED 2026-09-18. Build the recurring GH-Actions cost telemetry capability per TC-13's design proposal: a new WorkflowUsageEvent/WorkflowUsageRow schema reusing the event->ledger->aggregate->gated-submit mechanics from scripts/pipeline/commands/ops/metrics_event_ledger.py/run_metrics.py/metrics_submitter.py (NOT the LLM-specific MetricsRow); a weekly read+report collector reusing TC-04's proxy-minutes method; a magnitude-cap circuit breaker modeled on the LIVE install_change_budget.py/publish_watcher.py --max-auto-apply pattern (static cap + rolling-baseline anomaly check, NOT a failure-count trigger). Action when tripped: alert only (reuse the aspose-com-targets-watch.yml issue-creation pattern), never auto-disable. Requires TC-13's recurring-candidate gap-escalation report to exist first. STOP GATE: on reaching IMPLEMENTED, stop and report; do not begin PHB-04 without the user's explicit go-ahead.",
+    "dependencies": ["MT069-TC-13-RECURRING-COST-TELEMETRY-PROPOSAL"]
+  },
+  {
+    "task_id": "MT069-PHB-04-MACHINERY-CANARY",
+    "status": "TODO",
+    "title": "Machinery canary on a synthetic workflow",
+    "description": "AUTHORIZED 2026-09-18. Exercise the new migration-run state machine (PHB-01) and reconciler (PHB-02) end-to-end on a synthetic/throwaway workflow first -- a canary of the tooling itself, separate from the real aspose-com-targets-watch.yml content canary (PHB-05). MUST include a dry-run rehearsal of the disposable-clone/push mechanics on this Windows machine specifically testing for the real, previously-shipped [WinError 5] Access is denied class of bug found in readme_refresh_run.py's own history (cleaning up a disposable clone's read-only git objects) -- do not assume this platform is fine without testing it. Hard Constraint from the main plan still applies in full: never enable or dispatch any of the 20 real Aspose/aspose.org workflows, including during this canary. STOP GATE: on reaching IMPLEMENTED, stop and report; do not begin PHB-05 without the user's explicit go-ahead.",
+    "dependencies": ["MT069-PHB-01-MIGRATION-RUN-STATE-MACHINE", "MT069-PHB-02-RECONCILER-COMPONENT"]
+  },
+  {
+    "task_id": "MT069-PHB-05-CONTENT-CANARY-ASPOSE-COM-TARGETS-WATCH",
+    "status": "TODO",
+    "title": "Content canary: migrate aspose-com-targets-watch.yml for real",
+    "description": "AUTHORIZED 2026-09-18. Migrate the designated canary workflow (aspose-com-targets-watch.yml, real cost 40 min/2.7% of total per the 2026-09-18 usage export) through the full migration-run state machine for real: template build, deploy to Aspose/aspose.org-workflows, CANARY_OBSERVING with the reconciler, 5-7 daily cycles, prove attribution three ways (runs land publicly, stop appearing privately, billing trend flat/down for that slot). Re-check MT066's PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX status immediately before any PR opens against Aspose/aspose.org-workflows -- do not guess if unresolved. Never merge the PR (human-authority boundary, inherited repo-wide norm) -- propose/branch only. STOP GATE: on reaching STABILIZED (or any terminal state), stop and report; do not begin PHB-06 without the user's explicit go-ahead.",
+    "dependencies": ["MT069-PHB-04-MACHINERY-CANARY"]
+  },
+  {
+    "task_id": "MT069-PHB-06-MIGRATE-REMAINING-CANDIDATES",
+    "status": "TODO",
+    "title": "Migrate remaining public-migration candidates, one at a time",
+    "description": "AUTHORIZED 2026-09-18. Migrate the remaining public-migration roster (backlink-compliance-watch.yml, seo-analysis.yml after rename, then -- pending the user's explicit auto-commit-to-PR-gated product decision, still unresolved as of 2026-09-18 -- the 4 watcher bots (upstream-monitor.yml, maven-publish-watcher.yml, install-literal-sweep.yml, package-publish-watch.yml), then the 2 partial-split workflows (ci-eval-consistency.yml, launch-dashboard.yml) last. Each migration goes through the full state machine individually and is proven before the next starts -- never migrate several at once. Note from the 2026-09-18 usage data: this whole track is only ~12.6% of total cost combined -- correct to do for the free-public-minutes/good-practice reasons already documented, but do not expect it to materially move the cost total; that comes from PHB-01/04/05's track and the self-hosted runner track (PHB-07). STOP GATE: after EACH individual workflow migration within this taskcard reaches STABILIZED, stop and report before starting the next workflow -- this taskcard is not a single atomic unit for stop-gate purposes.",
+    "dependencies": ["MT069-PHB-05-CONTENT-CANARY-ASPOSE-COM-TARGETS-WATCH"]
+  },
+  {
+    "task_id": "MT069-PHB-07-SELF-HOSTED-RUNNER-PROVISIONING",
+    "status": "TODO",
+    "title": "Self-hosted runner provisioning + lifecycle",
+    "description": "AUTHORIZED 2026-09-18. Provision the WSL2-hosted runner (persistent listener, fresh Docker container per job) on this Windows 11 Pro dev machine per TC-08's design, bring it through its lifecycle (PROVISIONED -> REGISTERED -> HEALTHY), and route content-governance-checks.yml (confirmed #1 cost driver, 546 min/36.5% of total per the 2026-09-18 usage export) and skill-governance.yml's jobs to it via a dedicated runner label. Land the /workflow-harden concurrency/cancel-in-progress fix on content-governance-checks.yml BEFORE this cutover, not after -- more critical on one physical machine than on elastic GitHub-hosted runners. For skill-governance.yml's Windows job (real cost 223 min, MORE than its own Linux job's 103 min per real data -- not a minor afterthought), first evaluate demoting it to scheduled/dispatch via /workflow-harden as the cheaper fix before defaulting to self-hosting it too. Hard Constraint still applies: never re-enable or dispatch either of these two workflows except as an explicit, individually authorized cutover step within this taskcard. STOP GATE: on reaching HEALTHY with both target workflows successfully routed and proven, stop and report; do not begin PHB-08 without the user's explicit go-ahead.",
+    "dependencies": ["MT069-PHB-04-MACHINERY-CANARY"]
+  },
+  {
+    "task_id": "MT069-PHB-08-POST-MIGRATION-STABILIZATION",
+    "status": "TODO",
+    "title": "Post-migration stabilization + final cost/reliability comparison",
+    "description": "AUTHORIZED 2026-09-18. Mission brief Stage 19: re-inventory every workflow, re-run the usage collector (PHB-03's telemetry capability), compare against the 2026-09-18 baseline export (1,494 min/561 jobs total, content-governance-checks.yml 546/llms-generation.yml 259/skill-governance.yml 326 as the top 3), confirm no required check disappeared, confirm no workflow became unreachable, confirm no private data entered public logs/artifacts, confirm self-hosted workspace/secrets are cleaned, confirm runner recovery after restart, produce the final cost/reliability/security comparison. STOP GATE: this is the final Phase B taskcard -- on reaching IMPLEMENTED, stop and report the full before/after comparison; do not consider Phase B complete or start any further work without the user's explicit review.",
+    "dependencies": ["MT069-PHB-06-MIGRATE-REMAINING-CANDIDATES", "MT069-PHB-07-SELF-HOSTED-RUNNER-PROVISIONING"]
+  }
+]

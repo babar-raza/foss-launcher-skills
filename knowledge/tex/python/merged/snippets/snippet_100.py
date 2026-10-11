@@ -1,0 +1,1 @@
+def test_chardef_value_negative_raises(self) -> None:

@@ -18,7 +18,14 @@ from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
-from ._claim_index import get_claim_index, load_claims, tokenize
+from ._claim_index import (
+    best_token_overlap,
+    get_claim_index,
+    is_identifier_enumeration,
+    is_markdown_table_row,
+    load_claims,
+    tokenize,
+)
 
 # Verbs that signal a factual, declarative sentence about capability
 _DECLARATIVE_VERB_RE = re.compile(
@@ -67,7 +74,13 @@ class ProseClaimBindingEvaluator(BaseEvaluator):
         level = _CLAIM_BINDING_SEVERITY.get(page.subdomain, "WARN")
 
         for line_no, line_text in page.prose_lines:
+            if is_markdown_table_row(line_text):
+                continue
+
             if not _DECLARATIVE_VERB_RE.search(line_text):
+                continue
+
+            if is_identifier_enumeration(line_text):
                 continue
 
             words = line_text.split()
@@ -79,11 +92,7 @@ class ProseClaimBindingEvaluator(BaseEvaluator):
                 continue
 
             # Primary tier: token overlap
-            best_overlap = 0.0
-            for ct in claim_token_sets:
-                if ct:
-                    overlap = len(line_tokens & ct) / max(len(ct), 1)
-                    best_overlap = max(best_overlap, overlap)
+            best_overlap = best_token_overlap(line_tokens, claim_token_sets)
 
             if best_overlap >= 0.3:
                 continue  # Matched by token overlap

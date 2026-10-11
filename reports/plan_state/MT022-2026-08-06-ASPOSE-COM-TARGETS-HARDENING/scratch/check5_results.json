@@ -1,0 +1,86 @@
+{
+  "https://docs.aspose.com/cells/typescript/": {
+    "status": 404,
+    "resolved": "https://docs.aspose.com/cells/typescript/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://products.aspose.com/cells/typescript/": {
+    "status": 404,
+    "resolved": "https://products.aspose.com/cells/typescript/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://docs.aspose.com/email/python/": {
+    "status": 403,
+    "resolved": "https://docs.aspose.com/email/python/",
+    "via": "get",
+    "retries": 0,
+    "chain": []
+  },
+  "https://products.aspose.com/email/python/": {
+    "status": 403,
+    "resolved": "https://products.aspose.com/email/python/",
+    "via": "get",
+    "retries": 0,
+    "chain": []
+  },
+  "https://docs.aspose.com/page/python/": {
+    "status": 404,
+    "resolved": "https://docs.aspose.com/page/python/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://products.aspose.com/page/python/": {
+    "status": 404,
+    "resolved": "https://products.aspose.com/page/python/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://docs.aspose.com/tex/python/": {
+    "status": 404,
+    "resolved": "https://docs.aspose.com/tex/python/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://products.aspose.com/tex/python/": {
+    "status": 404,
+    "resolved": "https://products.aspose.com/tex/python/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://docs.aspose.com/cad/net/": {
+    "status": 200,
+    "resolved": "https://docs.aspose.com/cad/net/",
+    "via": "head",
+    "retries": 1,
+    "chain": []
+  },
+  "https://products.aspose.com/cad/net/": {
+    "status": 200,
+    "resolved": "https://products.aspose.com/cad/net/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  },
+  "https://reference.aspose.com/cad/net/": {
+    "status": 502,
+    "resolved": "https://reference.aspose.com/cad/net/",
+    "via": "head",
+    "retries": 2,
+    "chain": []
+  },
+  "https://kb.aspose.com/cad/net/": {
+    "status": 200,
+    "resolved": "https://kb.aspose.com/cad/net/",
+    "via": "head",
+    "retries": 0,
+    "chain": []
+  }
+}

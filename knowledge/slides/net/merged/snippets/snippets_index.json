@@ -1,0 +1,2255 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/CommentConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/CommentConformanceTests.cs",
+    "source_function": "ReplyingToACommentWritesNoAttributeTheSchemaDoesNotDeclare",
+    "source_line": 18,
+    "classes_used": [
+      "Comment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "21bc783a24f0db52e3de4d011e76b0af61c329f23428d6f691931cd8ddb574fc",
+      "norm": "21bc783a24f0db52e3de4d011e76b0af61c329f23428d6f691931cd8ddb574fc"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/CommentConformanceTests.cs",
+    "source_function": "ADeckWithACommentReplyProducesASchemaValidPackage",
+    "source_line": 47,
+    "classes_used": [
+      "Comment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "344ab740a9e136787a7cb23c46c034d07067648c86aba500bbf85834660a694f",
+      "norm": "344ab740a9e136787a7cb23c46c034d07067648c86aba500bbf85834660a694f"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/CommentConformanceTests.cs",
+    "source_function": "WriteDeckWithAReply",
+    "source_line": 55,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1e0ecf9aa4ad2917abf371726a4410199a81f71ea1152086b19bc698a5278e33",
+      "norm": "1e0ecf9aa4ad2917abf371726a4410199a81f71ea1152086b19bc698a5278e33"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 17,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "AnAddedSlideIsDeclaredAsASlide",
+    "source_line": 19,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c97051ba0fb35d6e6ffb9c881eaa8e7a4f844c035d3520087ebce4bb3aa508c8",
+      "norm": "c97051ba0fb35d6e6ffb9c881eaa8e7a4f844c035d3520087ebce4bb3aa508c8"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "AnInsertedSlideIsDeclaredAsASlide",
+    "source_line": 35,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "88ebffaaf2cdfff79593e3ec6a8b24a8fa6f651b16cbe21ac8b4f657de15ca51",
+      "norm": "88ebffaaf2cdfff79593e3ec6a8b24a8fa6f651b16cbe21ac8b4f657de15ca51"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "AClonedSlideIsDeclaredAsASlide",
+    "source_line": 50,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "28477b66c71c50697620128821d7f0c98d0cc0f59d9fd4c39490b644a485ea73",
+      "norm": "28477b66c71c50697620128821d7f0c98d0cc0f59d9fd4c39490b644a485ea73"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "ANotesSlideIsDeclaredAsANotesSlide",
+    "source_line": 65,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "SaveFormat",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlideManager.AddNotesSlide",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "38ac087d2ecd706f64d3123d521bddbf957484111127a58142a66d9ac3afbd85",
+      "norm": "38ac087d2ecd706f64d3123d521bddbf957484111127a58142a66d9ac3afbd85"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/ContentTypeConformanceTests.cs",
+    "source_function": "AModifiedPackageIsAcceptedByAStrictReader",
+    "source_line": 81,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1509d62b29a3422ad64fc7c3d3d30b1fe83cb6d8dd54f5100701d17e265fee4c",
+      "norm": "1509d62b29a3422ad64fc7c3d3d30b1fe83cb6d8dd54f5100701d17e265fee4c"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DisposedPresentationConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DisposedPresentationConformanceTests.cs",
+    "source_function": "SavingAfterDisposeRaisesAndWritesNothing",
+    "source_line": 18,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Dispose",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "764cf4c8e1203cfde2f475b5e6612aae0311990de02b941e7182368fa1dba471",
+      "norm": "764cf4c8e1203cfde2f475b5e6612aae0311990de02b941e7182368fa1dba471"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DisposedPresentationConformanceTests.cs",
+    "source_function": "SavingAfterDisposeDoesNotOverwriteAnExistingDeck",
+    "source_line": 41,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Dispose",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d68fd5386edb3f8f87ba77090fe0a9e9f31be35dcf70151c2e4ae32e4428db06",
+      "norm": "d68fd5386edb3f8f87ba77090fe0a9e9f31be35dcf70151c2e4ae32e4428db06"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DocumentPropertiesConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DocumentPropertiesConformanceTests.cs",
+    "source_function": "ExtendedPropertiesReportTheNumberOfSlidesInTheDeck",
+    "source_line": 18,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e94c06d4332262f015e2df5987da47c2faa95188a332d03bdc0f9e42655c4ed2",
+      "norm": "e94c06d4332262f015e2df5987da47c2faa95188a332d03bdc0f9e42655c4ed2"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DocumentPropertiesConformanceTests.cs",
+    "source_function": "ACustomPropertyProducesAPartThePackageDeclaresAndCanReach",
+    "source_line": 48,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation",
+      "Relationship",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "DocumentProperties.SetCustomPropertyValue",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "edda37e899b89c74dd5d1533eb45effa1b8b72c185dfad6a1dc5e66342cac8f4",
+      "norm": "edda37e899b89c74dd5d1533eb45effa1b8b72c185dfad6a1dc5e66342cac8f4"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DocumentPropertiesConformanceTests.cs",
+    "source_function": "ExtendedPropertiesProduceASchemaValidPackage",
+    "source_line": 84,
+    "classes_used": [
+      "DocumentProperties",
+      "Presentation",
+      "SaveFormat",
+      "Template"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8b14175aecf7e2878f6e853e73372a0a9ea137013df554c824a27cfc9ab8cf0a",
+      "norm": "8b14175aecf7e2878f6e853e73372a0a9ea137013df554c824a27cfc9ab8cf0a"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/DocumentPropertiesConformanceTests.cs",
+    "source_function": "ExtendedPropertiesAreUpdatedWhenSlidesAreRemoved",
+    "source_line": 102,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d10a8efb8def84970e45c43f23066039fdab0e88ab0ef89ee560477c3f03949c",
+      "norm": "d10a8efb8def84970e45c43f23066039fdab0e88ab0ef89ee560477c3f03949c"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "EnablingAnEffectProducesASchemaValidPackage",
+    "source_line": 26,
+    "classes_used": [
+      "Blur",
+      "FillOverlay",
+      "Glow",
+      "InnerShadow",
+      "OuterShadow",
+      "PresetShadow",
+      "Reflection",
+      "Shape",
+      "SoftEdge"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a0d667b7a9d3ddc8198370d16360b3274e7d8b9635800894d07dd1fdfb0cda33",
+      "norm": "a0d667b7a9d3ddc8198370d16360b3274e7d8b9635800894d07dd1fdfb0cda33"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "AnEnabledShadowOrGlowCarriesTheColourItsTypeRequires",
+    "source_line": 42,
+    "classes_used": [
+      "Glow",
+      "InnerShadow",
+      "OuterShadow",
+      "PresetShadow",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f72d42c04927cd38417deba0e878e35e3e392d704bc8e51d11a1af49ad2b04ab",
+      "norm": "f72d42c04927cd38417deba0e878e35e3e392d704bc8e51d11a1af49ad2b04ab"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "AnEnabledPresetShadowCarriesItsPresetAttribute",
+    "source_line": 61,
+    "classes_used": [
+      "PresetShadow",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "88b901aed772ea79d431676b17a7c405a910162490a0d7e50e7bef1c6f7461bb",
+      "norm": "88b901aed772ea79d431676b17a7c405a910162490a0d7e50e7bef1c6f7461bb"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "AnEnabledSoftEdgeCarriesItsRadius",
+    "source_line": 73,
+    "classes_used": [
+      "Shape",
+      "SoftEdge"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d16ad20dc853986ec251f0c33aacb66fc2ec3cabd40540a0c4a4737afc752d04",
+      "norm": "d16ad20dc853986ec251f0c33aacb66fc2ec3cabd40540a0c4a4737afc752d04"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "AnEnabledFillOverlayCarriesItsBlendModeAndAFill",
+    "source_line": 85,
+    "classes_used": [
+      "FillOverlay",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "56b1457cc160a023b03f9b7223bd5c415e2facdaa6ae2cf893bb0cf8b78a2d9e",
+      "norm": "56b1457cc160a023b03f9b7223bd5c415e2facdaa6ae2cf893bb0cf8b78a2d9e"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "WriteShapeWithEffect",
+    "source_line": 102,
+    "classes_used": [
+      "AutoShape",
+      "EffectFormat",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "681f4927563dcfcfc25f2a59a520644b40f57e0d2ce22c7343d90bec3777d3ac",
+      "norm": "681f4927563dcfcfc25f2a59a520644b40f57e0d2ce22c7343d90bec3777d3ac"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/EffectConformanceTests.cs",
+    "source_function": "Enable",
+    "source_line": 114,
+    "classes_used": [
+      "Blur",
+      "EffectFormat",
+      "FillOverlay",
+      "Glow",
+      "IEffectFormat",
+      "InnerShadow",
+      "OuterShadow",
+      "PresetShadow",
+      "Reflection",
+      "SoftEdge"
+    ],
+    "methods_used": [
+      "EffectFormat.EnableBlurEffect",
+      "EffectFormat.EnableFillOverlayEffect",
+      "EffectFormat.EnableGlowEffect",
+      "EffectFormat.EnableInnerShadowEffect",
+      "EffectFormat.EnableOuterShadowEffect",
+      "EffectFormat.EnablePresetShadowEffect",
+      "EffectFormat.EnableReflectionEffect",
+      "EffectFormat.EnableSoftEdgeEffect",
+      "IEffectFormat.EnableBlurEffect",
+      "IEffectFormat.EnableFillOverlayEffect",
+      "IEffectFormat.EnableGlowEffect",
+      "IEffectFormat.EnableInnerShadowEffect",
+      "IEffectFormat.EnableOuterShadowEffect",
+      "IEffectFormat.EnablePresetShadowEffect",
+      "IEffectFormat.EnableReflectionEffect",
+      "IEffectFormat.EnableSoftEdgeEffect"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b8fd2c1208ba0528763a200f6cf1a9d763e143416db0b8e283b8be69df63f8e4",
+      "norm": "b8fd2c1208ba0528763a200f6cf1a9d763e143416db0b8e283b8be69df63f8e4"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestFixtures.cs",
+    "source_function": "SimpleDeck",
+    "source_line": 9,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "550b2f4437c14fc97b3b3fe8fb3f0f38dc1697006b3249c4a43a8025220dc0d2",
+      "norm": "550b2f4437c14fc97b3b3fe8fb3f0f38dc1697006b3249c4a43a8025220dc0d2"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestFixtures.cs",
+    "source_function": "PowerPointDeck",
+    "source_line": 17,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c70bc1c6acfa355d24d2007ba1e65266fd2660cb74a6b88ad3a9e96614c976ba",
+      "norm": "c70bc1c6acfa355d24d2007ba1e65266fd2660cb74a6b88ad3a9e96614c976ba"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestFixtures.cs",
+    "source_function": "TableWithExtension",
+    "source_line": 24,
+    "classes_used": [
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa374ea0e2b1d9fd2ac10a602c58bcbe3bd0f8fad63c191eb14c76090e27bab5",
+      "norm": "fa374ea0e2b1d9fd2ac10a602c58bcbe3bd0f8fad63c191eb14c76090e27bab5"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestFixtures.cs",
+    "source_function": "PathTo",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "57334336dac63d045b35c566ed7e5028f958a7168a1ee0db851df851236ffbbb",
+      "norm": "57334336dac63d045b35c566ed7e5028f958a7168a1ee0db851df851236ffbbb"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestWorkspace.cs",
+    "source_function": "TestWorkspace",
+    "source_line": 11,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6044fdf0dd2cf9a461719f7364e263ba3ea849932864aa2e32883191f74912d5",
+      "norm": "6044fdf0dd2cf9a461719f7364e263ba3ea849932864aa2e32883191f74912d5"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestWorkspace.cs",
+    "source_function": "PathFor",
+    "source_line": 18,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2cb1ece380fafb960c84974dfafc440b152e2fb64a36d2c3de5870ded913d9d4",
+      "norm": "2cb1ece380fafb960c84974dfafc440b152e2fb64a36d2c3de5870ded913d9d4"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestWorkspace.cs",
+    "source_function": "Png",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2edd65f2a255bcdfc9c087c9768d2247f050067a7778a66b008a12a1bfc45a5c",
+      "norm": "2edd65f2a255bcdfc9c087c9768d2247f050067a7778a66b008a12a1bfc45a5c"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/Harness/TestWorkspace.cs",
+    "source_function": "Dispose",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1f3989a5997bfe1285aa8c2ffdfff16ce589658104253b52bd6f0e880556acd2",
+      "norm": "1f3989a5997bfe1285aa8c2ffdfff16ce589658104253b52bd6f0e880556acd2"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 15,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "ANotesSlideReferencesANotesMasterThatIsInThePackage",
+    "source_line": 17,
+    "classes_used": [
+      "NotesSlide",
+      "Relationship",
+      "Slide",
+      "SlideReference"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "16ef27581794f686bb131929bb74d28cd672715cfddd64251cdf12cfec8c4fea",
+      "norm": "16ef27581794f686bb131929bb74d28cd672715cfddd64251cdf12cfec8c4fea"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "ANotesMasterIsRegisteredInThePresentationPart",
+    "source_line": 42,
+    "classes_used": [
+      "Presentation",
+      "PresentationPart"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a9e6f133d510aa6c09cc6c94fd03bd65e2ee5ee58139fd64424184057ca815f1",
+      "norm": "a9e6f133d510aa6c09cc6c94fd03bd65e2ee5ee58139fd64424184057ca815f1"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "ChangingTheSlideListKeepsThePresentationPartInSchemaOrder",
+    "source_line": 62,
+    "classes_used": [
+      "LayoutSlide",
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "PresentationPart",
+      "SaveFormat",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlideManager.AddNotesSlide",
+      "Presentation.Save",
+      "PresentationPart.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "61389aa611fce12c278232ce8dea6b14b82cf1da75d50d9178cf18a2dcf0894f",
+      "norm": "61389aa611fce12c278232ce8dea6b14b82cf1da75d50d9178cf18a2dcf0894f"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "NoThemePartIsSharedBetweenTwoMasters",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c13f2035a0375c8d7b7c7f858247addaf659e0ec10299f751e3f057006e47638",
+      "norm": "c13f2035a0375c8d7b7c7f858247addaf659e0ec10299f751e3f057006e47638"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "AddingNotesToAnExistingDeckLeavesEveryMasterItsOwnTheme",
+    "source_line": 97,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "SaveFormat",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlideManager.AddNotesSlide",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a5be6e21304adb50ea4354204df537b2ee1ea45e788edade59d49e6b39656356",
+      "norm": "a5be6e21304adb50ea4354204df537b2ee1ea45e788edade59d49e6b39656356"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "AssertEachMasterHasItsOwnTheme",
+    "source_line": 119,
+    "classes_used": [
+      "Relationship"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "163b650000101c2dd20e66c1d08f2ef63e6a95f4ab71b5466eeef785e3853814",
+      "norm": "163b650000101c2dd20e66c1d08f2ef63e6a95f4ab71b5466eeef785e3853814"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "IsMasterPart",
+    "source_line": 155,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0af1c5dc5d3c305ac0748775a16cf718e3a990b5258f83544cb316959668a723",
+      "norm": "0af1c5dc5d3c305ac0748775a16cf718e3a990b5258f83544cb316959668a723"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/NotesSlideConformanceTests.cs",
+    "source_function": "WriteDeckWithNotes",
+    "source_line": 161,
+    "classes_used": [
+      "NotesSlide",
+      "NotesSlideManager",
+      "Presentation",
+      "SaveFormat",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "NotesSlideManager.AddNotesSlide",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "216777bd5603ecea11bb33f9d922cbb0541750d9a51889af9b81e29bfcb279ca",
+      "norm": "216777bd5603ecea11bb33f9d922cbb0541750d9a51889af9b81e29bfcb279ca"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "Dispose",
+    "source_line": 18,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "AnEmptyDeckIsAWellFormedPackage",
+    "source_line": 20,
+    "classes_used": [
+      "Presentation",
+      "Relationship",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a28fc0a4cfd376fb60d950cdf35a1030dda8883663459a089c996baabd34619b",
+      "norm": "a28fc0a4cfd376fb60d950cdf35a1030dda8883663459a089c996baabd34619b"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "AGraphicFrameLocksItsContentsThroughTheSchemaElementName",
+    "source_line": 39,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "Slide",
+      "Table"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5937b2e72cd717184e1d8fb1130ac791aadb0193eac1a328b9d946e809f45fab",
+      "norm": "5937b2e72cd717184e1d8fb1130ac791aadb0193eac1a328b9d946e809f45fab"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "AConnectorWritesTheConnectionSitesItWasGiven",
+    "source_line": 56,
+    "classes_used": [
+      "AutoShape",
+      "Connector",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ed44cd77dbea2e5f71edba745e1424ebb180156a5513274961b5a395383950dc",
+      "norm": "ed44cd77dbea2e5f71edba745e1424ebb180156a5513274961b5a395383950dc"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "ALineWidthInPointsIsWrittenInEnglishMetricUnits",
+    "source_line": 80,
+    "classes_used": [
+      "AutoShape",
+      "LineFormat",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ed11232ab6a7c70b8489d3a15db181032089e32747645f164db95429e4af086",
+      "norm": "7ed11232ab6a7c70b8489d3a15db181032089e32747645f164db95429e4af086"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "EffectsAreWrittenInTheOrderTheEffectListRequires",
+    "source_line": 98,
+    "classes_used": [
+      "AutoShape",
+      "Blur",
+      "EffectFormat",
+      "Glow",
+      "OuterShadow",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "SoftEdge"
+    ],
+    "methods_used": [
+      "EffectFormat.EnableBlurEffect",
+      "EffectFormat.EnableGlowEffect",
+      "EffectFormat.EnableOuterShadowEffect",
+      "EffectFormat.EnableSoftEdgeEffect",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5537d6d91018487f1f987ba132f66759bf531e9134ae159fc64925884f8285fe",
+      "norm": "5537d6d91018487f1f987ba132f66759bf531e9134ae159fc64925884f8285fe"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PackageRegressionTests.cs",
+    "source_function": "MergedTableCellsAreWrittenAsASpanAndAContinuation",
+    "source_line": 123,
+    "classes_used": [
+      "Cell",
+      "Presentation",
+      "Row",
+      "SaveFormat",
+      "Shape",
+      "Slide",
+      "Table"
+    ],
+    "methods_used": [
+      "Presentation.Save",
+      "Table.MergeCells"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2f4db68c3a197f9f80fc82e6abd336e449639129eb0466337ad1a82bd01d5540",
+      "norm": "2f4db68c3a197f9f80fc82e6abd336e449639129eb0466337ad1a82bd01d5540"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PictureConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 15,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PictureConformanceTests.cs",
+    "source_function": "APictureFrameResolvesTheImageItPointsAt",
+    "source_line": 17,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "Relationship",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c2fd52112a967b9f06a514eea54c0f8a3ebd1bd55298fd56efdcd0f8875ecc7d",
+      "norm": "c2fd52112a967b9f06a514eea54c0f8a3ebd1bd55298fd56efdcd0f8875ecc7d"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PictureConformanceTests.cs",
+    "source_function": "APictureFrameBuiltFromAStreamResolvesTheImageItPointsAt",
+    "source_line": 33,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "Relationship",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eb5142cc86c49e8d59ea383f5e33f0af66dcd654fd6e8ea72bf8f406925ea9e3",
+      "norm": "eb5142cc86c49e8d59ea383f5e33f0af66dcd654fd6e8ea72bf8f406925ea9e3"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PictureConformanceTests.cs",
+    "source_function": "AnEmbeddedImageDeclaresItsContentType",
+    "source_line": 50,
+    "classes_used": [
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFrame",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "74f88bf32f108c57b2efacdd3fd164bf4c97d434716739b35520b215e8a75418",
+      "norm": "74f88bf32f108c57b2efacdd3fd164bf4c97d434716739b35520b215e8a75418"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/PictureConformanceTests.cs",
+    "source_function": "APictureFilledShapeCarriesARealRelationshipAndNoInternalMarker",
+    "source_line": 70,
+    "classes_used": [
+      "AutoShape",
+      "FillFormat",
+      "FillType",
+      "Image",
+      "Images",
+      "Picture",
+      "PictureFillFormat",
+      "Presentation",
+      "Relationship",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Image.Save",
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f7375bf44e3ba4bc042a12f5b0b6d9ffc5e7af69f521d31a41d448694b1f4de5",
+      "norm": "f7375bf44e3ba4bc042a12f5b0b6d9ffc5e7af69f521d31a41d448694b1f4de5"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 21,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs",
+    "source_function": "SavingAPowerPointDeckUnchangedKeepsEveryPart",
+    "source_line": 23,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5877981f05ae56516412929e0913d543fd58dc5f9e6c02343a14d9b36787a872",
+      "norm": "5877981f05ae56516412929e0913d543fd58dc5f9e6c02343a14d9b36787a872"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs",
+    "source_function": "AddingAShapeToAPowerPointDeckKeepsEveryOtherPart",
+    "source_line": 36,
+    "classes_used": [
+      "AutoShape",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f44fca513d02d85e99d3a11668bafdaedff8f9cb419071ba0d81c5ade1a8b852",
+      "norm": "f44fca513d02d85e99d3a11668bafdaedff8f9cb419071ba0d81c5ade1a8b852"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs",
+    "source_function": "APowerPointDeckSurvivesTheChecksEveryProducedPackageFaces",
+    "source_line": 57,
+    "classes_used": [
+      "Presentation",
+      "Relationship",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "213f323302346faba9aabbe9edd2310fe30f159eea36c2927c223128e1e1a561",
+      "norm": "213f323302346faba9aabbe9edd2310fe30f159eea36c2927c223128e1e1a561"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/RoundTripConformanceTests.cs",
+    "source_function": "AssertSamePartSet",
+    "source_line": 80,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f97a8cf610650350cfb8a7ff922ad21843c2fc75635e4c69f8eeacb3ad8ad350",
+      "norm": "f97a8cf610650350cfb8a7ff922ad21843c2fc75635e4c69f8eeacb3ad8ad350"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 20,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "FormatsThatCannotBeWritten",
+    "source_line": 23,
+    "classes_used": [
+      "SaveFormat"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "fodp",
+      "gif",
+      "html",
+      "html5",
+      "md",
+      "odp",
+      "otp",
+      "pdf",
+      "pot",
+      "pps",
+      "ppt",
+      "swf",
+      "tiff",
+      "xps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f99dd0faaf9dc0cb58a9169e9c44a3067b8a458d57d43c93d6a65f9ab3ae5627",
+      "norm": "f99dd0faaf9dc0cb58a9169e9c44a3067b8a458d57d43c93d6a65f9ab3ae5627"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "RequestingAFormatThatCannotBeWrittenRaisesInsteadOfWritingAPowerPointPackage",
+    "source_line": 30,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7e9175f9b6b3036b5719af6192217ed0d70685419f5a95e38aee724e1a896cce",
+      "norm": "7e9175f9b6b3036b5719af6192217ed0d70685419f5a95e38aee724e1a896cce"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "TheRequestedFormatDecidesTheMainPartContentType",
+    "source_line": 44,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "pot",
+      "potx",
+      "pps",
+      "ppsx",
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "876a467bfdfcc0980d4a2d60fc0e35edc2559ae7d2327148541654dc456faa6a",
+      "norm": "876a467bfdfcc0980d4a2d60fc0e35edc2559ae7d2327148541654dc456faa6a"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "MacroEnabledFormatsAreNotWrittenAsAPlainPresentation",
+    "source_line": 65,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "pot",
+      "potm",
+      "pps",
+      "ppsm",
+      "ppt",
+      "pptm",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "74ef9800b4b0a1fe045df65e161a75258d0393fe8d9abd64e177c0e9f4025219",
+      "norm": "74ef9800b4b0a1fe045df65e161a75258d0393fe8d9abd64e177c0e9f4025219"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "EachRequestedFormatProducesADifferentPackage",
+    "source_line": 89,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "493919002099a50270708f8d7c88b2ca75707523723ac58d0f9a3eb2a843e2ea",
+      "norm": "493919002099a50270708f8d7c88b2ca75707523723ac58d0f9a3eb2a843e2ea"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SaveFormatConformanceTests.cs",
+    "source_function": "DescribeWhatWasWritten",
+    "source_line": 118,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "84abf8ec194a6871dcc79a8d9406d14aa6e1524979861a8a51939778e4423182",
+      "norm": "84abf8ec194a6871dcc79a8d9406d14aa6e1524979861a8a51939778e4423182"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SectionConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 15,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SectionConformanceTests.cs",
+    "source_function": "AnAddedSectionIsWrittenToThePresentationPart",
+    "source_line": 17,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "PresentationPart",
+      "SaveFormat",
+      "Section",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save",
+      "PresentationPart.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d3799c1b0f7bc9ac21e029fe3dceabe79b217e6cad2e2a7ae3d498d35b9e79e4",
+      "norm": "d3799c1b0f7bc9ac21e029fe3dceabe79b217e6cad2e2a7ae3d498d35b9e79e4"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SectionConformanceTests.cs",
+    "source_function": "ASectionRegistersTheSlidesItContains",
+    "source_line": 40,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat",
+      "Section",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1b276f8de86e03352af4114fd5691ed007bc46520505889965b689b0e73ff9a3",
+      "norm": "1b276f8de86e03352af4114fd5691ed007bc46520505889965b689b0e73ff9a3"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SlideCollectionConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SlideCollectionConformanceTests.cs",
+    "source_function": "SavingASubsetOfSlidesWritesOnlyTheSlidesThatWereAskedFor",
+    "source_line": 18,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f3e999d496b4e0fcd67fb5b56dcf4a55089c4cd0ad0493e4a2b01729a424f05a",
+      "norm": "f3e999d496b4e0fcd67fb5b56dcf4a55089c4cd0ad0493e4a2b01729a424f05a"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SlideCollectionConformanceTests.cs",
+    "source_function": "SavingASubsetToAStreamWritesOnlyTheSlidesThatWereAskedFor",
+    "source_line": 38,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "daa65bb91bbcc1b246b1bed8f55d3812184c091785f071bc7437c3756c241cd5",
+      "norm": "daa65bb91bbcc1b246b1bed8f55d3812184c091785f071bc7437c3756c241cd5"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/SlideCollectionConformanceTests.cs",
+    "source_function": "RemovingASlideRemovesItsPartAndItsRelationship",
+    "source_line": 59,
+    "classes_used": [
+      "LayoutSlide",
+      "Presentation",
+      "Relationship",
+      "SaveFormat",
+      "Slide"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8ff4e530e5f6f1a7cfec6fb3eddbdb6a0fd81f8b040a9c37cd03c32c225d4cf3",
+      "norm": "8ff4e530e5f6f1a7cfec6fb3eddbdb6a0fd81f8b040a9c37cd03c32c225d4cf3"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TableConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 15,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TableConformanceTests.cs",
+    "source_function": "ATableReferencesItsStyleThroughTheSchemaElementName",
+    "source_line": 17,
+    "classes_used": [
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c9dfa766ff7b263022a7f47f12eb6851bd76f068aee9a3150a504b86827edf51",
+      "norm": "c9dfa766ff7b263022a7f47f12eb6851bd76f068aee9a3150a504b86827edf51"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TableConformanceTests.cs",
+    "source_function": "ATableProducesASchemaValidPackage",
+    "source_line": 33,
+    "classes_used": [
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bf15d8152a2180dab862991755577432998a966581362cfbc2ce17524dd418f3",
+      "norm": "bf15d8152a2180dab862991755577432998a966581362cfbc2ce17524dd418f3"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TableConformanceTests.cs",
+    "source_function": "SettingTheStyleOfATableThatCarriesAnExtensionListKeepsSchemaOrder",
+    "source_line": 47,
+    "classes_used": [
+      "ITable",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "Slide",
+      "Table",
+      "TableStylePreset"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "236483702d5262bdd583d9f5ca37c6e093978db0ff5a6cf231375dcc067400a4",
+      "norm": "236483702d5262bdd583d9f5ca37c6e093978db0ff5a6cf231375dcc067400a4"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TableConformanceTests.cs",
+    "source_function": "WriteDeckWithATable",
+    "source_line": 67,
+    "classes_used": [
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "Slide",
+      "Table"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "198062348d45a1c4220f87c273866e5ef9c830303ebadcab1c4e97b12e564c74",
+      "norm": "198062348d45a1c4220f87c273866e5ef9c830303ebadcab1c4e97b12e564c74"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "Dispose",
+    "source_line": 15,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f",
+      "norm": "3b79f6bc137d89710ac93a99012754bc36cf3ab3fd3a3591ca42171b8bed174f"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "AnAddedParagraphIsWrittenWithItsPortions",
+    "source_line": 17,
+    "classes_used": [
+      "AutoShape",
+      "Paragraph",
+      "Portion",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "596da61c0ee5a5dabcf0d3bca25046d955c538850f357c4142ff1e1685c7fd5c",
+      "norm": "596da61c0ee5a5dabcf0d3bca25046d955c538850f357c4142ff1e1685c7fd5c"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "AnAddedParagraphCarryingOnlyTextIsWrittenAsARun",
+    "source_line": 48,
+    "classes_used": [
+      "AutoShape",
+      "Paragraph",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "13dcb2e716d24b0c0608a6363fba9e3ad1b0445d6ca39275afc3739ae693ae00",
+      "norm": "13dcb2e716d24b0c0608a6363fba9e3ad1b0445d6ca39275afc3739ae693ae00"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "AnInsertedParagraphIsWrittenAtTheIndexItWasGiven",
+    "source_line": 68,
+    "classes_used": [
+      "AutoShape",
+      "Paragraph",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "837f0fa7b54d77d110956427eb4d82520b8dad408ead237559ed54dc46ee5b25",
+      "norm": "837f0fa7b54d77d110956427eb4d82520b8dad408ead237559ed54dc46ee5b25"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "ADeckWithSeveralParagraphsIsSchemaValid",
+    "source_line": 88,
+    "classes_used": [
+      "AutoShape",
+      "Paragraph",
+      "Portion",
+      "Presentation",
+      "SaveFormat",
+      "Shape",
+      "ShapeType",
+      "Slide",
+      "TextFrame"
+    ],
+    "methods_used": [
+      "Presentation.Save"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d9dde00e76951ab1889a3d89b2f7a8a19dbbd3761cf8f89e2b0240c32e20885",
+      "norm": "3d9dde00e76951ab1889a3d89b2f7a8a19dbbd3761cf8f89e2b0240c32e20885"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cs",
+    "source_file": "tests/Aspose.Slides.Foss.ConformanceTests/TextFrameConformanceTests.cs",
+    "source_function": "AssertParagraphTexts",
+    "source_line": 114,
+    "classes_used": [
+      "Paragraph"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "af6452ab2d4a6866e693e4020f8e0d357c5d7e82b4882c78442b8919118ce202",
+      "norm": "af6452ab2d4a6866e693e4020f8e0d357c5d7e82b4882c78442b8919118ce202"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "CommentsTests",
+    "source_line": 15,
+    "classes_used": [
+      "Comment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ecfae76081713ef510f1ef907ca93c7b4a02e074a43e1c79328f1b3731da1127",
+      "norm": "ecfae76081713ef510f1ef907ca93c7b4a02e074a43e1c79328f1b3731da1127"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "Dispose",
+    "source_line": 21,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a61e4dd08b08ca8c0ab89db899582cd54ea4492e4e04e9c3c18a53e3f03a72f4",
+      "norm": "a61e4dd08b08ca8c0ab89db899582cd54ea4492e4e04e9c3c18a53e3f03a72f4"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestAddAuthor",
+    "source_line": 27,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "76627940adcfcd10c82498c15e76c5c7843d13bc462204059ea1fb7e4edf420d",
+      "norm": "76627940adcfcd10c82498c15e76c5c7843d13bc462204059ea1fb7e4edf420d"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestAddComment",
+    "source_line": 43,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "be67f9e1ca8e25dc7a29ddd629d174092b8ec86536795c383da726132bfbc248",
+      "norm": "be67f9e1ca8e25dc7a29ddd629d174092b8ec86536795c383da726132bfbc248"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestMultipleAuthors",
+    "source_line": 62,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7c93ff6d1f596b2be33d1d449c61f0ad9387e5bf3058a3385164cc24a5db8d8c",
+      "norm": "7c93ff6d1f596b2be33d1d449c61f0ad9387e5bf3058a3385164cc24a5db8d8c"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestGetSlideComments",
+    "source_line": 72,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [
+      "Slide.GetSlideComments"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "641f83d6a3de485492733943c8f612f63f12c920c9a18350c77e2558252c4e6f",
+      "norm": "641f83d6a3de485492733943c8f612f63f12c920c9a18350c77e2558252c4e6f"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestRemoveComment",
+    "source_line": 92,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3512dd694f6ea5f7a0eb5e1623fda790261f44d49e5fb57203ece38f34a5134d",
+      "norm": "3512dd694f6ea5f7a0eb5e1623fda790261f44d49e5fb57203ece38f34a5134d"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestInsertComment",
+    "source_line": 112,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "59b707cf2393eb817d5ecae20c26741241170015439fb87df9a3422fdb3d5068",
+      "norm": "59b707cf2393eb817d5ecae20c26741241170015439fb87df9a3422fdb3d5068"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestClearComments",
+    "source_line": 127,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "PointF",
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a95f390cfcfaed5ec1811d15b1ca4a848cfab61c24a6e9b8335c770a5cdada6d",
+      "norm": "a95f390cfcfaed5ec1811d15b1ca4a848cfab61c24a6e9b8335c770a5cdada6d"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/CommentsTests.cs",
+    "source_function": "TestRemoveAuthor",
+    "source_line": 141,
+    "classes_used": [
+      "Comment",
+      "CommentAuthor",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Comment.Remove",
+      "CommentAuthor.Remove"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2f1a3e854864e12539a8ab9d0f79dafbf191c5af9fc05bc4ce37027aba605c95",
+      "norm": "2f1a3e854864e12539a8ab9d0f79dafbf191c5af9fc05bc4ce37027aba605c95"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/ConnectorTests.cs",
+    "source_function": "ConnectorTests",
+    "source_line": 13,
+    "classes_used": [
+      "Connector"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8a658a40a18fa088de8b8350421014fe25780e5daa11a1694d3dd7077fe76b3e",
+      "norm": "8a658a40a18fa088de8b8350421014fe25780e5daa11a1694d3dd7077fe76b3e"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/ConnectorTests.cs",
+    "source_function": "Dispose",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a61e4dd08b08ca8c0ab89db899582cd54ea4492e4e04e9c3c18a53e3f03a72f4",
+      "norm": "a61e4dd08b08ca8c0ab89db899582cd54ea4492e4e04e9c3c18a53e3f03a72f4"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/ConnectorTests.cs",
+    "source_function": "TestAddStraightConnector",
+    "source_line": 25,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "86aafc7ff76633ddca899e298f047ed78edfff2e5903b000800902ad8e55b4be",
+      "norm": "86aafc7ff76633ddca899e298f047ed78edfff2e5903b000800902ad8e55b4be"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/ConnectorTests.cs",
+    "source_function": "TestAddStraightConnectorPersists",
+    "source_line": 35,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cf2901c853d4c96fd11dcc96e48cf28e7421b5ff201f83a2855c48125b467835",
+      "norm": "cf2901c853d4c96fd11dcc96e48cf28e7421b5ff201f83a2855c48125b467835"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cs",
+    "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/ConnectorTests.cs",
+    "source_function": "TestBentConnectorAdjustments",
+    "source_line": 46,
+    "classes_used": [
+      "Connector",
+      "Presentation",
+      "Shape",
+      "ShapeType",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c018da736e6a0ac795b7459887e7651341cc0fa860208e179bc90b27ec89309",
+      "norm": "4c018da736e6a0ac795b7459887e7651341cc0fa860208e179bc90b27ec89309"
+    }
+  }
+]

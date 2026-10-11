@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """Compliance tracking: monitor violations and calculate scores.
 
 This module provides compliance tracking for Kilo Code to monitor
@@ -14,7 +13,6 @@ Usage:
 """
 
 from __future__ import annotations
-import os
 
 import json
 from datetime import datetime
@@ -22,10 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_REPO_ROOT = Path(os.environ.get(
-    "CONTENT_REPO_PATH",
-    str(_SCRIPT_DIR.parent.parent.parent),  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
-))
+_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
 
 
 class ComplianceTracker:

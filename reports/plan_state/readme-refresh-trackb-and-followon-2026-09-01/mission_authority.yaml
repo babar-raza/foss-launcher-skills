@@ -1,0 +1,89 @@
+mission_authority:
+  mission_id: readme-refresh-trackb-and-followon-2026-09-01
+  mission_summary: 'Follow-on to the CLOSED mission readme-refresh-hardening-and-regen-2026-08-30.
+    That mission delivered the deliverable (3 canaries, pdf/net Batch D, slides/python
+    re-scout, portfolio evidence bundle) but explicitly deferred two categories of
+    real, disclosed remaining work: (1) three findings discovered live during that
+    mission and filed as their own PAUSED taskcards (TC-38 3d/net published-bypass-masked
+    staleness, TC-39 note/python ordinal disposition drift, TC-40 pdf/net reference.aspose.org
+    staleness -- 9 missing upstream classes), and (2) "Hardening Track B" -- the deferred
+    production-hardening taskcards TC-13/14/15/16/17/18/20/25/26/27/34 from the same
+    governing plan''s Phase 3/4/5/9, which that mission''s course-correction explicitly
+    reclassified from "blocking prerequisite" to "separate hardening track, not blocking
+    the delivered candidates" rather than building. This mission picks up both categories.
+    No push to any external product repo without a fresh, explicit, per-PR human go-ahead
+    -- unchanged from the parent mission.
+
+    '
+  governing_plan_path: <local-plan-cache>/regenerate-generate-readme-md-files-for-buzzing-turtle.md
+  in_scope_outcomes:
+  - 'TC-38: 3d/net -- content_unit_disposition_coverage:6, content_unit_excerpt_matches_extraction:46,
+    structural_unit_disposition_coverage:1, code_example_disposition_coverage:2 (published-bypass
+    previously masked these; real pre-existing staleness once Nav-TOC fix broke byte-identity)'
+  - 'TC-39: note/python -- content_unit_disposition_coverage:13, content_unit_excerpt_matches_extraction:135,
+    structural_unit_disposition_coverage:4, code_example_disposition_coverage:16,
+    navigation_toc_matches_headings:1 (ordinal unit_id drift, same root-cause class
+    as pdf/net''s TC-31, likely mechanically rekeyable the same way)'
+  - 'TC-40: pdf/net reference.aspose.org staleness -- 9 real upstream classes (SideBySidePdfComparer
+    + 7 siblings + DeprecatedFeatureException) missing from content/reference.aspose.org/en/pdf/net/;
+    requires the reference-site pipeline (/batch-reference or equivalent), not readme-refresh
+    itself; once regenerated, re-add the already-drafted API Reference table rows
+    to pdf/net''s README candidate (exact rows on record in the parent mission''s
+    TC-31/TC-40 evidence)'
+  - 'Hardening Track B, in the governing plan''s own Phase-3/4/5 dependency order:
+    TC-13 (input_manifest.py + wiring into start/plan/ingest/recheck/approve/last-verified.json
+    -- the load-bearing piece most others build on), TC-14 (package-version currency
+    hard gate, depends on TC-13), TC-20 (disposition baseline integrity assert), TC-15
+    (publication_reconciler.py, read-only gh api), TC-16 (publication-authority classifier
+    + push gate, depends on TC-15 -- this is what would make font/python''s mirror
+    classification code-enforced instead of hard-rule-enforced), TC-17 (live-published-regression
+    / registry-drift-requeue / republication-tripwire gates, depends on TC-16), TC-27
+    (approve-gate code enforcement, depends on TC-16), TC-18 (tiered claim verification:
+    count/support/accessibility), TC-25 (TypeScript verify-examples runner -- npm
+    ci + tsc --noEmit + tsx execution in a disposable dir), TC-26 (honest UPSTREAM-BROKEN
+    verification status, depends on TC-25), TC-34 (template contract in-repo + CI
+    parity check)'
+  out_of_scope_items:
+  - Any push/approve/merge to an external product GitHub repo without a fresh, explicit,
+    per-PR human go-ahead (unchanged from the parent mission -- font/python must never
+    be published)
+  - Re-litigating or re-verifying anything the parent mission already closed (3 canaries,
+    pdf/net Batch D, slides/python, the 20/32 clean portfolio state, the evidence
+    bundle) -- those are real, evidenced closures, not reopened by this mission
+  - Any edit to AGENTS.md itself
+  - TC-12 (repo_patrol.py auto-stale-write) -- not named in this mission's in_scope_outcomes;
+    remains its own deferred item, pick up separately if needed
+  mandatory_acceptance_criteria:
+  - 'TC-38 and TC-39: audit-portfolio --family <f> --platform <p> --json shows 0 hard-gate
+    findings (or a correctly-diagnosed, disclosed exception), same bar as every Phase-8
+    batch product in the parent mission'
+  - 'TC-40: content/reference.aspose.org/en/pdf/net/ contains all 9 verified classes;
+    pdf/net''s README API Reference table re-gains the already-drafted rows without
+    breaking check_api_reference_table_completeness or check_api_reference_public_type_count_matches_table'
+  - 'TC-13 (input_manifest.py): passes its own new tests; wired into start/plan/ingest/recheck/approve/last-verified.json
+    without breaking any existing readme-refresh test suite'
+  - 'TC-16 (publication-authority classifier): unit test proves font/python classifies
+    mirror and a normal product classifies canonical; push refuses on mirror with
+    the classification evidence printed -- this is the criterion the parent mission''s
+    TC-27b explicitly could NOT meet and downgraded to a hand-verified note'
+  - 'Every taskcard closed under this mission meets the same repair-loop standard
+    as the parent mission: build -> reproduce failing -> fix -> regression-test ->
+    re-verify against real portfolio data, not just unit tests'
+  human_authority_boundaries:
+  - Any push/approve/merge to an external product repository
+  - Any decision authorizing font/python republication (upstream GitLab-canonical
+    question unresolved)
+  conflicts_found:
+  - 'Root MISSION_AUTHORITY.yaml is currently held by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING
+    (unrelated mission, mission_locked: false, not archived-closed at time of this
+    bind) -- per the parent mission''s own established precedent, this mission does
+    not take over the root slot; it hand-authors this archive record directly, matching
+    the exact shape mission_authority.py''s own open/archive_mission() function produces.'
+  - 'Parent mission readme-refresh-hardening-and-regen-2026-08-30 is CLOSED (_archive_status:
+    closed, _closed_at 2026-09-01T02:26:21Z) -- this is a genuinely new mission continuing
+    its disclosed deferred scope, not a reopening of the closed one, per this repo''s
+    own norm that closed missions stay closed and follow-on work gets its own mission
+    id.'
+  mission_locked: false
+  _archive_status: closed
+  _closed_at: '2026-09-01T13:24:35Z'

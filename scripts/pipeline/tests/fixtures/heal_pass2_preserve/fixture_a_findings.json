@@ -1,0 +1,19 @@
+{
+  "file": "fixture_a_before.md",
+  "findings": [
+    {
+      "line_no": 9,
+      "claim_id": "CLM-001",
+      "status": "FAIL",
+      "reason": "CreateDocument API parameters are incorrect",
+      "section": "## API Usage",
+      "unit": "HEAL_FIXTURE_A_APIU_PARA1"
+    }
+  ],
+  "protected_sections": [
+    "## See Also"
+  ],
+  "zero_finding_sections": [
+    "## See Also"
+  ]
+}

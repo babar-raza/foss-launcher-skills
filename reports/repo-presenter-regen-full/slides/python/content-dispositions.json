@@ -1,0 +1,591 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "The official open-source Python library by Aspose.Slides for creating, reading, and editing PowerPoint (`.pptx`) presentations.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "**Requires:** Python 3.10 or later, and `lxml` (installed automatically as a\ndependency). Continuous integration runs the full test suite on Python 3.10,\n3.11, 3.12, 3.13 and 3.14, on Linux, Windows and macOS \u2014 fifteen jobs, and a\nrelease is gated on all of them passing. Pure Python \u2014 there is nothing to\ncompile.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "> **The latest release on PyPI predates this page.** `pip install` gets\n> `26.8.0`, and the changes listed in\n> [CHANGELOG.md](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CHANGELOG.md)\n> under `## [Unreleased]` are not in it \u2014 including hyperlinks, which the\n> example below needs, and the six distinct PowerPoint save formats. For the\n> behaviour described here, install from the repository:\n>\n>",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CHANGELOG.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "> The `aspose` name is a shared namespace package. If the **commercial**\n> `aspose` package is installed in the same environment it takes the name over\n> and this library becomes unimportable, with a bare\n> `ModuleNotFoundError: No module named 'aspose.slides_foss'`. Install this one\n> into its own virtual environment.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- **Presentation I/O** \u2014 Open, create, and save `.pptx` files. A deck PowerPoint authored re-saves with every part preserved; parts this library does not yet understand are carried through verbatim rather than dropped",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- **Slides** \u2014 Add, remove, clone, hide, and iterate slides",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/SlideCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- **Shapes** \u2014 AutoShapes, PictureFrames, Tables, Connectors, GroupShapes, and reordering within a slide",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ShapeCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- **Text** \u2014 TextFrame, Paragraph, Portion with character, paragraph, and text frame formatting (including bullets)",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/TextFrame.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- **Charts** \u2014 73 chart types, series, categories, axes, trendlines, error bars, legend, titles, data labels, markers, series groups, 3D, each backed by a real embedded XLSX workbook",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- **Animations** \u2014 Shape and text-level animations with sequences, effects, triggers, and motion paths",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/animation/Sequence.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- **Slide transitions** \u2014 57 transition types with per-slide timing, advance settings, and morph support",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/slideshow/TransitionType.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- **Themes** \u2014 Color schemes, font schemes, format schemes, master/override themes",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/theme/ColorScheme.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- **Backgrounds** \u2014 Per-slide and master slide backgrounds with solid/gradient/pattern/picture fills",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Background.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- **Fill** \u2014 Solid, gradient, pattern, and picture fills",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/FillFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- **Lines** \u2014 Width, dash style, arrows, join and alignment",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/LineFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- **Effects** \u2014 Outer shadow, inner shadow, glow, soft edge, reflection, blur, preset shadow, fill overlay",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/EffectFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- **3D** \u2014 Bevel, camera, light rig, material, extrusion depth",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ThreeDFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- **Document properties** \u2014 Core, app, and custom properties",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/DocumentProperties.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- **Notes slides** \u2014 Per-slide notes with header/footer management",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/NotesSlideManager.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- **Comments** \u2014 Classic and modern threaded comments with authors, timestamps, replies, and positions",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/CommentCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- **Images** \u2014 Embed from bytes or any file-like object",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- **Hyperlinks** \u2014 External links on a text portion or on a whole shape, on click or on mouse over",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Hyperlink.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- **Markdown export** \u2014 Save presentation text as Markdown in 24 flavor dialects, with tables, lists, headings, comments, and chart data",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/MarkdownSaveOptions.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Assigning `None` removes the link and the relationship it owns.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Hyperlink.py"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "`add_image` takes the image **bytes**, or any object with a `.read()` method. It does not take a\nfile path \u2014 open the file yourself, which keeps the library out of the business of guessing\nencodings and leaving handles open:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Build a chart from scratch by populating its backing workbook:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "`wb.get_cell(worksheet_index, row, column, value)` writes the value to the embedded\nXLSX and returns a cell reference that the chart series and categories bind to.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Text frames, tables, lists, titles/subtitles (as headings), comments, and chart\ndata are exported; the export is text-only, so images, media, and SmartArt are skipped.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "`SaveFormat` declares 21 values. **Seven are written.** The six PowerPoint\nformats \u2014 `PPTX`, `PPTM`, `PPSX`, `PPSM`, `POTX` and `POTM` \u2014 each produce a\ndistinct package declaring its own main-part content type, rather than one\npresentation package under six names; `MD` writes Markdown text.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/SaveFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "The other **fourteen raise `ValueError`**, naming the seven that work, rather\nthan writing a mislabelled file: `PPT`, `PPS`, `POT` (the binary PowerPoint\nfamily), `PDF`, `XPS`, `HTML`, `HTML5`, `SWF`, `TIFF`, `GIF` (rendering and\nconversion), `ODP`, `OTP`, `FODP` (OpenDocument) and `XML`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/SaveFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "The following are not implemented, and the API member is absent rather than\npresent and inert:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ShapeCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- **Rendering and conversion of any kind** \u2014 no PDF, HTML, XPS or image export.\n  This is a design boundary, not a gap: the library writes OOXML, it does not\n  lay out or rasterize.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/SaveFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "`SaveFormat` and the file name are independent: `save(\"deck.pptx\",\nSaveFormat.POTX)` writes a genuine template under a `.pptx` name, and\nPowerPoint refuses to open a file whose extension disagrees with the format\ndeclared inside it. Give the file the extension of the format you asked for.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "Comment threads are written from the classic comment list on save. A deck\nauthored in PowerPoint can carry resolved status, @-mentions and reply chains\nthat the classic list cannot express; those are lost if the presentation's\ncomment authors are touched before saving. Loading and saving without going\nnear comments preserves the file's own threads untouched.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Comment.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "Unknown XML parts encountered during load are preserved verbatim on save \u2014\nopening and re-saving a file will never strip content this library does not yet understand.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "`add_image` accepts image bytes or a file-like object, not a file path. Open\nthe file and pass the handle or its bytes.",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Key Capabilities Images bullet already states add_image takes bytes/file-like objects, not a file path"
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- [GitHub Repository](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- [Issue Tracker](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/issues)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- [Changelog](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CHANGELOG.md) \u2014 what changed, and what changed in a way you will notice",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- [Contributing](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CONTRIBUTING.md) \u2014 how to build, how to run the tests, and how to report a fix",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- [Security policy](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/SECURITY.md) \u2014 how to report a vulnerability privately",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- [Code of conduct](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/CODE_OF_CONDUCT.md)",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "[MIT License](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python/blob/main/LICENSE)",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- **Presentation sections** \u2014 `Presentation.sections` does not exist.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- **Slide size** \u2014 there is no public API to read or change it, so a new deck\n  is whatever the bundled template says (16:9, 12192000 \u00d7 6858000 EMU).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/_internal/pptx/Template.pptx"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- SmartArt, OLE objects, mathematical text",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ShapeCollection.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- VBA macros, digital signatures, encryption",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/SaveFormat.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- Action settings other than external hyperlinks",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/IHyperlinkContainer.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "Assigning to a property a shape or a formatting object does not have raises\n`AttributeError` rather than being accepted and discarded, so a misspelt\nproperty name fails where it is written. Names beginning with an underscore\nare unaffected.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/_internal/strict_attributes.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  }
+]

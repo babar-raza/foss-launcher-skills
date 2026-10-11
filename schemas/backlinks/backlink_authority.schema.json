@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Backlink Authority",
+  "description": "Layer 3: Approved backlink records for insertion",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_key",
+          "link_slot",
+          "target_path",
+          "decision",
+          "allowed_for_generation"
+        ],
+        "properties": {
+          "source_path": {
+            "type": "string"
+          },
+          "source_key": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "link_slot": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "target_path": {
+            "type": "string"
+          },
+          "target_host": {
+            "type": "string"
+          },
+          "target_subdomain": {
+            "type": "string"
+          },
+          "target_type": {
+            "type": "string"
+          },
+          "target_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "anchor_template_id": {
+            "type": "string"
+          },
+          "anchor_config_hash": {
+            "type": "string"
+          },
+          "rendered_anchor_text": {
+            "type": "string"
+          },
+          "rendered_anchor_source": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "AUTO_APPROVE_EXACT",
+              "REVIEW_REQUIRED",
+              "BLOCKED",
+              "FALLBACK_TO_V1",
+              "EXPLICIT_OVERRIDE"
+            ]
+          },
+          "allowed_for_generation": {
+            "type": "boolean"
+          },
+          "authority_id": {
+            "type": "string"
+          },
+          "source_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_index_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "freshness_status": {
+            "type": "string",
+            "enum": [
+              "FRESH",
+              "AGING",
+              "STALE"
+            ]
+          },
+          "freshness_warning": {
+            "type": "boolean"
+          },
+          "approved_at": {
+            "type": "string"
+          },
+          "adjudication_tier": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "adjudication_result": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

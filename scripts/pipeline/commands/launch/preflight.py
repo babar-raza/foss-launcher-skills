@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Universal pre-write preflight check — agent-agnostic enforcement.
 
 Consolidates the three checks that Claude Code enforces via PreToolUse hooks
@@ -26,10 +25,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-import os
-
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(_SCRIPT_DIR.parents[3])))
+_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent.parent
 
 
 def _normalize(path_str: str) -> str:
@@ -49,10 +46,9 @@ def check_path_guard(rel_path: str) -> tuple[bool, str]:
     import importlib.util
 
     _PIPELINE_ROOT = _SCRIPT_DIR.parent.parent  # commands/launch/ -> commands/ -> pipeline/
-    guard_path = _PIPELINE_ROOT / "commands" / "governance" / "path_guard.py"
-    if not guard_path.exists():
-        return True, "path_guard.py not found (skipped)"
-    spec = importlib.util.spec_from_file_location("path_guard", guard_path)
+    spec = importlib.util.spec_from_file_location(
+        "path_guard", _PIPELINE_ROOT / "commands" / "governance" / "path_guard.py"
+    )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 

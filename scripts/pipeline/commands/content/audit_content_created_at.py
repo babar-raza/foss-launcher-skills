@@ -1,63 +1,53 @@
-# Adapted from aspose.org
-"""audit_content_created_at.py -- Baseline coverage report for content_created_at.
+#!/usr/bin/env python3
+"""audit_content_created_at.py — Baseline coverage report for content_created_at.
 
-Scans all English .md files under the content repo and reports:
+Scans all English .md files under content/ and reports:
   - Files with a provenance block that have content_created_at set
   - Files with a provenance block that are missing content_created_at
   - Files with no provenance block at all
 
-Breakdown is per-site.
+Breakdown is per-site (blog, docs, kb, products, reference).
+
+Usage:
+    python audit_content_created_at.py [--csv PATH]
+
+    --csv  Write per-file CSV to PATH (default: reports/content_created_at_coverage.csv)
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import os
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-_PIPELINE = _HERE.parents[1]
-_SCRIPTS = _HERE.parents[2]
-_COMMANDS = _HERE.parent
-for _path in (_SCRIPTS, _PIPELINE):
-    if str(_path) not in sys.path:
-        sys.path.insert(0, str(_path))
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/
+    _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+    if _LIB_DIR not in sys.path:
+        sys.path.insert(0, _LIB_DIR)
 
-from config_loader import resolve_content_repo  # noqa: E402
+from provenance import read_provenance  # noqa: E402
 
-try:
-    from provenance import read_provenance  # noqa: E402
-except ImportError:
-    def read_provenance(filepath):
-        """Stub: provenance module not available in this repo."""
-        return None
-
-
-def _resolve_repo_root() -> Path:
-    env = os.environ.get("CONTENT_REPO_PATH")
-    if env:
-        return Path(env).resolve()
-    try:
-        return resolve_content_repo()
-    except Exception:
-        return _HERE.parents[3]
-
-
-_REPO_ROOT = _resolve_repo_root()
+_REPO_ROOT = (_HERE / ".." / ".." / ".." / "..").resolve()
 _CONTENT_ROOT = _REPO_ROOT / "content"
 _DEFAULT_CSV = _REPO_ROOT / "reports" / "content_created_at_coverage.csv"
 
+# Locale-file suffixes to exclude (e.g. index.fr.md, index.ar.md).
+# English files are named index.md or <slug>.md (no language infix).
 _LOCALE_INFIX_RE = __import__("re").compile(
-    r"\.(ar|bg|ca|cs|da|de|el|es|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sr|sv|th|tr|uk|vi|zh)\.md$"
+    r"\.(ar|bg|ca|cs|da|de|el|es|fa|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sr|sv|th|tr|uk|vi|zh)\\.md$"
 )
 
 
 def _is_locale_file(path: Path) -> bool:
+    """Return True if the file is a locale translation (e.g. index.fr.md)."""
     name = path.name
+    # Match names like index.fr.md, how-to-foo.es.md, etc.
     parts = name.split(".")
     if len(parts) >= 3 and parts[-1] == "md" and len(parts[-2]) in (2, 3):
+        # Two-char and three-char language codes
         lang = parts[-2]
         known_langs = {
             "ar", "bg", "ca", "cs", "da", "de", "el", "es", "fa", "fi",
@@ -70,6 +60,7 @@ def _is_locale_file(path: Path) -> bool:
 
 
 def _site_label(path: Path) -> str:
+    """Extract the site name from a content path (e.g. 'blog.aspose.org')."""
     try:
         rel = path.relative_to(_CONTENT_ROOT)
         return rel.parts[0]
@@ -105,7 +96,8 @@ def audit(scan_root: Path, csv_path: Path | None) -> None:
                 "content_created_at": prov.get("content_created_at", "") if prov else "",
             })
 
-    print(f"content_created_at coverage -- scanned {total} English .md files")
+    # --- Print summary table ---
+    print(f"content_created_at coverage — scanned {total} English .md files")
     print()
     header = f"{'Site':<30}  {'has_field':>10}  {'missing':>10}  {'no_prov':>10}  {'total':>8}"
     print(header)
@@ -132,6 +124,7 @@ def audit(scan_root: Path, csv_path: Path | None) -> None:
             writer.writerows(rows)
         print(f"CSV written to: {csv_path}")
 
+    # Sanity check
     assert grand["has_field"] + grand["missing"] + grand["no_prov"] == total, "Count mismatch"
 
 
@@ -139,9 +132,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Report content_created_at coverage across English .md files."
     )
-    parser.add_argument("--csv", default=None, help="Write per-file CSV to this path")
-    parser.add_argument("--no-csv", action="store_true", default=False, help="Skip CSV output entirely")
-    parser.add_argument("--path", default=None, help="Directory to scan (default: content/ relative to repo root)")
+    parser.add_argument(
+        "--csv",
+        default=None,
+        help=f"Write per-file CSV to this path (default: {_DEFAULT_CSV})",
+    )
+    parser.add_argument(
+        "--no-csv",
+        action="store_true",
+        default=False,
+        help="Skip CSV output entirely",
+    )
+    parser.add_argument(
+        "--path",
+        default=None,
+        help="Directory to scan (default: content/ relative to repo root)",
+    )
     args = parser.parse_args()
 
     scan_root = Path(args.path).resolve() if args.path else _CONTENT_ROOT

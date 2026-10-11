@@ -1,0 +1,160 @@
+{
+  "mission_id": "readme-refresh-hardening-and-regen-2026-08-30",
+  "generated_at": "2026-08-31T19:53:26.431783+00:00",
+  "artifacts": [
+    {
+      "path": "audit_portfolio/baseline_2026-08-30.json",
+      "sha256": "8530b9a1edc9505b4da56c67f4f85a7c0ab5b901edd55fe0909425b3f8a622cf",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "audit_portfolio/final_2026-08-31.json",
+      "sha256": "ae9fba129ae4faeac3600c8cffb328249aa8529dd143e9b01b117f527b755f8f",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/3d-java/checks/result.json",
+      "sha256": "3c533fb13344b5f4248a47e73e2a6b295fb38c98a53df987a6957308cc689a1b",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/3d-net/checks/result.json",
+      "sha256": "4b2a27862a384bc5247f6e29a1d5e99f3c3aa5a28bba334425d5f44198b6b1b2",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/cells-cpp/checks/result.json",
+      "sha256": "fc5b0cc7cb95219b190ba253467de8c111d093a50bc7675208216fdbe28e8d95",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/cells-net/checks/result.json",
+      "sha256": "602c3e5881727fb7cf25ab7bc2bdd06d5f81e33304c8266d08d3a4bb809f095e",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/note-python/checks/result.json",
+      "sha256": "194e68defb058d40350349310578e151a5cc96973190547447f4e782da02429b",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/pdf-cpp/checks/result.json",
+      "sha256": "034069f329c79ad61716078faf13029a7923ccda93557908b077611acd098ff0",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/pdf-go/checks/result.json",
+      "sha256": "55c6bd8f51134b26d21c7ac01efe29d500b21a9a09da961ce74b9d3104e1509a",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/pdf-java/checks/result.json",
+      "sha256": "01b026cc7175c0f4c37680a4ab9ab447390e1cd08feffafb4930ed6a31879da4",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/pdf-net/checks/result.json",
+      "sha256": "9357c703ab916e1802d2f2180efb9af178efa2a6181dcf6c8c41cbe264982475",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/slides-net/checks/result.json",
+      "sha256": "ed79399c8984460147520455ed7e6d351d438f7878adea0dc5307e3689954701",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "batch8/slides-python/checks/result.json",
+      "sha256": "1ca4586c78d574d07a3532e4576f02b86245ae2e9671fef0864ca3977a45e4cc",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/font-python/authority-note.md",
+      "sha256": "da3a8b50e585721c364cfd2bbd596b7cefdcbb84761edc0a9bc0fa477feee8f2",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/font-python/checks-result.json",
+      "sha256": "28efa887a2ea5b3cbb3aa5b51319c317e0966e8c8d929ff081dd5023f0c1a152",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/font-python/no-push-receipt.txt",
+      "sha256": "61cb40f383d279f2a6e38ae03805060861fec604b69a8a2d2674086b74adc163",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/pdf-typescript/factpack.json",
+      "sha256": "323b54e69707adecc2e1c119b7901d8a9a237fb9e703f140dfea421f94d890c9",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/pdf-typescript/scope-finding.md",
+      "sha256": "27c1b1c7ebae00d2d723d5f11c9568447d8f6506e526811bae0be107db88a893",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/slides-python/checks-result.json",
+      "sha256": "90cf3bcb9e1e35b3f2a7e90898617fd8c4b6db30b2a98746933ae34b49307262",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/slides-python/no-push-receipt.txt",
+      "sha256": "bbd86afa5c9445d082b4f9d11d91312dffade47938ea4fc11342cdecc898cda5",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/slides-python/verification-result.json",
+      "sha256": "6aec83c0ce8228aa4edc1fe8537a48014c8ae1d0d8701686efdb608e37247935",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/tex-python/checks-result.json",
+      "sha256": "1e66544a86321319e217da72676c3e65ec62a57895779a0039d927de626cdc26",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/tex-python/no-push-receipt.txt",
+      "sha256": "7d667e1bd7a81ff0164285c1b0686ef3a92cd4d70e4c784105164eefc0c6934a",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "canaries/tex-python/verification-result.json",
+      "sha256": "796a0b1f7492cc7941bf05f42084b6a2d7667dc34392bb0e734b6d5d43063fa4",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "pre_flight/git_status_snapshot_2026-08-31.txt",
+      "sha256": "840d2a3419a2e6e87124010ebe6259c4b415dcdd8a4ac3d6bb618a257b96f5a6",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "pre_flight/mission_authority_snapshot.yaml",
+      "sha256": "8f9f2a0499a8f4adfd09c8177e89d3a47fced2ffe2ab9aee014da9fbd64f6652",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "pre_flight/mt040_status_2026-08-31.txt",
+      "sha256": "b49a62ff4056ab4dc866e37d7b5c19a32fc5e79888c475e0294bb2fd9d147a95",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "rollback_log.md",
+      "sha256": "c70e675d5f9c4a348e609ffc404d19b725dd9d89d52f393988ad3c8e9b873525",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    },
+    {
+      "path": "taskcards.jsonl",
+      "sha256": "e8cf59c5c6eaff23f3cf5d50dc4a3fd8795a744db1b4ad16d2251df6dc00c785",
+      "produced_by": "readme-refresh-hardening-and-regen-2026-08-30"
+    }
+  ],
+  "taskcard_summary": {
+    "total": 50,
+    "by_status": {
+      "CLOSED": 22,
+      "BLOCKED_EXTERNAL": 6,
+      "PAUSED": 17,
+      "IN_PROGRESS": 5
+    }
+  }
+}

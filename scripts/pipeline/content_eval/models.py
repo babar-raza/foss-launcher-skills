@@ -11,9 +11,11 @@ from typing import Any
 import yaml
 
 # ---------------------------------------------------------------------------
-# Frontmatter regex (same as audit.py)
+# Frontmatter regex (canonical definition in core.markdown)
 # ---------------------------------------------------------------------------
-_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
+from content_eval.config import CANONICAL_EVALUATORS, SAFETY_OVERRIDE_FINDINGS  # needed for canonical-only grade computation
+from lib.content_discovery import LOCALE_CODES  # canonical locale-code set (matches infer_product())
 _CODE_FENCE_RE = re.compile(r"^```(\w*)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
 
@@ -26,12 +28,14 @@ class Finding:
     """A single evaluation finding with stable ID."""
 
     level: str              # FAIL, WARN, INFO
-    category: str           # AA, PT, CP, RV, ST, PC, EG, RL, CG, XP, FC
+    category: str           # AA, PT, CP, RV, ST, PC, EG, RL, CG, XP, FC, XD
     filepath: str           # relative path
     line_no: int
     message: str
     suggestion: str = ""
     evaluator: str = ""     # which evaluator produced this
+    cause_class: str = ""   # LOCAL_DEFECT | UPSTREAM_MISSING | BAD_LINK_FORMAT |
+                            # KNOWLEDGE_STALE | PREREQUISITE_ABSENT (empty = LOCAL_DEFECT)
 
     @property
     def id(self) -> str:
@@ -98,6 +102,7 @@ class Page:
     # Inferred metadata
     family: str = ""
     platform: str = ""
+    locale: str = ""         # en, ar, de, fr, ... -- the site-relative locale segment
     subdomain: str = ""     # docs, blog, kb, reference, products
     page_role: str = ""     # howto, faq, docs, blog, reference, products
 
@@ -184,15 +189,38 @@ class Page:
                 self.prose_lines.append((abs_line, stripped))
 
     def _infer_metadata(self):
-        """Infer family, platform, subdomain, page_role from path."""
+        """Infer locale, family, platform, subdomain, page_role from path.
+
+        docs/kb/products/reference pages sit at content/{site}/{locale}/
+        {family}/{platform}/... with the locale segment ALWAYS present
+        (English pages carry "en" explicitly). blog.aspose.org is the one
+        site that omits the locale directory for English and keeps it only
+        for translations -- content/blog.aspose.org/{family}/{platform}/...
+        (English) vs content/blog.aspose.org/{locale}/{family}/{platform}/...
+        (translated). Mirrors content_discovery.py's own infer_product(),
+        which already solves this exact ambiguity via the same LOCALE_CODES
+        membership check -- reused here rather than re-deriving it.
+
+        This used to strip the leading segment only when it equaled "en",
+        so every OTHER locale (ar, de, fr, ...) left the locale code itself
+        misread as `family` and the real family misread as `platform` (e.g.
+        content/docs.aspose.org/ar/3d/typescript/... -> family="ar",
+        platform="3d"). `discover_content()` (the batch/production grading
+        route) only ever returns English paths, so this never affected
+        fleet grading -- only ad-hoc single-file locale evaluation, e.g.
+        S-73's own post-edit re-grade step on a translated page.
+        """
         parts = self.filepath.parts
         for i, p in enumerate(parts):
             if p in ("products.aspose.org", "reference.aspose.org",
                       "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
                 self.subdomain = p.split(".")[0]
                 remaining = list(parts[i + 1:])
-                if remaining and remaining[0] == "en":
+                if remaining and (remaining[0] == "en" or remaining[0] in LOCALE_CODES):
+                    self.locale = remaining[0]
                     remaining = remaining[1:]
+                else:
+                    self.locale = "en"
                 if len(remaining) >= 2:
                     self.family = remaining[0]
                     self.platform = remaining[1]
@@ -256,3 +284,172 @@ class EvalReport:
         for f in self.findings:
             grouped.setdefault(f.category, []).append(f)
         return grouped
+
+    @property
+    def grade(self) -> str:
+        """Aggregate grade for this report."""
+        return compute_grade_with_criticality(self.findings)
+
+    def grade_reasons(self) -> list[str]:
+        """Human-readable reasons for the computed grade.
+
+        Only canonical evaluator findings drive grade reasons.  Experimental
+        evaluator findings appear in the manifest / reports but must not appear
+        here as grade-affecting signals.
+        """
+        reasons: list[str] = []
+        # Canonical evaluators, plus any SAFETY_OVERRIDE_FINDINGS FAIL —
+        # mirrors compute_grade_with_criticality via the shared _is_grade_eligible()
+        canonical_findings = [f for f in self.findings if _is_grade_eligible(f)]
+        fails = [f for f in canonical_findings if f.level == "FAIL"]
+        warns = [f for f in canonical_findings if f.level == "WARN"]
+
+        # Check for critical category override
+        critical_fails = [f for f in fails if f.category in CRITICAL_CATEGORIES]
+        if critical_fails:
+            cats = sorted({f.category for f in critical_fails})
+            evals = sorted({f.evaluator for f in critical_fails})
+            reasons.append(
+                f"FAIL in {', '.join(cats)} ({', '.join(evals)}) "
+                f"-> critical category override -> F"
+            )
+            return reasons
+
+        # Base grade from counts — include evaluator attribution for debuggability
+        base = compute_grade(len(fails), len(warns))
+        if fails:
+            by_eval: dict[str, int] = {}
+            for f in fails:
+                ev = f.evaluator or "unknown"
+                by_eval[ev] = by_eval.get(ev, 0) + 1
+            summary = ", ".join(f"{ev}\u00d7{n}" for ev, n in sorted(by_eval.items()))
+            reasons.append(f"{len(fails)} FAIL finding(s) [{summary}] -> base grade {base}")
+            # First FAIL message for immediate human context
+            first = fails[0]
+            if first.message:
+                loc = f" (line {first.line_no})" if first.line_no else ""
+                reasons.append(f"{first.evaluator or 'unknown'} FAIL: {first.message}{loc}")
+        elif warns:
+            by_eval_w: dict[str, int] = {}
+            for f in warns:
+                ev = f.evaluator or "unknown"
+                by_eval_w[ev] = by_eval_w.get(ev, 0) + 1
+            summary_w = ", ".join(f"{ev}\u00d7{n}" for ev, n in sorted(by_eval_w.items()))
+            reasons.append(f"{len(warns)} WARN finding(s) [{summary_w}] -> base grade {base}")
+        else:
+            reasons.append("No findings -> grade A")
+
+        # Check category ceilings (canonical findings only)
+        final = self.grade
+        if final != base:
+            for f in canonical_findings:
+                cat_config = _CATEGORY_CEILINGS.get(f.category)
+                if cat_config and f.level in cat_config["levels"]:
+                    reasons.append(
+                        f"{f.category} ceiling applied ({f.level}) "
+                        f"-> grade capped at {cat_config['ceiling']}"
+                    )
+        return reasons
+
+
+# ---------------------------------------------------------------------------
+# Grade configuration — loaded from grade_config.yaml
+# ---------------------------------------------------------------------------
+
+def _load_grade_config() -> dict:
+    """Load grade configuration from grade_config.yaml."""
+    config_path = Path(__file__).parent / "grade_config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Grade config not found at {config_path}")
+    with open(config_path, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+_GRADE_CONFIG = _load_grade_config()
+CRITICAL_CATEGORIES = frozenset(_GRADE_CONFIG["critical_categories"])
+_CATEGORY_CEILINGS: dict = _GRADE_CONFIG.get("category_ceilings", {})
+
+
+def _is_grade_eligible(f: "Finding") -> bool:
+    """PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10): true if this finding
+    should participate in grade computation -- either its evaluator is
+    CANONICAL, or it's a FAIL matching one of the narrow, explicit
+    (evaluator, category) pairs in SAFETY_OVERRIDE_FINDINGS (an
+    EXPERIMENTAL evaluator's safety-critical check, allowlisted without a
+    full graduation -- see content_eval/config.py's own docstring on that
+    frozenset, and GRADE_CONTRACT.md §10).
+
+    Shared by grade_reasons() and compute_grade_with_criticality() so the
+    two can never diverge on eligibility -- both used to inline the same
+    `f.evaluator in CANONICAL_EVALUATORS` check independently before this."""
+    if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS:
+        return True
+    return f.level == "FAIL" and (f.evaluator, f.category) in SAFETY_OVERRIDE_FINDINGS
+
+
+# ---------------------------------------------------------------------------
+# Grade computation — canonical A-F scale (matches eval-page S-25)
+# ---------------------------------------------------------------------------
+
+
+def compute_grade(fail_count: int, warn_count: int) -> str:
+    """Canonical A-F grade from finding counts.
+
+    Scale (matches eval-page S-25):
+        F: 6+ FAIL
+        D: 3-5 FAIL
+        C: 1-2 FAIL; or 0 FAIL + 6+ WARN
+        B: 0 FAIL, 3-5 WARN
+        A: 0 FAIL, 0-2 WARN
+    """
+    if fail_count >= 6:
+        return "F"
+    if fail_count >= 3:
+        return "D"
+    if fail_count >= 1:
+        return "C"
+    # 0 FAILs — grade depends on WARN count
+    if warn_count >= 6:
+        return "C"
+    if warn_count >= 3:
+        return "B"
+    return "A"
+
+
+def compute_grade_with_criticality(findings: list[Finding]) -> str:
+    """Grade with critical-finding override and category ceilings.
+
+    Only findings from canonical evaluators contribute to the grade letter.
+    Experimental evaluator findings are excluded so they cannot cap or change
+    the canonical grade. Configuration loaded from grade_config.yaml.
+    """
+    # Canonical evaluators, plus any SAFETY_OVERRIDE_FINDINGS FAIL (see
+    # _is_grade_eligible()) — experimental findings otherwise must not affect grade
+    canonical = [f for f in findings if _is_grade_eligible(f)]
+    has_critical = any(
+        f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
+        for f in canonical
+    )
+    if has_critical:
+        return "F"
+    fails = sum(1 for f in canonical if f.level == "FAIL")
+    warns = sum(1 for f in canonical if f.level == "WARN")
+    base = compute_grade(fails, warns)
+
+    # Apply category-specific grade ceilings from config (canonical only)
+    ceiling = base
+    for f in canonical:
+        cat_config = _CATEGORY_CEILINGS.get(f.category)
+        if cat_config and f.level in cat_config["levels"]:
+            ceiling = _cap(ceiling, cat_config["ceiling"])
+    return ceiling
+
+
+_GRADE_ORDER = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+
+
+def _cap(current: str, ceiling: str) -> str:
+    """Return the worse (lower) of *current* and *ceiling*."""
+    if _GRADE_ORDER.get(ceiling, 4) > _GRADE_ORDER.get(current, 0):
+        return ceiling
+    return current

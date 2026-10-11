@@ -1,0 +1,306 @@
+[
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/ColladaReader.cs",
+    "line": 11,
+    "direction": "import"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/ColladaWriter.cs",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FbxReader.cs",
+    "line": 10,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FbxWriter.cs",
+    "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 10,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 48,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 104,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 135,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 165,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 185,
+    "direction": "export"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 277,
+    "direction": "import"
+  },
+  {
+    "format": "Fbx",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 311,
+    "direction": "export"
+  },
+  {
+    "format": "Collada",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 370,
+    "direction": "export"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 411,
+    "direction": "import"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 423,
+    "direction": "export"
+  },
+  {
+    "format": "Draco",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 490,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 550,
+    "direction": "import"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs",
+    "line": 568,
+    "direction": "export"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/GltfReader.cs",
+    "line": 10,
+    "direction": "import"
+  },
+  {
+    "format": "Gltf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/GltfWriter.cs",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/ObjReader.cs",
+    "line": 13,
+    "direction": "import"
+  },
+  {
+    "format": "Obj",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/ObjWriter.cs",
+    "line": 12,
+    "direction": "export"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/PlyReader.cs",
+    "line": 10,
+    "direction": "import"
+  },
+  {
+    "format": "Ascii",
+    "enum": "PlyFormatType",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/PlyReader.cs",
+    "line": 420,
+    "direction": "detect"
+  },
+  {
+    "format": "BinaryLittleEndian",
+    "enum": "PlyFormatType",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/PlyReader.cs",
+    "line": 420,
+    "direction": "detect"
+  },
+  {
+    "format": "BinaryBigEndian",
+    "enum": "PlyFormatType",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/PlyReader.cs",
+    "line": 420,
+    "direction": "detect"
+  },
+  {
+    "format": "Ply",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/PlyWriter.cs",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/StlReader.cs",
+    "line": 9,
+    "direction": "import"
+  },
+  {
+    "format": "Stl",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/StlWriter.cs",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "A3dw",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/A3dwSaveOptions.cs",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Amf",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/AmfSaveOptions.cs",
+    "line": 6,
+    "direction": "export"
+  },
+  {
+    "format": "Html5",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/Html5SaveOptions.cs",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Jt",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/JtLoadOptions.cs",
+    "line": 8,
+    "direction": "import"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/RvmLoadOptions.cs",
+    "line": 8,
+    "direction": "import"
+  },
+  {
+    "format": "Rvm",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/RvmSaveOptions.cs",
+    "line": 8,
+    "direction": "export"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/U3dLoadOptions.cs",
+    "line": 8,
+    "direction": "import"
+  },
+  {
+    "format": "U3d",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/U3dSaveOptions.cs",
+    "line": 8,
+    "direction": "export"
+  },
+  {
+    "format": "Usd",
+    "enum": "",
+    "value": "",
+    "file": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/UsdSaveOptions.cs",
+    "line": 8,
+    "direction": "export"
+  }
+]

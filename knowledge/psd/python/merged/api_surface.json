@@ -1,0 +1,6603 @@
+[
+  {
+    "name": "SeekOrigin",
+    "kind": "class_definition",
+    "doc": "Defines seek origin for reader.",
+    "file": "aspose_psd_foss/bigendianreader.py",
+    "line": 8,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "BEGIN",
+        "value": "0"
+      },
+      {
+        "name": "CUR",
+        "value": "1"
+      },
+      {
+        "name": "END",
+        "value": "2"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.bigendianreader",
+    "class_import": "aspose_psd_foss.bigendianreader.SeekOrigin",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "BigEndianReader",
+    "kind": "class_definition",
+    "doc": "Reads big-endian data from a stream.",
+    "file": "aspose_psd_foss/bigendianreader.py",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "stream",
+            "type": "io.BufferedIOBase"
+          },
+          {
+            "name": "leave_open",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 20,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "seek",
+        "params": [
+          {
+            "name": "offset",
+            "type": "int"
+          },
+          {
+            "name": "origin",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 36,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_byte",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 39,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_sbyte",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 45,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_bytes",
+        "params": [
+          {
+            "name": "count",
+            "type": "int"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 51,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_int16",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 62,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_uint16",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 66,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_int32",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 70,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_uint32",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 74,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_int64",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 78,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_uint64",
+        "params": [],
+        "return_type": "int",
+        "doc": "",
+        "line": 82,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_single",
+        "params": [],
+        "return_type": "float",
+        "doc": "",
+        "line": 86,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_double",
+        "params": [],
+        "return_type": "float",
+        "doc": "",
+        "line": 90,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_pascal_string",
+        "params": [
+          {
+            "name": "max_length",
+            "type": "int"
+          }
+        ],
+        "return_type": "str",
+        "doc": "",
+        "line": 94,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_pascal_string_aligned_to2",
+        "params": [
+          {
+            "name": "max_length",
+            "type": "int"
+          }
+        ],
+        "return_type": "str",
+        "doc": "",
+        "line": 97,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_pascal_string_aligned_to4",
+        "params": [
+          {
+            "name": "max_length",
+            "type": "int"
+          }
+        ],
+        "return_type": "str",
+        "doc": "",
+        "line": 100,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "read_exactly",
+        "params": [
+          {
+            "name": "size",
+            "type": "int"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 121,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "skip",
+        "params": [
+          {
+            "name": "count",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 136,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      },
+      {
+        "name": "dispose",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 139,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianreader.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "position",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the position.",
+        "line": 25,
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the length.",
+        "line": 29,
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.bigendianreader",
+    "class_import": "aspose_psd_foss.bigendianreader.BigEndianReader",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "BigEndianWriter",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/bigendianwriter.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "stream",
+            "type": ""
+          },
+          {
+            "name": "leave_open",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 6,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "seek",
+        "params": [
+          {
+            "name": "offset",
+            "type": ""
+          },
+          {
+            "name": "origin",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 22,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 25,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_byte",
+        "params": [
+          {
+            "name": "bytevalue",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 34,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_bytes",
+        "params": [
+          {
+            "name": "buffer",
+            "type": ""
+          },
+          {
+            "name": "offset",
+            "type": ""
+          },
+          {
+            "name": "count",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 37,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_sbyte",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 42,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_short",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 45,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_ushort",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 48,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_uint16",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Write an unsigned 16‑bit integer (big‑endian).",
+        "line": 51,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_int",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 55,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_int32",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Write a signed 32‑bit integer (big‑endian).",
+        "line": 58,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_uint",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 62,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_uint32",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Alias for writing a 32‑bit unsigned integer.",
+        "line": 65,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_int16",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Alias for writing a signed 16‑bit integer (short).",
+        "line": 69,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_uint8",
+        "params": [
+          {
+            "name": "value",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Alias for writing a single unsigned byte.",
+        "line": 73,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_long",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 77,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_ulong",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 80,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_pascal_string",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 83,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_pascal_string_aligned_to2",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 86,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_pascal_string_aligned_to_2",
+        "params": [
+          {
+            "name": "value",
+            "type": "str"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Alias for writing a Pascal string aligned to a 2‑byte boundary.",
+        "line": 89,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_pascal_string_aligned_to4",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 93,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "get_pascal_string_storage_length_aligned_to4",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 97,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "write_all_bytes",
+        "params": [
+          {
+            "name": "data",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 118,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      },
+      {
+        "name": "dispose",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 121,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianwriter.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "position",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the position.",
+        "line": 19,
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.bigendianwriter",
+    "class_import": "aspose_psd_foss.bigendianwriter.BigEndianWriter",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ImageLoader",
+    "kind": "class_definition",
+    "doc": "Provides the load functionality for images.",
+    "file": "aspose_psd_foss/imageloader.py",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "load_from_path",
+        "params": [
+          {
+            "name": "file_path",
+            "type": "str"
+          }
+        ],
+        "return_type": "object",
+        "doc": "",
+        "line": 13,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/imageloader.py"
+      },
+      {
+        "name": "load_from_stream",
+        "params": [
+          {
+            "name": "stream",
+            "type": "BytesIO"
+          }
+        ],
+        "return_type": "object",
+        "doc": "",
+        "line": 17,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/imageloader.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.imageloader",
+    "class_import": "aspose_psd_foss.imageloader.ImageLoader",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "LayerAndMaskSectionReader",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layerandmasksectionreader.py",
+    "line": 12,
+    "bases": [],
+    "methods": [
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "LayerAndMaskSection",
+        "doc": "",
+        "line": 14,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layerandmasksectionreader.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layerandmasksectionreader",
+    "class_import": "aspose_psd_foss.layerandmasksectionreader.LayerAndMaskSectionReader",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "LayerAndMaskSectionWriter",
+    "kind": "class_definition",
+    "doc": "Writes PSD/PSB Layer and Mask Information sections.",
+    "file": "aspose_psd_foss/layerandmasksectionwriter.py",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "section",
+            "type": "LayerAndMaskSection"
+          },
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Writes the section while preserving raw bytes for no-mutation saves.",
+        "line": 14,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layerandmasksectionwriter.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layerandmasksectionwriter",
+    "class_import": "aspose_psd_foss.layerandmasksectionwriter.LayerAndMaskSectionWriter",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ChannelInformation",
+    "kind": "class_definition",
+    "doc": "Represents PSD layer channel information.",
+    "file": "aspose_psd_foss/layers/channelinformation.py",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "compression_method",
+            "type": ""
+          },
+          {
+            "name": "bit_depth",
+            "type": ""
+          },
+          {
+            "name": "psd_version",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the ChannelInformation class.",
+        "line": 11,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/channelinformation.py"
+      },
+      {
+        "name": "from_layer_channel_info",
+        "params": [
+          {
+            "name": "channel_info",
+            "type": "LayerChannelInfo"
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates public channel information from the internal layer channel metadata.",
+        "line": 50,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/channelinformation.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "ChannelID",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the channel identifier.",
+        "line": 24,
+        "file": "aspose_psd_foss/layers/channelinformation.py"
+      },
+      {
+        "name": "compression_method",
+        "type": "",
+        "doc": "Gets the compression method.",
+        "line": 19,
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "length",
+        "type": "",
+        "doc": "Gets the length.",
+        "line": 20,
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.channelinformation",
+    "class_import": "aspose_psd_foss.layers.channelinformation.ChannelInformation",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerRecordReader",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layerrecordreader.py",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrecordreader.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "ADOBE_LAYER_SIGNATURE",
+        "value": "0x3842494D"
+      },
+      {
+        "name": "ADOBE_LAYER_SIGNATURE_TEXT",
+        "value": "\"8BIM\""
+      },
+      {
+        "name": "LAYER_INVISIBLE_FLAG",
+        "value": "0x02"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.layerrecordreader",
+    "class_import": "aspose_psd_foss.layers.layerrecordreader.LayerRecordReader",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerRecordWriter",
+    "kind": "class_definition",
+    "doc": "Writes PSD/PSB layer records from the in-memory Layer model.",
+    "file": "aspose_psd_foss/layers/layerrecordwriter.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "write",
+        "params": [
+          {
+            "name": "layer",
+            "type": "Layer"
+          },
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Writes one layer record using PSD- or PSB-sized channel lengths.",
+        "line": 20,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrecordwriter.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "ADOBE_LAYER_SIGNATURE",
+        "value": "0x3842494D"
+      },
+      {
+        "name": "LAYER_INVISIBLE_FLAG",
+        "value": "0x02"
+      },
+      {
+        "name": "LAYER_RECORD_RESERVED_BYTE",
+        "value": "0"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.layerrecordwriter",
+    "class_import": "aspose_psd_foss.layers.layerrecordwriter.LayerRecordWriter",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "PsdImageLoader",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/loaders/psdimageloader.py",
+    "line": 14,
+    "bases": [],
+    "methods": [
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "stream",
+            "type": "io.BufferedIOBase"
+          },
+          {
+            "name": "leave_open",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/loaders/psdimageloader.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "exported",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.loaders.psdimageloader",
+    "class_import": "aspose_psd_foss.loaders.psdimageloader.PsdImageLoader",
+    "module_key": "loaders",
+    "module_label": "Loaders"
+  },
+  {
+    "name": "PsdSectionReader",
+    "kind": "class_definition",
+    "doc": "Provides bounded reads for PSD/PSB sections that are stored in memory by this implementation.",
+    "file": "aspose_psd_foss/psdsectionreader.py",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "read_bytes",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          },
+          {
+            "name": "section_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "Reads a declared section payload after validating stream boundaries and the in-memory size limit.",
+        "line": 10,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdsectionreader.py"
+      },
+      {
+        "name": "ReadBytes",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          },
+          {
+            "name": "section_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "bytes",
+        "doc": "",
+        "line": 28,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdsectionreader.py"
+      },
+      {
+        "name": "get_memory_backed_length",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          },
+          {
+            "name": "section_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int",
+        "doc": "Validates a declared section length and returns the equivalent in-memory array size.",
+        "line": 32,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdsectionreader.py"
+      },
+      {
+        "name": "validate_signed_length",
+        "params": [
+          {
+            "name": "length",
+            "type": "int"
+          },
+          {
+            "name": "section_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int",
+        "doc": "Validates a signed length field that belongs to a bounded section.",
+        "line": 59,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdsectionreader.py"
+      },
+      {
+        "name": "get_nested_memory_backed_length",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          },
+          {
+            "name": "section_end",
+            "type": "int"
+          },
+          {
+            "name": "section_name",
+            "type": "str"
+          }
+        ],
+        "return_type": "int",
+        "doc": "Validates that a nested payload stays inside the already-bounded enclosing section.",
+        "line": 77,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdsectionreader.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.psdsectionreader",
+    "class_import": "aspose_psd_foss.psdsectionreader.PsdSectionReader",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdImageWriter",
+    "kind": "class_definition",
+    "doc": "Writes parsed PSD/PSB document state to a stream.",
+    "file": "aspose_psd_foss/writedescriptors/psdimagewriter.py",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "document",
+            "type": "PsdImageDocumentState"
+          },
+          {
+            "name": "stream",
+            "type": ""
+          },
+          {
+            "name": "leave_open",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Saves a parsed document state to a writable stream.",
+        "line": 12,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/writedescriptors/psdimagewriter.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.writedescriptors.psdimagewriter",
+    "class_import": "aspose_psd_foss.writedescriptors.psdimagewriter.PsdImageWriter",
+    "module_key": "writedescriptors",
+    "module_label": "Writedescriptors"
+  },
+  {
+    "name": "BigEndianBitConverter",
+    "kind": "class_definition",
+    "doc": "Provides helper methods for reading big-endian primitive values from byte arrays.",
+    "file": "aspose_psd_foss/bigendianbitconverter.py",
+    "line": 2,
+    "bases": [],
+    "methods": [
+      {
+        "name": "to_int32",
+        "params": [
+          {
+            "name": "byte_array",
+            "type": ""
+          },
+          {
+            "name": "offset",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Reads a 32-bit signed integer in big-endian format from the specified byte array.",
+        "line": 6,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/bigendianbitconverter.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.bigendianbitconverter",
+    "class_import": "aspose_psd_foss.bigendianbitconverter.BigEndianBitConverter",
+    "module_key": "conversion",
+    "module_label": "Conversion"
+  },
+  {
+    "name": "ColorModes",
+    "kind": "class_definition",
+    "doc": "Defines the color modes supported by PSD files.",
+    "file": "aspose_psd_foss/colormodes.py",
+    "line": 4,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "BITMAP",
+        "value": "0"
+      },
+      {
+        "name": "GRAYSCALE",
+        "value": "1"
+      },
+      {
+        "name": "INDEXED",
+        "value": "2"
+      },
+      {
+        "name": "RGB",
+        "value": "3"
+      },
+      {
+        "name": "CMYK",
+        "value": "4"
+      },
+      {
+        "name": "MULTICHANNEL",
+        "value": "7"
+      },
+      {
+        "name": "DUOTONE",
+        "value": "8"
+      },
+      {
+        "name": "LAB",
+        "value": "9"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.colormodes",
+    "class_import": "aspose_psd_foss.colormodes.ColorModes",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "CompressionMethod",
+    "kind": "class_definition",
+    "doc": "Defines the compression methods used for image data in PSD files.",
+    "file": "aspose_psd_foss/compressionmethod.py",
+    "line": 4,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "RAW",
+        "value": "0"
+      },
+      {
+        "name": "RLE",
+        "value": "1"
+      },
+      {
+        "name": "ZIP_WITHOUT_PREDICTION",
+        "value": "2"
+      },
+      {
+        "name": "ZIP_WITH_PREDICTION",
+        "value": "3"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.compressionmethod",
+    "class_import": "aspose_psd_foss.compressionmethod.CompressionMethod",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ArgumentNullException",
+    "kind": "class_definition",
+    "doc": "Exception that is thrown when argument is null.",
+    "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py",
+    "line": 1,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "message",
+            "type": ""
+          },
+          {
+            "name": "inner_exception",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the ArgumentNullException class.",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "inner_exception",
+        "type": "",
+        "doc": "Gets the inner exception.",
+        "line": 12,
+        "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.coreexceptions.argumentnullexception",
+    "class_import": "aspose_psd_foss.coreexceptions.argumentnullexception.ArgumentNullException",
+    "module_key": "coreexceptions",
+    "module_label": "Coreexceptions"
+  },
+  {
+    "name": "NotSupportedException",
+    "kind": "class_definition",
+    "doc": "Exception that is thrown when operation is not supported.",
+    "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py",
+    "line": 1,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "message",
+            "type": ""
+          },
+          {
+            "name": "inner_exception",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the NotSupportedException class.",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "inner_exception",
+        "type": "",
+        "doc": "Gets the inner exception.",
+        "line": 12,
+        "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.coreexceptions.notsupportedexception",
+    "class_import": "aspose_psd_foss.coreexceptions.notsupportedexception.NotSupportedException",
+    "module_key": "coreexceptions",
+    "module_label": "Coreexceptions"
+  },
+  {
+    "name": "PsdLoadException",
+    "kind": "class_definition",
+    "doc": "Exception that is thrown when an error occurs while loading a PSD file.",
+    "file": "aspose_psd_foss/coreexceptions/psdloadexception.py",
+    "line": 1,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "message",
+            "type": ""
+          },
+          {
+            "name": "inner_exception",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdLoadException class.",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/coreexceptions/psdloadexception.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "inner_exception",
+        "type": "",
+        "doc": "Gets the inner exception.",
+        "line": 12,
+        "file": "aspose_psd_foss/coreexceptions/psdloadexception.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.coreexceptions.psdloadexception",
+    "class_import": "aspose_psd_foss.coreexceptions.psdloadexception.PsdLoadException",
+    "module_key": "coreexceptions",
+    "module_label": "Coreexceptions"
+  },
+  {
+    "name": "PsdSaveException",
+    "kind": "class_definition",
+    "doc": "Initializes a new instance of the PsdSaveException class.",
+    "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py",
+    "line": 2,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "message",
+            "type": ""
+          },
+          {
+            "name": "inner_exception",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 9,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "inner_exception",
+        "type": "",
+        "doc": "Gets the inner exception.",
+        "line": 11,
+        "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.coreexceptions.psdsaveexception",
+    "class_import": "aspose_psd_foss.coreexceptions.psdsaveexception.PsdSaveException",
+    "module_key": "coreexceptions",
+    "module_label": "Coreexceptions"
+  },
+  {
+    "name": "Image",
+    "kind": "class_definition",
+    "doc": "Abstract base class for image objects.",
+    "file": "aspose_psd_foss/image.py",
+    "line": 7,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "source",
+            "type": "Union[str, io.BytesIO, io.BufferedIOBase]"
+          }
+        ],
+        "return_type": "\"Image\"",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/image.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.image",
+    "class_import": "aspose_psd_foss.image.Image",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "BlendMode",
+    "kind": "class_definition",
+    "doc": "Defines the blend modes used for layers in PSD files.",
+    "file": "aspose_psd_foss/layers/blendmode.py",
+    "line": 4,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "NORMAL",
+        "value": "1852797549"
+      },
+      {
+        "name": "MULTIPLY",
+        "value": "1836411936"
+      },
+      {
+        "name": "SCREEN",
+        "value": "1935897198"
+      },
+      {
+        "name": "OVERLAY",
+        "value": "1870030194"
+      },
+      {
+        "name": "DARKEN",
+        "value": "1684107883"
+      },
+      {
+        "name": "LIGHTEN",
+        "value": "1818850405"
+      },
+      {
+        "name": "COLORDODGE",
+        "value": "1684633120"
+      },
+      {
+        "name": "COLORBURN",
+        "value": "1768188278"
+      },
+      {
+        "name": "HARDLIGHT",
+        "value": "1749838196"
+      },
+      {
+        "name": "SOFTLIGHT",
+        "value": "1934387572"
+      },
+      {
+        "name": "DIFFERENCE",
+        "value": "1684629094"
+      },
+      {
+        "name": "EXCLUSION",
+        "value": "1936553316"
+      },
+      {
+        "name": "HUE",
+        "value": "1752524064"
+      },
+      {
+        "name": "SATURATION",
+        "value": "1935766560"
+      },
+      {
+        "name": "COLOR",
+        "value": "1668246642"
+      },
+      {
+        "name": "LUMINOSITY",
+        "value": "1819634976"
+      },
+      {
+        "name": "DARKERCOLOR",
+        "value": "1684751212"
+      },
+      {
+        "name": "LIGHTERCOLOR",
+        "value": "1818706796"
+      },
+      {
+        "name": "LINEARBURN",
+        "value": "1818391150"
+      },
+      {
+        "name": "LINEARDODGE",
+        "value": "1818518631"
+      },
+      {
+        "name": "LINEARLIGHT",
+        "value": "1816947060"
+      },
+      {
+        "name": "VIVIDLIGHT",
+        "value": "1984719220"
+      },
+      {
+        "name": "PINLIGHT",
+        "value": "1884055924"
+      },
+      {
+        "name": "HARDMIX",
+        "value": "1749903736"
+      },
+      {
+        "name": "SUBTRACT",
+        "value": "1718842722"
+      },
+      {
+        "name": "DIVIDE",
+        "value": "1717856630"
+      },
+      {
+        "name": "DISSOLVE",
+        "value": "1684632435"
+      },
+      {
+        "name": "PASSTHROUGH",
+        "value": "1885434739"
+      },
+      {
+        "name": "ABSENT",
+        "value": "0"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.blendmode",
+    "class_import": "aspose_psd_foss.layers.blendmode.BlendMode",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "BlendRange",
+    "kind": "class_definition",
+    "doc": "Represents a PSD layer blend range.",
+    "file": "aspose_psd_foss/layers/blendrange.py",
+    "line": 1,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "destination",
+            "type": ""
+          },
+          {
+            "name": "source",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/blendrange.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "destination",
+        "type": "",
+        "doc": "Gets the destination.",
+        "line": 5,
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "source",
+        "type": "",
+        "doc": "Gets the source.",
+        "line": 6,
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.blendrange",
+    "class_import": "aspose_psd_foss.layers.blendrange.BlendRange",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "GlobalLayerMaskInfo",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/globallayermaskinfo.py",
+    "line": 2,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 5,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/globallayermaskinfo.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.globallayermaskinfo",
+    "class_import": "aspose_psd_foss.layers.globallayermaskinfo.GlobalLayerMaskInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "Layer",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layer.py",
+    "line": 20,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 42,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layer.py"
+      },
+      {
+        "name": "mark_mutated",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 268,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layer.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"Layer\"",
+        "doc": "",
+        "line": 284,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layer.py"
+      },
+      {
+        "name": "write",
+        "params": [
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 288,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layer.py"
+      },
+      {
+        "name": "create_parsed",
+        "params": [
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "bounds",
+            "type": "Rectangle"
+          },
+          {
+            "name": "is_visible",
+            "type": "bool"
+          },
+          {
+            "name": "opacity",
+            "type": "int"
+          },
+          {
+            "name": "clipping",
+            "type": "int"
+          },
+          {
+            "name": "blend_mode",
+            "type": "BlendMode"
+          },
+          {
+            "name": "raw_data",
+            "type": "LayerRawData"
+          }
+        ],
+        "return_type": "\"Layer\"",
+        "doc": "",
+        "line": 293,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layer.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "name",
+        "type": "str",
+        "writable": true,
+        "doc": "Gets or sets the name.",
+        "line": 46,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "bounds",
+        "type": "Rectangle",
+        "writable": false,
+        "doc": "Gets the bounds.",
+        "line": 56,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the width.",
+        "line": 60,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the height.",
+        "line": 64,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "top",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the top.",
+        "line": 68,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "left",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the left.",
+        "line": 81,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "bottom",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the bottom.",
+        "line": 94,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "right",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the right.",
+        "line": 107,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "is_visible",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is visible.",
+        "line": 120,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsVisible",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets the is visible.",
+        "line": 130,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "opacity",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the opacity.",
+        "line": 138,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "clipping",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the clipping.",
+        "line": 148,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "blend_mode_key",
+        "type": "BlendMode",
+        "writable": true,
+        "doc": "Gets or sets the blend mode key.",
+        "line": 158,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channels_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the channels count.",
+        "line": 166,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channel_information",
+        "type": "List[ChannelInformation]",
+        "writable": true,
+        "doc": "Gets or sets the channel information.",
+        "line": 170,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channels",
+        "type": "List[PsdLayerChannelInfo]",
+        "writable": false,
+        "doc": "Gets the channels.",
+        "line": 182,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "has_mask_data",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the has mask data.",
+        "line": 188,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "has_blending_ranges_data",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the has blending ranges data.",
+        "line": 192,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "mask_info",
+        "type": "LayerMaskInfo",
+        "writable": false,
+        "doc": "Gets the mask info.",
+        "line": 204,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "blending_ranges_info",
+        "type": "LayerBlendingRangesInfo",
+        "writable": false,
+        "doc": "Gets the blending ranges info.",
+        "line": 210,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channel_info",
+        "type": "List",
+        "writable": false,
+        "doc": "Gets the channel info.",
+        "line": 217,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_flags",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the raw flags.",
+        "line": 221,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_layer_mask_section",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw layer mask section.",
+        "line": 225,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_layer_blending_ranges_section",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw layer blending ranges section.",
+        "line": 229,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "layer_mask_data",
+        "type": "Optional[LayerMaskDataShort]",
+        "writable": true,
+        "doc": "Gets or sets the layer mask data.",
+        "line": 233,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "layer_blending_ranges_data",
+        "type": "LayerBlendingRangesData",
+        "writable": true,
+        "doc": "Gets or sets the layer blending ranges data.",
+        "line": 245,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "additional_layer_data",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the additional layer data.",
+        "line": 257,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_blend_mode_key",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the raw blend mode key.",
+        "line": 261,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "has_mutated",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the has mutated.",
+        "line": 265,
+        "file": "aspose_psd_foss/layers/layer.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layer",
+    "class_import": "aspose_psd_foss.layers.layer.Layer",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerBlendingRangesData",
+    "kind": "class_definition",
+    "doc": "Represents PSD layer blending ranges data.",
+    "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "Initializes a new instance of the LayerBlendingRangesData class.",
+        "line": 10,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+      },
+      {
+        "name": "from_raw_length",
+        "params": [
+          {
+            "name": "length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates public blending ranges data from a preserved raw subsection length.",
+        "line": 22,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "length",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the blending ranges data length in bytes.",
+        "line": 17,
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py"
+      },
+      {
+        "name": "composite_blend_range",
+        "type": "",
+        "doc": "Gets the composite blend range.",
+        "line": 12,
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channel_blend_ranges",
+        "type": "",
+        "doc": "Gets the channel blend ranges.",
+        "line": 13,
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layerblendingrangesdata",
+    "class_import": "aspose_psd_foss.layers.layerblendingrangesdata.LayerBlendingRangesData",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerBlendingRangesInfo",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py",
+    "line": 2,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "is_present",
+            "type": ""
+          },
+          {
+            "name": "raw_data_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 3,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_present",
+        "type": "",
+        "writable": false,
+        "doc": "Gets a value indicating whether the subsection contains payload bytes.",
+        "line": 8,
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py"
+      },
+      {
+        "name": "raw_data_length",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw subsection length including the leading length field.",
+        "line": 13,
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layerblendingrangesinfo",
+    "class_import": "aspose_psd_foss.layers.layerblendingrangesinfo.LayerBlendingRangesInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerBlendModeMapper",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layerblendmodemapper.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "parse_blend_mode_key",
+        "params": [
+          {
+            "name": "key",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 8,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerblendmodemapper.py"
+      },
+      {
+        "name": "get_blend_mode_key",
+        "params": [
+          {
+            "name": "mode",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 47,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerblendmodemapper.py"
+      }
+    ],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "NORMAL_BLEND_MODE_KEY",
+        "value": "\"norm\""
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.layerblendmodemapper",
+    "class_import": "aspose_psd_foss.layers.layerblendmodemapper.LayerBlendModeMapper",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerChannelInfo",
+    "kind": "class_definition",
+    "doc": "Stores one channel metadata entry from a layer record.",
+    "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "channel_id",
+            "type": "int"
+          },
+          {
+            "name": "data_length",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 7,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "channel_id",
+        "type": "",
+        "doc": "Gets the channel id.",
+        "line": 8,
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "data_length",
+        "type": "",
+        "doc": "Gets the data length.",
+        "line": 9,
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layerchannelinfo",
+    "class_import": "aspose_psd_foss.layers.layerchannelinfo.LayerChannelInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskData",
+    "kind": "class_definition",
+    "doc": "Defines the base class for PSD layer mask data.",
+    "file": "aspose_psd_foss/layers/layermaskdata.py",
+    "line": 9,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "None",
+        "doc": "",
+        "line": 14,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "bottom",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the bottom layer mask position.",
+        "line": 25,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "data_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the size of the layer mask data.",
+        "line": 34,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "default_color",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the default layer mask color.",
+        "line": 39,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "flags",
+        "type": "LayerMaskFlags",
+        "writable": true,
+        "doc": "Gets or sets the layer mask flags.",
+        "line": 48,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "image_data",
+        "type": "bytearray",
+        "writable": true,
+        "doc": "Gets or sets the layer mask image data.",
+        "line": 57,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "left",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the left layer mask position.",
+        "line": 68,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "mask_rectangle",
+        "type": "Rectangle",
+        "writable": true,
+        "doc": "Gets or sets the mask rectangle.",
+        "line": 77,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "right",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the right layer mask position.",
+        "line": 86,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "top",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the top layer mask position.",
+        "line": 95,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layermaskdata",
+    "class_import": "aspose_psd_foss.layers.layermaskdata.LayerMaskData",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskDataShort",
+    "kind": "class_definition",
+    "doc": "Defines layer mask data for layers that have only a raster or vector mask.",
+    "file": "aspose_psd_foss/layers/layermaskdatashort.py",
+    "line": 4,
+    "bases": [
+      "LayerMaskData"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 9,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layermaskdatashort.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "padding",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the layer mask padding.",
+        "line": 14,
+        "file": "aspose_psd_foss/layers/layermaskdatashort.py"
+      },
+      {
+        "name": "bottom",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the bottom layer mask position.",
+        "line": 25,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "data_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the size of the layer mask data.",
+        "line": 34,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "default_color",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the default layer mask color.",
+        "line": 39,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "flags",
+        "type": "LayerMaskFlags",
+        "writable": true,
+        "doc": "Gets or sets the layer mask flags.",
+        "line": 48,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "image_data",
+        "type": "bytearray",
+        "writable": true,
+        "doc": "Gets or sets the layer mask image data.",
+        "line": 57,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "left",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the left layer mask position.",
+        "line": 68,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "mask_rectangle",
+        "type": "Rectangle",
+        "writable": true,
+        "doc": "Gets or sets the mask rectangle.",
+        "line": 77,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "right",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the right layer mask position.",
+        "line": 86,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      },
+      {
+        "name": "top",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the top layer mask position.",
+        "line": 95,
+        "file": "aspose_psd_foss/layers/layermaskdata.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layermaskdatashort",
+    "class_import": "aspose_psd_foss.layers.layermaskdatashort.LayerMaskDataShort",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskFlags",
+    "kind": "class_definition",
+    "doc": "Defines PSD layer mask flags.",
+    "file": "aspose_psd_foss/layers/layermaskflags.py",
+    "line": 4,
+    "bases": [
+      "Flag"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "NONE",
+        "value": "0"
+      },
+      {
+        "name": "RELATIVE_TO_LAYER",
+        "value": "1"
+      },
+      {
+        "name": "DISABLED",
+        "value": "2"
+      },
+      {
+        "name": "INVERTED_WHEN_BLENDING",
+        "value": "4"
+      },
+      {
+        "name": "USER_MASK_FROM_RENDERING_OTHER_DATA",
+        "value": "8"
+      },
+      {
+        "name": "USER_OR_VECTOR_MASKS_HAVE_PARAMETERS",
+        "value": "16"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.layermaskflags",
+    "class_import": "aspose_psd_foss.layers.layermaskflags.LayerMaskFlags",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskInfo",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layermaskinfo.py",
+    "line": 2,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "is_present",
+            "type": ""
+          },
+          {
+            "name": "raw_data_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 3,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layermaskinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_present",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the is present.",
+        "line": 8,
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_data_length",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw data length.",
+        "line": 12,
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layermaskinfo",
+    "class_import": "aspose_psd_foss.layers.layermaskinfo.LayerMaskInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerRawData",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layerrawdata.py",
+    "line": 7,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"LayerRawData\"",
+        "doc": "",
+        "line": 11,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrawdata.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "flags",
+            "type": ""
+          },
+          {
+            "name": "blend_mode_key",
+            "type": ""
+          },
+          {
+            "name": "channel_info",
+            "type": ""
+          },
+          {
+            "name": "layer_mask_section",
+            "type": ""
+          },
+          {
+            "name": "blending_ranges_section",
+            "type": ""
+          },
+          {
+            "name": "additional_layer_data",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 21,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrawdata.py"
+      },
+      {
+        "name": "with_blend_mode_key",
+        "params": [
+          {
+            "name": "blend_mode_key",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 37,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrawdata.py"
+      },
+      {
+        "name": "WithBlendModeKey",
+        "params": [
+          {
+            "name": "blend_mode_key",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 48,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerrawdata.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Empty",
+        "type": "\"LayerRawData\"",
+        "writable": false,
+        "doc": "Gets the empty.",
+        "line": 8,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "flags",
+        "type": "",
+        "doc": "Gets the flags.",
+        "line": 30,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "blend_mode_key",
+        "type": "",
+        "doc": "Gets the blend mode key.",
+        "line": 31,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "channel_info",
+        "type": "",
+        "doc": "Gets the channel info.",
+        "line": 32,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "layer_mask_section",
+        "type": "",
+        "doc": "Gets the layer mask section.",
+        "line": 33,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "blending_ranges_section",
+        "type": "",
+        "doc": "Gets the blending ranges section.",
+        "line": 34,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "additional_layer_data",
+        "type": "",
+        "doc": "Gets the additional layer data.",
+        "line": 35,
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.layerrawdata",
+    "class_import": "aspose_psd_foss.layers.layerrawdata.LayerRawData",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerResource",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/layerresource.py",
+    "line": 5,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "stream_container",
+            "type": "StreamContainer"
+          },
+          {
+            "name": "psd_version",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 28,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/layerresource.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "key",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the key.",
+        "line": 11,
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the length.",
+        "line": 16,
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "psd_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the psd version.",
+        "line": 20,
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "signature",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the signature.",
+        "line": 24,
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "RESOURCE_SIGNATURE",
+        "value": "0x3842494D"
+      },
+      {
+        "name": "PSB_RESOURCE_SIGNATURE",
+        "value": "0x38425053"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.layers.layerresource",
+    "class_import": "aspose_psd_foss.layers.layerresource.LayerResource",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "PsdLayerChannelInfo",
+    "kind": "class_definition",
+    "doc": "Provides a read-only summary of one parsed layer channel record.",
+    "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py",
+    "line": 1,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "channel_id",
+            "type": ""
+          },
+          {
+            "name": "data_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdLayerChannelInfo class.",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "channel_id",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the PSD channel identifier.",
+        "line": 15,
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py"
+      },
+      {
+        "name": "data_length",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the declared payload length in bytes.",
+        "line": 20,
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.psdlayerchannelinfo",
+    "class_import": "aspose_psd_foss.layers.psdlayerchannelinfo.PsdLayerChannelInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "RawLayerBlendingRangesSection",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+    "line": 7,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 9,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "raw_data",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 12,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": ""
+          },
+          {
+            "name": "section_end",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "raw_data",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw data.",
+        "line": 16,
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.rawlayerblendingrangessection",
+    "class_import": "aspose_psd_foss.layers.rawlayerblendingrangessection.RawLayerBlendingRangesSection",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "RawLayerMaskSection",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 10,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "raw_data",
+            "type": "bytes"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 13,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "section_end",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 21,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "raw_data",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the raw data.",
+        "line": 17,
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.layers.rawlayermasksection",
+    "class_import": "aspose_psd_foss.layers.rawlayermasksection.RawLayerMaskSection",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "Point",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/point.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 10,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/point.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "x",
+            "type": ""
+          },
+          {
+            "name": "y",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 14,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/point.py"
+      },
+      {
+        "name": "equals",
+        "params": [
+          {
+            "name": "other",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 24,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/point.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_empty",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the is empty.",
+        "line": 20,
+        "file": "aspose_psd_foss/point.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Empty",
+        "type": "Optional[\"Point\"]",
+        "writable": false,
+        "doc": "Gets the empty.",
+        "line": 6,
+        "file": "aspose_psd_foss/point.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "x",
+        "type": "",
+        "doc": "Gets the x.",
+        "line": 15,
+        "file": "aspose_psd_foss/point.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "y",
+        "type": "",
+        "doc": "Gets the y.",
+        "line": 16,
+        "file": "aspose_psd_foss/point.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.point",
+    "class_import": "aspose_psd_foss.point.Point",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdImage",
+    "kind": "class_definition",
+    "doc": "Represents a PSD image that can be loaded, inspected, and saved without rendering.",
+    "file": "aspose_psd_foss/psdimage.py",
+    "line": 38,
+    "bases": [
+      "Image"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "stream",
+            "type": ""
+          },
+          {
+            "name": "leave_open",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 43,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "file_path_or_stream",
+            "type": ""
+          }
+        ],
+        "return_type": "PsdImage",
+        "doc": "Loads a PSD image from a file path or a readable stream.",
+        "line": 294,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "file_path_or_stream",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the image to a file path or a writable stream.",
+        "line": 341,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "dispose",
+        "params": [],
+        "return_type": "",
+        "doc": "Releases the image and optionally the underlying stream.",
+        "line": 368,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "source",
+            "type": "Union[str, io.BytesIO, io.BufferedIOBase]"
+          }
+        ],
+        "return_type": "\"Image\"",
+        "doc": "",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/image.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the document width in pixels.",
+        "line": 56,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the document height in pixels.",
+        "line": 62,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "channels",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the document channel count from the PSD header.",
+        "line": 68,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "bits_per_channel",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of bits stored per channel.",
+        "line": 74,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "color_mode",
+        "type": "ColorModes",
+        "writable": true,
+        "doc": "Gets the PSD color mode reported by the header.",
+        "line": 80,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "version",
+        "type": "int",
+        "writable": true,
+        "doc": "Gets or sets the Aspose.PSD-compatible API version number.",
+        "line": 90,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "header",
+        "type": "PsdHeader",
+        "writable": false,
+        "doc": "Gets the parsed PSD/PSB header object.",
+        "line": 102,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "is_large_document",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the loaded document uses the PSB large-document container.",
+        "line": 109,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "is_psb",
+        "type": "bool",
+        "writable": false,
+        "doc": "Equivalent to :attr:`is_large_document`.",
+        "line": 115,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "layers",
+        "type": "List[Layer]",
+        "writable": true,
+        "doc": "Gets the parsed layer collection.",
+        "line": 120,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "channels_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the PSD channels count.",
+        "line": 132,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "size",
+        "type": "Size",
+        "writable": false,
+        "doc": "Gets the image size.",
+        "line": 137,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "active_layer",
+        "type": "Optional[Layer]",
+        "writable": true,
+        "doc": "Gets the active layer.",
+        "line": 142,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "layer_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of parsed layers in the document.",
+        "line": 154,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_layers",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the document contains at least one parsed layer.",
+        "line": 159,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_image_resources",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the document contains any parsed image resources.",
+        "line": 164,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "resource_count",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of parsed image resource blocks.",
+        "line": 169,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "image_resources",
+        "type": "List[ResourceBlock]",
+        "writable": true,
+        "doc": "Gets or sets the PSD image resources.",
+        "line": 174,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "global_layer_resources",
+        "type": "List[LayerResource]",
+        "writable": true,
+        "doc": "Gets or sets the global layer resources.",
+        "line": 188,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "global_layer_mask_info",
+        "type": "GlobalLayerMaskInfo",
+        "writable": false,
+        "doc": "Gets the global layer mask info.",
+        "line": 199,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "is_flatten",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the PSD image is flattened.",
+        "line": 204,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_transparency_data",
+        "type": "bool",
+        "writable": true,
+        "doc": "Gets or sets whether the first alpha channel contains transparency data.",
+        "line": 209,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "resources",
+        "type": "",
+        "writable": false,
+        "doc": "Gets a read-only summary of the parsed image resource blocks.",
+        "line": 220,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_color_mode_data",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the document contains Color Mode Data bytes.",
+        "line": 228,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "color_data_info",
+        "type": "PsdColorDataInfo",
+        "writable": false,
+        "doc": "Gets a read-only summary of the parsed Color Mode Data section.",
+        "line": 233,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "indexed_palette",
+        "type": "Optional[IndexedColorPaletteInfo]",
+        "writable": false,
+        "doc": "Gets the parsed indexed palette summary, when present.",
+        "line": 238,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_merged_image_data",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the document contains merged image data payload bytes.",
+        "line": 243,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "compression",
+        "type": "CompressionMethod",
+        "writable": false,
+        "doc": "Gets the compression method used by the merged image data section.",
+        "line": 248,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "image_data_info",
+        "type": "PsdImageDataInfo",
+        "writable": false,
+        "doc": "Gets a read-only summary of the parsed merged image data structure.",
+        "line": 253,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "image_data_kind",
+        "type": "ImageDataKind",
+        "writable": false,
+        "doc": "Gets the structural kind of the merged image data payload.",
+        "line": 258,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "uses_prediction",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether ZIP prediction is used by the merged image data payload.",
+        "line": 263,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "has_icc_profile",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether an embedded ICC profile resource is present.",
+        "line": 272,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "is_icc_profile_untagged",
+        "type": "Optional[bool]",
+        "writable": false,
+        "doc": "Gets the parsed untagged ICC profile flag, when present.",
+        "line": 277,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "parsed_color_data",
+        "type": "ColorData",
+        "writable": false,
+        "doc": "Gets the parsed color mode data details for internal verification/tests.",
+        "line": 282,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "parsed_resources",
+        "type": "List[UnknownResource]",
+        "writable": false,
+        "doc": "Gets the parsed image resources for internal verification/tests.",
+        "line": 287,
+        "file": "aspose_psd_foss/psdimage.py"
+      },
+      {
+        "name": "global_angle",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the global angle.",
+        "line": 269,
+        "file": "aspose_psd_foss/psdimage.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.psdimage",
+    "class_import": "aspose_psd_foss.psdimage.PsdImage",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdVersion",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/psdversion.py",
+    "line": 4,
+    "bases": [
+      "IntEnum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Psd",
+        "value": "1"
+      },
+      {
+        "name": "Psb",
+        "value": "2"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.psdversion",
+    "class_import": "aspose_psd_foss.psdversion.PsdVersion",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "Rectangle",
+    "kind": "class_definition",
+    "doc": "Stores a set of four integers that represent the location and size of a rectangle.",
+    "file": "aspose_psd_foss/rectangle.py",
+    "line": 9,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "x",
+            "type": ""
+          },
+          {
+            "name": "y",
+            "type": ""
+          },
+          {
+            "name": "width",
+            "type": ""
+          },
+          {
+            "name": "height",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 15,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "Represents a Rectangle structure with its properties left uninitialized.",
+        "line": 23,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "from_left_top_right_bottom",
+        "params": [
+          {
+            "name": "left",
+            "type": ""
+          },
+          {
+            "name": "top",
+            "type": ""
+          },
+          {
+            "name": "right",
+            "type": ""
+          },
+          {
+            "name": "bottom",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates a rectangle from edge coordinates.",
+        "line": 28,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "from_ltrb",
+        "params": [
+          {
+            "name": "left",
+            "type": ""
+          },
+          {
+            "name": "top",
+            "type": ""
+          },
+          {
+            "name": "right",
+            "type": ""
+          },
+          {
+            "name": "bottom",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates a rectangle from edge coordinates for internal PSD record parsing.",
+        "line": 33,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "from_points",
+        "params": [
+          {
+            "name": "point1",
+            "type": ""
+          },
+          {
+            "name": "point2",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates a rectangle that spans the specified points.",
+        "line": 38,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "from_point_and_size",
+        "params": [
+          {
+            "name": "location",
+            "type": "Point"
+          },
+          {
+            "name": "size",
+            "type": "Size"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance from a Point and a Size.",
+        "line": 47,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "ceiling",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by rounding up the coordinates and size.",
+        "line": 52,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "round",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by rounding the coordinates and size.",
+        "line": 62,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "truncate",
+        "params": [
+          {
+            "name": "value",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by truncating the coordinates and size.",
+        "line": 72,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "inflate_rect",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": ""
+          },
+          {
+            "name": "x",
+            "type": ""
+          },
+          {
+            "name": "y",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates and returns an inflated copy of the specified rectangle.",
+        "line": 77,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "intersect_rect",
+        "params": [
+          {
+            "name": "a",
+            "type": ""
+          },
+          {
+            "name": "b",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Returns a rectangle that represents the intersection of two rectangles.",
+        "line": 84,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "union_rect",
+        "params": [
+          {
+            "name": "a",
+            "type": ""
+          },
+          {
+            "name": "b",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Returns a rectangle that contains the union of two rectangles.",
+        "line": 95,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "contains",
+        "params": [],
+        "return_type": "",
+        "doc": "Determines whether the specified point or rectangle is contained within this Rectangle.",
+        "line": 183,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "inflate",
+        "params": [],
+        "return_type": "",
+        "doc": "Inflates this rectangle by the specified size or dimensions.",
+        "line": 229,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "intersect",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Replaces this rectangle with its intersection with the specified rectangle.",
+        "line": 243,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "intersects_with",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether this rectangle intersects with the specified rectangle.",
+        "line": 251,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "normalize",
+        "params": [],
+        "return_type": "",
+        "doc": "Normalizes this rectangle so that width and height are non-negative.",
+        "line": 260,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "offset",
+        "params": [],
+        "return_type": "",
+        "doc": "Moves this rectangle by the specified point or offsets.",
+        "line": 269,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectangle.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "bottom",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the y-coordinate of the bottom edge of this Rectangle.",
+        "line": 105,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "is_empty",
+        "type": "",
+        "writable": false,
+        "doc": "Gets a value indicating whether this Rectangle has no location or size.",
+        "line": 114,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "left",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the x-coordinate of the left edge of this Rectangle.",
+        "line": 119,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "right",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the x-coordinate of the right edge of this Rectangle.",
+        "line": 130,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "top",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the y-coordinate of the top edge of this Rectangle.",
+        "line": 139,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "location",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the coordinates of the upper-left corner of this Rectangle.",
+        "line": 150,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "size",
+        "type": "",
+        "writable": true,
+        "doc": "Gets or sets the size of this Rectangle.",
+        "line": 160,
+        "file": "aspose_psd_foss/rectangle.py"
+      },
+      {
+        "name": "x",
+        "type": "",
+        "doc": "Gets the x.",
+        "line": 16,
+        "file": "aspose_psd_foss/rectangle.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "y",
+        "type": "",
+        "doc": "Gets the y.",
+        "line": 17,
+        "file": "aspose_psd_foss/rectangle.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 18,
+        "file": "aspose_psd_foss/rectangle.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 19,
+        "file": "aspose_psd_foss/rectangle.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.rectangle",
+    "class_import": "aspose_psd_foss.rectangle.Rectangle",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "RectangleF",
+    "kind": "class_definition",
+    "doc": "Stores a set of four floating-point numbers that represent the location and size of a rectangle.",
+    "file": "aspose_psd_foss/rectanglef.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "x",
+            "type": "float"
+          },
+          {
+            "name": "y",
+            "type": "float"
+          },
+          {
+            "name": "width",
+            "type": "float"
+          },
+          {
+            "name": "height",
+            "type": "float"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 10,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"RectangleF\"",
+        "doc": "Represents a RectangleF structure with its properties left uninitialized.",
+        "line": 104,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/rectanglef.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "X",
+        "type": "float",
+        "writable": true,
+        "doc": "Gets or sets the x-coordinate of the upper‑left corner.",
+        "line": 17,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "Y",
+        "type": "float",
+        "writable": true,
+        "doc": "Gets or sets the y-coordinate of the upper‑left corner.",
+        "line": 26,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "Width",
+        "type": "float",
+        "writable": true,
+        "doc": "Gets or sets the width of the rectangle.",
+        "line": 35,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "Height",
+        "type": "float",
+        "writable": true,
+        "doc": "Gets or sets the height of the rectangle.",
+        "line": 44,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "bottom",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the y-coordinate of the bottom edge of this RectangleF.",
+        "line": 53,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "is_empty",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets a value indicating whether this RectangleF has no location or size.",
+        "line": 58,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "left",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the x-coordinate of the left edge of this RectangleF.",
+        "line": 63,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "right",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the x-coordinate of the right edge of this RectangleF.",
+        "line": 68,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "top",
+        "type": "float",
+        "writable": false,
+        "doc": "Gets the y-coordinate of the top edge of this RectangleF.",
+        "line": 73,
+        "file": "aspose_psd_foss/rectanglef.py"
+      },
+      {
+        "name": "x",
+        "type": "",
+        "doc": "Gets the x.",
+        "line": 11,
+        "file": "aspose_psd_foss/rectanglef.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "y",
+        "type": "",
+        "doc": "Gets the y.",
+        "line": 12,
+        "file": "aspose_psd_foss/rectanglef.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 13,
+        "file": "aspose_psd_foss/rectanglef.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 14,
+        "file": "aspose_psd_foss/rectanglef.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.rectanglef",
+    "class_import": "aspose_psd_foss.rectanglef.RectangleF",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ResourceBlock",
+    "kind": "class_definition",
+    "doc": "Represents a PSD image resource block.",
+    "file": "aspose_psd_foss/resourceblock.py",
+    "line": 8,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 17,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "stream",
+            "type": ""
+          }
+        ],
+        "return_type": "None",
+        "doc": "Saves the resource block to the specified stream container.",
+        "line": 54,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "validate_values",
+        "params": [],
+        "return_type": "None",
+        "doc": "Validates the resource values.",
+        "line": 64,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "data_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the resource data size in bytes.",
+        "line": 25,
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "minimal_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the minimal required PSD version.",
+        "line": 33,
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "signature",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the resource signature.",
+        "line": 40,
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the resource block size in bytes including its data.",
+        "line": 47,
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "id",
+        "type": "int",
+        "doc": "Gets the id.",
+        "line": 19,
+        "file": "aspose_psd_foss/resourceblock.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "str",
+        "doc": "Gets the name.",
+        "line": 21,
+        "file": "aspose_psd_foss/resourceblock.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "RESOURCE_BLOCK_SIGNATURE",
+        "value": "0x3842494D"
+      },
+      {
+        "name": "RESOURCE_BLOCK_MESA_SIGNATURE",
+        "value": "0x3842494D"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.resourceblock",
+    "class_import": "aspose_psd_foss.resourceblock.ResourceBlock",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ResourceBlockState",
+    "kind": "class_definition",
+    "doc": "Represents resource block state.",
+    "file": "aspose_psd_foss/resourceblock.py",
+    "line": 71,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "READY",
+        "value": "auto()"
+      },
+      {
+        "name": "DISPOSED",
+        "value": "auto()"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.resourceblock",
+    "class_import": "aspose_psd_foss.resourceblock.ResourceBlockState",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ImageResourceIds",
+    "kind": "class_definition",
+    "doc": "Provides common PSD image resource identifiers used by tests and fixtures.",
+    "file": "aspose_psd_foss/resources/imageresourceids.py",
+    "line": 7,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "GLOBAL_ANGLE",
+        "value": "1037"
+      },
+      {
+        "name": "ICC_PROFILE",
+        "value": "1039"
+      },
+      {
+        "name": "ICC_UNTAGGED_PROFILE",
+        "value": "1041"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.resources.imageresourceids",
+    "class_import": "aspose_psd_foss.resources.imageresourceids.ImageResourceIds",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "IndexedColorPalette",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+    "line": 2,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "entries",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 8,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py"
+      },
+      {
+        "name": "parse",
+        "params": [
+          {
+            "name": "raw_data",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 20,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py"
+      },
+      {
+        "name": "to_public_info",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 26,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "entries",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the entries.",
+        "line": 13,
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "EXPECTED_RAW_LENGTH",
+        "value": "768"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.resources.indexedcolorpalette",
+    "class_import": "aspose_psd_foss.resources.indexedcolorpalette.IndexedColorPalette",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "IndexedColorPaletteInfo",
+    "kind": "class_definition",
+    "doc": "Provides a read-only view over an indexed-color PSD palette.",
+    "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py",
+    "line": 1,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "entries",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of IndexedColorPaletteInfo.",
+        "line": 4,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "entries",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the decoded palette entries.",
+        "line": 13,
+        "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.resources.indexedcolorpaletteinfo",
+    "class_import": "aspose_psd_foss.resources.indexedcolorpaletteinfo.IndexedColorPaletteInfo",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "PreservedResourceBlock",
+    "kind": "class_definition",
+    "doc": "Adapts a raw‑preserved image resource to the official ResourceBlock surface.",
+    "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+    "line": 7,
+    "bases": [
+      "ResourceBlock"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "resource",
+            "type": "UnknownResource"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 10,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "stream",
+            "type": "StreamContainer"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 23,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "stub": true,
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py"
+      },
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 17,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "stream",
+            "type": ""
+          }
+        ],
+        "return_type": "None",
+        "doc": "Saves the resource block to the specified stream container.",
+        "line": 54,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "validate_values",
+        "params": [],
+        "return_type": "None",
+        "doc": "Validates the resource values.",
+        "line": 64,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resourceblock.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "data_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the data size.",
+        "line": 16,
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "minimal_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the minimal version.",
+        "line": 20,
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "id",
+        "type": "",
+        "doc": "Gets the id.",
+        "line": 11,
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "name",
+        "type": "",
+        "doc": "Gets the name.",
+        "line": 12,
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "signature",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the resource signature.",
+        "line": 40,
+        "file": "aspose_psd_foss/resourceblock.py"
+      },
+      {
+        "name": "size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the resource block size in bytes including its data.",
+        "line": 47,
+        "file": "aspose_psd_foss/resourceblock.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.resources.preservedresourceblock",
+    "class_import": "aspose_psd_foss.resources.preservedresourceblock.PreservedResourceBlock",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "PsdResourceInfo",
+    "kind": "class_definition",
+    "doc": "Provides a read-only summary of one parsed PSD image resource block.",
+    "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "resource_id",
+            "type": "int"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "kind",
+            "type": "PsdResourceKind"
+          },
+          {
+            "name": "data_length",
+            "type": "int"
+          },
+          {
+            "name": "global_angle",
+            "type": ""
+          },
+          {
+            "name": "is_icc_profile_untagged",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 9,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "resource_id",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the PSD resource identifier.",
+        "line": 26,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      },
+      {
+        "name": "name",
+        "type": "str",
+        "writable": false,
+        "doc": "Gets the decoded Pascal resource name.",
+        "line": 31,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      },
+      {
+        "name": "kind",
+        "type": "PsdResourceKind",
+        "writable": false,
+        "doc": "Gets the semantic classification exposed for the resource.",
+        "line": 36,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      },
+      {
+        "name": "data_length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the raw payload length in bytes.",
+        "line": 41,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      },
+      {
+        "name": "global_angle",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the parsed global angle, when this resource carries that value.",
+        "line": 46,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      },
+      {
+        "name": "is_icc_profile_untagged",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the parsed untagged-profile flag, when this resource carries that value.",
+        "line": 51,
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.resources.psdresourceinfo",
+    "class_import": "aspose_psd_foss.resources.psdresourceinfo.PsdResourceInfo",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "PsdResourceKind",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/resources/psdresourcekind.py",
+    "line": 5,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "UNKNOWN",
+        "value": "0"
+      },
+      {
+        "name": "GLOBAL_ANGLE",
+        "value": "1"
+      },
+      {
+        "name": "ICC_PROFILE",
+        "value": "2"
+      },
+      {
+        "name": "ICC_UNTAGGED_PROFILE",
+        "value": "3"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.resources.psdresourcekind",
+    "class_import": "aspose_psd_foss.resources.psdresourcekind.PsdResourceKind",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "UnknownResource",
+    "kind": "class_definition",
+    "doc": "Initializes a new instance of the UnknownResource class.",
+    "file": "aspose_psd_foss/resources/unknownresource.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "resource_id",
+            "type": ""
+          },
+          {
+            "name": "name",
+            "type": ""
+          },
+          {
+            "name": "data",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 13,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "section_end",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Attempts to load one resource block from the reader.",
+        "line": 46,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "Load",
+        "params": [
+          {
+            "name": "reader",
+            "type": ""
+          },
+          {
+            "name": "section_end",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 78,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "to_public_info",
+        "params": [],
+        "return_type": "",
+        "doc": "Creates a public read‑only summary for this resource block.",
+        "line": 81,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "resource_id",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the PSD resource identifier.",
+        "line": 19,
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "name",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the decoded Pascal resource name.",
+        "line": 24,
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "data",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the raw resource payload bytes.",
+        "line": 29,
+        "file": "aspose_psd_foss/resources/unknownresource.py"
+      },
+      {
+        "name": "ResourceId",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the resource id.",
+        "line": 34,
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Name",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the name.",
+        "line": 38,
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Data",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the data.",
+        "line": 42,
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.resources.unknownresource",
+    "class_import": "aspose_psd_foss.resources.unknownresource.UnknownResource",
+    "module_key": "resources",
+    "module_label": "Resources"
+  },
+  {
+    "name": "ColorData",
+    "kind": "class_definition",
+    "doc": "Stores the PSD Color Mode Data section as raw bytes plus mode‑aware parsed\r\n    structure when available.",
+    "file": "aspose_psd_foss/sections/colordata.py",
+    "line": 12,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "raw_data",
+            "type": "bytes"
+          },
+          {
+            "name": "kind",
+            "type": "PsdColorDataKind"
+          },
+          {
+            "name": "indexed_palette",
+            "type": "Optional[IndexedColorPalette]"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 17,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/colordata.py"
+      },
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"ColorData\"",
+        "doc": "",
+        "line": 40,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/colordata.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "color_mode",
+            "type": "ColorModes"
+          }
+        ],
+        "return_type": "\"ColorData\"",
+        "doc": "",
+        "line": 44,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/colordata.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 63,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/colordata.py"
+      },
+      {
+        "name": "to_public_info",
+        "params": [],
+        "return_type": "PsdColorDataInfo",
+        "doc": "",
+        "line": 68,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/colordata.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "PsdColorDataKind",
+        "writable": false,
+        "doc": "Gets the kind.",
+        "line": 28,
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "raw_data",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the raw data.",
+        "line": 32,
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "indexed_palette",
+        "type": "Optional[IndexedColorPalette]",
+        "writable": false,
+        "doc": "Gets the indexed palette.",
+        "line": 36,
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.colordata",
+    "class_import": "aspose_psd_foss.sections.colordata.ColorData",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "ImageData",
+    "kind": "class_definition",
+    "doc": "Stores the PSD Image Data section as a compression header plus raw payload bytes.",
+    "file": "aspose_psd_foss/sections/imagedata.py",
+    "line": 10,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "compression",
+            "type": "CompressionMethod"
+          },
+          {
+            "name": "raw_data",
+            "type": "bytearray"
+          },
+          {
+            "name": "structure",
+            "type": "ImageDataStructure"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the ImageData class.",
+        "line": 15,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          },
+          {
+            "name": "channel_count",
+            "type": "int"
+          }
+        ],
+        "return_type": "\"ImageData\"",
+        "doc": "Loads the final Image Data section from the reader.",
+        "line": 45,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Writes the Image Data section to the writer.",
+        "line": 67,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      },
+      {
+        "name": "to_public_info",
+        "params": [],
+        "return_type": "PsdImageDataInfo",
+        "doc": "Creates a read-only public summary of the parsed merged image data structure.",
+        "line": 76,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "structure",
+        "type": "ImageDataStructure",
+        "writable": false,
+        "doc": "Gets the parsed structural interpretation of the payload.",
+        "line": 30,
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      },
+      {
+        "name": "compression",
+        "type": "CompressionMethod",
+        "writable": false,
+        "doc": "Gets the stored compression method.",
+        "line": 35,
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      },
+      {
+        "name": "raw_data",
+        "type": "bytearray",
+        "writable": false,
+        "doc": "Gets the raw image data payload after the compression field.",
+        "line": 40,
+        "file": "aspose_psd_foss/sections/imagedata.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.imagedata",
+    "class_import": "aspose_psd_foss.sections.imagedata.ImageData",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "ImageDataKind",
+    "kind": "class_definition",
+    "doc": "Identifies the structural shape of the PSD Image Data payload.",
+    "file": "aspose_psd_foss/sections/imagedatakind.py",
+    "line": 4,
+    "bases": [
+      "Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "RAW",
+        "value": "0"
+      },
+      {
+        "name": "RLE",
+        "value": "1"
+      },
+      {
+        "name": "ZIP",
+        "value": "2"
+      },
+      {
+        "name": "UNKNOWN",
+        "value": "3"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.sections.imagedatakind",
+    "class_import": "aspose_psd_foss.sections.imagedatakind.ImageDataKind",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "ImageDataStructure",
+    "kind": "class_definition",
+    "doc": "Describes the validated structural layout of the PSD Image Data payload.",
+    "file": "aspose_psd_foss/sections/imagedatastructure.py",
+    "line": 4,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "kind",
+            "type": ""
+          },
+          {
+            "name": "row_length_field_size",
+            "type": ""
+          },
+          {
+            "name": "row_byte_counts",
+            "type": ""
+          },
+          {
+            "name": "compressed_payload_length",
+            "type": ""
+          },
+          {
+            "name": "uses_prediction",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 7,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedatastructure.py"
+      },
+      {
+        "name": "create_raw",
+        "params": [
+          {
+            "name": "payload_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Create a structure descriptor for raw image data.",
+        "line": 42,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedatastructure.py"
+      },
+      {
+        "name": "create_rle",
+        "params": [
+          {
+            "name": "row_byte_counts",
+            "type": ""
+          },
+          {
+            "name": "row_length_field_size",
+            "type": ""
+          },
+          {
+            "name": "compressed_payload_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Create a structure descriptor for RLE image data.",
+        "line": 47,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedatastructure.py"
+      },
+      {
+        "name": "create_zip",
+        "params": [
+          {
+            "name": "payload_length",
+            "type": ""
+          },
+          {
+            "name": "uses_prediction",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Create a structure descriptor for ZIP-based image data.",
+        "line": 63,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedatastructure.py"
+      },
+      {
+        "name": "create_unknown",
+        "params": [
+          {
+            "name": "payload_length",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "Create a structure descriptor for unsupported compression values.",
+        "line": 68,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imagedatastructure.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the kind.",
+        "line": 22,
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "row_length_field_size",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the row length field size.",
+        "line": 26,
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "row_byte_counts",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the row byte counts.",
+        "line": 30,
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "compressed_payload_length",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the compressed payload length.",
+        "line": 34,
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "uses_prediction",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the uses prediction.",
+        "line": 38,
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.imagedatastructure",
+    "class_import": "aspose_psd_foss.sections.imagedatastructure.ImageDataStructure",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "ImageResourcesSection",
+    "kind": "class_definition",
+    "doc": "Represents the PSD Image Resources section as raw‑preserved bytes plus unknown‑only parsed summaries.",
+    "file": "aspose_psd_foss/sections/imageresourcessection.py",
+    "line": 12,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"ImageResourcesSection\"",
+        "doc": "Gets an empty Image Resources section.",
+        "line": 16,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      },
+      {
+        "name": "Empty",
+        "params": [],
+        "return_type": "\"ImageResourcesSection\"",
+        "doc": "Alias for empty() to match external usage.",
+        "line": 21,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "raw_data",
+            "type": "bytes"
+          },
+          {
+            "name": "resources",
+            "type": "List[UnknownResource]"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 25,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          }
+        ],
+        "return_type": "\"ImageResourcesSection\"",
+        "doc": "Loads the Image Resources section from the current reader position.",
+        "line": 35,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Writes the Image Resources section with raw preservation when available.",
+        "line": 56,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "has_resources",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets a value indicating whether the section contains raw bytes or parsed resources.",
+        "line": 30,
+        "file": "aspose_psd_foss/sections/imageresourcessection.py"
+      },
+      {
+        "name": "raw_data",
+        "type": "bytes",
+        "doc": "Gets the raw data.",
+        "line": 26,
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "resources",
+        "type": "List[UnknownResource]",
+        "doc": "Gets the resources.",
+        "line": 27,
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.imageresourcessection",
+    "class_import": "aspose_psd_foss.sections.imageresourcessection.ImageResourcesSection",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "LayerAndMaskSection",
+    "kind": "class_definition",
+    "doc": "Represents the PSD/PSB Layer and Mask Information section and its\r\n    raw-preserved save state.",
+    "file": "aspose_psd_foss/sections/layerandmasksection.py",
+    "line": 17,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "raw_section_bytes",
+            "type": "bytes"
+          },
+          {
+            "name": "layer_channel_image_data_raw",
+            "type": "bytes"
+          },
+          {
+            "name": "layer_global_mask_and_tail_raw",
+            "type": "bytes"
+          },
+          {
+            "name": "layer_count_raw",
+            "type": "int"
+          },
+          {
+            "name": "layers",
+            "type": "List[Layer]"
+          },
+          {
+            "name": "has_layer_collection_mutated",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the :class:`LayerAndMaskSection` class.",
+        "line": 23,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"LayerAndMaskSection\"",
+        "doc": "Gets an empty Layer and Mask Information section.",
+        "line": 60,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": "BigEndianReader"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "\"LayerAndMaskSection\"",
+        "doc": "",
+        "line": 108,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "writer",
+            "type": "BigEndianWriter"
+          },
+          {
+            "name": "is_large_document",
+            "type": "bool"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 119,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "with_layers",
+        "params": [
+          {
+            "name": "layers",
+            "type": "List[Layer]"
+          }
+        ],
+        "return_type": "\"LayerAndMaskSection\"",
+        "doc": "Creates a section copy with a replaced layer collection and marks it\r\n        for rewriting on save.",
+        "line": 131,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "raw_section_bytes",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the raw section payload without the outer length field.",
+        "line": 73,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "layer_channel_image_data_raw",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the raw layer channel image data payload after layer records.",
+        "line": 78,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "layer_global_mask_and_tail_raw",
+        "type": "bytes",
+        "writable": false,
+        "doc": "Gets the raw global mask info and trailing section bytes.",
+        "line": 83,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "layer_count_raw",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the original signed layer count so transparency-protected layers\r\n        can preserve sign.",
+        "line": 88,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "layers",
+        "type": "List[Layer]",
+        "writable": false,
+        "doc": "Gets the parsed layer records.",
+        "line": 96,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      },
+      {
+        "name": "has_layer_collection_mutated",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets whether the public layer collection was replaced.",
+        "line": 101,
+        "file": "aspose_psd_foss/sections/layerandmasksection.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.layerandmasksection",
+    "class_import": "aspose_psd_foss.sections.layerandmasksection.LayerAndMaskSection",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "PsdColorDataInfo",
+    "kind": "class_definition",
+    "doc": "Provides a read-only summary of the PSD Color Mode Data section.",
+    "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "kind",
+            "type": "PsdColorDataKind"
+          },
+          {
+            "name": "raw_data_length",
+            "type": "int"
+          },
+          {
+            "name": "indexed_palette",
+            "type": "Optional[IndexedColorPaletteInfo]"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdColorDataInfo class.",
+        "line": 11,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "PsdColorDataKind",
+        "writable": false,
+        "doc": "Gets the interpreted kind of the payload.",
+        "line": 29,
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py"
+      },
+      {
+        "name": "raw_data_length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the raw payload length in bytes.",
+        "line": 34,
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py"
+      },
+      {
+        "name": "indexed_palette",
+        "type": "Optional[IndexedColorPaletteInfo]",
+        "writable": false,
+        "doc": "Gets the parsed indexed palette, when present.",
+        "line": 39,
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.psdcolordatainfo",
+    "class_import": "aspose_psd_foss.sections.psdcolordatainfo.PsdColorDataInfo",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "PsdColorDataKind",
+    "kind": "class_definition",
+    "doc": "Describes how the Color Mode Data payload was interpreted for the loaded document.",
+    "file": "aspose_psd_foss/sections/psdcolordatakind.py",
+    "line": 4,
+    "bases": [
+      "enum.Enum"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "NONE",
+        "value": "0"
+      },
+      {
+        "name": "INDEXED_PALETTE",
+        "value": "1"
+      },
+      {
+        "name": "RGB_PAYLOAD",
+        "value": "2"
+      },
+      {
+        "name": "CMYK_PAYLOAD",
+        "value": "3"
+      },
+      {
+        "name": "RAW_PRESERVED",
+        "value": "4"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.sections.psdcolordatakind",
+    "class_import": "aspose_psd_foss.sections.psdcolordatakind.PsdColorDataKind",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "PsdHeader",
+    "kind": "class_definition",
+    "doc": "Contains the header information of a Photoshop document.",
+    "file": "aspose_psd_foss/sections/psdheader.py",
+    "line": 11,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 28,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "load",
+        "params": [
+          {
+            "name": "reader",
+            "type": ""
+          }
+        ],
+        "return_type": "\"PsdHeader\"",
+        "doc": "Loads the fixed PSD/PSB file header from the reader.",
+        "line": 81,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "save",
+        "params": [
+          {
+            "name": "writer",
+            "type": ""
+          }
+        ],
+        "return_type": "None",
+        "doc": "Writes the fixed PSD/PSB file header to the writer.",
+        "line": 185,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "set_color_mode",
+        "params": [
+          {
+            "name": "color_mode",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Updates the header color mode for the compatibility subset that rewrites header metadata.",
+        "line": 199,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "set_version",
+        "params": [
+          {
+            "name": "version",
+            "type": "int"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Updates the PSD container version.",
+        "line": 207,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "width",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the width of the image in pixels.",
+        "line": 39,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the height of the image in pixels.",
+        "line": 44,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "channels",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the number of channels in the image (e.g., 3 for RGB).",
+        "line": 49,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "bit_depth",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the bit depth per channel (e.g., 8, 16, 32).",
+        "line": 54,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "color_mode",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the color mode of the image.",
+        "line": 59,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the raw PSD container version: 1 for PSD and 2 for PSB.",
+        "line": 64,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "format_version",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the strongly typed PSD container version.",
+        "line": 69,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      },
+      {
+        "name": "is_large_document",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets a value indicating whether the document uses the PSB large-document container.",
+        "line": 74,
+        "file": "aspose_psd_foss/sections/psdheader.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "PSD_SIGNATURE",
+        "value": "0x38425053"
+      },
+      {
+        "name": "PSB_SIGNATURE",
+        "value": "PSD_SIGNATURE"
+      },
+      {
+        "name": "PSD_VERSION",
+        "value": "1"
+      },
+      {
+        "name": "PSB_VERSION",
+        "value": "2"
+      }
+    ],
+    "canonical_namespace": "aspose_psd_foss.sections.psdheader",
+    "class_import": "aspose_psd_foss.sections.psdheader.PsdHeader",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "PsdImageDataInfo",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+    "line": 5,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "kind",
+            "type": "ImageDataKind"
+          },
+          {
+            "name": "row_length_field_size",
+            "type": "int"
+          },
+          {
+            "name": "row_byte_counts",
+            "type": ""
+          },
+          {
+            "name": "compressed_payload_length",
+            "type": "int"
+          },
+          {
+            "name": "uses_prediction",
+            "type": "bool"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 6,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "kind",
+        "type": "ImageDataKind",
+        "writable": false,
+        "doc": "Gets the kind.",
+        "line": 21,
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "row_length_field_size",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the row length field size.",
+        "line": 25,
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "row_byte_counts",
+        "type": "Tuple[int, ...]",
+        "writable": false,
+        "doc": "Gets the row byte counts.",
+        "line": 29,
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "compressed_payload_length",
+        "type": "int",
+        "writable": false,
+        "doc": "Gets the compressed payload length.",
+        "line": 33,
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "uses_prediction",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the uses prediction.",
+        "line": 37,
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.psdimagedatainfo",
+    "class_import": "aspose_psd_foss.sections.psdimagedatainfo.PsdImageDataInfo",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "PsdImageDocumentState",
+    "kind": "class_definition",
+    "doc": "Stores parsed PSD/PSB document sections used by PsdImage.",
+    "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+    "line": 16,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "\"PsdImageDocumentState\"",
+        "doc": "Gets an empty document state before a PSD/PSB stream has been parsed.",
+        "line": 22,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "header",
+            "type": "PsdHeader | None"
+          },
+          {
+            "name": "color_data",
+            "type": "ColorData"
+          },
+          {
+            "name": "image_resources_section",
+            "type": "ImageResourcesSection"
+          },
+          {
+            "name": "layer_and_mask_section",
+            "type": "LayerAndMaskSection"
+          },
+          {
+            "name": "image_data",
+            "type": "ImageData"
+          }
+        ],
+        "return_type": "None",
+        "doc": "",
+        "line": 36,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py"
+      },
+      {
+        "name": "with_layer_and_mask_section",
+        "params": [
+          {
+            "name": "layer_and_mask_section",
+            "type": "LayerAndMaskSection"
+          }
+        ],
+        "return_type": "\"PsdImageDocumentState\"",
+        "doc": "Creates a state copy with a replaced Layer and Mask Information section.",
+        "line": 70,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Header",
+        "type": "PsdHeader | None",
+        "writable": false,
+        "doc": "Gets the header.",
+        "line": 51,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ColorData",
+        "type": "ColorData",
+        "writable": false,
+        "doc": "Gets the color data.",
+        "line": 55,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ImageResourcesSection",
+        "type": "ImageResourcesSection",
+        "writable": false,
+        "doc": "Gets the image resources section.",
+        "line": 59,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "layer_and_mask_section",
+        "type": "LayerAndMaskSection",
+        "writable": false,
+        "doc": "Gets the layer and mask section.",
+        "line": 63,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "ImageData",
+        "type": "ImageData",
+        "writable": false,
+        "doc": "Gets the image data.",
+        "line": 67,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Empty",
+        "type": "\"PsdImageDocumentState\"",
+        "writable": false,
+        "doc": "Gets the empty.",
+        "line": 19,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "header",
+        "type": "",
+        "doc": "Gets the header.",
+        "line": 44,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "color_data",
+        "type": "",
+        "doc": "Gets the color data.",
+        "line": 45,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "image_resources_section",
+        "type": "",
+        "doc": "Gets the image resources section.",
+        "line": 46,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "image_data",
+        "type": "",
+        "doc": "Gets the image data.",
+        "line": 48,
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.sections.psdimagedocumentstate",
+    "class_import": "aspose_psd_foss.sections.psdimagedocumentstate.PsdImageDocumentState",
+    "module_key": "sections",
+    "module_label": "Sections"
+  },
+  {
+    "name": "Size",
+    "kind": "class_definition",
+    "doc": "",
+    "file": "aspose_psd_foss/size.py",
+    "line": 3,
+    "bases": [],
+    "methods": [
+      {
+        "name": "empty",
+        "params": [],
+        "return_type": "",
+        "doc": "",
+        "line": 7,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/size.py"
+      },
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 10,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/size.py"
+      },
+      {
+        "name": "equals",
+        "params": [
+          {
+            "name": "other",
+            "type": ""
+          }
+        ],
+        "return_type": "bool",
+        "doc": "",
+        "line": 22,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/size.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "is_empty",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is empty.",
+        "line": 15,
+        "file": "aspose_psd_foss/size.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "IsEmpty",
+        "type": "bool",
+        "writable": false,
+        "doc": "Gets the is empty.",
+        "line": 19,
+        "file": "aspose_psd_foss/size.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Empty",
+        "type": "Optional[\"Size\"]",
+        "writable": false,
+        "doc": "Gets the empty.",
+        "line": 4,
+        "file": "aspose_psd_foss/size.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "width",
+        "type": "",
+        "doc": "Gets the width.",
+        "line": 11,
+        "file": "aspose_psd_foss/size.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "height",
+        "type": "",
+        "doc": "Gets the height.",
+        "line": 12,
+        "file": "aspose_psd_foss/size.py",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "conventional",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.size",
+    "class_import": "aspose_psd_foss.size.Size",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "StreamContainer",
+    "kind": "class_definition",
+    "doc": "Represents a stream container used by resource save APIs.",
+    "file": "aspose_psd_foss/streamcontainer.py",
+    "line": 1,
+    "bases": [],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "stream",
+            "type": ""
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 7,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose_psd_foss/streamcontainer.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "stream",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the wrapped stream.",
+        "line": 13,
+        "file": "aspose_psd_foss/streamcontainer.py"
+      },
+      {
+        "name": "Stream",
+        "type": "",
+        "writable": false,
+        "doc": "Gets the wrapped stream (C# property name).",
+        "line": 18,
+        "file": "aspose_psd_foss/streamcontainer.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose_psd_foss.streamcontainer",
+    "class_import": "aspose_psd_foss.streamcontainer.StreamContainer",
+    "module_key": "core",
+    "module_label": "Core API"
+  }
+]

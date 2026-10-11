@@ -1,0 +1,71 @@
+# Evidence Bundle Contract -- requirements for evidence packages
+schema_version: "1.0.0"
+
+bundle_format: "zip"
+
+required_declaration_fields:
+  - run_id
+  - repo_path
+  - branch
+  - base_commit
+  - prompt_folder
+  - prompt_assets_created_or_updated
+  - prompt_registry_updated
+  - stage1_contract_installed
+  - stage2_contract_installed
+  - stage3_contract_installed
+  - loop_controller_installed_or_taskcarded
+  - summary_parser_installed_or_taskcarded
+  - quality_scoring_installed_or_taskcarded
+  - reroute_controller_installed_or_taskcarded
+  - project_adapter_installed_or_taskcarded
+  - negative_controls_run
+  - pilot_run
+  - evidence_package_created
+  - final_verdict
+
+validation_rules:
+  manifest_match:
+    description: "Every file listed in evidence_files must exist in the bundle"
+    fail_action: "EVIDENCE_MISSING classification"
+  declaration_completeness:
+    description: "Every required_declaration_field must be present and non-empty"
+    fail_action: "Evidence package invalid"
+  no_phantom_files:
+    description: "Every file in the bundle must be listed in evidence_files"
+    fail_action: "Warning (non-blocking)"
+  file_non_empty:
+    description: "Every listed file must have non-zero size"
+    fail_action: "EVIDENCE_MISSING classification"
+
+stage_output_requirements:
+  stage1:
+    - stage1-sprint-audit-summary.md
+    - stage1-achievement-proof-summary.md
+    - stage1-final-outcome-impact.md
+    - stage1-l1-execution-issues.yaml
+    - stage1-l2-integration-issues.yaml
+    - stage1-l3-system-weaknesses.yaml
+    - stage1-root-cause-map.md
+    - stage1-claim-classification-matrix.csv
+    - stage1-evidence-quality-verdict.md
+    - stage1-next-stage-recommendation.yaml
+  stage2:
+    - stage2-input-interpretation.md
+    - stage2-issues-extracted-from-stage1.md
+    - stage2-plan-gap-analysis.md
+    - stage2-master-plan-delta.md
+    - stage2-enhanced-master-plan.md
+    - stage2-taskcard-index.yaml
+    - stage2-ready-for-execution-verdict.yaml
+  stage3:
+    - stage3-preflight-state.md
+    - stage3-execution-log.md
+    - stage3-lane-status.yaml
+    - stage3-taskcard-status.yaml
+    - stage3-verification-results.md
+    - stage3-quality-evaluations.yaml
+    - stage3-reroute-log.yaml
+    - stage3-evidence-manifest.yaml
+    - stage3-final-sprint-summary.yaml
+    - stage3-final-sprint-summary.md

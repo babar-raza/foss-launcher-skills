@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "SFND-font-python-001",
+  "root_cause_id": "RC-font-python-03",
+  "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-03",
+  "system_fix_diff_ref": "MT026 RC-W1-003 (install_recipe.py verification.published check) established the pattern; content-level re-application via reports/skill-runs/20260809-113353-s73.json",
+  "regen_command": "S-73 manual-edit (see reports/skill-runs/20260809-113353-s73.json): swapped hand-written unpublished pip install command for package-install shortcode across 3 files",
+  "verification_before_hash": "4a18ad789cdc456b3b26cffabae549b878b0fed8b1271a046cb51daf7b112cbd",
+  "verification_after_hash": "b1b30c75ccbe9b3bfc041defae40ea6a957b01982cd677f82a569047c8196117",
+  "agentic_consumption_recheck_passed": true
+}

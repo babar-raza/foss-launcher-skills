@@ -37,11 +37,11 @@ class PlatformPurityEvaluator(BaseEvaluator):
         expected_langs = PLATFORM_EXPECTED_LANGS.get(platform, set())
 
         for block in page.code_blocks:
-            # Skip non-code blocks (bash, shell, xml, json, yaml, etc.)
-            if block.lang in ("bash", "shell", "sh", "xml", "json", "yaml",
-                              "toml", "text", "plain", "html", "css", "sql",
-                              "gradle", "groovy", "powershell", "bat", "cmd",
-                              "console", ""):
+            # Skip blocks not in any recognised API language (bash, shell, text,
+            # json, untagged, etc.).  LANG_TO_PLATFORM is the authority on which
+            # language tags map to a platform; anything not in that map cannot be
+            # a wrong-platform API block, so there is nothing to check.
+            if block.lang.lower() not in LANG_TO_PLATFORM:
                 continue
 
             # Check if code block language matches the page platform

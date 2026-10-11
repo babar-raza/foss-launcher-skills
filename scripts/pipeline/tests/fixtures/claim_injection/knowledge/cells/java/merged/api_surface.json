@@ -1,0 +1,11 @@
+[
+  {
+    "name": "TestClass",
+    "kind": "class",
+    "methods": [
+      {"name": "getData", "params": [], "return_type": "String"}
+    ],
+    "properties": [],
+    "enum_members": []
+  }
+]

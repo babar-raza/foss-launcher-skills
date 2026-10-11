@@ -1,0 +1,143 @@
+# Platform Variant Registry
+# Maps enterprise bridge slugs to canonical local platform names
+# Source of truth for PLATFORM_ALIASES expansion in backlink_targets.py
+# Version: 1.0.0
+
+schema_version: "1.0.0"
+
+# Canonical platform names (local aspose.org platform directory names)
+canonical_platforms:
+  - net
+  - java
+  - cpp
+  - python
+  - nodejs
+  - go
+  - android
+  - php
+  - ruby
+  - typescript
+  - jasperreports   # Enterprise-only; no local source pages
+  - rust            # Local platform since 2026-07-25 (cells/rust launch, commit 7934cdd495)
+
+# Variant mappings: enterprise_slug -> canonical_platform
+# All entries have confirmed evidence from all_urls HTTP 200 counts
+variants:
+  # Python variants
+  python:
+    canonical: python
+    local_equivalent: true
+    evidence: "products/docs/kb/reference all use python slug"
+  python-net:
+    canonical: python
+    local_equivalent: false
+    evidence: "8,437 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+  python-java:
+    canonical: python
+    local_equivalent: false
+    evidence: "1,087 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+  python-cpp:
+    canonical: python
+    local_equivalent: false
+    evidence: "1 HTTP 200 in reference.aspose.com all_urls (pdf only)"
+    subdomains_with_variants: [reference]
+
+  # Node.js variants
+  nodejs:
+    canonical: nodejs
+    local_equivalent: true
+    evidence: "local platform dirs use nodejs"
+  nodejs-net:
+    canonical: nodejs
+    local_equivalent: false
+    evidence: "1,997 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+  nodejs-java:
+    canonical: nodejs
+    local_equivalent: false
+    evidence: "178 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+  nodejs-cpp:
+    canonical: nodejs
+    local_equivalent: false
+    evidence: "656 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+  javascript-cpp:
+    canonical: nodejs
+    local_equivalent: false
+    evidence: "Confirmed in reference sitemap"
+    subdomains_with_variants: [reference]
+
+  # Go variants
+  go:
+    canonical: go
+    local_equivalent: true
+    evidence: "local platform dirs use go"
+  go-cpp:
+    canonical: go
+    local_equivalent: false
+    evidence: "416 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+
+  # Android variants
+  android:
+    canonical: android
+    local_equivalent: true
+    evidence: "local platform dirs use android"
+  androidjava:
+    canonical: android
+    local_equivalent: false
+    evidence: "685 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+
+  # Rust variants
+  rust:
+    canonical: rust
+    local_equivalent: true
+    evidence: "cells/rust launched 2026-07-25 (commit 7934cdd495): local pages on all 5 subdomains (content/{docs,kb,products,reference}.aspose.org/en/cells/rust/, content/blog.aspose.org/cells/rust/)"
+  rust-cpp:
+    canonical: rust
+    local_equivalent: false
+    evidence: "Confirmed in reference sitemap"
+    subdomains_with_variants: [reference]
+
+  # PHP variants
+  php:
+    canonical: php
+    local_equivalent: true
+    evidence: "local platform dirs use php"
+  php-java:
+    canonical: php
+    local_equivalent: false
+    evidence: "PHP variant in reference for some families"
+    subdomains_with_variants: [reference]
+
+  # Jasperreports (no local equivalent)
+  jasperreports:
+    canonical: jasperreports
+    local_equivalent: false
+    evidence: "473 HTTP 200 in reference.aspose.com all_urls"
+    subdomains_with_variants: [reference]
+    note: "Enterprise-only; no aspose.org source pages"
+
+  # TypeScript
+  typescript:
+    canonical: typescript
+    local_equivalent: true
+    evidence: "local platform dirs use typescript (cells/typescript, 3d/typescript, etc.)"
+
+  # Standard platforms (no enterprise-side variants)
+  net:
+    canonical: net
+    local_equivalent: true
+  java:
+    canonical: java
+    local_equivalent: true
+  cpp:
+    canonical: cpp
+    local_equivalent: true
+  ruby:
+    canonical: ruby
+    local_equivalent: true

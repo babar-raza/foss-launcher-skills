@@ -1,0 +1,3219 @@
+[
+  {
+    "claim_id": "CLM-psd-440c5f9e",
+    "kind": "api_method",
+    "text": "ChannelInformation.ChannelInformation(compressionMethod, bitDepth, psdVersion) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eee327d7",
+    "kind": "api_method",
+    "text": "ChannelInformation.ChannelID property of type short",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6221b85b",
+    "kind": "api_method",
+    "text": "ChannelInformation.CompressionMethod property of type CompressionMethod",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-426c32aa",
+    "kind": "api_method",
+    "text": "ChannelInformation.Length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-01a1b3",
+    "kind": "api_class",
+    "text": "Class ChannelInformation defined in src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-395865",
+    "kind": "api_class",
+    "text": "Class ColorModes defined in src/Aspose.PSD.FOSS/ColorModes.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ColorModes.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0c9111",
+    "kind": "api_class",
+    "text": "Class CompressionMethod defined in src/Aspose.PSD.FOSS/CompressionMethod.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CompressionMethod.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-792d4403",
+    "kind": "api_method",
+    "text": "PsdLoadException.PsdLoadException(message) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fe1658",
+    "kind": "api_method",
+    "text": "PsdLoadException.PsdLoadException(message, innerException) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c30258",
+    "kind": "api_class",
+    "text": "Class PsdLoadException defined in src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e0889bba",
+    "kind": "api_method",
+    "text": "PsdSaveException.PsdSaveException(message) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b99dd3",
+    "kind": "api_method",
+    "text": "PsdSaveException.PsdSaveException(message, innerException) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-893a02",
+    "kind": "api_class",
+    "text": "Class PsdSaveException defined in src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3c39d50c",
+    "kind": "api_method",
+    "text": "Image.Width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-300eeb3b",
+    "kind": "api_method",
+    "text": "Image.Height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3edb70a3",
+    "kind": "api_method",
+    "text": "Image.Bounds property of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-962100c5",
+    "kind": "api_method",
+    "text": "Image.Load(filePath) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5c8a9d",
+    "kind": "api_method",
+    "text": "Image.Load(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6a01c385",
+    "kind": "api_method",
+    "text": "Image.Save(filePath) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ce4413",
+    "kind": "api_method",
+    "text": "Image.Save(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-080b6144",
+    "kind": "api_method",
+    "text": "Image.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bfa033",
+    "kind": "api_class",
+    "text": "Class Image defined in src/Aspose.PSD.FOSS/Image.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Image.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b0d871",
+    "kind": "api_class",
+    "text": "Class BlendMode defined in src/Aspose.PSD.FOSS/Layers/BlendMode.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendMode.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f39a3b57",
+    "kind": "api_method",
+    "text": "BlendRange.Destination property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-062152b9",
+    "kind": "api_method",
+    "text": "BlendRange.Source property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5c5ffc",
+    "kind": "api_class",
+    "text": "Class BlendRange defined in src/Aspose.PSD.FOSS/Layers/BlendRange.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-60599a",
+    "kind": "api_class",
+    "text": "Class GlobalLayerMaskInfo defined in src/Aspose.PSD.FOSS/Layers/GlobalLayerMaskInfo.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/GlobalLayerMaskInfo.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b561bf89",
+    "kind": "api_method",
+    "text": "Layer.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6b7ba28f",
+    "kind": "api_method",
+    "text": "Layer.Bounds property of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-624f0268",
+    "kind": "api_method",
+    "text": "Layer.Width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-33b63e90",
+    "kind": "api_method",
+    "text": "Layer.Height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a1b42ba0",
+    "kind": "api_method",
+    "text": "Layer.Top property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e2d7b770",
+    "kind": "api_method",
+    "text": "Layer.Left property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 90
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dc68633f",
+    "kind": "api_method",
+    "text": "Layer.Bottom property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9b9983c9",
+    "kind": "api_method",
+    "text": "Layer.Right property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-28d17d3e",
+    "kind": "api_method",
+    "text": "Layer.IsVisible property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 135
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e6b3eff1",
+    "kind": "api_method",
+    "text": "Layer.Opacity property of type byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-96966361",
+    "kind": "api_method",
+    "text": "Layer.Clipping property of type byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 165
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eda92160",
+    "kind": "api_method",
+    "text": "Layer.BlendModeKey property of type BlendMode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 191
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ef5cf73e",
+    "kind": "api_method",
+    "text": "Layer.ChannelsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 200
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7e3c424a",
+    "kind": "api_method",
+    "text": "Layer.ChannelInformation property of type ChannelInformation[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 205
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-04c23f9e",
+    "kind": "api_method",
+    "text": "Layer.LayerMaskData property of type LayerMaskData?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 259
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b965d4a6",
+    "kind": "api_method",
+    "text": "Layer.LayerBlendingRangesData property of type LayerBlendingRangesData",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 277
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ff4edd55",
+    "kind": "api_field",
+    "text": "Layer.LayerTrailerSize constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-828fce",
+    "kind": "api_class",
+    "text": "Class Layer defined in src/Aspose.PSD.FOSS/Layers/Layer.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e3dbba97",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.LayerBlendingRangesData() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ba51edae",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.CompositeBlendRange property of type BlendRange",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3cf87e4c",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.ChannelBlendRanges property of type BlendRange[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6d5cfd5a",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.Length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-618a11",
+    "kind": "api_class",
+    "text": "Class LayerBlendingRangesData defined in src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a510450a",
+    "kind": "api_method",
+    "text": "LayerMaskData.Bottom property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0ab09c37",
+    "kind": "api_method",
+    "text": "LayerMaskData.DataSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-60e0fa97",
+    "kind": "api_method",
+    "text": "LayerMaskData.DefaultColor property of type byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6f5b8a4c",
+    "kind": "api_method",
+    "text": "LayerMaskData.Flags property of type LayerMaskFlags",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-24d67738",
+    "kind": "api_method",
+    "text": "LayerMaskData.ImageData property of type byte[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f1b26176",
+    "kind": "api_method",
+    "text": "LayerMaskData.Left property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d899eb57",
+    "kind": "api_method",
+    "text": "LayerMaskData.MaskRectangle property of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fb8989cf",
+    "kind": "api_method",
+    "text": "LayerMaskData.Right property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4b90566d",
+    "kind": "api_method",
+    "text": "LayerMaskData.Top property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7460f8",
+    "kind": "api_class",
+    "text": "Class LayerMaskData defined in src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-358c5bc8",
+    "kind": "api_method",
+    "text": "LayerMaskDataShort.LayerMaskDataShort() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-061a833d",
+    "kind": "api_method",
+    "text": "LayerMaskDataShort.Padding property of type short",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2afb2c",
+    "kind": "api_class",
+    "text": "Class LayerMaskDataShort defined in src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-50574b",
+    "kind": "api_class",
+    "text": "Class LayerMaskFlags defined in src/Aspose.PSD.FOSS/Layers/LayerMaskFlags.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskFlags.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0b058aab",
+    "kind": "api_method",
+    "text": "LayerResource.Key property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-795bcedd",
+    "kind": "api_method",
+    "text": "LayerResource.Length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-22b7dfe1",
+    "kind": "api_method",
+    "text": "LayerResource.PsdVersion property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c58f2b35",
+    "kind": "api_method",
+    "text": "LayerResource.Signature property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b229f5b3",
+    "kind": "api_method",
+    "text": "LayerResource.Save(streamContainer, psdVersion) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-31eabe49",
+    "kind": "api_field",
+    "text": "LayerResource.ResourceSignature constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ce151c2b",
+    "kind": "api_field",
+    "text": "LayerResource.PsbResourceSignature constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-82ceb2",
+    "kind": "api_class",
+    "text": "Class LayerResource defined in src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-743974e2",
+    "kind": "api_method",
+    "text": "Point.Point(x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6aabde18",
+    "kind": "api_method",
+    "text": "Point.X property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b1ca2e4c",
+    "kind": "api_method",
+    "text": "Point.Y property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bdd1dcdf",
+    "kind": "api_method",
+    "text": "Point.IsEmpty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d01e47",
+    "kind": "api_method",
+    "text": "Point.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3a6c377e",
+    "kind": "api_method",
+    "text": "Point.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2f4fcf76",
+    "kind": "api_method",
+    "text": "Point.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-79114bbe",
+    "kind": "api_method",
+    "text": "Point.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-16d6a68a",
+    "kind": "api_field",
+    "text": "Point.Empty static_field of type Point",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9c9272",
+    "kind": "api_class",
+    "text": "Class Point defined in src/Aspose.PSD.FOSS/Point.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Point.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b2b07614",
+    "kind": "api_method",
+    "text": "PsdImage.Width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9d4fe9a8",
+    "kind": "api_method",
+    "text": "PsdImage.Height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1a708d63",
+    "kind": "api_method",
+    "text": "PsdImage.BitsPerChannel property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f05fe486",
+    "kind": "api_method",
+    "text": "PsdImage.ColorMode property of type ColorModes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-151bee70",
+    "kind": "api_method",
+    "text": "PsdImage.Version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0fbf0c60",
+    "kind": "api_method",
+    "text": "PsdImage.Layers property of type Layer[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1d48d874",
+    "kind": "api_method",
+    "text": "PsdImage.ChannelsCount property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 98
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c057a6bb",
+    "kind": "api_method",
+    "text": "PsdImage.Size property of type Size",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 103
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-384931a7",
+    "kind": "api_method",
+    "text": "PsdImage.ActiveLayer property of type Layer?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a48fb5cf",
+    "kind": "api_method",
+    "text": "PsdImage.ImageResources property of type ResourceBlock[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 137
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ebf09b68",
+    "kind": "api_method",
+    "text": "PsdImage.GlobalLayerResources property of type LayerResource[]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 146
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-39adfcd5",
+    "kind": "api_method",
+    "text": "PsdImage.GlobalLayerMaskInfo property of type GlobalLayerMaskInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 155
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-69b4ea3e",
+    "kind": "api_method",
+    "text": "PsdImage.IsFlatten property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 160
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7da51c29",
+    "kind": "api_method",
+    "text": "PsdImage.HasTransparencyData property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 165
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-abf4de77",
+    "kind": "api_method",
+    "text": "PsdImage.Compression property of type CompressionMethod",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 199
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-49bc748d",
+    "kind": "api_method",
+    "text": "PsdImage.GlobalAngle property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 220
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a1dc7749",
+    "kind": "api_method",
+    "text": "PsdImage.Load(filePath) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 265
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-968a54",
+    "kind": "api_method",
+    "text": "PsdImage.Load(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 279
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fa98a13b",
+    "kind": "api_method",
+    "text": "PsdImage.Save(filePath) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 323
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3e395c",
+    "kind": "api_method",
+    "text": "PsdImage.Save(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 335
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d43077bb",
+    "kind": "api_method",
+    "text": "PsdImage.Dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 356
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-657a86",
+    "kind": "api_class",
+    "text": "Class PsdImage defined in src/Aspose.PSD.FOSS/PsdImage.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f909b2",
+    "kind": "api_class",
+    "text": "Class PsdVersion defined in src/Aspose.PSD.FOSS/PsdVersion.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdVersion.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a16eda36",
+    "kind": "api_method",
+    "text": "Rectangle.Rectangle(location, size) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-62fcc3",
+    "kind": "api_method",
+    "text": "Rectangle.Rectangle(x, y, width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e9e4c118",
+    "kind": "api_method",
+    "text": "Rectangle.X property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-70dfc74e",
+    "kind": "api_method",
+    "text": "Rectangle.Y property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0265ebab",
+    "kind": "api_method",
+    "text": "Rectangle.Width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-44a38bc8",
+    "kind": "api_method",
+    "text": "Rectangle.Height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6cd17ff9",
+    "kind": "api_method",
+    "text": "Rectangle.Bottom property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7839d698",
+    "kind": "api_method",
+    "text": "Rectangle.IsEmpty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c22bdfa7",
+    "kind": "api_method",
+    "text": "Rectangle.Left property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7675e278",
+    "kind": "api_method",
+    "text": "Rectangle.Location property of type Point",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1e0997bc",
+    "kind": "api_method",
+    "text": "Rectangle.Right property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 102
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0bdb5b64",
+    "kind": "api_method",
+    "text": "Rectangle.Size property of type Size",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 111
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-50fabf6d",
+    "kind": "api_method",
+    "text": "Rectangle.Top property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 124
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f3c99c46",
+    "kind": "api_method",
+    "text": "Rectangle.Ceiling(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8a5079de",
+    "kind": "api_method",
+    "text": "Rectangle.FromLeftTopRightBottom(left, top, right, bottom) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 157
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a404b3e1",
+    "kind": "api_method",
+    "text": "Rectangle.FromPoints(point1, point2) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 181
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-81c0f9d5",
+    "kind": "api_method",
+    "text": "Rectangle.Inflate(rectangle, x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 197
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4dca714b",
+    "kind": "api_method",
+    "text": "Rectangle.Intersect(a, b) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-011e2323",
+    "kind": "api_method",
+    "text": "Rectangle.Round(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 227
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8daf116d",
+    "kind": "api_method",
+    "text": "Rectangle.Truncate(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 241
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-187484ad",
+    "kind": "api_method",
+    "text": "Rectangle.Union(a, b) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 252
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-86ee4d33",
+    "kind": "api_method",
+    "text": "Rectangle.Contains(point) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 266
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cc69c2",
+    "kind": "api_method",
+    "text": "Rectangle.Contains(rectangle) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 276
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-30dd85",
+    "kind": "api_method",
+    "text": "Rectangle.Contains(x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 290
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9b0dd7",
+    "kind": "api_method",
+    "text": "Rectangle.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 300
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-858c7fa3",
+    "kind": "api_method",
+    "text": "Rectangle.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 310
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7b7cb166",
+    "kind": "api_method",
+    "text": "Rectangle.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 319
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e68ef4",
+    "kind": "api_method",
+    "text": "Rectangle.Inflate(size) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 328
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4a3922",
+    "kind": "api_method",
+    "text": "Rectangle.Inflate(width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 338
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-100ce9",
+    "kind": "api_method",
+    "text": "Rectangle.Intersect(rectangle) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 350
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2455f983",
+    "kind": "api_method",
+    "text": "Rectangle.IntersectsWith(rectangle) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 360
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-af5582eb",
+    "kind": "api_method",
+    "text": "Rectangle.Normalize() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 371
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2103aa40",
+    "kind": "api_method",
+    "text": "Rectangle.Offset(point) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 390
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7c28e4",
+    "kind": "api_method",
+    "text": "Rectangle.Offset(x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 400
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5f8b5ed7",
+    "kind": "api_method",
+    "text": "Rectangle.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 410
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4457e03d",
+    "kind": "api_field",
+    "text": "Rectangle.Empty static_field of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7b1e02",
+    "kind": "api_class",
+    "text": "Class Rectangle defined in src/Aspose.PSD.FOSS/Rectangle.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4e0e72fe",
+    "kind": "api_method",
+    "text": "RectangleF.RectangleF(x, y, width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8ee5504e",
+    "kind": "api_method",
+    "text": "RectangleF.X property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-91db6fb4",
+    "kind": "api_method",
+    "text": "RectangleF.Y property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-335b9ad0",
+    "kind": "api_method",
+    "text": "RectangleF.Width property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d5aa0977",
+    "kind": "api_method",
+    "text": "RectangleF.Height property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eef2e737",
+    "kind": "api_method",
+    "text": "RectangleF.Bottom property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-69ee66ab",
+    "kind": "api_method",
+    "text": "RectangleF.IsEmpty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-adfa48ef",
+    "kind": "api_method",
+    "text": "RectangleF.Left property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-63cc4f02",
+    "kind": "api_method",
+    "text": "RectangleF.Right property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5a3a2dcc",
+    "kind": "api_method",
+    "text": "RectangleF.Top property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6c0840",
+    "kind": "api_method",
+    "text": "RectangleF.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7deadce0",
+    "kind": "api_method",
+    "text": "RectangleF.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-126f17cd",
+    "kind": "api_method",
+    "text": "RectangleF.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3040e0d2",
+    "kind": "api_method",
+    "text": "RectangleF.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 106
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f122daf0",
+    "kind": "api_field",
+    "text": "RectangleF.Empty static_field of type RectangleF",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-03d6f1",
+    "kind": "api_class",
+    "text": "Class RectangleF defined in src/Aspose.PSD.FOSS/RectangleF.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f06ec87b",
+    "kind": "api_method",
+    "text": "ResourceBlock.DataSize property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f109951d",
+    "kind": "api_method",
+    "text": "ResourceBlock.ID property of type short",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e4a51c19",
+    "kind": "api_method",
+    "text": "ResourceBlock.MinimalVersion property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2b51e40b",
+    "kind": "api_method",
+    "text": "ResourceBlock.Name property of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-81cebbf4",
+    "kind": "api_method",
+    "text": "ResourceBlock.Signature property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6d894493",
+    "kind": "api_method",
+    "text": "ResourceBlock.Size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6e88b7bf",
+    "kind": "api_method",
+    "text": "ResourceBlock.Save(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-314d7320",
+    "kind": "api_method",
+    "text": "ResourceBlock.ValidateValues() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3564e801",
+    "kind": "api_field",
+    "text": "ResourceBlock.ResouceBlockSignature constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eecef05f",
+    "kind": "api_field",
+    "text": "ResourceBlock.ResouceBlockMeSaSignature constant of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eeb0ba",
+    "kind": "api_class",
+    "text": "Class ResourceBlock defined in src/Aspose.PSD.FOSS/ResourceBlock.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-22f297",
+    "kind": "api_class",
+    "text": "Class ResourceBlockState defined in src/Aspose.PSD.FOSS/ResourceBlock.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9630b0df",
+    "kind": "api_method",
+    "text": "Size.Size(width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-94c8b4f3",
+    "kind": "api_method",
+    "text": "Size.Width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0ee1e3f5",
+    "kind": "api_method",
+    "text": "Size.Height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d6db960b",
+    "kind": "api_method",
+    "text": "Size.IsEmpty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ee1c60",
+    "kind": "api_method",
+    "text": "Size.Equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f093b91f",
+    "kind": "api_method",
+    "text": "Size.Equals(obj) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1a3139f7",
+    "kind": "api_method",
+    "text": "Size.GetHashCode() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ec585143",
+    "kind": "api_method",
+    "text": "Size.ToString() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cfeecae2",
+    "kind": "api_field",
+    "text": "Size.Empty static_field of type Size",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f78b7d",
+    "kind": "api_class",
+    "text": "Class Size defined in src/Aspose.PSD.FOSS/Size.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Size.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b2655322",
+    "kind": "api_method",
+    "text": "StreamContainer.StreamContainer(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/StreamContainer.cs",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-485f12f6",
+    "kind": "api_method",
+    "text": "StreamContainer.Stream property of type Stream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/StreamContainer.cs",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-576e3d",
+    "kind": "api_class",
+    "text": "Class StreamContainer defined in src/Aspose.PSD.FOSS/StreamContainer.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/StreamContainer.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fa5424",
+    "kind": "format_support",
+    "text": "import support for BigEndian via BigEndianReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/BigEndianReader.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-793318",
+    "kind": "format_support",
+    "text": "export support for BigEndian via BigEndianWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/BigEndianWriter.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-765d32",
+    "kind": "format_support",
+    "text": "import support for LayerAndMaskSection via LayerAndMaskSectionReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/LayerAndMaskSectionReader.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-63ccb6",
+    "kind": "format_support",
+    "text": "export support for LayerAndMaskSection via LayerAndMaskSectionWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/LayerAndMaskSectionWriter.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-06ba17",
+    "kind": "format_support",
+    "text": "import support for LayerRecord via LayerRecordReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerRecordReader.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d505e2",
+    "kind": "format_support",
+    "text": "export support for LayerRecord via LayerRecordWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerRecordWriter.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dcb0f6",
+    "kind": "format_support",
+    "text": "import support for PsdImage via PsdImageLoader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/Loaders/PsdImageLoader.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-005431",
+    "kind": "format_support",
+    "text": "import support for PsdSection via PsdSectionReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/PsdSectionReader.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2efb1f",
+    "kind": "format_support",
+    "text": "export support for PsdImage via PsdImageWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.PSD.FOSS/WriteDescriptors/PsdImageWriter.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8e8f1b",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Basic`, NuGet sample is `Aspose.PSD.NuGet.Samples.Basic` (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e2af52",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Basic`, Main workflow is Document inspection (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-162d6d",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Basic`, What it demonstrates is Aspose.PSD-compatible document metadata and supported resource/layer counts (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-22ffe2",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Layers`, NuGet sample is `Aspose.PSD.NuGet.Samples.Layers` (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2d9f1d",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Layers`, Main workflow is Layer inspection (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-286ee7",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Layers`, What it demonstrates is Layer metadata, derived geometry, blend mode key, channel information, mask data, and blending ranges (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f3f34d",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.StructuralEditing`, NuGet sample is `Aspose.PSD.NuGet.Samples.StructuralEditing` (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f795d9",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.StructuralEditing`, Main workflow is Supported metadata editing (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-07b2d4",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.StructuralEditing`, What it demonstrates is Renaming layers, changing visibility, opacity, clipping, blend mode key, and geometry, then saving without rendering (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5b244c",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Streams`, NuGet sample is `Aspose.PSD.NuGet.Samples.Streams` (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f4d143",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Streams`, Main workflow is Stream-based round trip (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-26fd68",
+    "kind": "capability_matrix_cell",
+    "text": "For `Aspose.PSD.FOSS.Samples.Streams`, What it demonstrates is Loading from a stream, saving to a stream, and working with in-memory PSD/PSB data (per README.md's FOSS sample table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 140
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-31b636",
+    "kind": "install",
+    "text": "Package name is Aspose.PSD.FOSS",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e003ae",
+    "kind": "install",
+    "text": "Current version is 1.0.0",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-psd-net-10595b74",
+    "text": "The library supports both PSD and PSB container versions, allowing import and export of these formats.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: PsdVersion\n  Enum values: Psd, Psb"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-df23818f",
+    "text": "Use Image.Load(filePath) or Image.Load(stream) to open a PSD/PSB file and obtain a PsdImage instance.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Load PSD/PSB from file paths and streams"
+      },
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: Image\n  Methods: Load(filePath); Load(stream);"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-a3822040",
+    "text": "Access image dimensions via the Width and Height properties of PsdImage.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: PsdImage\n  Properties: Width, Height,"
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "Read document properties: `Width`, `Height`, `ChannelsCount`, `BitsPerChannel`, `ColorMode`, Aspose.PSD-compatible `Version`"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-751a6d6c",
+    "text": "Iterate over PsdImage.Layers to read each Layer's Name, Bounds, IsVisible, and Opacity properties.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: PsdImage\n  Properties: Layers"
+      },
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: Layer\n  Properties: Name, Bounds, IsVisible, Opacity"
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "Read layer metadata: `Name`, local `Bounds` `Rectangle`, ... `IsVisible`, `Opacity`"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-a5f436bb",
+    "text": "Save changes back to disk with PsdImage.Save(filePath) or PsdImage.Save(stream) preserving the original file structure.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: PsdImage\n  Methods: Save(filePath); Save(stream);"
+      },
+      {
+        "source_file": "README.md",
+        "snippet": "Save without rendering"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-4c4869ab",
+    "text": "The library does not render pixel data; attempts to access raster content are not supported.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It is not a rendering engine, a raster editor, or an open-source replacement for the full commercial Aspose.PSD product."
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-a67e156b",
+    "text": "LayerMaskFlags enum provides mask behavior flags such as RelativeToLayer, Disabled, and InvertedWhenBlending.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "VerifiedFacts",
+        "snippet": "Class: LayerMaskFlags\n  Enum values: None, RelativeToLayer, Disabled, InvertedWhenBlending, UserMaskFromRenderingOtherData, UserOrVectorMasksHaveParameters"
+      }
+    ],
+    "enrich_unit": "batch:0/2",
+    "class_hash": "6d9627bc61fd5137",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-27713697",
+    "text": "The library can import PSD and PSB files and export the modified files back to the same formats.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Load PSD/PSB from file paths and streams ... Save without rendering"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-03759c42",
+    "text": "The BlendMode enum defines the blend mode keys (Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight) that can be assigned to a layer.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: BlendMode\n  Docstring: Defines the blend modes used for layers in PSD files.\n  Enum values: Normal, Multiply, Screen, Overlay, Darken, Lighten, ColorDodge, ColorBurn, HardLight, SoftLight"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-b4d0214b",
+    "text": "LayerMaskDataShort provides properties such as Left, Top, Right, Bottom, and MaskRectangle to read or modify a layer's mask geometry.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: LayerMaskDataShort\n  Docstring: Defines layer mask data for layers that have only a raster or vector mask.\n  Properties: Padding, Bottom, DataSize, DefaultColor, Flags, ImageData, Left, MaskRectangle, Right, Top"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-1f6b1e1f",
+    "text": "Rectangle includes static factory methods like FromLeftTopRightBottom and FromPoints to create rectangles from edge coordinates or two points.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: Rectangle\n  Methods: ... FromLeftTopRightBottom(left, top, right, bottom); FromPoints(point1, point2); ..."
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-147f5e10",
+    "text": "Point exposes an IsEmpty property that returns true when both X and Y are zero.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: Point\n  Properties: X, Y, IsEmpty, Empty"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-d6eecff1",
+    "text": "Size provides an Empty property representing a size with Width and Height set to zero.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: Size\n  Properties: Width, Height, IsEmpty, Empty"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-f3fea601",
+    "text": "BlendRange exposes Destination and Source properties to access the destination and source blend range values of a layer.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: BlendRange\n  Properties: Destination, Source"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-23fc99f7",
+    "text": "ChannelInformation can be instantiated with compressionMethod, bitDepth, and psdVersion to describe a layer channel's metadata.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: ChannelInformation\n  Methods: ChannelInformation(compressionMethod, bitDepth, psdVersion)"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-d40f0e4b",
+    "text": "LayerBlendingRangesData provides CompositeBlendRange and ChannelBlendRanges properties to retrieve a layer's overall and per‑channel blending ranges.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: LayerBlendingRangesData\n  Properties: CompositeBlendRange, ChannelBlendRanges, Length"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-595dd2fe",
+    "text": "StreamContainer wraps a Stream instance and exposes it via the Stream property for use with resource‑saving APIs.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: StreamContainer\n  Methods: StreamContainer(stream)\n  Properties: Stream"
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-5be9ab4d",
+    "text": "The library does not perform any image rendering; it only manipulates PSD/PSB metadata.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "This library is for metadata-safe PSD/PSB inspection and limited structural editing. It is not a rendering engine, a raster editor, or an open-source replacement for the full commercial Aspose.PSD product.\""
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-net-0888fd2c",
+    "text": "The API groups related PSD concepts—blend modes, color modes, blend ranges, and channel information—into dedicated enums and classes for clear, type‑safe metadata handling.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Verified Facts",
+        "snippet": "Class: BlendMode ... Enum values ...\nClass: ColorModes ... Enum values ...\nClass: BlendRange ... Properties ...\nClass: ChannelInformation ... Methods ... Properties ..."
+      }
+    ],
+    "enrich_unit": "batch:1/2",
+    "class_hash": "96ba60d23d68f536",
+    "provenance": "enriched"
+  }
+]

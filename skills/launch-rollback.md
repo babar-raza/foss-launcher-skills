@@ -1,14 +1,11 @@
 ---
 name: launch-rollback
-id: S-60
 description: >
-  Revert one product's generated content files back to their last committed git
-  state without touching system files. Used after a flawed launch to clean the
-  working tree before a corrected relaunch.
+  Revert one product's generated content files without touching system scripts
 args: "{family} {platform}"
 ---
 
-# S-60: Launch Rollback — Revert One Product's Generated Content
+# S-79: Launch Rollback — Revert One Product's Generated Content
 
 **Arguments**: $ARGUMENTS
 **Expected format**: `{family} {platform}` — e.g. `cells net` or `slides python`
@@ -22,78 +19,91 @@ Used after a flawed launch is detected to clean the working tree before a correc
 
 ## Pre-conditions
 
-1. Working tree has uncommitted content changes for the product
-2. The last committed state is a valid rollback target (not itself flawed)
-3. This skill must be invoked by a human operator — not invoked automatically
+- Git working tree is clean for system files (no uncommitted changes to scripts/, .agents/).
+  If system files are dirty, STOP and ask the operator to commit or stash them first.
+- `reports/plans/{family}/{platform}/site_plan.yaml` must exist (created by `/site-plan`).
+  The site plan is the authoritative list of generated content files.
 
-## Scope Boundaries
+## Execution Steps
 
-**Rolls back** (content only):
-- `$CONTENT_REPO_PATH/content/products.aspose.org/en/{family}/{platform}/`
-- `$CONTENT_REPO_PATH/content/docs.aspose.org/en/{family}/{platform}/`
-- `$CONTENT_REPO_PATH/content/blog.aspose.org/{family}/{platform}/`
-- `$CONTENT_REPO_PATH/content/kb.aspose.org/en/{family}/{platform}/`
-- `$CONTENT_REPO_PATH/content/reference.aspose.org/en/{family}/{platform}/`
+### Step 1 — Read site plan
 
-**Never rolls back** (system files):
-- `scripts/`, `.agents/`, `.kilocode/`, `.claude/`
-- `knowledge/`, `reports/`, `.github/`
-- `skills/`, `AGENTS.md`, `CLAUDE.md`
+```
+Read: reports/plans/{family}/{platform}/site_plan.yaml
+```
 
-## Steps
+Collect every `path:` value under `sections.products.pages`, `sections.blog.pages`,
+`sections.docs.pages`, `sections.kb.pages`, and `sections.reference.pages`.
 
-1. **Parse arguments**: Extract `{family}` and `{platform}`.
+### Step 2 — Classify each file
 
-2. **Inventory dirty content files** for the product:
-   ```bash
-   git diff --name-only HEAD -- "content/**/{family}/{platform}/**"
-   git ls-files -m -o --exclude-standard -- "content/**/{family}/{platform}/**"
-   ```
-   Print the list for operator review.
+For each path:
+- If file exists in git history (`git ls-files {path}` returns the path): mark as **revert**
+- If file is untracked (new, not in git): mark as **delete**
+- If file does not exist at all: mark as **skip**
 
-3. **Confirm rollback** with operator: Present the file count and ask for explicit confirmation before proceeding.
+### Step 3 — Produce rollback manifest (dry run first)
 
-4. **Revert to last committed state**:
-   ```bash
-   git checkout HEAD -- content/products.aspose.org/en/{family}/{platform}/
-   git checkout HEAD -- content/docs.aspose.org/en/{family}/{platform}/
-   git checkout HEAD -- content/blog.aspose.org/{family}/{platform}/
-   git checkout HEAD -- content/kb.aspose.org/en/{family}/{platform}/
-   git checkout HEAD -- content/reference.aspose.org/en/{family}/{platform}/
-   ```
+Write `reports/rollback/{family}/{platform}/{date}.md` with three tables:
+1. Files to revert (git checkout HEAD -- {path})
+2. Files to delete (not in git, will be removed)
+3. Files skipped (already absent)
 
-5. **Remove untracked new files** (files not in git):
-   ```bash
-   # Dry-run first:
-   git clean -n -- content/**/{family}/{platform}/
+Show the manifest to the operator. Do NOT execute until operator confirms.
 
-   # Execute (after operator confirms):
-   git clean -f -- content/**/{family}/{platform}/
-   ```
+### Step 4 — Execute rollback
 
-6. **Verify working tree is clean** for the product:
-   ```bash
-   git status -- content/**/{family}/{platform}/
-   ```
-   Must show no modified or untracked files in the product's content paths.
+On operator confirmation:
 
-7. **Summary report**:
-   ```
-   LAUNCH ROLLBACK — {family}/{platform}
-   Files reverted: N
-   Untracked files removed: N
-   Working tree: CLEAN
-   Ready for relaunch: /launch-product {family} {platform}
-   ```
+For **revert** files:
+```bash
+git checkout HEAD -- {path}
+```
 
-## Post-conditions
+For **delete** files:
+```bash
+rm {path}
+```
 
-- Content working tree clean for the product (no uncommitted changes)
-- System files unchanged
-- Ready for corrected relaunch via S-38 (launch-product)
+Also revert locale translation variants if present (e.g. `content/docs.aspose.org/ar/cells/net/`
+through `zh`). These follow the same site plan slugs under locale prefixes.
 
-## Hard rules
+### Step 5 — Verify
 
-- Never roll back without explicit operator confirmation
-- Never delete files outside content/ paths
-- Never use `git reset --hard` — only `git checkout HEAD --` per-path
+```bash
+git status
+```
+
+Expected: no staged changes; all content files for the product should be absent from `git status`
+modified list (either reverted to HEAD or deleted).
+
+Report: `{N} files reverted, {M} files deleted, {K} files skipped.`
+
+## Failure Modes
+
+| Condition | Action |
+|-----------|--------|
+| site_plan.yaml not found | STOP — run `/site-plan {family} {platform}` first |
+| System files have uncommitted changes | STOP — ask operator to commit system changes first |
+| `git checkout HEAD -- {path}` fails for a file | Log as WARNING; continue with remaining files |
+| File is in a subdirectory with mixed content | Do NOT rm -rf; only remove listed files individually |
+
+## Acceptance Criteria
+
+- All content files listed in site_plan.yaml are either reverted to HEAD or deleted
+- `git status` shows no staged changes and no modified content files for this product
+- Rollback manifest written to `reports/rollback/{family}/{platform}/{date}.md`
+- System files (scripts/, .agents/, reports/plans/, knowledge/) are NOT touched
+
+## Related Skills
+
+- `/site-plan {family} {platform}` — generates the site_plan.yaml that this skill reads
+- `/launch-product {family} {platform}` — re-runs the launch after rollback
+- `/knowledge-coverage-audit {family} {platform}` — S-80, disposition all knowledge units
+
+## Registry
+
+**Skill code**: S-79
+**Status**: REGISTERED — AGENTS.md §12 / [docs/registries/skills.md](../docs/registries/skills.md) entry added 2026-04-07
+**Script**: `scripts/pipeline/commands/launch/launch_rollback.py`
+**Test**: `scripts/pipeline/tests/test_launch_rollback.py` (to be created)

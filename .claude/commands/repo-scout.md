@@ -11,14 +11,22 @@ source alongside FOSS-Launcher outputs.
 
 ## Repo-path resolution
 
-**With `{repo-path}` supplied** — use it directly (source repo clone with test directories).
+**Option 0 — Local clone cache (preferred)**:
+```bash
+repo_path=$(.venv/Scripts/python scripts/pipeline/core/clone_cache.py resolve {family} {platform})
+```
+Use this when repos are already cloned locally (the default setup). Provides full
+snippet extraction from `tests/`, `examples/`, `samples/`. Auto-clones if the cache
+entry is missing. Respects `ASPOSE_CLONE_CACHE` env var.
+
+**With `{repo-path}` supplied explicitly** — use it directly (any accessible source repo clone).
 Snippets will be extracted from `tests/`, `examples/`, `samples/` inside the repo.
 
 **Without `{repo-path}`** — auto-install the pip package:
 ```
 pip_pkg  = aspose-{family}-foss
 temp_dir = /tmp/aspose-{family}-foss-pkg
-pip install {pip_pkg} --target {temp_dir}
+.venv/Scripts/pip install {pip_pkg} --target {temp_dir}
 repo_path = {temp_dir}/aspose/{family}_foss
 ```
 If `{temp_dir}/aspose/{family}_foss` does not exist, use the first subdirectory under
@@ -27,7 +35,6 @@ where source repos are not cloned.
 
 > **Snippet limitation (pip-install mode):** Installed packages contain no test directories.
 > `scout.py` will write `snippets_index.json` as `[]` and `snippet_count: 0` in `model.yaml`.
-> `merge.py` will promote 0 scout snippets (FL snippets still promoted if available).
 > To obtain real snippets, run with a cloned source repo that includes `tests/` or `examples/`.
 
 ## Pre-conditions
@@ -38,42 +45,41 @@ where source repos are not cloned.
    ```
    If it doesn't exist, abort with a clear message. Skip this check in pip-install mode.
 
-2. **Verify `scripts/scout.py` exists**:
+2. **Verify `scripts/pipeline/commands/knowledge/scout.py` exists**:
    ```
-   ls scripts/scout.py
+   ls scripts/pipeline/commands/knowledge/scout.py
    ```
 
-3. **Verify tree-sitter is importable** — first check the user site-packages:
+3. **Verify tree-sitter is importable** (already in `.venv` via `scripts/pipeline/requirements.txt`):
    ```
-   USER_SITE=$(python -m site --user-site 2>/dev/null || python -m site --user-site)
-   PYTHONPATH="$USER_SITE" python -c "import tree_sitter; import tree_sitter_language_pack"
+   .venv/Scripts/python -c "import tree_sitter; import tree_sitter_language_pack"
    ```
-   If that fails, install:
+   If that fails, install into the venv:
    ```
-   pip install tree-sitter tree-sitter-language-pack --user
+   .venv/Scripts/pip install tree-sitter tree-sitter-language-pack
    ```
    Re-verify after install. If still failing, abort with:
-   `tree-sitter not available — run: pip install tree-sitter tree-sitter-language-pack --user`
+   `tree-sitter not available — run: .venv/Scripts/pip install tree-sitter tree-sitter-language-pack`
 
 ## Steps
+
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-34 --scope "*"
+> ```
+
 
 1. **Parse arguments** from $ARGUMENTS:
    - If 3 tokens: `family`, `platform`, `repo_path` (explicit source repo)
    - If 2 tokens: `family`, `platform` → resolve `repo_path` via pip-install (see above)
 
-2. **Resolve PYTHONPATH**:
+2. **Run extraction**:
    ```
-   USER_SITE=$(python -m site --user-site)
-   ```
-   Prepend to all subsequent `python` invocations as `PYTHONPATH="$USER_SITE"`.
-
-3. **Run extraction**:
-   ```
-   PYTHONPATH="$USER_SITE" python scripts/scout.py \
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/scout.py \
      {family} {platform} {repo_path} knowledge/{family}/{platform}/scout/
    ```
 
-4. **Validate outputs** — verify these files were created:
+3. **Validate outputs** — verify these files were created:
    - `knowledge/{family}/{platform}/scout/model.yaml` — must contain `family`, `platform`, `source: scout`
    - `knowledge/{family}/{platform}/scout/api_surface.json` — valid JSON, at least 1 class
    - `knowledge/{family}/{platform}/scout/claims.json` — valid JSON array
@@ -82,15 +88,20 @@ where source repos are not cloned.
    - `knowledge/{family}/{platform}/scout/coverage_matrix.json` — exists
    - `knowledge/{family}/{platform}/scout/snippets/snippets_index.json` — exists (may be `[]` in pip mode)
 
-5. **Report** — print summary:
+4. **Report** — print summary:
    ```
    family/platform: {class_count} classes, {method_count} methods, {snippet_count} snippets
    repo_sha: {repo_sha or "(pip-installed, no sha)"}
    output: knowledge/{family}/{platform}/scout/
    ```
 
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-34 --status completed
+> ```
+
 ## Post-conditions
-- All output files listed in Step 4 exist and contain valid data
+- All output files listed in Step 3 exist and contain valid data
 - `model.yaml` has `source: scout`
 - `repo_sha` may be empty when running in pip-install mode — this is expected and not an error
 - `snippet_count: 0` is expected in pip-install mode — not an error
@@ -106,7 +117,7 @@ After a pip-install scout run, if `.py` snippet files already exist in `scout/sn
 from a previous source-repo run, they are preserved. Run `rebuild_snippet_index.py` to
 re-index them:
 ```
-python scripts/maintenance/rebuild_snippet_index.py {family} {platform}
+.venv/Scripts/python scripts/maintenance/rebuild_snippet_index.py {family} {platform}
 ```
 
 ## Error handling

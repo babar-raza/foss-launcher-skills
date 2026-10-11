@@ -1,0 +1,37 @@
+family: email
+platform: net
+product_name: Aspose.EMAIL-FOSS for Net
+version: ''
+license: ''
+repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-.Net.git
+repo_sha: a8999e259143a9ffc660086b34a7f39516da29f5
+config_sha: a1fb6a852b9b8451
+stale_since: null
+promoted_at: '2026-09-10T11:07:25.817553+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 868b2b8b-7b70-44bb-a2fd-d5b219520e8b
+bundle_generated_at: '2026-09-10T11:07:25.765061+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: a1fb6a852b9b8451
+  scout_claims_sha: 5679860111b41cf12c5e9efde39891ddd0dd5107e38f630716987d38d008d446
+  scout_api_surface_sha: f37dfd8acd83a34f0232faca28b49e0130c358529154554d062048f4c24d95c4
+  enriched_claims_sha: ac25c9a2b0ea061adfe8d7c0202d3da73101a74a20dcb52ada58e98fe88527f9
+  products_json_entry_sha: 2070f1a4b4e4fa0dc9db409856150f07fcaf41f7c9d6a6864b757bba3cd7d2ff
+stats:
+  scout_claims: 221
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 221
+  class_count: 29
+  classes:
+    total_declared: 29
+    public_documented: 29
+    raw_entries_including_non_class: 29
+  forbidden_count: 0
+  snippet_count: 26

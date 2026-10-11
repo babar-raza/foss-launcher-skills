@@ -1,0 +1,2483 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 223,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.ToDocx",
+      "Document.ToHtml",
+      "Document.ToMarkdown",
+      "Page.ToDocx",
+      "Page.ToHtml",
+      "Page.ToImage",
+      "Page.ToMarkdown",
+      "Page.ToSvg"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "docx",
+      "html",
+      "markdown",
+      "md",
+      "pdf",
+      "png",
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc8ba444c615fca27ce09b295bf8c2c5f22134b5632981a84dd937b77d02a0cb",
+      "norm": "8d056c478ac1029dbef99b9a76d758f4882415a3a0f76ce510b20175ee9a9c9b"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 291,
+    "classes_used": [
+      "Document",
+      "Metadata",
+      "Open",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.RemovePage",
+      "Document.Reorder",
+      "Document.Save",
+      "Document.SetMetadata",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a14f09d056229e6c228a6eb7975eb01bc398198668a71c18759ab1cdf78ed274",
+      "norm": "b3871f4787767c104923efac376e91c6f8f756421834f8516a51ec7342be6ade"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 315,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Document.AddPage",
+      "Document.New",
+      "Document.WriteTo",
+      "Page.AddText",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0db5a438e634bbe7091400dacdd2b5393e9362934d89e37cb5609c37809ac5d0",
+      "norm": "bc980e604c50d5766e5874348f9e2c39133089a30b6c40eb2deb8fd61ec918eb"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 334,
+    "classes_used": [
+      "Document",
+      "InvalidPasswordError",
+      "Open",
+      "Pass"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9eb82d75823a7f7fbd34435b8bbea17cbdabe4ae9e45edfb751e33c6389701c7",
+      "norm": "cf89149526cffa6e0fecc8a832286b7179d5de61d2f76c6601553f715aeaa005"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 353,
+    "classes_used": [
+      "Document",
+      "LoadLimits",
+      "Open",
+      "Page",
+      "PdfParseError",
+      "ResourceLimitError"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "LoadLimits.unlimited",
+      "LoadLimits.with",
+      "Page.GetText"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fad312fccf4539c1ef532f851562f9a287cd67692186007415ab06e6f30b4a1b",
+      "norm": "1bd3117d5b3e118e42b293c2a5f5a982f460d7bb96f97aebdf2140de715a3c0b"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 419,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Pass",
+      "Val"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.Repair",
+      "Document.Save",
+      "Document.Validate"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e97a864b9d524b58ada891e2e9c788fe02ce5e0aacd86b5fc6e0498b599af761",
+      "norm": "2f17986735aec6de897178bc3e07332992a67278e7822012400a0a477a504c2c"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 438,
+    "classes_used": [
+      "Document",
+      "Metadata",
+      "Open",
+      "Pass"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "815da21f2e59ec902beec66fac9eb24493235bab2fbdca32fefc66b6644334ce",
+      "norm": "dfdac9335aec5af480c3ce8a4d8074a3f4615035d62f7d272dc1310636bf696c"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 458,
+    "classes_used": [
+      "Document",
+      "Enc",
+      "Open",
+      "Permissions"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "343557e148bd467438c20247b2c2382dc06fe84938d9c95d245f8ea86ef96af8",
+      "norm": "b5c4e2a1b59c216799c3fd8e63825524547853a1b7112a36816e8a3a9b4a70bf"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 483,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Append",
+      "Document.ExtractPages",
+      "Document.InsertPage",
+      "Document.Merge",
+      "Document.Split"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "42fc1ab55156b88f324255e8b73ae4169ec50e27e1e4c1245a0b9321fa97c8ce",
+      "norm": "16b1b2b1c52b2d071c98388c50847464840408f4ec151b6691ed2eab428d8cea"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.ts",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 494,
+    "classes_used": [
+      "Page",
+      "PdfObject",
+      "Stream"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1ad8f3dd2248af831021c7a06b1955f3bb647923eb77c19b520c0a26d950f173",
+      "norm": "5eed782a78e743541b8d7a8c3c1eb64609980b9eb027378cf83e027baafdbf11"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.ts",
+    "source_file": "examples/feature-showcase/annotations.ts",
+    "source_function": "addAnnotations",
+    "source_line": 13,
+    "classes_used": [
+      "Annotation",
+      "Attachment",
+      "Box",
+      "Color",
+      "Enc",
+      "Form",
+      "Open",
+      "Page",
+      "Poly",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddCaret",
+      "Page.AddCircle",
+      "Page.AddFileAttachment",
+      "Page.AddFreeText",
+      "Page.AddHighlight",
+      "Page.AddInk",
+      "Page.AddLine",
+      "Page.AddLink",
+      "Page.AddPolygon",
+      "Page.AddPolyline",
+      "Page.AddSquare",
+      "Page.AddSquiggly",
+      "Page.AddStamp",
+      "Page.AddStrikeOut",
+      "Page.AddTextNote",
+      "Page.AddUnderline",
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c052dad3c39f623622592e3803ad79b5630b1ffac57da83c6a62ddb5bd74e30a",
+      "norm": "c052dad3c39f623622592e3803ad79b5630b1ffac57da83c6a62ddb5bd74e30a"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.ts",
+    "source_file": "examples/feature-showcase/assets.ts",
+    "source_function": "assetPath",
+    "source_line": 8,
+    "classes_used": [
+      "Path"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2070c72b16fc5a2aa7aa88b3f56bc440c4facbbbe9073f787c6792a430d24e40",
+      "norm": "2070c72b16fc5a2aa7aa88b3f56bc440c4facbbbe9073f787c6792a430d24e40"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.ts",
+    "source_file": "examples/feature-showcase/barcodes.ts",
+    "source_function": "addBarcodeShowcase",
+    "source_line": 21,
+    "classes_used": [
+      "EA",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddBarcode"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2acb934f107dc3d129e500f0adcc143f6d38bfcc814b534d10855c8e2177bdca",
+      "norm": "2acb934f107dc3d129e500f0adcc143f6d38bfcc814b534d10855c8e2177bdca"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.ts",
+    "source_file": "examples/feature-showcase/bill.ts",
+    "source_function": "addRestaurantBill",
+    "source_line": 5,
+    "classes_used": [
+      "ColumnWidth",
+      "Item",
+      "Page",
+      "Rec",
+      "Row",
+      "Table",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eef9c35ed981cc0c13bc46bf410d74ed6b18093cc81068c0719e859c63c81e3e",
+      "norm": "eef9c35ed981cc0c13bc46bf410d74ed6b18093cc81068c0719e859c63c81e3e"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.ts",
+    "source_file": "examples/feature-showcase/compliance.ts",
+    "source_function": "addComplianceShowcase",
+    "source_line": 37,
+    "classes_used": [
+      "ColumnWidth",
+      "Comp",
+      "Document",
+      "EA",
+      "Page",
+      "Pass",
+      "Row",
+      "Rule",
+      "Severity",
+      "Table",
+      "Val",
+      "ValidationReport",
+      "der"
+    ],
+    "methods_used": [
+      "Document.ConvertToPdfA",
+      "Document.ExtractPages",
+      "Document.Save",
+      "Document.ValidatePdfA",
+      "Document.ValidatePdfUa",
+      "Document.ValidatePdfX",
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4f19f5f4bcc11f87a4f886cebf0fa67fa9acbd4680acbddccf2c9a2c2ab4fb4",
+      "norm": "c4f19f5f4bcc11f87a4f886cebf0fa67fa9acbd4680acbddccf2c9a2c2ab4fb4"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.ts",
+    "source_file": "examples/feature-showcase/contents.ts",
+    "source_function": "addTOC",
+    "source_line": 6,
+    "classes_used": [
+      "Page",
+      "PageLabel",
+      "Section",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTOC"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1c86ba4a73ef06e4b5d1c8fd108c1305aaaa01ef674bc4646fe6bcc9d31fd0f3",
+      "norm": "1c86ba4a73ef06e4b5d1c8fd108c1305aaaa01ef674bc4646fe6bcc9d31fd0f3"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.ts",
+    "source_file": "examples/feature-showcase/contents.ts",
+    "source_function": "addBookmarks",
+    "source_line": 52,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Item",
+      "Open",
+      "OutlineItem",
+      "Section"
+    ],
+    "methods_used": [
+      "Document.SetOutlines"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eb628298036c43c4445b41053c34d4b5c041978177e4bc9f96b8407ae9991a87",
+      "norm": "eb628298036c43c4445b41053c34d4b5c041978177e4bc9f96b8407ae9991a87"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.ts",
+    "source_file": "examples/feature-showcase/cover.ts",
+    "source_function": "addCoverPage",
+    "source_line": 9,
+    "classes_used": [
+      "Box",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddLink",
+      "Page.AddSVGObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "89931af80c11635eedbb2597f092f534fe5adea8cc777c1351010fee2e112154",
+      "norm": "89931af80c11635eedbb2597f092f534fe5adea8cc777c1351010fee2e112154"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.ts",
+    "source_file": "examples/feature-showcase/flatten.ts",
+    "source_function": "addFlattenDemo",
+    "source_line": 6,
+    "classes_used": [
+      "Annotation",
+      "Color",
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "TextField",
+      "der"
+    ],
+    "methods_used": [
+      "Annotation.Flatten",
+      "Form.AddCheckbox",
+      "Form.AddTextField",
+      "Page.AddCheckbox",
+      "Page.AddFreeText",
+      "Page.AddTextField",
+      "TextField.Flatten"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4b697825624f9f59df2c939ee95d7cd6959973cf07dc1d7114f728a891443492",
+      "norm": "4b697825624f9f59df2c939ee95d7cd6959973cf07dc1d7114f728a891443492"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.ts",
+    "source_file": "examples/feature-showcase/flowshowcase.ts",
+    "source_function": "addFlowShowcase",
+    "source_line": 9,
+    "classes_used": [
+      "Box",
+      "ColumnBreak",
+      "Document",
+      "EmbeddedFont",
+      "FloatingBox",
+      "Flow",
+      "Form",
+      "Page",
+      "PageFormat",
+      "der"
+    ],
+    "methods_used": [
+      "Document.NewFloatingBox",
+      "Document.NewFlow",
+      "FloatingBox.AddImage",
+      "FloatingBox.AddParagraph",
+      "Flow.AddColumnBreak",
+      "Flow.AddFloatBox",
+      "Flow.AddFloatingBox",
+      "Flow.AddHeading",
+      "Flow.AddImage",
+      "Flow.AddList",
+      "Flow.AddParagraph",
+      "Flow.Render",
+      "Page.AddImage",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23409884a22191b9ceca35155d98769e00d8b040a87f68b71ba6a3afdc56e266",
+      "norm": "23409884a22191b9ceca35155d98769e00d8b040a87f68b71ba6a3afdc56e266"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.ts",
+    "source_file": "examples/feature-showcase/forms.ts",
+    "source_function": "addFormFields",
+    "source_line": 7,
+    "classes_used": [
+      "Box",
+      "Color",
+      "Document",
+      "Field",
+      "Form",
+      "Page",
+      "Pass",
+      "Plan",
+      "Row",
+      "State",
+      "TextField",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Form.AddCheckbox",
+      "Form.AddComboBox",
+      "Form.AddListBox",
+      "Form.AddPushButton",
+      "Form.AddRadioGroup",
+      "Form.AddTextField",
+      "Page.AddCheckbox",
+      "Page.AddComboBox",
+      "Page.AddListBox",
+      "Page.AddPushButton",
+      "Page.AddTextField"
+    ],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "pdf",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96b816e2f5698c3e780c79a087ea589e00ce12c5e56cf51d514d28746c1ab9e7",
+      "norm": "96b816e2f5698c3e780c79a087ea589e00ce12c5e56cf51d514d28746c1ab9e7"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.ts",
+    "source_file": "examples/feature-showcase/furniture.ts",
+    "source_function": "stampLogoOnEveryPage",
+    "source_line": 10,
+    "classes_used": [
+      "Document",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.AddSVGObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3af85069a5c77d6ceaaf2cd968378cd7db45673420efb5c7b1ae0e4b52bc47e5",
+      "norm": "3af85069a5c77d6ceaaf2cd968378cd7db45673420efb5c7b1ae0e4b52bc47e5"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.ts",
+    "source_file": "examples/feature-showcase/furniture.ts",
+    "source_function": "addCenteredWatermark",
+    "source_line": 32,
+    "classes_used": [
+      "Document",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Document.AddWatermark"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c6196d1a7d886033c90d8ed4481b6caa023052534ad4acc722a7ddad03cc757f",
+      "norm": "c6196d1a7d886033c90d8ed4481b6caa023052534ad4acc722a7ddad03cc757f"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.ts",
+    "source_file": "examples/feature-showcase/htmlexport.ts",
+    "source_function": "addHtmlShowcase",
+    "source_line": 24,
+    "classes_used": [
+      "Box",
+      "Document",
+      "Open",
+      "Page",
+      "Table",
+      "der"
+    ],
+    "methods_used": [
+      "Document.ToHtml",
+      "Page.ToHtml"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "ot",
+      "pdf",
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d97aabfea1b3eb95d1a771ae9d9aa2edcb1005a22382ef3c64355b7ce3e4aed2",
+      "norm": "d97aabfea1b3eb95d1a771ae9d9aa2edcb1005a22382ef3c64355b7ce3e4aed2"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.ts",
+    "source_file": "examples/feature-showcase/image.ts",
+    "source_function": "addPageImage",
+    "source_line": 5,
+    "classes_used": [
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddImage"
+    ],
+    "formats_referenced": [
+      "jpeg",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "77bf0acd551bffcd32d94e01afc549b48ceaaf536e027ed67b6870872722d189",
+      "norm": "77bf0acd551bffcd32d94e01afc549b48ceaaf536e027ed67b6870872722d189"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.ts",
+    "source_file": "examples/feature-showcase/landscape.ts",
+    "source_function": "addLandscapeChart",
+    "source_line": 4,
+    "classes_used": [
+      "Color",
+      "Form",
+      "Page",
+      "PageFormat",
+      "Step",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics",
+      "PageFormat.landscape"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "be670353bf243312084a66cfa65ddc7f5173e86ba1e04a1209a0816a10a1b47a",
+      "norm": "be670353bf243312084a66cfa65ddc7f5173e86ba1e04a1209a0816a10a1b47a"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.ts",
+    "source_file": "examples/feature-showcase/layers.ts",
+    "source_function": "addLayerShowcase",
+    "source_line": 13,
+    "classes_used": [
+      "Color",
+      "Document",
+      "Layer",
+      "OptionalContent",
+      "Page",
+      "PageGraphics",
+      "Plan",
+      "Tag",
+      "der"
+    ],
+    "methods_used": [
+      "OptionalContent.AddLayer",
+      "Page.AddBarcode",
+      "Page.AddImage",
+      "Page.Graphics",
+      "PageGraphics.BeginLayer",
+      "PageGraphics.EndLayer",
+      "PageGraphics.apply",
+      "PageGraphics.arc",
+      "PageGraphics.circle",
+      "PageGraphics.drawLine",
+      "PageGraphics.fillStroke",
+      "PageGraphics.moveTo",
+      "PageGraphics.rect",
+      "PageGraphics.restore",
+      "PageGraphics.save",
+      "PageGraphics.setDash",
+      "PageGraphics.setFillColor",
+      "PageGraphics.setLineJoin",
+      "PageGraphics.setLineWidth",
+      "PageGraphics.setStrokeColor",
+      "PageGraphics.stroke"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8888fa9582de6f2abc1d78d1627022f5741f41790f84dfeecc4858ec9898429c",
+      "norm": "8888fa9582de6f2abc1d78d1627022f5741f41790f84dfeecc4858ec9898429c"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.ts",
+    "source_file": "examples/feature-showcase/redaction.ts",
+    "source_function": "addRedactionDemo",
+    "source_line": 14,
+    "classes_used": [
+      "Box",
+      "Color",
+      "DA",
+      "Page",
+      "Row",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddRedact",
+      "Page.ApplyRedactions"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "deb36c51d927e78f491a63adcdd268bfadf572f3d820a7d92f32f32713cf2e5f",
+      "norm": "deb36c51d927e78f491a63adcdd268bfadf572f3d820a7d92f32f32713cf2e5f"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "renderPageThumb",
+    "source_line": 14,
+    "classes_used": [
+      "Page",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.ToImage"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5f3f1d88628c780b49fa4287e8b76747521a821c24a8cf3ee62bbcb5ed2b8126",
+      "norm": "5f3f1d88628c780b49fa4287e8b76747521a821c24a8cf3ee62bbcb5ed2b8126"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "imposedSheetThumb",
+    "source_line": 22,
+    "classes_used": [
+      "Document",
+      "Page",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "debb088b228bd7d00c66b9cc4f04eff65a62a8df95db3acf997f4f6a8f43885e",
+      "norm": "debb088b228bd7d00c66b9cc4f04eff65a62a8df95db3acf997f4f6a8f43885e"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.ts",
+    "source_file": "examples/feature-showcase/render.ts",
+    "source_function": "addRenderShowcase",
+    "source_line": 29,
+    "classes_used": [
+      "Box",
+      "Color",
+      "Page",
+      "PageGraphics",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddImage",
+      "Page.Graphics",
+      "PageGraphics.apply",
+      "PageGraphics.rect",
+      "PageGraphics.setLineWidth",
+      "PageGraphics.setStrokeColor",
+      "PageGraphics.stroke"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5c00b1b5947426d710ea15e5fc06b288836ad4372afc4515aff8eecbc24e71c9",
+      "norm": "5c00b1b5947426d710ea15e5fc06b288836ad4372afc4515aff8eecbc24e71c9"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.ts",
+    "source_file": "examples/feature-showcase/sales.ts",
+    "source_function": "addSalesReport",
+    "source_line": 6,
+    "classes_used": [
+      "ColumnWidth",
+      "Form",
+      "Item",
+      "Page",
+      "Row",
+      "Table",
+      "Tag",
+      "Unit",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTable"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce69a822985a036cffdb812a700c72e21bb263fc8ab6ba8aeb3b67c5a6679f35",
+      "norm": "ce69a822985a036cffdb812a700c72e21bb263fc8ab6ba8aeb3b67c5a6679f35"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.ts",
+    "source_file": "examples/feature-showcase/signcred.ts",
+    "source_function": "mintSigner",
+    "source_line": 27,
+    "classes_used": [
+      "Signer",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4f1f7aea2d4d7e2094b83d80d10e45faf1fb17d5a31d005d69d4598628146f84",
+      "norm": "4f1f7aea2d4d7e2094b83d80d10e45faf1fb17d5a31d005d69d4598628146f84"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.ts",
+    "source_file": "examples/feature-showcase/signing.ts",
+    "source_function": "addSigningShowcase",
+    "source_line": 15,
+    "classes_used": [
+      "Color",
+      "Open",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "md",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7764fd759c0b36a7eaf913cd1b27a43daadb7e56685cc1be9140fa633f09d00d",
+      "norm": "7764fd759c0b36a7eaf913cd1b27a43daadb7e56685cc1be9140fa633f09d00d"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.ts",
+    "source_file": "examples/feature-showcase/signing.ts",
+    "source_function": "signSavedDocument",
+    "source_line": 79,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page",
+      "Pass",
+      "Path",
+      "Signer",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Certify",
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.Save",
+      "Document.Sign",
+      "Document.VerifySignatures",
+      "Document.WriteTo"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "md",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dbfb665f192d1e95b0c6067ac78527442b46c65e4dd66339eb09b55b1f975a62",
+      "norm": "dbfb665f192d1e95b0c6067ac78527442b46c65e4dd66339eb09b55b1f975a62"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "runAutoTag",
+    "source_line": 30,
+    "classes_used": [
+      "Auto",
+      "AutoTagReport",
+      "Document",
+      "Tag"
+    ],
+    "methods_used": [
+      "Document.AutoTag"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "01bf4affae77ca67b895aff9aed824fbc8ec0aaeaf8baa6eb9db4e52117a5c64",
+      "norm": "01bf4affae77ca67b895aff9aed824fbc8ec0aaeaf8baa6eb9db4e52117a5c64"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "handTagPage",
+    "source_line": 40,
+    "classes_used": [
+      "Document",
+      "Page",
+      "Tag"
+    ],
+    "methods_used": [
+      "Document.Append",
+      "Document.GetStructTree",
+      "Page.GetStructuredText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3cd2c951c0225b4d8caa7efcc7d8e6c214c767d2192d8ebe90e0e2c69c255cc0",
+      "norm": "3cd2c951c0225b4d8caa7efcc7d8e6c214c767d2192d8ebe90e0e2c69c255cc0"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.ts",
+    "source_file": "examples/feature-showcase/tagged.ts",
+    "source_function": "addTaggedShowcase",
+    "source_line": 68,
+    "classes_used": [
+      "Auto",
+      "AutoTagReport",
+      "Document",
+      "ImageEvent",
+      "Page",
+      "StructElement",
+      "StructTreeRoot",
+      "Table",
+      "Tag",
+      "ViewerPreferences",
+      "der"
+    ],
+    "methods_used": [
+      "Document.GetStructTree",
+      "StructElement.MarkContent",
+      "StructTreeRoot.Append"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91d7099523e6094ec3ffa5cdba01d46213ac6f019d5bbbf3146cb129fa63f56b",
+      "norm": "91d7099523e6094ec3ffa5cdba01d46213ac6f019d5bbbf3146cb129fa63f56b"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.ts",
+    "source_file": "examples/feature-showcase/text.ts",
+    "source_function": "addPageText",
+    "source_line": 5,
+    "classes_used": [
+      "Block",
+      "Color",
+      "Decoration",
+      "EmbeddedFont",
+      "Page",
+      "TextBlock",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTextBlock"
+    ],
+    "formats_referenced": [
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a411b867a512bcd0fe89f3f0945d294c90cffd1be1f5fd013bbcd3ce1b0fb7b",
+      "norm": "7a411b867a512bcd0fe89f3f0945d294c90cffd1be1f5fd013bbcd3ce1b0fb7b"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "xywh",
+    "source_line": 24,
+    "classes_used": [
+      "Box"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c40194e53ae52be194c2c969bad89002c38576875a349062a02b4af2df1b6a61",
+      "norm": "c40194e53ae52be194c2c969bad89002c38576875a349062a02b4af2df1b6a61"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "rectToQuads",
+    "source_line": 30,
+    "classes_used": [
+      "Box"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "50cf46232f51da0193e53b07940e00acd75bc404cc3d2a424f83fc24353a1e23",
+      "norm": "50cf46232f51da0193e53b07940e00acd75bc404cc3d2a424f83fc24353a1e23"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "centeredRect",
+    "source_line": 36,
+    "classes_used": [
+      "Box",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6c72c73dd0b9b2bd9ce74d102c9da8d944200c2d362e73547f4a429350af668",
+      "norm": "f6c72c73dd0b9b2bd9ce74d102c9da8d944200c2d362e73547f4a429350af668"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "pageWidth",
+    "source_line": 42,
+    "classes_used": [
+      "Page",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "92f2e4a10f32c3f2d5ffb5485e7fbee2c3cda4e609aadcbe2b08882d1272366b",
+      "norm": "92f2e4a10f32c3f2d5ffb5485e7fbee2c3cda4e609aadcbe2b08882d1272366b"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "pageHeight",
+    "source_line": 46,
+    "classes_used": [
+      "Page",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "345cddaa5ca529d785216da89eb827eec0da5ae3ef62bd9a168aca5cdd4154fb",
+      "norm": "345cddaa5ca529d785216da89eb827eec0da5ae3ef62bd9a168aca5cdd4154fb"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "addText",
+    "source_line": 77,
+    "classes_used": [
+      "Block",
+      "Box",
+      "Page",
+      "TextBlock",
+      "der"
+    ],
+    "methods_used": [
+      "Page.AddTextBlock"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2b288de3868daa073c0bd43097d8df1a48b8d074d1c68babfee0372f29fdc071",
+      "norm": "2b288de3868daa073c0bd43097d8df1a48b8d074d1c68babfee0372f29fdc071"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "sectionHeader",
+    "source_line": 96,
+    "classes_used": [
+      "Page",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a6bbf57504a00cab5332a9d8183421121c36f47cde202c7481f16ac25f409f5f",
+      "norm": "a6bbf57504a00cab5332a9d8183421121c36f47cde202c7481f16ac25f409f5f"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "cardGrid",
+    "source_line": 136,
+    "classes_used": [
+      "Box",
+      "Color",
+      "Page",
+      "Pass",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d112093fa1b51144ce0a32c9c32f79f4858fb74a529103dd65a2457785989395",
+      "norm": "d112093fa1b51144ce0a32c9c32f79f4858fb74a529103dd65a2457785989395"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.ts",
+    "source_file": "examples/feature-showcase/theme.ts",
+    "source_function": "addUnifiedFooter",
+    "source_line": 177,
+    "classes_used": [
+      "Color",
+      "Page"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "210c04f7820ea7fc1ed7c98a7840c5dca243cb7438bf0c81b15f323478d57002",
+      "norm": "210c04f7820ea7fc1ed7c98a7840c5dca243cb7438bf0c81b15f323478d57002"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.ts",
+    "source_file": "examples/feature-showcase/vector.ts",
+    "source_function": "addVectorShowcase",
+    "source_line": 5,
+    "classes_used": [
+      "Box",
+      "Color",
+      "Gradient",
+      "Page",
+      "Path",
+      "Poly",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [
+      "Page.Graphics"
+    ],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6555d1627a80bc2d283855da4c62ceb0ed2716d88f4e5bc60e02db5d5961eddf",
+      "norm": "6555d1627a80bc2d283855da4c62ceb0ed2716d88f4e5bc60e02db5d5961eddf"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.ts",
+    "source_file": "examples/feature-showcase/verify.ts",
+    "source_function": "verifySavedDocument",
+    "source_line": 38,
+    "classes_used": [
+      "Annotation",
+      "Auto",
+      "DA",
+      "Document",
+      "Field",
+      "Form",
+      "Item",
+      "Layer",
+      "NamedDest",
+      "NamedDestination",
+      "Names",
+      "Open",
+      "OptionalContent",
+      "OutlineItem",
+      "Page",
+      "Path",
+      "Plan",
+      "Section",
+      "StructTreeRoot",
+      "Tag",
+      "Val",
+      "der"
+    ],
+    "methods_used": [
+      "Document.GetNamedDestinations",
+      "Document.GetOutlines",
+      "Document.GetStructTree",
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.resolve",
+      "OptionalContent.GetLayer",
+      "Page.GetPaths",
+      "Page.GetText",
+      "StructTreeRoot.GetText"
+    ],
+    "formats_referenced": [
+      "doc",
+      "gif",
+      "html",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a1e71c13ce9d730afc03bf2d9cda76054ba7485fd46556a06a6cfa712e64726b",
+      "norm": "a1e71c13ce9d730afc03bf2d9cda76054ba7485fd46556a06a6cfa712e64726b"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.ts",
+    "source_file": "examples/feature-showcase/verify.ts",
+    "source_function": "verifySignedDocument",
+    "source_line": 197,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Document.OpenFile",
+      "Document.VerifySignatures"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "gif",
+      "md",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1ce1b790f5bf1f02230fbad206d868205e3d5eecca13c825ff8bf028b07a35e5",
+      "norm": "1ce1b790f5bf1f02230fbad206d868205e3d5eecca13c825ff8bf028b07a35e5"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes a URI action",
+    "source_line": 17,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "df34ca3d291bd5d993cc7d06ba39d09430bdf9eed9c0f325d98e9e85bd27f9fe",
+      "norm": "df34ca3d291bd5d993cc7d06ba39d09430bdf9eed9c0f325d98e9e85bd27f9fe"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes a GoTo action with a destination array",
+    "source_line": 23,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ab98bbc6f6e8edc418af7f9f2daefe67c0d4b7c8366a91457534ba9268ea5ecd",
+      "norm": "ab98bbc6f6e8edc418af7f9f2daefe67c0d4b7c8366a91457534ba9268ea5ecd"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes SubmitForm with a URL filespec and no flags by defau",
+    "source_line": 30,
+    "classes_used": [
+      "Field",
+      "Form",
+      "PdfDict"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0832e61c66799580fdb2f815b394438645c6d1d5b583b080aafb82eceffb768e",
+      "norm": "0832e61c66799580fdb2f815b394438645c6d1d5b583b080aafb82eceffb768e"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "maps each submit format to its specification flag bit",
+    "source_line": 41,
+    "classes_used": [
+      "Form"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "html",
+      "pdf",
+      "xfdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bfcd93c0cb0ad1cbe7b008613b7753ae1aaeeef05757493c51ef813f41f7acfa",
+      "norm": "bfcd93c0cb0ad1cbe7b008613b7753ae1aaeeef05757493c51ef813f41f7acfa"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "sets IncludeExclude and writes the field-name list",
+    "source_line": 51,
+    "classes_used": [
+      "Field"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "178292dfe2a91c0b6bbf34b863a76b1bc9627942e74eb379bf99e01f4c276b7d",
+      "norm": "178292dfe2a91c0b6bbf34b863a76b1bc9627942e74eb379bf99e01f4c276b7d"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes ResetForm",
+    "source_line": 59,
+    "classes_used": [
+      "Field",
+      "Form"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7b3cf6d94ff2698eea8d6208128b8fc0176fffcdcb78eb05a3f33bdf02d7cfc1",
+      "norm": "7b3cf6d94ff2698eea8d6208128b8fc0176fffcdcb78eb05a3f33bdf02d7cfc1"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "encodes JavaScript",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d62ccdd1030a8d126cadcf0eb4433e6632fd1e0ac4024616354d5c93e6dc3a4",
+      "norm": "8d62ccdd1030a8d126cadcf0eb4433e6632fd1e0ac4024616354d5c93e6dc3a4"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "rejects malformed actions",
+    "source_line": 74,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "066f1ba6260acfa8c633ab6f620cbe6ee22ba068b197d389c8fd9ed48abd8c12",
+      "norm": "066f1ba6260acfa8c633ab6f620cbe6ee22ba068b197d389c8fd9ed48abd8c12"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "round-trips every action type",
+    "source_line": 92,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "xfdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "98698ab65481f811a2920cdd8288bd62538c59f50ed83d45e81ad916df065724",
+      "norm": "98698ab65481f811a2920cdd8288bd62538c59f50ed83d45e81ad916df065724"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "reports fdf when no format bit is set",
+    "source_line": 107,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6132b4917e7dd68c6977a21372f4b82f4d0e7adc4470745e7678393ac2103b7e",
+      "norm": "6132b4917e7dd68c6977a21372f4b82f4d0e7adc4470745e7678393ac2103b7e"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "accepts a bare string /F, which some producers write",
+    "source_line": 113,
+    "classes_used": [
+      "Enc",
+      "Form",
+      "PdfDict",
+      "PdfObject",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "fdf",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c91069a2ae8c0026f36ac53bfbd517a15cd2ee0f06b180439babfce1ec5c5499",
+      "norm": "c91069a2ae8c0026f36ac53bfbd517a15cd2ee0f06b180439babfce1ec5c5499"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "returns undefined with no /A, a non-dict /A, or an unmodelle",
+    "source_line": 124,
+    "classes_used": [
+      "PdfDict",
+      "PdfObject"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eeaab3ad65ab35d3ce5e590836e83fad2828c884dc250391ab28d362f7751e0e",
+      "norm": "eeaab3ad65ab35d3ce5e590836e83fad2828c884dc250391ab28d362f7751e0e"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still round-trips a URI link",
+    "source_line": 135,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "380e475d1b61eca177a01e16a6902fcb61877b94da144c5278262332e8b3a408",
+      "norm": "380e475d1b61eca177a01e16a6902fcb61877b94da144c5278262332e8b3a408"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still round-trips a GoTo link",
+    "source_line": 143,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3ed7c67ad2cffaa742c6b1228e9dd9ab5aa66481a39749662acfbe1a16ce8ce6",
+      "norm": "3ed7c67ad2cffaa742c6b1228e9dd9ab5aa66481a39749662acfbe1a16ce8ce6"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "now parses a submit action that previously read back as unde",
+    "source_line": 152,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "html",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f2705bb644d281c3896da03e84e77abcac87ead4d613347a42f03f8de9406c00",
+      "norm": "f2705bb644d281c3896da03e84e77abcac87ead4d613347a42f03f8de9406c00"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "keeps rejecting a malformed link action",
+    "source_line": 163,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.AddLink"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a039035bbbe8657ad2936ccff9d0f3ae56f82a96819c581cb27311ec7f7a8a68",
+      "norm": "a039035bbbe8657ad2936ccff9d0f3ae56f82a96819c581cb27311ec7f7a8a68"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "reads a stream /JS, not just a string",
+    "source_line": 175,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New",
+      "Document.allocObject"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6d7daeb9be378b6d996224c9e525a85f3a1714b3d20f7affc8509464ae437f9b",
+      "norm": "6d7daeb9be378b6d996224c9e525a85f3a1714b3d20f7affc8509464ae437f9b"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "still reads a string /JS",
+    "source_line": 189,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New"
+    ],
+    "formats_referenced": [
+      "byte",
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9fbab769045a28ca522025fbef1f8cc13808ba74aae27132f0827fdad6363798",
+      "norm": "9fbab769045a28ca522025fbef1f8cc13808ba74aae27132f0827fdad6363798"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.ts",
+    "source_file": "test/actions.test.ts",
+    "source_function": "returns undefined for a /JS that is neither",
+    "source_line": 199,
+    "classes_used": [
+      "Document",
+      "PdfObject"
+    ],
+    "methods_used": [
+      "Document.New"
+    ],
+    "formats_referenced": [
+      "doc",
+      "pdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e114293ad20b00f21e956961bd146866dacbb7584ba95ebbdd56071f0cdb46c5",
+      "norm": "e114293ad20b00f21e956961bd146866dacbb7584ba95ebbdd56071f0cdb46c5"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "draws a cloudy square as Béziers, not a rectangle",
+    "source_line": 36,
+    "classes_used": [
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ad6afd8ce1234b7c0f6206b5b089a34ade86e8036e93141b3a1e8e8b12e9e761",
+      "norm": "ad6afd8ce1234b7c0f6206b5b089a34ade86e8036e93141b3a1e8e8b12e9e761"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "draws a cloudy polygon as Béziers, not straight segments",
+    "source_line": 48,
+    "classes_used": [
+      "Poly",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "533f261cc96c3a017f173d1af0e37dc2ecb6e0fc14ebd848d201c5d5cf6d6eee",
+      "norm": "533f261cc96c3a017f173d1af0e37dc2ecb6e0fc14ebd848d201c5d5cf6d6eee"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "leaves /I 0 byte-identical to no /BE",
+    "source_line": 75,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e3694d19e68b5c1b0e474c6f31b45004f4547f55969c7d87f16ac42a9d1537ab",
+      "norm": "e3694d19e68b5c1b0e474c6f31b45004f4547f55969c7d87f16ac42a9d1537ab"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "leaves a solid /BE /S /S byte-identical to no /BE",
+    "source_line": 79,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b2664c007b590ef266364c4539a23b6e8f7416836ea0a301300fd81b185eafc",
+      "norm": "5b2664c007b590ef266364c4539a23b6e8f7416836ea0a301300fd81b185eafc"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "defaults an absent /I beside /S /C to a cloud, not to nothin",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91c690085749996ef4581966a72b2c9bbf12072985d4d4ab6310875154d7381e",
+      "norm": "91c690085749996ef4581966a72b2c9bbf12072985d4d4ab6310875154d7381e"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "clamps /I above the spec range rather than scaling past it",
+    "source_line": 89,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "49b616fe8ebfb49571fedd633f6ec8a0d7f56dae3be0593d2c05f05cec38e570",
+      "norm": "49b616fe8ebfb49571fedd633f6ec8a0d7f56dae3be0593d2c05f05cec38e570"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "leaves the straight border line empty at a scallop cusp",
+    "source_line": 121,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5fe87c652c2adf5a58f7017c8a1f74937d5690a9edc667814d6a2716e8c37f1f",
+      "norm": "5fe87c652c2adf5a58f7017c8a1f74937d5690a9edc667814d6a2716e8c37f1f"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.ts",
+    "source_file": "test/annot-cloud.test.ts",
+    "source_function": "still reaches that line at a scallop peak",
+    "source_line": 126,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cf21b491891b565617b838bf83f84251c8b609d9c3947d363222791daf118678",
+      "norm": "cf21b491891b565617b838bf83f84251c8b609d9c3947d363222791daf118678"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "draws ink inside its /Rect and nothing outside it",
+    "source_line": 43,
+    "classes_used": [
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1fd9ac86c7f30895acfa43a8a792170ff0cceef2c0c49c49fa220bb65f35b328",
+      "norm": "1fd9ac86c7f30895acfa43a8a792170ff0cceef2c0c49c49fa220bb65f35b328"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "fills with /C",
+    "source_line": 50,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "afc010cd311c7074784a3e6883c997d352b11f61e9271c20798e1ef06d90ac77",
+      "norm": "afc010cd311c7074784a3e6883c997d352b11f61e9271c20798e1ef06d90ac77"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "an empty /C draws the outline only (transparent, 12.5.2)",
+    "source_line": 55,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3aebeaab70b93ba11276d371e2eb3daaf2cc9d089439c23e09070ba175b26119",
+      "norm": "3aebeaab70b93ba11276d371e2eb3daaf2cc9d089439c23e09070ba175b26119"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "no /C defaults to a yellow note",
+    "source_line": 62,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ab141e15d6a3ec9c0f00f2b7f9914faf0be5403e8630160003d74ae1a27e6edf",
+      "norm": "ab141e15d6a3ec9c0f00f2b7f9914faf0be5403e8630160003d74ae1a27e6edf"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "squares and centres the icon in a wide /Rect",
+    "source_line": 68,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page",
+      "Rec",
+      "Rect"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.ToImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d435f51c5798523ef90414c68ae219f5a79f8427ece8688bd5091f14bece314",
+      "norm": "3d435f51c5798523ef90414c68ae219f5a79f8427ece8688bd5091f14bece314"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "an unknown /Name draws the Note icon, as a viewer does",
+    "source_line": 78,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b69b3a9c258b55226aac4eea2f090c814c485da744fa8c00fd38fe4d2e17fe1f",
+      "norm": "b69b3a9c258b55226aac4eea2f090c814c485da744fa8c00fd38fe4d2e17fe1f"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "a name from Object.prototype is unknown too, not a property ",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b425c3873747497ef86099ee2a6861500a82003ca4e5cb46be58ff8c26a9e2a",
+      "norm": "3b425c3873747497ef86099ee2a6861500a82003ca4e5cb46be58ff8c26a9e2a"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "only /Text and /FileAttachment get an icon: a /Link with no ",
+    "source_line": 89,
+    "classes_used": [
+      "Attachment",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "119b6a14a6a7276a4278c5bb51998f3481d4ddefe70e1482b6af81b7bc636505",
+      "norm": "119b6a14a6a7276a4278c5bb51998f3481d4ddefe70e1482b6af81b7bc636505"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "every standard name reaches its own artwork",
+    "source_line": 101,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a25997279c414c460c02ea2cc40690f5955af1e85ca337f4481c1495b4920c09",
+      "norm": "a25997279c414c460c02ea2cc40690f5955af1e85ca337f4481c1495b4920c09"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "an existing /AP wins over the icon",
+    "source_line": 106,
+    "classes_used": [
+      "Box",
+      "Form",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8775f4a976ea041774a8e285db4fc2e9d83b6e814c7d0c1b5f1bc17d9843426b",
+      "norm": "8775f4a976ea041774a8e285db4fc2e9d83b6e814c7d0c1b5f1bc17d9843426b"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "a present but unusable /AP is respected: nothing is drawn",
+    "source_line": 114,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "byte",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "639b948f455bc873accabda666e4663320ecb0b988fdbee1854979135ab3a043",
+      "norm": "639b948f455bc873accabda666e4663320ecb0b988fdbee1854979135ab3a043"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "a Hidden note stays blank",
+    "source_line": 120,
+    "classes_used": [
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc906274353ed2dbef74cdc41d47e759f7f6b9f46863825db6dd01feb5778bd7",
+      "norm": "dc906274353ed2dbef74cdc41d47e759f7f6b9f46863825db6dd01feb5778bd7"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "draws in ToSvg too",
+    "source_line": 124,
+    "classes_used": [
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.ToSvg"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2084146ca85e45a924efa31d04a858f9b8fffb58061d85f0565d65b10a733f48",
+      "norm": "2084146ca85e45a924efa31d04a858f9b8fffb58061d85f0565d65b10a733f48"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "survives FlattenAnnotations as page content",
+    "source_line": 129,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page"
+    ],
+    "methods_used": [
+      "Document.FlattenAnnotations",
+      "Document.Open",
+      "Document.Save",
+      "Page.FlattenAnnotations",
+      "Page.ToImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73eac5e0d1b16e19efc0c68af8444a81342f02a72c6de7bb04af41a3b7d739e4",
+      "norm": "73eac5e0d1b16e19efc0c68af8444a81342f02a72c6de7bb04af41a3b7d739e4"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "rendering does not write an /AP into the document",
+    "source_line": 137,
+    "classes_used": [
+      "Annotation",
+      "Document",
+      "Open",
+      "Page",
+      "der"
+    ],
+    "methods_used": [
+      "Document.Open",
+      "Page.ToImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "823d82b1755229b12fbfa07e5395ce28b8856a002bc9bdd343ae09e1c031806b",
+      "norm": "823d82b1755229b12fbfa07e5395ce28b8856a002bc9bdd343ae09e1c031806b"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "AddTextNote still writes no /AP: viewers draw their own icon",
+    "source_line": 143,
+    "classes_used": [
+      "Document",
+      "Form",
+      "Page",
+      "PageFormat"
+    ],
+    "methods_used": [
+      "Document.AddPage",
+      "Document.New",
+      "Page.AddTextNote",
+      "Page.ToImage"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ot",
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "055da9247be377c321cc661c1b336e8bf14e03991dd242ce75d2287853df1db4",
+      "norm": "055da9247be377c321cc661c1b336e8bf14e03991dd242ce75d2287853df1db4"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "draws ink inside its /Rect",
+    "source_line": 153,
+    "classes_used": [
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "00fd51036b5b8c628e2b36d30085db3f312095a7fcbe4f2cb45e9d68a7173165",
+      "norm": "00fd51036b5b8c628e2b36d30085db3f312095a7fcbe4f2cb45e9d68a7173165"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "an unknown or absent /Name draws the PushPin icon",
+    "source_line": 157,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d3d499eeb04a8805e12e7869aa2c8236d958585980152755a76d2a8f221a0ec",
+      "norm": "9d3d499eeb04a8805e12e7869aa2c8236d958585980152755a76d2a8f221a0ec"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "every standard name reaches its own artwork",
+    "source_line": 162,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f9b9be9bb8bc73d71f324930be06d33c0ccac0a36bbd522958ecd2dc4e4f081c",
+      "norm": "f9b9be9bb8bc73d71f324930be06d33c0ccac0a36bbd522958ecd2dc4e4f081c"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "fills with /C",
+    "source_line": 167,
+    "classes_used": [
+      "Tag",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "90cabc671990cdeb389a3faa272de58fb93a4ee42f54b39462bf29dd7f509ede",
+      "norm": "90cabc671990cdeb389a3faa272de58fb93a4ee42f54b39462bf29dd7f509ede"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.ts",
+    "source_file": "test/annot-icon.test.ts",
+    "source_function": "a /Text name on an attachment is unknown there",
+    "source_line": 171,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ot"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f866e4c2bf382a7bad74f28103b2c75c5a3c0a35c9334de388526b1af491764",
+      "norm": "8f866e4c2bf382a7bad74f28103b2c75c5a3c0a35c9334de388526b1af491764"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.ts",
+    "source_file": "test/annot-noap-shapes.test.ts",
+    "source_function": "draws a cloud border with no /AP, which regeneration alone c",
+    "source_line": 65,
+    "classes_used": [
+      "PdfDict",
+      "PdfObject",
+      "Rec",
+      "Rect",
+      "der"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "fdf",
+      "ot",
+      "pdf",
+      "xfdf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2b416aec1a60e622dc631f59ffb45832560c0b23bff66a00be5e2eebc1500fc7",
+      "norm": "2b416aec1a60e622dc631f59ffb45832560c0b23bff66a00be5e2eebc1500fc7"
+    }
+  }
+]

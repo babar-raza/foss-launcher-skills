@@ -1,0 +1,86 @@
+{
+  "fix_plan_items": [
+    {
+      "title": "Swap hardcoded unpublished-package pip-install commands for the package-install shortcode on tex/python's docs and products family-index pages",
+      "root_cause_id": "RC-tex-python-01",
+      "finding_ids": ["FND-tex-python-001", "FND-tex-python-004"],
+      "layer": "script",
+      "priority": "P0",
+      "allowed_paths": [
+        "content/docs.aspose.org/en/tex/python/_index.md",
+        "content/products.aspose.org/en/tex/python/_index.md"
+      ],
+      "forbidden_paths": ["runs/.clone_cache/", "scripts/"],
+      "verification_commands": [
+        "PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/docs.aspose.org/en/tex/python/_index.md content/products.aspose.org/en/tex/python/_index.md"
+      ],
+      "rollback": "git checkout HEAD -- content/docs.aspose.org/en/tex/python/_index.md content/products.aspose.org/en/tex/python/_index.md",
+      "regeneration_required": true,
+      "affected_content_paths": [
+        "content/docs.aspose.org/en/tex/python/_index.md",
+        "content/products.aspose.org/en/tex/python/_index.md"
+      ],
+      "options": [
+        {
+          "correctness": "high: matches the already-correct pattern used by installation.md and MT028's TC-03 fix for the identical defect class",
+          "scope": "narrow: 2 files, shortcode substitution only (3 occurrences total: 1 on docs index, 2 on products index)",
+          "maintainability": "good: uses the existing {{< package-install >}} shortcode mechanism, no new code",
+          "risk": "low",
+          "repeatability": "high -- same fix pattern applies to any future unpublished-package-install-claim finding",
+          "verification_cost": "low: audit.py re-run is deterministic and already proved these exact 3 lines as the FAIL locations",
+          "selected": true
+        },
+        {
+          "correctness": "medium: could instead wait and let a full batch_reference regeneration pass naturally correct these pages as part of a broader refresh",
+          "scope": "broad: would touch the entire product's generated pages, not just the 2 affected files",
+          "maintainability": "n/a until a broader regen is actually scheduled",
+          "risk": "medium: a full regen this early in the campaign risks masking whether the targeted fix alone was sufficient, and delays a clearly-scoped P0 fix behind unrelated work",
+          "repeatability": "n/a",
+          "verification_cost": "medium: would require verifying the entire regenerated page set, not just these 3 lines",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "title": "Extend install_recipe.py to flag unconditional PyPI-publication prose claims, and fix the two false claims on the tex/python introducing-blog post",
+      "root_cause_id": "RC-tex-python-02",
+      "finding_ids": ["FND-tex-python-005"],
+      "layer": "script",
+      "priority": "P0",
+      "allowed_paths": [
+        "scripts/pipeline/content_eval/evaluators/install_recipe.py",
+        "content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md"
+      ],
+      "forbidden_paths": ["runs/.clone_cache/"],
+      "verification_commands": [
+        "PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/content_eval/ -k install_recipe -v",
+        "PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md"
+      ],
+      "rollback": "git checkout HEAD -- scripts/pipeline/content_eval/evaluators/install_recipe.py content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md",
+      "regeneration_required": true,
+      "affected_content_paths": [
+        "content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md"
+      ],
+      "options": [
+        {
+          "correctness": "high: closes the exact evasion path this finding demonstrates (prose assertion instead of a command pattern) at the evaluator layer, not just the one instance",
+          "scope": "medium: one evaluator function extended, plus a regression test, plus the one affected content file corrected",
+          "maintainability": "good: reuses the same verification.published check the command-pattern path already relies on",
+          "risk": "low: additive check, does not change existing command-pattern detection behavior",
+          "repeatability": "high: will catch this defect class on any of the remaining 30 products without further manual discovery",
+          "verification_cost": "medium: needs a new regression test fixture (a page asserting publication in prose for an unpublished package) in addition to re-running audit.py",
+          "selected": true
+        },
+        {
+          "correctness": "low: fixes only the one instance found, leaves the systemic evasion path open for the other 30 products in this campaign",
+          "scope": "narrow: content-only edit",
+          "maintainability": "n/a",
+          "risk": "low short-term, but defers a known-real gap that this campaign's own root-cause pass already surfaced",
+          "repeatability": "none -- the same defect must be manually rediscovered per product",
+          "verification_cost": "low",
+          "selected": false
+        }
+      ]
+    }
+  ]
+}

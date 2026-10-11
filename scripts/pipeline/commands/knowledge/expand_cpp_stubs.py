@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """expand_cpp_stubs.py — expand minimal email/cpp reference page stubs.
 
 Replaces the 12-word placeholder overview with enriched descriptions
@@ -6,7 +5,6 @@ grounded in enriched_claims.json. Run from repo root:
     python scripts/pipeline/commands/knowledge/expand_cpp_stubs.py email cpp
 """
 from __future__ import annotations
-import os
 import re
 import sys
 from pathlib import Path
@@ -160,8 +158,7 @@ STUB_INTRO_RE = re.compile(
 
 
 def expand(family: str, platform: str) -> None:
-    content_root = os.environ.get("CONTENT_ROOT", "content")
-    ref_dir = Path(content_root) / "reference.aspose.org" / "en" / family / platform
+    ref_dir = Path("content/reference.aspose.org/en") / family / platform
     updated: list[str] = []
     skipped: list[str] = []
 

@@ -1,0 +1,22 @@
+Promote: pdf/cpp
+  Scout: 2754 claims, 340 api_surface entries
+  Enriched: 382 claims (from enrich.py)
+  Total claims: 3136
+  WARNING: 51 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (87 excess removed)
+    CLM-pdf-5af3da: 10 occurrences
+    CLM-pdf-cd6f4b: 10 occurrences
+    CLM-pdf-bb220e: 9 occurrences
+    CLM-pdf-2c8f48: 9 occurrences
+    CLM-pdf-5729ba: 3 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 417 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 340 entries (340 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 340 classes, 98515 bytes
+  Forbidden claims: 9
+  All artifacts written to knowledge\pdf\cpp\merged.staging.f0824472-cb14-4b8b-9eb6-1e2fff0d957d
+  Format-claims reconciliation: PASS (13 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle f0824472-cb14-4b8b-9eb6-1e2fff0d957d promoted for pdf/cpp
+
+PROMOTE: PASS

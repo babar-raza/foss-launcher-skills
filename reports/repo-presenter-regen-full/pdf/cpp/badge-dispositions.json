@@ -1,0 +1,48 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "ci_build_status",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "license",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "language_version",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "notes": "CMakeLists.txt sets CMAKE_CXX_STANDARD 20 with CMAKE_CXX_STANDARD_REQUIRED ON -- C++20 confirmed as the real floor."
+  },
+  {
+    "unit_id": "b0004",
+    "action": "preserved",
+    "new_badge_unit_id": "b0004",
+    "category": "unknown",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "notes": "The old badge read 'CMake-3.22+', but CMakeLists.txt's own cmake_minimum_required(VERSION 3.20) is the real, binding floor for building this library (CMakePresets.json separately declares cmakeMinimumRequired 3.21, but that only applies if a caller opts into the presets -- Build From Source uses plain cmake commands). The candidate's badge already corrects this to 'CMake-3.20+', matching CMakeLists.txt and this file's own Requirements bullet."
+  }
+]

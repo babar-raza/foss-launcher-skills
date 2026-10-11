@@ -10,27 +10,29 @@ from pathlib import Path
 
 from . import __version__
 from .config import ALL_EVALUATORS, DEFAULT_EVALUATORS
-from .models import EvalReport, Finding
-
-_PIPELINE = Path(__file__).resolve().parent.parent  # scripts/pipeline/
-import sys as _sys
-if str(_PIPELINE) not in _sys.path:
-    _sys.path.insert(0, str(_PIPELINE))
-
-_SCRIPTS = _PIPELINE.parent  # scripts/
-if str(_SCRIPTS) not in _sys.path:
-    _sys.path.insert(0, str(_SCRIPTS))
-
-from config_loader import resolve_reports_root as _resolve_reports_root  # noqa: E402
 
 
 def _log(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
+REPORTS_DIR = Path("reports") / "content_eval"
+
+
+def _resolve_reports_dir(output_root: str | None) -> Path:
+    """Resolve the report directory, allowing isolated temp roots for testing."""
+    if output_root:
+        return Path(output_root) / "content_eval"
+    return REPORTS_DIR
+
+
 def _load_knowledge(family: str, platform: str):
-    """Load Knowledge from audit.py."""
-    from audit import Knowledge  # noqa: E402
+    """Load Knowledge from knowledge_core (shorter dependency chain than audit)."""
+    _HERE = Path(__file__).resolve().parent.parent
+    # sibling-import guard: content_eval sub-package needs pipeline root for knowledge_core.
+    if str(_HERE) not in sys.path:
+        sys.path.insert(0, str(_HERE))
+    from knowledge_core import Knowledge  # noqa: E402
     return Knowledge(family, platform)
 
 
@@ -43,6 +45,17 @@ def _run_evaluate(args):
     from .remediation.planner import plan_remediation
 
     _ensure_loaded()
+
+    # Prerequisite check for targeted product evaluations
+    target_parts = args.target if hasattr(args, "target") else []
+    if len(target_parts) == 2 and not args.files:
+        try:
+            from core.prereqs import require_all
+            require_all(target_parts[0], target_parts[1])
+        except SystemExit:
+            raise
+        except Exception:
+            pass  # prereqs is best-effort; evaluators have their own checks
 
     # Determine evaluator set
     if args.evaluators:
@@ -96,45 +109,63 @@ def _run_evaluate(args):
             _log(f"  ... and {len(pages) - 10} more")
         return
 
-    # Run evaluators
-    report = EvalReport(
-        evaluators_run=evaluator_names,
-        scope={
-            "target": target_str if not args.files else "files",
-            "files": args.files or [],
-        },
+    # Delegate core evaluation to EvalRunner (TC-08 + VH-03 + VH-05).
+    # EvalRunner owns: knowledge caching, evaluator dispatch, skip-graded
+    # filtering, cross-page analysis, grade writing (frontmatter + manifest).
+    # cli.py retains: prerequisite checking, sweep, report generation, summary.
+    from .runner import EvalRunner
+
+    should_write = args.write_grade or getattr(args, "write_grade_if_policy_met", False)
+    write_mode = "policy" if getattr(args, "write_grade_if_policy_met", False) else "force"
+
+    runner = EvalRunner(
+        evaluator_names=evaluator_names,
+        knowledge_root=None,  # always CWD-relative in CLI context
     )
+    report = runner.run(
+        pages,
+        write_grade=should_write,
+        write_mode=write_mode,
+        skip_graded=args.skip_graded,
+        cross_page=args.cross_page,
+        target_str=target_str if not args.files else "files",
+    )
+    # Expose runner's knowledge cache for the sweep closure below.
+    knowledge_cache = runner.knowledge_cache
 
-    # Cache knowledge per product
-    knowledge_cache: dict[tuple[str, str], object] = {}
+    # Cross-family defect sweep (CLI-only — full product-family scope)
+    if args.sweep and len(target_parts) == 2:
+        from .cross_page.defect_sweep import extract_defect_signatures, run_sweep
+        from .loader import load_all_products as _load_all
 
-    for page in pages:
-        key = (page.family, page.platform)
-        if key not in knowledge_cache:
-            if page.family and page.platform:
-                knowledge_cache[key] = _load_knowledge(page.family, page.platform)
-            else:
-                knowledge_cache[key] = None
+        sigs = extract_defect_signatures(report.findings)
+        if sigs:
+            _log(f"Sweep: {len(sigs)} defect signatures found, scanning other products...")
+            all_products = _load_all()
+            exclude = (target_parts[0], target_parts[1])
 
-        knowledge = knowledge_cache[key]
+            def _evaluator_runner(page, eval_names):
+                k = knowledge_cache.get((page.family, page.platform))
+                if not k and page.family and page.platform:
+                    k = _load_knowledge(page.family, page.platform)
+                    knowledge_cache[(page.family, page.platform)] = k
+                results = []
+                for en in eval_names:
+                    ec = get_evaluator(en)
+                    if ec:
+                        results.extend(ec().evaluate(page, k))
+                return results
 
-        for eval_name in evaluator_names:
-            evaluator_cls = get_evaluator(eval_name)
-            evaluator = evaluator_cls()
-            try:
-                findings = evaluator.evaluate(page, knowledge)
-                report.findings.extend(findings)
-            except Exception as e:
-                _log(f"  ERROR in {eval_name} on {page.filepath}: {e}")
-
-        report.pages_evaluated += 1
-
-    # Cross-page analysis
-    if args.cross_page:
-        from .cross_page.consistency import check_consistency
-        _log("Running cross-page consistency checks...")
-        report.findings.extend(check_consistency(pages))
-        report.evaluators_run.append("cross_page_consistency")
+            sweep_findings = run_sweep(
+                seed_findings=report.findings,
+                all_products=all_products,
+                evaluator_runner=_evaluator_runner,
+                exclude=exclude,
+            )
+            report.findings.extend(sweep_findings)
+            _log(f"Sweep: {len(sweep_findings)} additional findings across other products")
+        else:
+            _log("Sweep: no defect signatures to sweep")
 
     # Generate remediation plan
     remediation = None
@@ -148,16 +179,17 @@ def _run_evaluate(args):
         output = generate_markdown(report, remediation)
 
     # Write to file
-    REPORTS_DIR = _resolve_reports_root() / "content_eval"
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_dir = _resolve_reports_dir(args.output_root)
+    report_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     ext = "json" if args.format == "json" else "md"
-    report_path = REPORTS_DIR / f"eval-{timestamp}.{ext}"
+    report_path = report_dir / f"eval-{timestamp}.{ext}"
     report_path.write_text(output, encoding="utf-8")
 
     # Also print to stdout (handle Windows encoding)
     sys.stdout.buffer.write(output.encode("utf-8"))
     sys.stdout.buffer.write(b"\n")
+    sys.stdout.buffer.flush()
 
     # Summary to stderr
     _log(f"\nEvaluation complete:")
@@ -166,6 +198,12 @@ def _run_evaluate(args):
     _log(f"  WARN: {len(report.warns)}")
     _log(f"  INFO: {len(report.infos)}")
     _log(f"  Report: {report_path}")
+
+    # VH-05: grade writing is now fully owned by runner.  Log summary here.
+    if should_write and runner.grade_counts:
+        _log(f"  Grades written: {runner.grade_counts}")
+        if write_mode == "policy":
+            _log(f"  Write mode: policy (only policy-justified writes applied)")
 
     # Exit code
     if args.strict and report.fails:
@@ -202,6 +240,81 @@ def _run_diff(args):
             print(f"  [{f['level']}] {f['category']} {f['file']}:{f['line']} — {f['message']}")
 
 
+def _run_grade_summary(args):
+    """Print grade distribution across all (or one) product."""
+    _HERE_gs = Path(__file__).resolve().parent.parent
+    if str(_HERE_gs) not in sys.path:
+        sys.path.insert(0, str(_HERE_gs))
+    from content_discovery import discover_content, discover_products  # noqa: E402  (R-1b)
+    from grade_writer import read_grade as _read_grade  # noqa: E402
+
+    if args.product:
+        products = [(args.product[0], args.product[1])]
+    else:
+        products = sorted(discover_products())
+
+    total = 0
+    total_graded = 0
+    overall_dist: dict[str, int] = {}
+    rows = []
+
+    for family, platform in products:
+        files = discover_content(family, platform)
+        dist: dict[str, int] = {}
+        graded = 0
+        for f in files:
+            r = _read_grade(f)
+            if r:
+                graded += 1
+                dist[r["grade"]] = dist.get(r["grade"], 0) + 1
+                overall_dist[r["grade"]] = overall_dist.get(r["grade"], 0) + 1
+        total += len(files)
+        total_graded += graded
+        rows.append((f"{family}/{platform}", len(files), graded, dict(dist)))
+
+    # Collect ungraded files for --strict mode
+    ungraded_files: list[str] = []
+    if getattr(args, "strict", False):
+        for family, platform in ([(args.product[0], args.product[1])] if args.product else sorted(discover_products())):
+            for f in discover_content(family, platform):
+                r = _read_grade(f)
+                if not r:
+                    ungraded_files.append(str(f))
+
+    if args.json:
+        import json as _json
+        payload = {
+            "total_files": total,
+            "total_graded": total_graded,
+            "distribution": overall_dist,
+            "products": [
+                {"product": r[0], "files": r[1], "graded": r[2], "distribution": r[3]}
+                for r in rows
+            ],
+        }
+        if getattr(args, "strict", False):
+            payload["ungraded"] = ungraded_files
+        print(_json.dumps(payload, indent=2))
+    else:
+        print(f"Grade Summary: {total_graded}/{total} files graded\n")
+        print(f"{'Product':<25} {'Files':>5} {'Graded':>6}  A    B    C    D    F")
+        print("-" * 72)
+        for name, file_count, graded, dist in rows:
+            parts = [f"{dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+            print(f"{name:<25} {file_count:>5} {graded:>6}  {'  '.join(parts)}")
+        print("-" * 72)
+        parts = [f"{overall_dist.get(g, 0):>4}" for g in ("A", "B", "C", "D", "F")]
+        print(f"{'TOTAL':<25} {total:>5} {total_graded:>6}  {'  '.join(parts)}")
+
+    if getattr(args, "strict", False) and ungraded_files:
+        print(f"\nSTRICT: {len(ungraded_files)} file(s) missing grades:", file=sys.stderr)
+        for uf in ungraded_files[:20]:
+            print(f"  {uf}", file=sys.stderr)
+        if len(ungraded_files) > 20:
+            print(f"  ... and {len(ungraded_files) - 20} more", file=sys.stderr)
+        raise SystemExit(1)
+
+
 def main(argv: list[str] | None = None):
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -225,6 +338,16 @@ def main(argv: list[str] | None = None):
                              help="Enable cross-page consistency analysis")
     eval_parser.add_argument("--remediation", action="store_true",
                              help="Include remediation plan")
+    eval_parser.add_argument("--output-root",
+                             help="Override report root for isolated runs")
+    eval_parser.add_argument("--write-grade", action="store_true",
+                             help="Write computed grade to each page's frontmatter (force mode)")
+    eval_parser.add_argument("--write-grade-if-policy-met", action="store_true",
+                             help="Write grade only when write-policy gate approves (body changed + grade changed, or first grading)")
+    eval_parser.add_argument("--skip-graded", action="store_true",
+                             help="Skip pages already graded with current knowledge")
+    eval_parser.add_argument("--sweep", action="store_true",
+                             help="Sweep all products for same defect classes found in target")
     eval_parser.set_defaults(func=_run_evaluate)
 
     # diff command
@@ -233,5 +356,34 @@ def main(argv: list[str] | None = None):
     diff_parser.add_argument("new_report", help="Path to new JSON report")
     diff_parser.set_defaults(func=_run_diff)
 
+    # grade-summary command
+    gs_parser = sub.add_parser("grade-summary", help="Show grade distribution across content")
+    gs_parser.add_argument("--product", nargs=2, metavar=("FAMILY", "PLATFORM"),
+                           help="Filter to one product (e.g. --product slides python)")
+    gs_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    gs_parser.add_argument("--strict", action="store_true",
+                           help="Exit 1 if any discoverable file lacks a grade")
+    gs_parser.set_defaults(func=_run_grade_summary)
+
     args = parser.parse_args(argv)
     args.func(args)
+
+
+if __name__ == "__main__":
+    # Support direct invocation: python scripts/pipeline/content_eval/cli.py ...
+    # Inject the pipeline directory so relative imports resolve correctly.
+    import sys as _sys
+    from pathlib import Path as _Path
+    _pipeline_dir = str(_Path(__file__).resolve().parents[1])
+    if _pipeline_dir not in _sys.path:
+        _sys.path.insert(0, _pipeline_dir)
+    # Re-run with the fixed path by delegating to the package entry point.
+    # This must happen before the relative imports at module top level fire,
+    # so we can't fix it here at __main__ time. Instead, print a clear error.
+    print(
+        "Error: cli.py cannot be invoked directly due to relative imports.\n"
+        "Use: .venv/Scripts/python scripts/pipeline/commands/content/run_content_eval.py evaluate ...\n"
+        "  or: PYTHONPATH=scripts/pipeline .venv/Scripts/python -m content_eval evaluate ...",
+        file=_sys.stderr,
+    )
+    _sys.exit(2)

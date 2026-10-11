@@ -1,0 +1,692 @@
+"""
+backlink_build_candidates.py — Layer 2
+
+Reads Layer 1 (deep_target_index.json) + content frontmatter and builds
+a candidate graph with scored matches per source page.
+
+Stage 0: hard filters (http_status=200, family, platform, target type)
+Stage 1: exact match (deterministic; ≥0.90 → AUTO_APPROVE_EXACT)
+  1a: reference_class / reference_namespace — title == class_name
+  1b: kb_article — Jaccard slug match ≥0.6
+  1c: blog_source × platform_products — family+platform identity match
+Stage 2: metadata match (deterministic; always REVIEW_REQUIRED max)
+Stage 3: TF-IDF semantic (opt-in --semantic; score 0.30–0.49; NEVER AUTO_APPROVE)
+AI boost: optional, max +0.05; reads ai_enrichment_index.json if --ai-enrichment given
+
+Stage 3 invariant: STAGE3_MAX_SCORE=0.49 < THRESHOLD_AUTO_APPROVE_EXACT=0.90.
+Semantic matches can NEVER reach AUTO_APPROVE regardless of score.
+
+Output: data/backlinks/workspace/candidate_graph.json (gitignored)
+
+Usage:
+    .venv/Scripts/python backlink_build_candidates.py --family 3d --platform java \\
+        --subdomain reference.aspose.org [--no-ai] [--ai-enrichment PATH] [--dry-run] \\
+        [--semantic]
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from datetime import date, datetime
+from pathlib import Path
+from typing import Optional
+
+
+class _DateEncoder(json.JSONEncoder):
+    """Encode date/datetime objects as ISO strings."""
+    def default(self, o):
+        if isinstance(o, (date, datetime)):
+            return o.isoformat()
+        return super().default(o)
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "pipeline"))
+
+from lib.backlink_targets import PLATFORM_ALIASES
+
+# Confidence band thresholds
+THRESHOLD_AUTO_APPROVE_EXACT = 0.90
+THRESHOLD_REVIEW_REQUIRED_MIN = 0.50
+MAX_AI_BOOST = 0.05
+
+# Stage 3 semantic scoring bounds (invariant: STAGE3_MAX_SCORE < THRESHOLD_AUTO_APPROVE_EXACT)
+THRESHOLD_STAGE3_MIN = 0.30   # minimum cosine to include a semantic candidate
+STAGE3_MAX_SCORE = 0.49       # semantic matches NEVER reach AUTO_APPROVE (0.90)
+
+DEEP_INDEX_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "deep_target_index.json"
+CANDIDATE_GRAPH_PATH = REPO_ROOT / "data" / "backlinks" / "workspace" / "candidate_graph.json"
+
+# HEAL-003: AI namespace guard constants
+_AI_NAMESPACES = frozenset({
+    "aspose.cells.ai", "aspose.pdf.ai", "aspose.slides.ai",
+    "aspose.words.ai", "aspose.3d.ai",
+})
+
+# HEAL-004: KB topic-coherence action verbs and complementary pairs
+_KB_ACTION_VERBS = [
+    "convert", "create", "save", "load", "add", "format", "insert",
+    "extract", "export", "import", "read", "write", "protect", "secure",
+    "remove", "build", "merge", "split", "search", "replace", "sign",
+    "encrypt", "compress", "render", "print", "watermark", "stamp",
+]
+_KB_COMPLEMENTARY: dict[str, set] = {
+    "save": {"export", "write"},
+    "export": {"save", "convert"},
+    "load": {"import", "read"},
+    "import": {"load", "convert"},
+    "create": {"build", "write", "add"},
+    "build": {"create", "write"},
+    "protect": {"secure", "encrypt"},
+    "secure": {"protect", "encrypt"},
+    "encrypt": {"protect", "secure"},
+    "merge": {"split", "combine"},
+    "split": {"merge"},
+}
+
+
+# ── Source Page Scanner ───────────────────────────────────────────────────────
+
+def _tokenize(text: str) -> list[str]:
+    """Simple whitespace/punctuation tokenizer."""
+    return [t.lower() for t in re.split(r"[\s\-_./]+", text) if t]
+
+
+def _jaccard(a: list[str], b: list[str]) -> float:
+    sa, sb = set(a), set(b)
+    if not sa and not sb:
+        return 0.0
+    return len(sa & sb) / len(sa | sb)
+
+
+def scan_source_page(md_path: Path) -> Optional[dict]:
+    """
+    Extract metadata from a content Markdown file frontmatter.
+
+    Returns dict with: title, family, platform, source_key, page_type, subdomain
+    or None if file cannot be parsed.
+    """
+    try:
+        text = md_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+    # Parse YAML frontmatter between --- delimiters
+    fm: dict = {}
+    if text.startswith("---"):
+        end = text.find("\n---", 3)
+        if end > 0:
+            import yaml
+            try:
+                fm = yaml.safe_load(text[3:end]) or {}
+            except Exception:
+                fm = {}
+
+    title = fm.get("title") or md_path.stem
+    # Derive family/platform from path segments
+    # Primary: content/{subdomain}/en/{family}/{platform}/... (docs, kb, reference)
+    # Fallback: content/{subdomain}/{family}/{platform}/... (blog — filename-based locale, no /en/)
+    parts = md_path.parts
+    # Find 'en' segment
+    try:
+        en_idx = next(i for i, p in enumerate(parts) if p == "en")
+        family = parts[en_idx + 1] if en_idx + 1 < len(parts) else None
+        platform_raw = parts[en_idx + 2] if en_idx + 2 < len(parts) else None
+    except StopIteration:
+        # No /en/ directory — use subdomain segment as anchor (blog.aspose.org pattern)
+        try:
+            sub_idx = next(i for i, p in enumerate(parts) if p.endswith(".aspose.org"))
+            family = parts[sub_idx + 1] if sub_idx + 1 < len(parts) else None
+            platform_raw = parts[sub_idx + 2] if sub_idx + 2 < len(parts) else None
+        except StopIteration:
+            family = None
+            platform_raw = None
+
+    if not family:
+        return None
+
+    # Get canonical platform
+    platform = PLATFORM_ALIASES.get(platform_raw or "", platform_raw) if platform_raw else None
+
+    # Determine subdomain from path
+    subdomain = None
+    for p in parts:
+        if p.endswith(".aspose.org"):
+            subdomain = p
+            break
+
+    # Build source_key
+    key_parts = [subdomain.split(".")[0] if subdomain else "unknown", family]
+    if platform:
+        key_parts.append(platform)
+    key_parts.append(md_path.stem.lower())
+    source_key = "/".join(key_parts)
+
+    return {
+        "source_path": str(md_path.relative_to(REPO_ROOT)),
+        "source_key": source_key,
+        "title": title,
+        "family": family,
+        "platform_raw": platform_raw,
+        "platform": platform,
+        "subdomain": subdomain,
+        "frontmatter": fm,
+    }
+
+
+# ── Candidate Scoring ─────────────────────────────────────────────────────────
+
+def _stage0_filter(entry: dict, source: dict) -> bool:
+    """Hard filters: family match + platform match + target type allowed."""
+    if entry.get("family") != source["family"]:
+        return False
+    # Platform match: exact or via PLATFORM_ALIASES
+    entry_platform = entry.get("platform", "")
+    src_platform = source.get("platform") or ""
+    canonical_entry = PLATFORM_ALIASES.get(entry_platform, entry_platform)
+    canonical_src = PLATFORM_ALIASES.get(src_platform, src_platform)
+    if canonical_entry != canonical_src:
+        return False
+    return True
+
+
+def _stage1_score_reference(entry: dict, source: dict) -> float:
+    """Stage 1 exact match for reference_class / reference_namespace targets."""
+    title = source["title"].lower().strip()
+    class_name = (entry.get("class_name") or "").lower().strip()
+    namespace = entry.get("namespace", "")
+
+    if not class_name:
+        return 0.0
+
+    if title == class_name:
+        if namespace:
+            return 0.95  # class + namespace + family + platform
+        return 0.90  # class + family + platform (no namespace confirmation)
+
+    # Partial: title ends with class_name (e.g., "IDocument" in "IDocument Class")
+    if title.endswith(class_name) or title.startswith(class_name):
+        return 0.75
+
+    return 0.0
+
+
+def _stage1_score_kb(entry: dict, source: dict) -> float:
+    """Stage 1 exact match for kb_article targets."""
+    title_tokens = _tokenize(source["title"])
+    slug_tokens = _tokenize(entry.get("article_slug") or entry.get("path", "").split("/")[-1])
+
+    if not title_tokens or not slug_tokens:
+        return 0.0
+
+    common = len(set(title_tokens) & set(slug_tokens))
+    jaccard = _jaccard(title_tokens, slug_tokens)
+
+    if jaccard >= 0.6 and common >= 3:
+        return 0.90
+    if jaccard >= 0.5 and common >= 2:
+        return 0.80  # REVIEW_REQUIRED
+    return 0.0  # no match — pre-existing missing return fixed
+
+
+def _stage1_score_blog_product(entry: dict, source: dict) -> float:
+    """Stage 1c: blog source × platform_products target identity match.
+
+    A page in blog.aspose.org/{family}/{platform}/ unambiguously belongs to
+    that family+platform.  When the target is the platform_products landing
+    page for the same family+platform, the relationship is deterministic and
+    requires no prose matching — return AUTO_APPROVE_EXACT (0.90).
+
+    Only fires when:
+      - source subdomain is blog.aspose.org
+      - target type is 'platform_products'
+      - family and platform already match (enforced by Stage 0)
+    """
+    if source.get("subdomain") != "blog.aspose.org":
+        return 0.0
+    if entry.get("type") != "platform_products":
+        return 0.0
+    # Stage 0 already confirmed family+platform match; this is AUTO_APPROVE territory.
+    return 0.90
+
+    return 0.0
+
+
+def _make_blocked_result(source: dict, entry_path: str, ai_signals=None) -> dict:
+    """Construct a BLOCKED scoring result dict for early-exit guards."""
+    return {
+        "source_key": source.get("source_key", ""),
+        "target_path": entry_path,
+        "stage1_score": 0.0,
+        "stage2_score": None,
+        "stage3_score": None,
+        "ai_boost": 0.0,
+        "ai_boost_applied": False,
+        "ai_signals": ai_signals,
+        "semantic_used": False,
+        "final_score": 0.0,
+        "decision": "BLOCKED",
+        "ai_disagrees": False,
+    }
+
+
+def _stage1_score_kb_coherence(entry: dict, source: dict) -> float:
+    """Stage 1d: KB source x KB target topic-coherence guard.
+
+    Returns 0.90 if source and target share the same or complementary action verb
+    (e.g., convert-convert, save-export), 0.0 otherwise (hard block).
+    Returns 0.0 if either slug has no extractable action verb (treated as incoherent).
+    Only fires when source subdomain is kb.aspose.org AND target type is kb_article.
+    """
+    if source.get("subdomain") != "kb.aspose.org":
+        return 0.0
+    if entry.get("type") != "kb_article":
+        return 0.0
+
+    src_slug = (source.get("source_key") or "").split("/")[-1].lower().replace("_", "-")
+    tgt_slug = (entry.get("article_slug") or entry.get("path", "").split("/")[-1] or "").lower().replace("_", "-")
+
+    src_verb = next((v for v in _KB_ACTION_VERBS if v in src_slug), None)
+    tgt_verb = next((v for v in _KB_ACTION_VERBS if v in tgt_slug), None)
+
+    if not src_verb or not tgt_verb:
+        return 0.0  # Cannot determine coherence — treat as incoherent (hard block)
+    if src_verb == tgt_verb:
+        return 0.90
+    if tgt_verb in _KB_COMPLEMENTARY.get(src_verb, set()):
+        return 0.90
+    return 0.0  # Incoherent verb pair — hard block
+
+
+def _build_tfidf_corpus(index: dict) -> tuple[list[str], list[list[str]]]:
+    """
+    Build a list of target paths and their tokenised text for TF-IDF IDF computation.
+
+    Returns: (path_keys, token_lists)
+    """
+    path_keys: list[str] = []
+    token_lists: list[list[str]] = []
+    for path_key, entry in index.items():
+        text_parts = [
+            entry.get("path", ""),
+            entry.get("class_name", "") or "",
+            entry.get("namespace", "") or "",
+            entry.get("article_slug", "") or "",
+        ]
+        tokens = _tokenize(" ".join(filter(None, text_parts)))
+        path_keys.append(path_key)
+        token_lists.append(tokens)
+    return path_keys, token_lists
+
+
+def build_tfidf_idf(token_lists: list[list[str]]) -> dict:
+    """Compute IDF dict over all target documents using embed.py utilities."""
+    from commands.knowledge.embed import compute_idf
+    return compute_idf(token_lists)
+
+
+def _stage3_score_semantic(
+    entry: dict,
+    source: dict,
+    idf_dict: dict,
+    path_keys: list[str],
+    token_lists: list[list[str]],
+) -> float:
+    """
+    Stage 3: TF-IDF cosine similarity between source title tokens and target tokens.
+
+    Returns a score in [0.0, STAGE3_MAX_SCORE].
+    NEVER returns a value that could reach AUTO_APPROVE_EXACT (0.90).
+    """
+    from commands.knowledge.embed import compute_tfidf_vector, cosine_similarity
+
+    src_tokens = _tokenize(source.get("title", ""))
+    if not src_tokens:
+        return 0.0
+
+    # Build target token list for this entry
+    text_parts = [
+        entry.get("path", ""),
+        entry.get("class_name", "") or "",
+        entry.get("namespace", "") or "",
+        entry.get("article_slug", "") or "",
+    ]
+    tgt_tokens = _tokenize(" ".join(filter(None, text_parts)))
+    if not tgt_tokens:
+        return 0.0
+
+    src_vec = compute_tfidf_vector(src_tokens, idf_dict)
+    tgt_vec = compute_tfidf_vector(tgt_tokens, idf_dict)
+
+    cosine = cosine_similarity(src_vec, tgt_vec)
+    # Cap at STAGE3_MAX_SCORE — semantic matches NEVER reach AUTO_APPROVE
+    return min(float(cosine), STAGE3_MAX_SCORE)
+
+
+def _determine_decision(final_score: float, ai_boost: float) -> str:
+    if final_score >= THRESHOLD_AUTO_APPROVE_EXACT:
+        # If AI boost was required to cross threshold, still AUTO_APPROVE_EXACT
+        # (A5: allowed since deterministic ≥0.85 + AI boost ≤0.05)
+        return "AUTO_APPROVE_EXACT"
+    if final_score >= THRESHOLD_REVIEW_REQUIRED_MIN:
+        return "REVIEW_REQUIRED"
+    return "BLOCKED"
+
+
+def score_candidate(entry: dict, source: dict, ai_signals: Optional[dict] = None, tfidf_data: Optional[tuple] = None) -> dict:
+    """
+    Score a single (source, target) candidate pair.
+
+    Returns: {
+        source_key, target_path, stage1_score, stage2_score, stage3_score,
+        ai_boost, ai_boost_applied, ai_signals, semantic_used, final_score, decision
+    }
+    """
+    # ── HEAL-002: Block method-level targets for reference class sources ─────
+    # reference.aspose.org class pages should link to commercial class pages
+    # (depth-5), not to specific methods/constructors (depth-6+).
+    _entry_path = entry.get("path", "") or ""
+    _path_depth = len(_entry_path.split("/"))
+    if source.get("subdomain") == "reference.aspose.org" and _path_depth >= 6:
+        return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # ── HEAL-003: Block known namespace false-positive patterns ─────────────
+    _tgt_parts = _entry_path.split("/")
+    _src_slug_lower = (source.get("source_key") or "").split("/")[-1].lower()
+
+    # Pattern A: AI-namespace targets for non-AI sources
+    if len(_tgt_parts) >= 4 and _tgt_parts[3].lower() in _AI_NAMESPACES:
+        _src_combined = (source.get("source_key") or "") + " " + (source.get("title") or "")
+        if not any(kw in _src_combined.lower() for kw in ("ai", "inference", "prompt")):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern B: Font property attractor — decodedfontname for font-slug sources
+    if "font" in _src_slug_lower and "decodedfontname" in _entry_path.lower():
+        return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern C: Text profile shape attractor — texture/material sources vs profiles/Text
+    if any(kw in _src_slug_lower for kw in ("texture", "material", "shader")):
+        if ("profiles" in _entry_path.lower()
+                and len(_tgt_parts) >= 5
+                and _tgt_parts[4].lower() == "text"):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
+    # Pattern D: Static factory method attractors for enum/type sources
+    _FACTORY_SLUGS = frozenset({"fromargb", "importvaluefromjson", "parse", "tryparse"})
+    if len(_tgt_parts) >= 6 and _tgt_parts[5].lower() in _FACTORY_SLUGS:
+        if any(kw in _src_slug_lower for kw in ("color", "depth", "type", "kind", "mode", "flag", "field")):
+            return _make_blocked_result(source, _entry_path, ai_signals)
+
+    target_type = entry.get("type", "")
+    stage1 = 0.0
+    stage2 = None
+
+    if target_type in ("reference_class", "reference_namespace"):
+        stage1 = _stage1_score_reference(entry, source)
+    elif target_type == "kb_article":
+        stage1 = _stage1_score_kb(entry, source)
+    elif target_type == "platform_products":
+        stage1 = _stage1_score_blog_product(entry, source)
+
+    # ── HEAL-004: KB topic-coherence hard gate ───────────────────────────────
+    # kb.aspose.org source × kb_article target: topic verb must match or be complementary.
+    # Returns 0.0 → BLOCKED early return (Stage 2 cannot override topic mismatch).
+    if source.get("subdomain") == "kb.aspose.org" and target_type == "kb_article":
+        stage1d = _stage1_score_kb_coherence(entry, source)
+        if stage1d == 0.0:
+            return _make_blocked_result(source, _entry_path, ai_signals)
+        stage1 = max(stage1, stage1d)
+
+    # Stage 2: metadata match (always REVIEW_REQUIRED max, never AUTO_APPROVE)
+    if stage1 == 0.0:
+        # Very basic: check if title word is in path
+        title_lower = source["title"].lower()
+        path = entry.get("path", "")
+        if any(w in path for w in _tokenize(title_lower) if len(w) > 3):
+            stage2 = 0.55  # REVIEW_REQUIRED
+
+    # Stage 3: TF-IDF semantic (opt-in; only when Stage 1 and Stage 2 both miss)
+    stage3: Optional[float] = None
+    if stage1 == 0.0 and stage2 is None and tfidf_data is not None:
+        path_keys, token_lists, idf_dict = tfidf_data
+        stage3_raw = _stage3_score_semantic(entry, source, idf_dict, path_keys, token_lists)
+        if stage3_raw >= THRESHOLD_STAGE3_MIN:
+            stage3 = stage3_raw
+
+    # AI boost
+    ai_boost = 0.0
+    ai_boost_applied = False
+    if ai_signals and stage1 >= 0.85:
+        label = ai_signals.get("label", "")
+        cosine = ai_signals.get("embedding_cosine", 0.0)
+        if label == "exact_api_class" and cosine >= 0.85:
+            ai_boost = min(0.05, MAX_AI_BOOST)
+            ai_boost_applied = True
+        elif label == "related_api_class" and cosine >= 0.70:
+            ai_boost = min(0.03, MAX_AI_BOOST)
+            ai_boost_applied = True
+
+    base_score = stage1 if stage1 > 0.0 else (stage2 if stage2 is not None else (stage3 or 0.0))
+    final_score = min(1.0, base_score + ai_boost)
+
+    # AI disagreement: if AI says unrelated but deterministic is high → REVIEW_REQUIRED
+    ai_disagrees = (
+        ai_signals is not None
+        and ai_signals.get("label") == "unrelated"
+        and stage1 >= 0.80
+    )
+
+    decision = _determine_decision(final_score, ai_boost)
+    if ai_disagrees:
+        decision = "REVIEW_REQUIRED"
+
+    return {
+        "source_key": source["source_key"],
+        "target_path": entry["path"],
+        "stage1_score": round(stage1, 4),
+        "stage2_score": round(stage2, 4) if stage2 is not None else None,
+        "stage3_score": round(stage3, 4) if stage3 is not None else None,
+        "ai_boost": round(ai_boost, 4),
+        "ai_boost_applied": ai_boost_applied,
+        "ai_signals": ai_signals,
+        "semantic_used": tfidf_data is not None and stage3 is not None,
+        "final_score": round(final_score, 4),
+        "decision": decision,
+        "ai_disagrees": ai_disagrees,
+    }
+
+
+# ── Build Candidate Graph ─────────────────────────────────────────────────────
+
+def build_candidates(
+    deep_index: dict,
+    source_pages: list[dict],
+    ai_enrichment: Optional[dict] = None,
+    families_filter: Optional[list[str]] = None,
+    tfidf_data: Optional[tuple] = None,
+) -> dict:
+    """
+    Build candidate graph for all source pages against deep target index.
+
+    Pure function — no I/O.
+
+    Returns: {
+        "sources": [...],
+        "candidates": [...],
+        "stats": {...}
+    }
+    """
+    index = deep_index.get("index", {})
+    candidates = []
+    sources_out = []
+
+    for source in source_pages:
+        family = source.get("family")
+        if families_filter and family not in families_filter:
+            continue
+
+        src_candidates = []
+        for path_key, entry in index.items():
+            # Stage 0 hard filter
+            if not _stage0_filter(entry, source):
+                continue
+
+            # Get AI signals if available
+            ai_signals = None
+            if ai_enrichment:
+                ai_signals = ai_enrichment.get("index", {}).get(path_key, {}).get(
+                    "llm_classification"
+                )
+
+            c = score_candidate(entry, source, ai_signals, tfidf_data)
+            if c["final_score"] > 0.0 or c.get("decision") != "BLOCKED":
+                src_candidates.append(c)
+
+        # Sort by final_score descending
+        src_candidates.sort(key=lambda x: -x["final_score"])
+        candidates.extend(src_candidates)
+        sources_out.append(source)
+
+    # Summary stats
+    from collections import Counter
+    decision_counts = Counter(c["decision"] for c in candidates)
+    stats = {
+        "total_sources": len(sources_out),
+        "total_candidates": len(candidates),
+        "decision_counts": dict(decision_counts),
+    }
+
+    return {
+        "sources": sources_out,
+        "candidates": candidates,
+        "stats": stats,
+    }
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Build backlink candidate graph (Layer 2)"
+    )
+    parser.add_argument("--family", required=True, help="Product family (e.g., 3d)")
+    parser.add_argument("--platform", default=None, help="Platform filter (e.g., java)")
+    parser.add_argument("--subdomain", default=None,
+                        help="Source subdomain (e.g., reference.aspose.org)")
+    parser.add_argument("--deep-index", default=str(DEEP_INDEX_PATH),
+                        help="Path to Layer 1 deep_target_index.json")
+    parser.add_argument("--output", default=str(CANDIDATE_GRAPH_PATH))
+    parser.add_argument("--no-ai", action="store_true", help="Skip AI enrichment")
+    parser.add_argument("--ai-enrichment", default=None,
+                        help="Path to ai_enrichment_index.json (Layer 1.5)")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--semantic",
+        action="store_true",
+        help=(
+            "Enable Stage 3 TF-IDF semantic matching (opt-in; score 0.30-0.49; "
+            "NEVER AUTO_APPROVE). Only activates when Stage 1 and Stage 2 both produce "
+            "no signal. Invariant: STAGE3_MAX_SCORE=0.49 < THRESHOLD_AUTO_APPROVE_EXACT=0.90."
+        ),
+    )
+    args = parser.parse_args()
+
+    deep_index_path = Path(args.deep_index)
+    if not deep_index_path.exists():
+        print(f"ERROR: deep_target_index.json not found at {deep_index_path}", file=sys.stderr)
+        print("Run backlink_build_deep_index.py first.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Loading Layer 1 from {deep_index_path} ...")
+    deep_index = json.loads(deep_index_path.read_text(encoding="utf-8"))
+    print(f"Layer 1: {deep_index.get('total_endpoints', '?')} endpoints")
+
+    # Load AI enrichment if provided
+    ai_enrichment = None
+    if not args.no_ai and args.ai_enrichment:
+        ai_path = Path(args.ai_enrichment)
+        if ai_path.exists():
+            print(f"Loading AI enrichment from {ai_path} ...")
+            ai_enrichment = json.loads(ai_path.read_text(encoding="utf-8"))
+        else:
+            print(f"WARNING: AI enrichment file not found at {ai_path}; proceeding without AI")
+
+    # Scan source pages
+    subdomain = args.subdomain or f"reference.aspose.org"
+    # Auto-detect /en/ vs no /en/ directory (blog.aspose.org uses filename-based
+    # localization with no /en/ dir; docs/kb/reference use /en/ directory structure)
+    _en_path = REPO_ROOT / "content" / subdomain / "en" / args.family
+    _no_en_path = REPO_ROOT / "content" / subdomain / args.family
+    content_dir = _en_path if _en_path.exists() else _no_en_path
+    if args.platform:
+        content_dir = content_dir / args.platform
+
+    if not content_dir.exists():
+        print(f"ERROR: Content directory not found: {content_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Scanning source pages under {content_dir} ...")
+    source_pages = []
+    for md_file in content_dir.rglob("*.md"):
+        # Skip locale variants (e.g. index.ar.md has stem "index.ar" containing a dot)
+        # Only English source files (index.md, _index.md) should be scanned
+        if "." in md_file.stem:
+            continue
+        page = scan_source_page(md_file)
+        if page:
+            source_pages.append(page)
+
+    print(f"Found {len(source_pages)} source pages")
+
+    # Build TF-IDF corpus (Stage 3, only when --semantic is active)
+    tfidf_data = None
+    if args.semantic:
+        print("Building TF-IDF corpus for Stage 3 semantic matching ...")
+        index_entries = deep_index.get("index", {})
+        path_keys, token_lists = _build_tfidf_corpus(index_entries)
+        idf_dict = build_tfidf_idf(token_lists)
+        tfidf_data = (path_keys, token_lists, idf_dict)
+        print(f"TF-IDF corpus: {len(path_keys)} documents, {len(idf_dict)} unique terms")
+
+    # Build candidates
+    print("Building candidate graph ...")
+    families_filter = [args.family]
+    graph = build_candidates(deep_index, source_pages, ai_enrichment, families_filter, tfidf_data)
+    stats = graph["stats"]
+
+    print(f"Candidates: {stats['total_candidates']} across {stats['total_sources']} sources")
+    for decision, count in sorted(stats["decision_counts"].items()):
+        print(f"  {decision}: {count}")
+
+    if args.dry_run:
+        print("Dry-run: output not written.")
+        return
+
+    out_path = Path(args.output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    import hashlib
+    deep_index_hash = "sha256:" + hashlib.sha256(
+        deep_index_path.read_bytes()
+    ).hexdigest()[:16]
+
+    output = {
+        "schema_version": "1.0.0",
+        "family": args.family,
+        "platform": args.platform,
+        "subdomain": subdomain,
+        "deep_index_hash": deep_index_hash,
+        "ai_enrichment_used": ai_enrichment is not None,
+        "semantic_used": args.semantic,
+        "stats": stats,
+        "sources": graph["sources"],
+        "candidates": graph["candidates"],
+    }
+
+    out_path.write_text(json.dumps(output, indent=2, ensure_ascii=False, cls=_DateEncoder), encoding="utf-8")
+    print(f"Written: {out_path}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,80 @@
+mission_authority:
+  mission_id: MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN
+  mission_summary: 'Forensic audit of Aspose.Imaging FOSS for .NET''s thin published
+    API reference (reference.aspose.org/imaging/net/, 3 detail pages + 1 index).
+    Three parallel Explore-agent research passes independently confirmed the thin
+    reference is not a defect -- it was already root-caused and explicitly
+    operator-approved during MT068-2026-09-11-IMAGING-NET-LAUNCH (pinned upstream
+    source at f2cf68fd64545bfb704c45ee756af3125103fd74 has exactly 3 public C#
+    types out of 17 total files; every pipeline stage agrees; sibling pdf/net
+    scales correctly at 885 pages/881 classes). User chose calibrated
+    verify-and-close scope over redoing the full 27-phase brief from scratch:
+    close the one real evidence gap (no build-based/reflection check has ever
+    been done -- extraction is 100% static tree-sitter parsing), fix real
+    shared-system defects MT068''s own follow-on work surfaced but left unfixed
+    (ST-195 report-path collision, IMAGING-NET-BATCHREF-HARNESS-001 skill-doc
+    gap, IMAGING-NET-SCORECARD-UNICODE-001 crash), close IMAGING-NET-REFIDX-001,
+    do a targeted cross-surface semantic spot-check, and prove determinism with
+    one real isolated re-run. No mass regeneration -- no gap was found that would
+    justify new pages.'
+  governing_plan_path: plans/from_backlog/2026-09-16-mt070-imaging-net-forensic-harden.md
+  binding_pattern: 'hand-authored record (root MISSION_AUTHORITY.yaml slot held by
+    MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE, mission_locked: true, unrelated
+    GitHub Actions minutes work by a different live session -- mission_authority.py
+    activate refused a takeover; following the readme-refresh-* mission precedent
+    of not touching the root slot)'
+  in_scope_outcomes:
+  - 'Build-based independent verification (dotnet build + reflection API dump)
+    against the pinned imaging/net clone, diffed against api_surface.json'
+  - 'ST-195 report-path collision fixed in the owning scripts (shared machinery,
+    not imaging-specific)'
+  - 'IMAGING-NET-BATCHREF-HARNESS-001 fix direction (a): S-62 SKILL.md corrected
+    to stop recommending a broken first-launch invocation'
+  - 'IMAGING-NET-SCORECARD-UNICODE-001 fixed: readiness_scorecard.py no longer
+    crashes on Windows cp1252 consoles'
+  - 'IMAGING-NET-REFIDX-001 closed with this mission''s independent reconfirmation'
+  - 'Targeted cross-surface semantic spot-check of every imaging/net page (products,
+    docs, kb, blog) against pinned source and knowledge model'
+  - 'Determinism/no-op proof: isolated scout re-run against the same pinned SHA,
+    byte-identical 3-type inventory'
+  - 'Final report + evidence bundle under this mission''s evidence/ directory'
+  out_of_scope:
+  - 'Mass regeneration of any of the 5 surfaces -- no gap found justifying new pages'
+  - 'INV-020''s portfolio-wide systemic-exposure angle (other products'' truth-audit
+    verdicts) -- imaging/net''s own 3 CONDITIONAL findings already verified
+    non-blocking'
+  - 'INV-021 (blog-eligibility gate policy) and H7-PORTFOLIO-RETROFIT-001
+    (capability-matrix retrofit to 5 other products) -- both portfolio-wide,
+    both already explicitly deferred by MT068'
+  - 'IMAGING-NET-BATCHREF-HARNESS-001 fix direction (b) (new refresh_run.py
+    first-launch mode) -- larger harness change, deferred'
+  - 'Any path under reports/repo-presenter-regen-full/imaging/net/** or other
+    readme-refresh-owned paths while the other live session is active there'
+  mandatory_acceptance_criteria:
+  - 'dotnet build exits 0 against the pinned clone; reflection-derived public-type
+    set equals exactly {ImageFormat, ImageInfo, ImageProbe}'
+  - 'Every fixed script''s test suite passes; at least one unaffected sibling
+    product re-checked where a fix touches shared code'
+  - 'content-check/content_eval unchanged (grade A, 0 FAIL) for all imaging/net
+    pages after any doc-only fixes'
+  - 'Isolated scout re-run diff is empty for the 3-type inventory'
+  - 'Final report and evidence bundle committed; taskcards reach CLOSED with
+    evidence_refs'
+  human_authority_boundaries:
+  - 'Any decision to widen scope into mass regeneration or portfolio-wide items
+    explicitly deferred above'
+  conflicts_found:
+  - 'Root MISSION_AUTHORITY.yaml slot held by MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE
+    (mission_locked: true, _archive_status: open, unrelated work, different live
+    session). mission_authority.py activate --mission-id MT070-... refused the
+    takeover per its own H1 design (incumbent locked+open, no --force given
+    deliberately -- unrelated work should not be interrupted). Proceeding as a
+    hand-authored record only, matching the readme-refresh-* mission precedent;
+    this mission never writes to the root file.'
+  - 'A different live peer session is actively running readme-refresh machinery
+    on imaging/net right now (dirty reports/repo-presenter-regen-full/imaging/net/**).
+    User explicitly chose to proceed regardless for this mission''s scope, since
+    none of this mission''s work touches those paths.'
+  mission_locked: false
+  recorded_at: 2026-09-16T13:00:00Z
+  recorded_by: session-503e95f0

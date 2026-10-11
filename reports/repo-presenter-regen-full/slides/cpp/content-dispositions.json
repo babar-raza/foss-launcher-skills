@@ -1,0 +1,941 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "The official open-source C++ library by Aspose.Slides for creating, reading, and editing PowerPoint\n(`.pptx`) presentations. It is MIT-licensed and builds the Office Open XML package itself, so it\nneeds no Microsoft PowerPoint installation, no COM interop and no other proprietary runtime — only\npugixml and miniz.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Features](#features)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Key Capabilities"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Usage Examples](#usage-examples)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Building](#building)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Installing, and using the installed package](#installing-and-using-the-installed-package)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Limitations](#limitations)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Continuous integration](#continuous-integration)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Development and Testing"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Packaging](#packaging)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Contributing, and reporting things](#contributing-and-reporting-things)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Development and Testing"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [Documentation and resources](#documentation-and-resources)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- [License](#license)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Navigation section already links every real section under its own (renamed) heading"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "**`presentation.h` is not enough on its own.** It forward-declares the types its collections return,\nso reaching through `slides()[0].shapes()` needs `slide.h` and `shape_collection.h` as well, and\nusing what a factory hands back needs that type's header too. Every example below lists exactly what\nit needs; a missing one shows up as *use of undefined type* rather than as a missing function.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/presentation.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- **Presentation I/O** — Open, create and save `.pptx` files. A presentation this library did not\n  write survives a load and a save with every part kept: the fixture in `tests/test_data/`, 13 parts\n  including a layout and a master, comes back out with all 13 and its text intact.",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Scope and Limitations section states the same 13-part round-trip fact with more precision (exact byte-identical count)"
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- **Slides** — Add, remove, insert, clone, hide and iterate slides. (Cloning has a defect — see\n  *Limitations*.)",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/slide_collection.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- **Shapes** — AutoShapes, PictureFrames, Tables, Connectors, and reordering within a slide",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape_collection.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- **Text** — TextFrame, Paragraph, Portion with character, paragraph and text frame formatting\n  (including bullets)",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/text_frame.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- **Fill** — Solid, gradient, pattern and picture fills",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/fill_format.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- **Lines** — Width, dash style, arrows, cap, compound style, join and alignment",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/line_format.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- **Effects** — Outer shadow, inner shadow, glow, soft edge, blur, reflection, preset shadow, fill\n  overlay",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/effect_format.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- **3D** — Bevel, camera, light rig, material, extrusion depth, extrusion and contour colour",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/three_d_format.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- **Document properties** — Core, app and custom properties",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/document_properties.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- **Notes slides** — Per-slide notes with header/footer management",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/notes_slide_manager.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- **Comments** — Authors, timestamps, positions, and replies. A reply is written into the classic\n  comment list as a `p15:threadingInfo`/`p15:parentCm` extension on the comment, and read back, so a\n  thread survives a round trip. This library does not write a `ppt/threadedComments/` part.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- **Images** — Embed from a byte range. `add_image` takes a `std::span<const std::uint8_t>` and\n  there is no overload for a file path or a stream.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/image_collection.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "That builds the test suite as well, which is the default at top level and means\nGoogleTest is downloaded and the test translation units are compiled. To build\nonly the library, turn the suite off:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "**Requires:** C++20 compiler, CMake 3.20+. The library is built as a static\narchive: nothing in the sources is annotated for symbol export, so a shared\nbuild would export nothing, and the build forces the static form rather than\nproducing a library that cannot be linked.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "Dependencies. Each is looked for as an installed package first and fetched with\nCMake `FetchContent` only if it is not found, so a package manager's copy is\nalways preferred to a private clone:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "| Dependency | Version | Used for | Needed by a consumer |\n|---|---|---|---|\n| [pugixml](https://github.com/zeux/pugixml) | 1.14 | XML parsing | **Yes** — it appears in this library's public headers |\n| [miniz](https://github.com/richgel999/miniz) | 3.0.2 | ZIP archive I/O | At link time only |\n| [GoogleTest](https://github.com/google/googletest) | 1.15.2 | The test suite | No — only fetched when tests are built |",
+    "classification": "5_dependency_claim",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "| Option | Default | Effect |\n|---|---|---|\n| `ASPOSE_SLIDES_FOSS_BUILD_TESTS` | ON at top level | Build the test suite. `OFF`, or `-DBUILD_TESTING=OFF`, means no test framework is downloaded at all. |\n| `ASPOSE_SLIDES_FOSS_INSTALL` | ON at top level | Generate the install and export rules. |\n| `ASPOSE_SLIDES_FOSS_FETCH_DEPENDENCIES` | ON | Allow `FetchContent` to supply a dependency that was not found. Package builds set this `OFF` so a missing dependency fails loudly. |\n| `ASPOSE_SLIDES_FOSS_WARNINGS_AS_ERRORS` | OFF | Treat this library's own compiler warnings as errors. |\n| `ASPOSE_SLIDES_FOSS_SANITIZE_ADDRESS` | OFF | Build library and tests with AddressSanitizer. |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "The suite includes the conformance tests, which assert on the bytes of the\nsaved `.pptx` rather than on what this library reads back; see\n`tests/conformance/README.md`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/conformance/README.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "The prefix then contains the headers, the static library, a generated\n`Aspose/Slides/Foss/version.h`, a CycloneDX bill of materials, and a CMake\npackage configuration. A consumer needs nothing but the prefix:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "`examples/consumer/` is exactly that project, and it is built and run against a\nfresh install on every CI run, so the instructions above are checked rather\nthan asserted.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "Version compatibility is `SameMinorVersion`. The version is CalVer — `YY.M.PATCH`\n— so the major number is a year and carries no compatibility meaning at all:\n`find_package(AsposeSlidesFoss 26.9 CONFIG REQUIRED)` accepts any `26.9.x` and\nrejects `26.10`, which is the only promise a monthly release train can keep.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "On Windows with MSVC there is a prebuilt package, so nothing has to be compiled:",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "It carries **x64 and Win32**, **Debug and Release**, built against the DLL C\nruntime (`/MD` and `/MDd`), and it needs no other configuration: the include path\nand the libraries arrive from the package. Two requirements, both checked by the\npackage rather than left to fail obscurely:",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- **Visual Studio 2022 or newer (`v143`+).** These are static archives compiled\n  against a particular MSVC standard library, part of which is itself compiled\n  rather than header-only. An older toolset links against an older standard\n  library that lacks symbols these objects reference, and fails with `LNK2019` on\n  a name from inside the standard library. The package is therefore built with the\n  *oldest* toolset it supports, never the newest available.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- **C++ language standard `stdcpp20` or later**, because these headers are C++20.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "Three libraries are linked, not one — `aspose_slides_foss.lib`, `pugixml.lib` and\n`miniz.lib` — and pugixml's headers are on your include path as well as ours. A\nstatic archive carries no record of what it needs, and pugixml is in this library's\npublic interface; see [Public headers and pugixml](#public-headers-and-pugixml).",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "For Linux and macOS, build from source as above. `packaging/README.md` describes\nthe package for each registry and what state it is in.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "44 of the headers a consumer includes — everything under\n`include/Aspose/Slides/Foss/` outside `_internal/` — include `<pugixml.hpp>`,\nand 37 of them keep a `pugi::xml_node` as a data member (45 members in all).\n**A consumer therefore needs pugixml's headers, not just its library**, and the\ninstalled\n`AsposeSlidesFossConfig.cmake` calls `find_dependency(pugixml)` for that\nreason. If the library is built with a fetched pugixml rather than an installed\none, that pugixml is installed into the same prefix alongside it, so the\n`find_dependency` call resolves either way.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/presentation.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "This is a leak of an implementation detail into the interface, and it is\nrecorded here rather than quietly fixed because the fix is not small. The\nclasses expose XML-backed entry points — `init_internal(pugi::xml_node, ...)`,\n`get_sp_pr()`, `ensure_xfrm()` and their neighbours — which are called across\ntranslation unit boundaries and by the test suite, so they cannot simply be\nmoved into a `.cpp`. Removing pugixml from the interface means giving those\nclasses an opaque handle or a pimpl and rewriting every one of the 172 uses of\n`pugi::` in those headers along with the call sites behind them — 266 more in\nthe sources: a rewrite of the XML-backing layer, not an edit to the headers.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "The three counts above are what these commands print today:",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate excludes the raw verification grep commands (c0018) since the resulting counts are already stated in prose in Scope and Limitations; this framing sentence introduced those commands specifically"
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "Until that happens, the consequences to plan for are:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- pugixml must be installable and discoverable wherever this library is used;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- a consumer compiles against pugixml's headers, so a pugixml major-version\n  change is a breaking change for this library too;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- pugixml is declared as an ordinary public dependency in the packaging drafts\n  under `packaging/`, never as a private or vendored one.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/conan/conanfile.py"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "miniz has no such problem: it appears in no installed header, is linked\nprivately, and is required only at link time.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "There is no API for these. The member named is the one that does not exist, so a call to it is a\ncompile error rather than a silent no-op:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape_collection.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "| Area | What is absent |\n|---|---|\n| Charts, SmartArt, OLE objects, mathematical text | `ShapeCollection::add_chart` and the rest |\n| Animations and slide transitions | no timeline, no transition type |\n| Group shapes | `ShapeCollection::add_group_shape` |\n| Hyperlinks and action settings | no `set_hyperlink_click` on a portion format or a shape |\n| Slide backgrounds and themes | no `Slide::background`, no `Presentation::master_theme` |\n| Sections | `Presentation::sections` |\n| Slide size | `Presentation::slide_size`. A new deck is 4:3 (`cx=9144000 cy=6858000`), from the bundled template, and there is no supported way to change it |\n| Saving to a stream | the only `save` overload takes a path (`std::string_view`) |\n| Adding an image from a path or a stream | the only overload is `add_image(std::span<const std::uint8_t>)` |\n| A `ppt/threadedComments/` part | replies are written into the classic comment list instead — see *Features* |\n| Export to non-PPTX formats (PDF, HTML, SVG, images), VBA macros, digital signatures | see *Save formats* below |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape_collection.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "These are defects, not design boundaries, and they are listed because the call succeeds and the\nobject model afterwards agrees with the caller:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/slide_collection.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- **`slides().add_clone()` loses the source shapes' text.** The clone is registered in\n  `<p:sldIdLst>`, the part is written, and the shape arrives with its geometry, its `a:prstGeom` and\n  its `p:style` — but the `p:txBody` holds a single empty `<a:p>` and the runs are gone.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/slide_collection.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- **`masters().add_clone()` does not reach the file.** `masters().size()` reports two afterwards;\n  the saved package holds one `<p:sldMasterId>` and one `ppt/slideMasters/` part.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/master_slide_collection.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "`save()` writes the six Office Open XML presentation formats: `Pptx`, `Pptm`,\n`Ppsx`, `Ppsm`, `Potx` and `Potm`. They share one package layout and differ\nonly in the content type of the main presentation part. The macro-enabled\nthree are written without a VBA project, since macros are not supported.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "Every other `SaveFormat` value — `Pdf`, `Html`, `Odp`, `Ppt`, image formats and\nthe rest — **throws `std::invalid_argument`**. It used to return successfully,\nhaving written a PPTX under the requested name, which left the caller with a\nfile PowerPoint refuses to open and nothing to indicate why.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "Note also that the format decides the content type and the file name decides\nnothing: `save(\"deck.pptx\", SaveFormat::POTX)` writes a correct template under\na `.pptx` name, and PowerPoint refuses a file whose extension and content type\ndisagree. Name the file for the format you asked for.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "`Shape::x()`, `y()`, `width()` and `height()` resolve placeholder inheritance:\na placeholder with no `a:xfrm` of its own reports the position and size it\ntakes from its layout or master.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "The XML-level accessor `Shape::get_xfrm()` does **not**. It returns this\nshape's own `a:xfrm` and an empty node when there is none. It used to return\nthe inherited element, which lives in a layout or master part shared by every\nslide that uses it and must never be handed out for mutation — and which was\nparsed into a document that had already been destroyed, so reading it was\nundefined behaviour. Read inherited geometry with `Shape::get_inherited_frame()`,\nwhich returns a value. `get_inherited_xfrm()` has been removed.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape.h"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "A part the library did not itself write is carried through unchanged. Opening\n`tests/test_data/powerpoint_title_and_content.pptx` — 13 parts, hand-authored, with placeholders\nthat inherit their geometry from the layout — and saving it again produces 13 parts, no part added\nand none dropped, with **10 of the 13 byte-identical** to the originals and the text preserved.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/test_data/powerpoint_title_and_content.pptx"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "The three that differ are the three this library regenerates on every save, deliberately:\n`[Content_Types].xml`, `docProps/app.xml` (the deck statistics are recounted from the slides\n`<p:sldIdLst>` registers) and `docProps/core.xml` (`dcterms:modified` is stamped).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/test_data/powerpoint_title_and_content.pptx"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "`.github/workflows/ci.yml` runs on every push and every pull request:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- the **full test suite** — unit, integration and conformance — on Ubuntu 22.04\n  and 24.04 with both GCC and Clang, on macOS with AppleClang, and on Windows\n  with MSVC on the `windows-2022` and `windows-2025` images;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- an **out-of-process check** of everything the conformance tests saved:\n  `tests/conformance/validate.py` re-implements the package rules\n  independently and opens every file with `python-pptx`, a reader that shares\n  none of this library's assumptions. It is given a floor on the number of\n  files it must find, so a corpus that quietly stopped being written fails\n  instead of passing on whatever remains;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- an **install**, followed by a build and a run of `examples/consumer/` against\n  that install — the check that the package is usable from outside its own\n  build tree;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- an **AddressSanitizer** run of the suite;",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- a build with the **oldest CMake the project claims to support**, so that\n  number stays a tested claim.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "Each run uploads the install tree it produced, the CycloneDX bill of materials\ngenerated by the build, and the conformance corpus, so a reviewer can download\nexactly what CI built rather than rebuilding it and hoping for the same result.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "`packaging/` holds a **draft** vcpkg port and a **draft** Conan recipe. They are\nnot submittable and must not be submitted from this repository: no release has\nbeen tagged, so neither the source reference nor the archive checksum they need\nexists yet. `packaging/README.md` states the blockers precisely.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    },
+    "disposition": "corrected",
+    "target_section": "Documentation & Resources",
+    "correction_reason": "The old README says the vcpkg/Conan drafts cannot be submitted because 'no release has been tagged'. That is no longer true: upstream tag and GitHub release v26.9.0 exist (published 2026-09-14), and packaging/README.md now lists nuget/ as Real and vcpkg/ + conan/ as Draft, do not submit. The candidate keeps the still-true facts (the two drafts exist and are not to be submitted; packaging/README.md states the state of each), adds the NuGet package the owner's README now advertises, and drops only the disproved tag claim."
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "| Document | What it is for |\n|---|---|\n| [`CONTRIBUTING.md`](CONTRIBUTING.md) | how to build, how to run the suite and the out-of-process checks, which compilers have to work, and what a good pull request looks like |\n| [`CHANGELOG.md`](CHANGELOG.md) | what changed, in a caller's language. Read *Changed* first if you built against an older commit |\n| [`SECURITY.md`](SECURITY.md) | how to report a vulnerability privately, and what is in and out of scope |\n| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Contributor Covenant 2.1, and how to report a violation |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "The one rule worth repeating here: **a fix to a writer ships with a test that asserts on the produced\n`.pptx` package, not on what this library reads back.** A reader and a writer that share a\nmisunderstanding of the format agree with each other perfectly, and several of the defects fixed in\nthis changelog survived a green suite for exactly that reason.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/slides/cpp/)** — installation, walkthroughs and\n  feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- **[How-to guides and FAQ](https://kb.aspose.org/slides/cpp/)** — task-focused answers to common\n  PowerPoint-processing questions.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- **[API reference](https://reference.aspose.org/slides/cpp/)** — the browsable reference for the\n  public API surface.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- [GitHub repository](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- [Issue tracker](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/issues) — bug\n  reports and feature requests for this library.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE), which permits use, copying,\nmodification, distribution, sublicensing and commercial use provided the copyright and permission\nnotice are retained. The software is provided without warranty.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License"
+  }
+]

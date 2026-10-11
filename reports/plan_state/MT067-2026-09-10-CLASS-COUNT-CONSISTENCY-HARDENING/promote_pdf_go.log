@@ -1,0 +1,25 @@
+Promote: pdf/go
+  Scout: 3040 claims, 1944 api_surface entries
+  Enriched: 1585 claims (from enrich.py)
+  Total claims: 4625
+  WARNING: 65 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (168 excess removed)
+    CLM-pdf-8f7314: 19 occurrences
+    CLM-pdf-af5858: 12 occurrences
+    CLM-pdf-1ac697: 9 occurrences
+    CLM-pdf-9073aa: 9 occurrences
+    CLM-pdf-42425b: 6 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 598 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 1944 entries (215 classes)
+  WARNING: Color has 2 entries but only 1 distinct class_import values
+  WARNING: TextLine has 2 entries but only 1 distinct class_import values
+  Snippets: 78 (from scout)
+  api_surface.md: 215 classes, 60018 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\pdf\go\merged.staging.28ccaef7-60c8-47a4-8da5-5b505d726571
+  WARNING: format-claims contradiction: format='Jpeg' direction='export' claim='When using NewImageStampFromStream, provide a reader that supplies PNG or JPEG data; other image formats are not supported and will cause a runtime error.'
+  Reconciliation report written to reports\knowledge-reconciliation\pdf-go.md
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 28ccaef7-60c8-47a4-8da5-5b505d726571 promoted for pdf/go
+
+PROMOTE: PASS

@@ -1,0 +1,1 @@
+def test_default_catcode_stays_non_active(self) -> None:

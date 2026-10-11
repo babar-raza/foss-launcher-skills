@@ -1,0 +1,61 @@
+diff --git a/scripts/pipeline/content_eval/evaluators/topic_grounding.py b/scripts/pipeline/content_eval/evaluators/topic_grounding.py
+index 39de4d0eff..9a83a8d9d7 100644
+--- a/scripts/pipeline/content_eval/evaluators/topic_grounding.py
++++ b/scripts/pipeline/content_eval/evaluators/topic_grounding.py
+@@ -68,22 +68,27 @@ def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+ # tested implementation lives in site_planner.py's _validate_kb_slugs())
+ # rather than re-deriving a heuristic (taskcard Hard Rule). That function is
+ # a batch validator (raises/logs) outside this taskcard's allowed paths, so
+-# its VERB LIST and PLATFORM-SUFFIX TABLE are imported and the small
+-# extraction loop is replicated here verbatim (same longest-prefix-match
+-# order as site_planner.py).
++# ST-198 delegates directly to its single shared implementation
++# (split_kb_slug_verb_noun()) instead of maintaining its own copy of the
++# verb vocabulary and extraction loop -- the prior verbatim-replica approach
++# is exactly what let this copy drift out of sync with site_planner.py's own.
++# A third, independently-maintained vocabulary still exists in
++# scripts/ci/checks/check_kb_slug_quality.py (pre-existing, out of this
++# module's scope, tracked separately -- see backlog F-2 / ST-198).
+ # ---------------------------------------------------------------------------
+ 
+ try:
+-    from commands.launch.site_planner import _VERB_KEYWORDS, KB_PLATFORM_SUFFIX
++    from commands.launch.site_planner import split_kb_slug_verb_noun
+ except ImportError:
+-    _VERB_KEYWORDS = []
+-    KB_PLATFORM_SUFFIX = {}
+-
+-_KNOWN_VERBS: list[str] = sorted(
+-    ({v for _, v in _VERB_KEYWORDS} | {"work-with"}) if _VERB_KEYWORDS else set(),
+-    key=len,
+-    reverse=True,
+-)
++    def split_kb_slug_verb_noun(slug: str, platform: str) -> tuple[str, str]:
++        # Degraded fallback matching this module's pre-ST-198 ImportError
++        # behavior: no vocabulary available, so no verb is ever recognised.
++        if not slug.startswith("how-to-"):
++            raise ValueError(f"not a how-to slug: {slug!r}")
++        inner = slug[len("how-to-"):]
++        if inner.endswith(f"-{platform}"):
++            inner = inner[: -(len(platform) + 1)]
++        return "", inner
+ 
+ # RC-W1-004 platform->language table. Deliberately a LOCAL, minimal copy --
+ # member_validity.py defines the identical table with the same rationale
+@@ -146,15 +151,7 @@ def _extract_topic_noun(slug: str, platform: str) -> "str | None":
+     does not invent a second heuristic for other shapes (Hard Rule)."""
+     if not slug.startswith("how-to-"):
+         return None
+-    inner = slug[len("how-to-"):]
+-    plat_suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
+-    if inner.endswith(f"-{plat_suffix}"):
+-        inner = inner[: -(len(plat_suffix) + 1)]
+-    noun = inner
+-    for kv in _KNOWN_VERBS:
+-        if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
+-            noun = inner[len(kv) + 1:]
+-            break
++    _verb, noun = split_kb_slug_verb_noun(slug, platform)
+     return noun or None
+ 
+ 

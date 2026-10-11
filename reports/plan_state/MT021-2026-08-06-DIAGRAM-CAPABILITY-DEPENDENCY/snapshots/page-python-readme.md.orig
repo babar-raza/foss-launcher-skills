@@ -1,0 +1,363 @@
+# Aspose.Page FOSS for Python
+
+[![Python versions](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-page-foss/Aspose.Page-FOSS-for-Python.svg)](https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/graphs/contributors)
+
+Aspose.Page FOSS for Python is a free, open-source Python library for converting PostScript
+(PS), Encapsulated PostScript (EPS), and XPS documents to PDF and raster images. It has no
+dependency on Ghostscript, Adobe Reader, or any native runtime, so it runs identically on
+Windows, Linux, and macOS.
+
+## Navigation
+
+- [At a glance](#at-a-glance)
+- [Key capabilities](#key-capabilities)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Additional examples](#additional-examples)
+- [API reference](#api-reference)
+- [Documentation & resources](#documentation--resources)
+- [Scope and limitations](#scope-and-limitations)
+- [Development and testing](#development-and-testing)
+- [License](#license)
+
+## At a glance
+
+```mermaid
+flowchart LR
+  subgraph Inputs["Inputs and formats"]
+    I1["PostScript (.ps) files"]
+    I2["Encapsulated PostScript (.eps) files"]
+    I3["XPS packages"]
+    I4["File paths and binary streams"]
+  end
+
+  PRODUCT["Aspose.Page FOSS for Python"]
+
+  subgraph Capabilities["Core capabilities"]
+    C1["PS/EPS interpretation"]
+    C2["XPS package parsing"]
+    C3["Render-model construction"]
+    C4["PDF and raster writing"]
+    C5["MCP tool server"]
+  end
+
+  subgraph Outputs["Outputs"]
+    O1["PDF documents"]
+    O2["PNG, JPEG, and BMP raster images"]
+    O3["MCP tool responses (bytes / base64)"]
+  end
+
+  I1 --- PRODUCT
+  I2 --- PRODUCT
+  I3 --- PRODUCT
+  I4 --- PRODUCT
+  PRODUCT --- C1
+  PRODUCT --- C2
+  PRODUCT --- C3
+  PRODUCT --- C4
+  PRODUCT --- C5
+  C1 --- O1
+  C2 --- O1
+  C3 --- O1
+  C4 --- O1
+  C4 --- O2
+  C5 --- O3
+```
+
+## Key capabilities
+
+- Convert PostScript (`.ps`) and Encapsulated PostScript (`.eps`) files to PDF and raster
+  images with `PsDocument`.
+- Convert XPS packages to PDF and raster images with `XpsDocument`; inspect raw XPS package
+  parts with `XpsPackage`.
+- Build render output directly from a low-level model with `RenderModelBuilder`, then
+  serialize it with `PdfWriter` or rasterize it with `RasterRenderer`.
+- Interpret PostScript/EPS content with `PsInterpreter` and a PostScript operator registry
+  (`OperatorRegistry`), including embedded TrueType/Type 1 font resolution via
+  `FontResolver` and `FontCache`.
+- Optional MCP server (`aspose.page.mcp.create_server`) exposes `ps_to_pdf`, `ps_to_image`,
+  `xps_to_pdf`, `xps_to_image`, and `eps_metadata` as remote tools through FastMCP, for use
+  in agent and automation pipelines.
+- Pure Python — no Ghostscript, Adobe Reader, or other native runtime dependency.
+
+## Installation
+
+A PyPI package has not been published yet. Install from source:
+
+```bash
+git clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git
+cd Aspose.Page-FOSS-for-Python
+pip install -e .
+```
+
+Install optional dependencies for specific scenarios:
+
+```bash
+# PS/EPS-to-image and XPS-to-image conversion
+pip install skia-python
+
+# MCP server hosting
+pip install fastmcp
+
+# Running the test suite
+pip install pypdf pypdfium2 Pillow
+```
+
+The package requires Python 3.10 or later.
+
+## Quick start
+
+Convert a PostScript file to PDF:
+
+```python
+from aspose.page.ps.document import PsDocument
+
+ps = PsDocument.from_file("input.ps")
+output_pdf = ps.to_pdf()
+
+with open("output.pdf", "wb") as f:
+    f.write(output_pdf)
+```
+
+Convert an XPS document to PDF:
+
+```python
+import aspose.page.ps  # works around a module import-order issue triggered by xps.to_pdf()
+from aspose.page.xps.document import XpsDocument
+
+xps = XpsDocument.from_file("input.xps")
+output_pdf = xps.to_pdf()
+
+with open("output.pdf", "wb") as f:
+    f.write(output_pdf)
+```
+
+## Additional examples
+
+Runnable tests and functional cases that exercise the same APIs live under `tests/` in the
+repository. The most common operations are collected below.
+
+### Example results
+
+XPS-to-PDF-to-PNG conversion:
+
+![XPS to PDF to PNG result](readme.resources/mb03.png)
+
+PS-to-PDF-to-PNG conversion:
+
+![PS to PDF to PNG result](readme.resources/TestImages.png)
+
+PS/EPS-to-image conversion:
+
+![PS to image sample](readme.resources/RGB10.png)
+
+### Convert EPS to PNG
+
+```python
+from aspose.page.ps.document import PsDocument
+from aspose.page.ps.output import ImageSaveOptions
+
+eps = PsDocument.from_file("input.eps")
+output_png = eps.to_image(ImageSaveOptions(format="png", dpi=150))
+
+with open("output.png", "wb") as f:
+    f.write(output_png)
+```
+
+<details>
+<summary>View additional examples</summary>
+
+### Convert XPS to JPEG
+
+```python
+from aspose.page.ps.output import ImageSaveOptions
+from aspose.page.xps.document import XpsDocument
+
+xps = XpsDocument.from_file("input.xps")
+output_jpeg = xps.to_image(ImageSaveOptions(format="jpeg", dpi=150))
+
+with open("output.jpg", "wb") as f:
+    f.write(output_jpeg)
+```
+
+### Rasterize XPS to BMP
+
+```python
+from aspose.page.ps.output import ImageSaveOptions
+from aspose.page.xps.document import XpsDocument
+
+doc = XpsDocument.from_file("testdata/xps/integration/Simple.xps")
+data = doc.to_image(ImageSaveOptions(format="bmp", dpi=72))
+assert data.startswith(b"BM")
+```
+
+### Build a PDF directly from the render model
+
+```python
+import aspose.page.ps  # works around a module import-order issue in aspose.page.pdf.writer
+from aspose.page.common.render_model import Matrix, RenderModelBuilder
+from aspose.page.pdf.writer import PdfMetadata, PdfWriter
+
+builder = RenderModelBuilder()
+builder.begin_page(100, 100)
+builder.add_text("Hello, world", "Helvetica", 12, Matrix.identity(), None)
+builder.end_page()
+doc = builder.document()
+
+metadata = PdfMetadata(
+    title="",
+    creator="",
+    producer="Aspose.Page FOSS for Python",
+    creation_date="D:20240101000000",
+    mod_date="D:20240101000000",
+    trapped=False,
+)
+writer = PdfWriter(metadata)
+pdf_bytes = writer.write(doc)
+assert pdf_bytes.startswith(b"%PDF-1.4")
+```
+
+### Convert PostScript from an in-memory MCP request
+
+```python
+import base64
+from aspose.page.mcp.handlers import ps_to_pdf
+from aspose.page.mcp.types import McpInput, McpOutput
+
+ps_bytes = b"%!PS-Adobe-3.0\n0 0 moveto 10 0 lineto stroke\n"
+input_payload = McpInput(input_path=None, input_bytes_b64=base64.b64encode(ps_bytes).decode("ascii"))
+output = McpOutput(output_path=None, return_bytes=True)
+
+result = ps_to_pdf(input_payload, output)
+pdf_bytes = base64.b64decode(result.output_bytes_b64)
+assert pdf_bytes.startswith(b"%PDF")
+```
+
+### Run the MCP server
+
+```python
+from aspose.page.mcp import create_server
+
+server = create_server()
+server.run(transport="http", host="127.0.0.1", port=8000)
+```
+
+`FastMCP` is required to start the MCP server; `skia-python` is required for the
+`ps_to_image` and `xps_to_image` tools.
+
+</details>
+
+## API reference
+
+The library exposes conversion entry points (`PsDocument`, `XpsDocument`), package-level
+access (`XpsPackage`), and a low-level render pipeline (`RenderModelBuilder`, `PdfWriter`,
+`RasterRenderer`) that the high-level document classes are built on.
+
+<details>
+<summary>View the supported public API surface</summary>
+
+### PostScript / EPS
+
+- `PsDocument`
+  - `create(is_eps, page_size) -> PsDocument`
+  - `from_bytes(data) -> PsDocument`
+  - `from_file(path) -> PsDocument`
+  - `add_page(size) -> PsPage`, `insert_page(index, size) -> PsPage`, `remove_page(index)`,
+    `get_page(index) -> PsPage`
+  - `save(path) -> bytes`, `as_bytes() -> bytes`
+  - `get_xmp() -> str | None`, `set_xmp(xmp_xml)`, `remove_xmp()`
+  - `to_pdf(options) -> bytes`, `to_image(options) -> bytes`
+  - Properties: `data`, `is_eps`, `dsc: DscMetadata | None`, `source_path`, `pages`,
+    `prolog`, `trailer`, `header`, `dirty`
+- `PsInterpreter` — `execute(data, ctx)`, `execute_objects(...)`, `execute_object(...)`,
+  `execute_procedure(...)`
+- `PsParser` — `parse_object() -> PsObject | None`, `parse_all() -> list[PsObject]`
+- `PsTokenizer` — `next_token()`, ASCII-Hex/ASCII-85 decoding helpers
+- `PsCanvas` — path construction (`move_to`, `line_to`, `curve_to`, `rect`, `ellipse`),
+  paint state (`set_stroke_color`, `set_fill_color`, `clip`), and text/image drawing
+- `OperatorRegistry` — `register(name, fn, min_operands, max_operands)`, `get(name)`
+- `DscMetadata` — bounding box, orientation, title, creator, and extension fields parsed
+  from PS/EPS DSC comments
+
+### XPS
+
+- `XpsDocument`
+  - `create(title) -> XpsDocument`, `from_bytes(data)`, `from_file(path)`
+  - `add_page(width, height) -> XpsFixedPage`, `insert_page(index, page)`,
+    `remove_page(index)`, `save(path) -> bytes`
+  - `get_print_tickets() -> list[PrintTicket]`, `set_print_ticket(...)`,
+    `remove_print_ticket(...)`
+  - `to_pdf(options) -> bytes`, `to_image(options) -> bytes`
+- `XpsPackage` — `from_bytes(data)`, `from_file(path)`, `read(part_name) -> bytes`,
+  `has_part(part_name) -> bool`
+- `XpsParser` — `fixed_page_parts() -> list[str]`
+- `XpsRenderer` — `set_package(...)`, `set_current_part(...)`, `render_fixed_page(...)`
+- `XpsFixedPage`, `XpsCanvas`, `XpsGlyphs`, `XpsImage`, `XpsPath` — editable XPS content
+  model
+
+### Render pipeline and output
+
+- `RenderModelBuilder` — `begin_page`/`end_page`, `add_path`, `add_text`, `add_image`,
+  `clip`, `save_state`/`restore_state`, `document() -> RenderDocument`
+- `PdfWriter` — `write(document) -> bytes`; `PdfMetadata` (title, creator, producer,
+  creation/mod dates, trapped)
+- `RasterRenderer` — `render(document, page_index) -> RasterSurface`
+- `RasterSurface` — `create(width, height, background)`, `set_pixel`, `get_pixel`
+- `ImageSaveOptions` — `format`, `dpi`, `raster_writer`, `additional_fonts_folder`,
+  `font_resolver`
+- `FontResolver` / `FontCache` — font lookup, embedded Type 42 font registration, glyph
+  width resolution
+
+### MCP server
+
+- `create_server()` (in `aspose.page.mcp`) registers `ps_to_pdf`, `ps_to_image`,
+  `xps_to_pdf`, `xps_to_image`, and `eps_metadata` as FastMCP tools
+- `McpInput` (`input_path` or `input_bytes_b64`), `McpOutput` (`output_path` or
+  `return_bytes`), `McpConversionOptions` (`format`, `dpi`, `no_compress`)
+
+</details>
+
+## Documentation & resources
+
+- **[Getting started guide](https://docs.aspose.org/page/python/)** — installation, walkthroughs, and feature guides for this library.
+- **[How-to guides & FAQ](https://kb.aspose.org/page/python/)** — task-focused answers for common PS/EPS/XPS conversion questions.
+- **[Full API reference](https://reference.aspose.org/page/python/)** — the complete, browsable reference for all 139 public types (the [API reference](#api-reference) section above covers the essentials).
+- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/issues) on GitHub.
+
+## Scope and limitations
+
+This project focuses on reading and converting PS, EPS, and XPS input — it does not author
+new PostScript or XPS documents from scratch beyond the low-level render-model builder.
+Image conversion (`to_image()` / `ps_to_image` / `xps_to_image`) requires the optional
+`skia-python` dependency, and the MCP server requires the optional `FastMCP` dependency;
+neither is installed by default.
+
+For workflows that need a broader commercial feature set and support, see
+[Aspose.Page for Python — Enterprise Edition](https://products.aspose.com/page/python-net/).
+
+## Development and testing
+
+Sync dependencies and run the test suite:
+
+```bash
+make sync
+make test
+```
+
+Run only the MCP-focused checks:
+
+```bash
+python3 -m unittest tests.mcp.test_handlers
+```
+
+Build distribution artifacts:
+
+```bash
+make build
+```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE.txt). The MIT License permits use, copying,
+modification, distribution, sublicensing, and commercial use, provided its copyright and
+permission notice are retained. The software is provided without warranty.

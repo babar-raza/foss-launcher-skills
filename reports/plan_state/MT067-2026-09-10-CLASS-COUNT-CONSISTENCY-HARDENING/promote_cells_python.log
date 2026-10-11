@@ -1,0 +1,25 @@
+Promote: cells/python
+  Scout: 1314 claims, 141 api_surface entries
+  WARNING: enriched_claims.json is stale — generated from api_surface SHA '20b4ee66d8b3bb48', current is 'cd2e6b52921dcbae'.
+  Run /knowledge-enrich cells python to regenerate. Ignoring stale enriched claims for this promotion.
+  Enriched: 0 claims (from enrich.py)
+  Total claims: 1314
+  WARNING: 1 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (1 excess removed)
+    CLM-cells-d1dbe6: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 279 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 141 entries (129 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 129 classes, 45548 bytes
+  Forbidden claims: 5
+  All artifacts written to knowledge\cells\python\merged.staging.637349f2-22ee-4661-ac23-35b4133cc61b
+  Format-claims reconciliation: PASS (14 formats checked)
+  Artifact validation: PASS
+
+  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.
+  This usually means enrich.py ran AFTER promote.py.
+  Correct order: scout -> enrich -> promote
+  Re-run: python scripts/pipeline/commands/knowledge/promote.py cells python
+PROMOTE_ATOMIC: bundle 637349f2-22ee-4661-ac23-35b4133cc61b promoted for cells/python
+
+PROMOTE: PASS

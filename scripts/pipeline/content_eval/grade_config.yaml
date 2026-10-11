@@ -1,0 +1,32 @@
+# Grade configuration for content_eval
+# Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
+evaluator_logic_version: "20"
+
+# Categories where any FAIL forces grade F
+critical_categories:
+  - FC  # forbidden_claims
+  - PC  # platform_purity
+  - TA  # type_accuracy
+  - IR_PUBLISH_CLAIM  # install_recipe SAFETY_OVERRIDE_FINDINGS (PKGINSTALL-GRADE-SAFETY-OVERRIDE, GRADE_CONTRACT.md §10)
+  - IR_UNPUBLISHED_DISCLOSURE  # install_recipe SAFETY_OVERRIDE_FINDINGS (PKGINSTALL-GRADE-SAFETY-OVERRIDE, GRADE_CONTRACT.md §10)
+
+# Category-specific grade ceilings
+# Format: category: {levels: [WARN, FAIL, or both], ceiling: max_grade}
+category_ceilings:
+  TA: {levels: ["WARN", "FAIL"], ceiling: "C"}
+  FT: {levels: ["FAIL"], ceiling: "C"}
+  CP: {levels: ["FAIL"], ceiling: "B"}
+  NC: {levels: ["FAIL"], ceiling: "C"}
+  SX: {levels: ["FAIL"], ceiling: "C"}
+  AC: {levels: ["FAIL"], ceiling: "B"}
+  FM: {levels: ["FAIL"], ceiling: "C"}
+  MV: {levels: ["FAIL"], ceiling: "C"}
+  DC: {levels: ["FAIL"], ceiling: "C"}
+  CB: {levels: ["FAIL"], ceiling: "C"}  # code_block_api — activates when escalated to FAIL
+  DL: {levels: ["FAIL"], ceiling: "C"}  # dead_internal_link — activates when escalated to FAIL
+  VC: {levels: ["WARN", "FAIL"], ceiling: "C"}  # version_claim_check — version mismatch caps grade
+  CF: {levels: ["WARN", "FAIL"], ceiling: "C"}  # capability_claim_check — capability mismatch caps grade
+  SG: {levels: ["WARN"], ceiling: "C"}          # verify_signature — signature mismatch (WARN only until calibration passes)
+  US: {levels: ["WARN"], ceiling: "B"}          # consumer_usefulness — purpose framing / code-without-context (caps at B)
+  EG_GROUNDING: {levels: ["WARN"], ceiling: "B"}  # evidence_depth — grounding gap caps at B (graduated TC-SFH-003 2026-07-14; EG_STALE excluded)
+  EX: {levels: ["FAIL"], ceiling: "C"}  # example_execution SAFETY_OVERRIDE_FINDINGS (GRADE_CONTRACT.md §10, 2026-09-23) — matches SX's own ceiling for the same defect class

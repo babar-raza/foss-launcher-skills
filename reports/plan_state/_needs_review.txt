@@ -1,0 +1,8 @@
+u0013 | - **Vector drawing** — `page.Graphics()` returns a buffered `PageGraphics` builder for lines, rectangles (square or rounded), circles/ellipses, arcs, polylines/polygons, and arbitrary paths with strok
+u0016 | - **SVG embedding** — `page.AddSVGObject(data, [x, y, w, h], opts?)` parses an SVG asset and draws it as a Form XObject fitted to the rectangle, honouring the file's own `viewBox`/`preserveAspectRatio
+u0032 | - **Text replace** — `page.ReplaceText(find, replacement)` (or `doc.ReplaceText(...)` across all pages) substitutes matched text in place, re-encoding the replacement in the matched glyphs' own font a
+u0047 | - **Tagged-PDF structure reading** — `doc.GetStructTree()` returns a navigable logical structure tree (`StructTreeRoot` → `StructElement`): structure types resolved through `/RoleMap` (`StandardType` 
+u0055 | - **PDF/X validation** — `doc.ValidatePdfX(level)` checks a curated, machine-decidable subset of PDF/X (ISO 15930) at `'1a'` / `'3'` / `'4'` / `'4p'`: identification (the `/Info /GTS_PDFXVersion` key 
+u0056 | - **PDF/X conversion** — `doc.ConvertToPdfX(level, opts?)` remediates a document toward PDF/X and returns a `ConversionReport` (`applied` / `unresolved` / `passed`). It writes `pdfxid` identification 
+u0069 | - **Digital signatures** — `await doc.Sign(signer, opts?)` adds a signature: it builds a `/Sig` AcroForm field, chooses the write path from document state (incremental append for an opened/unmodified 
+u0075 | To work from a clone instead — as a local file or workspace dependency — build once and the same import specifier resolves:

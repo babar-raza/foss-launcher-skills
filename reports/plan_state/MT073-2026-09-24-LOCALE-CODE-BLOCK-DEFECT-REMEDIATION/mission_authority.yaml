@@ -1,0 +1,57 @@
+mission_authority:
+  mission_id: MT073-2026-09-24-LOCALE-CODE-BLOCK-DEFECT-REMEDIATION
+  mission_summary: >
+    Follow-on to MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION's own TC-19
+    and TC-21 taskcards, which categorized (but explicitly did not fix) two locale
+    code-block defect classes: ST-211 (2,290 files / 7,322 real SYNTAX-ERROR blocks,
+    88% traced to a single fence-tag-mistranslation mechanism confirmed byte-for-byte
+    against English on 6 real files) and ST-215 (12,513 findings where locale code
+    differs from English, 59% confirmed as "English changed after the translation
+    batch ran, locale never resynced" rather than corruption). This mission builds the
+    tooling and applies the fixes those two reports specified as ready-to-execute
+    follow-on work: a block-count-robust English-locale matcher, a tag-only restore
+    fixer for the dominant ST-211 class, direct fixes for the two smaller known
+    classes (3D_CONVERTER_MISTRANSLATION, PLACEHOLDER_WRONG_COMMENT_SYNTAX), and
+    remediation of ST-215's small, high-confidence isolated-drift bucket. ST-215's
+    much larger near-universal/mid-range resync work is named but explicitly held
+    out of scope pending its own per-family content verification.
+  governing_plan_path: plans/from_backlog/2026-09-24-locale-code-block-defect-remediation.md
+  in_scope_outcomes:
+  - "A block-count-robust matcher pairs English and locale code blocks reliably even
+    when block counts drift, closing TC-19's own disclosed detection gap (271 of 7,322
+    mechanically confirmed vs. an 88% site-level correlation)"
+  - "The dominant ST-211 tag-mistranslation class (up to ~6,444 blocks on
+    reference.aspose.org alone) gets a dry-run-then-real, tag-only fix restoring each
+    mismatched locale fence tag to match English's tag at the matched position -- no
+    code content changes"
+  - "3D_CONVERTER_MISTRANSLATION (84 blocks/14 files) and
+    PLACEHOLDER_WRONG_COMMENT_SYNTAX (172 blocks/files) are fixed directly, the latter
+    mirroring MT072/TC-10's own established English disposition rule"
+  - "ST-215's isolated-drift bucket (84 groups/174 findings/45 pages) is investigated
+    and fixed per-page via governed content skills"
+  - "A reconciliation re-scan after TC-03/04/05 confirms the real residual against the
+    original 7,322/2,290 ST-211 baseline"
+  out_of_scope_items:
+  - "ST-215 Buckets 1+2 (near-universal + mid-range drift, ~12,339 of 12,513 findings)
+    -- each affected family needs its own 'is English the correct resync target'
+    content verification, which this mission does not have standing to shortcut;
+    registered as TC-08, explicitly not committed to"
+  - "Any change to example_verification_sweep.py/syntax.py/code_fences.py's own
+    classification logic -- consumed as-is from MT072; a tooling defect found here
+    gets filed to backlog, not silently patched mid-remediation"
+  - "Full re-execution of locale code (unchanged from MT072's own original scope
+    boundary)"
+  mandatory_acceptance_criteria:
+  - "TC-01 through TC-07 each reach CLOSED with real evidence (dry-run reports, real
+    commits, before/after reconciliation counts), or an explicit
+    BLOCKED_EXTERNAL/OUT_OF_SCOPE disposition with a named reason"
+  - "No taskcard's fix introduces a dirty-set regression on any product outside its
+    own scope"
+  - "TC-03's real fix lands in reviewable batches with a real before/after count each,
+    never one unreviewable mass commit"
+  mission_locked: false
+  registered_by_session: c276e507-f9ea-435e-aefb-58f9d0e4878e
+  registration_mode: "archive_path_GOV-02 (root projection held by MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING, mission_locked:true, _archive_status:open; that mission's own rule is 'force-taking-over a locked+open root incumbent... escalate, do not auto-force' -- this mission does not force-take-over root, matching the precedent MT072 itself set moments earlier this same session while MT071 held root)"
+  mission_id_allocated_via: "mission_authority.py allocate --track main --slug LOCALE-CODE-BLOCK-DEFECT-REMEDIATION"
+  _archive_status: open
+  _archived_at: '2026-09-24T00:00:00Z'

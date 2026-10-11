@@ -1,0 +1,37 @@
+family: cells
+platform: typescript
+product_name: excel-cells
+version: 1.0.0
+license: MIT
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git
+repo_sha: fc186507e5b7124f4664aa6035f25cfd3112367d
+config_sha: 5676a5ada3d9dda2
+stale_since: null
+promoted_at: '2026-09-10T11:11:37.965846+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 00b46c4e-ea01-4a18-8e3f-98cb8d31f8f9
+bundle_generated_at: '2026-09-10T11:11:37.887909+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 5676a5ada3d9dda2
+  scout_claims_sha: 2cd234de18d891dc39a97c4d7dbe577d9994fc178c35de3d5155d7c96beb2fbe
+  scout_api_surface_sha: 1f3f3a4168046a7c25459b470329a66cfcb45be05f29f6648e36c3de9b61e171
+  enriched_claims_sha: 9454e04b4679503940f40f37bebc74feec975984bc889737dfc2fc95a6697ae9
+  products_json_entry_sha: e50230416ea54d3cf51e29e788509be0751042060ff7b11758351e9898f834b2
+stats:
+  scout_claims: 782
+  enriched_claims: 400
+  supplemental_claims: 0
+  total_claims: 1177
+  class_count: 108
+  classes:
+    total_declared: 108
+    public_documented: 101
+    raw_entries_including_non_class: 131
+  forbidden_count: 0
+  snippet_count: 27

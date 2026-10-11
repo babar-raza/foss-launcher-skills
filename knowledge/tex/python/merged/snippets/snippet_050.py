@@ -1,0 +1,1 @@
+def test_moveleft_and_moveright_shift_boxes(self) -> None:

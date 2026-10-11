@@ -21,16 +21,7 @@ from typing import Any
 from ..models import Finding, Page
 from . import BaseEvaluator
 
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = Path("knowledge")
 
 
 class EvidenceCompletenessEvaluator(BaseEvaluator):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """fetch_aspose_com_targets.py — Fetch aspose.com sitemaps and build the canonical backlink target map.
 
 Fetches sitemaps for products.aspose.com, docs.aspose.com, reference.aspose.com,
@@ -30,7 +29,6 @@ import urllib.parse
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
-import os
 from typing import Optional
 from xml.etree import ElementTree
 
@@ -46,7 +44,8 @@ try:
 except ImportError:
     yaml = None  # YAML export will be skipped if pyyaml not available
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 REPO_ROOT = _REPO_ROOT
 
@@ -70,30 +69,16 @@ KNOWN_FAMILIES = {
     "pdf", "psd", "pub", "slides", "svg", "tasks", "tex", "words", "zip",
 }
 
-# Platform canonical + alias table (§3.4)
-PLATFORM_ALIASES: dict[str, str] = {
-    # net
-    "net": "net", "dotnet": "net", "csharp": "net",
-    "net60": "net", "net48": "net", "net40": "net",
-    # python
-    "python": "python", "py": "python", "python3": "python",
-    "python-net": "python", "python-java": "python",
-    # java
-    "java": "java", "java8": "java", "java11": "java", "java-android": "java",
-    # cpp
-    "cpp": "cpp", "c-plus-plus": "cpp", "cplusplus": "cpp", "c++": "cpp",
-    # nodejs
-    "nodejs": "nodejs", "node": "nodejs", "node-js": "nodejs",
-    "javascript": "nodejs", "js": "nodejs",
-    # android
-    "android": "android", "android-java": "android",
-    # cloud
-    "cloud": "cloud", "rest-api": "cloud", "api": "cloud", "saas": "cloud",
-    # ruby
-    "ruby": "ruby", "ruby-net": "ruby",
-    # go
-    "go": "go", "golang": "go",
-}
+# Platform canonical + alias table (§3.4).
+# TC5 (2026-08-21): this used to be an independent, local copy that had drifted
+# from lib/backlink_targets.py's table -- missing python-cpp/go-cpp/nodejs-cpp/
+# javascript-cpp/php/php-java/jasperreports/rust-cpp, which caused this fetcher
+# to classify those real, live, HTTP-200 aspose.com platforms as "unknown" and
+# silently drop them from the structured target map (confirmed live:
+# reference.aspose.com/pdf/python-cpp/ was invisible to the resolver purely
+# because of this gap, not because the data didn't exist). Now imported from the
+# single canonical definition so the two can never diverge again.
+from lib.backlink_targets import PLATFORM_ALIASES, load_canonical_overrides as _load_canonical_overrides_raw  # noqa: E402
 
 CANONICAL_PLATFORMS = set(PLATFORM_ALIASES.values())
 
@@ -120,6 +105,35 @@ class TargetEntry:
     url_type: str  # family-products | platform-products | family-docs | platform-docs | etc.
     family: Optional[str]
     platform: Optional[str]  # canonical platform token
+    # TC17 (2026-08-21): explicit provenance for whether this entry's mere
+    # EXISTENCE was independently confirmed by a real sitemap crawl, or only
+    # guessed by synthesizing a candidate URL from local aspose.org content
+    # and then HTTP-verifying that one guess. Both paths verify http_status
+    # the same way, but only "crawled" proves the URL is independently
+    # discoverable -- a "synthesized" entry's absence from the target map
+    # is NOT proof the equivalent page doesn't exist on aspose.com, only
+    # that nobody has yet guessed the right slug for it. Confirmed live
+    # (2026-08-21): products.aspose.com's and docs.aspose.com's real
+    # sitemaps are minimal (3 and 2 URLs respectively -- homepage/search/
+    # categories only, no per-product pages), so "synthesized" is not a
+    # temporary fallback for these two subdomains -- it is the only viable
+    # inventory method available, an external fact about those sites, not
+    # a gap in this fetcher.
+    inventory_completeness: str = "crawled"  # "crawled" | "synthesized"
+    # TC8 (2026-08-21): per-entry freshness, narrowed scope -- the map-wide
+    # staleness TTL gate (STALE_WARN_DAYS/STALE_BLOCK_DAYS) and the daily
+    # scheduled re-verification workflow already shipped via unrelated
+    # mission MT022 and are confirmed live/working; only this per-URL field
+    # was still missing. Without it, a scoped run (e.g. --families 3d) that
+    # only re-verifies SOME entries has no way to tell which entries in the
+    # merged map are freshly re-checked vs. carried over unchanged from a
+    # much older run -- the map-wide provenance.generated_at timestamp
+    # can't distinguish them. Set once per run (not per individual
+    # verify_url() call) via build_target_map()'s run_started_at, so every
+    # entry actually verified in a given run shares one timestamp;
+    # merge_preserved_families() leaves untouched entries' existing
+    # last_verified value alone, exactly the scoping property this exists for.
+    last_verified: Optional[str] = None
 
 
 @dataclass
@@ -239,15 +253,78 @@ def classify_url(url: str, subdomain: str) -> tuple[str, Optional[str], Optional
 
 # ── HTTP verification (§U HEAD → GET fallback) ──────────────────────────────
 
-def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tuple[int, list[str], str, int]:
+def _redirect_changed_path(requested_url: str, resolved_url: str) -> bool:
+    """True when a redirect landed on a materially different path -- not just
+    a scheme upgrade (http->https) or a trailing-slash addition. Used to catch
+    synthesized URLs that guessed a plausible-looking path which turned out to
+    redirect somewhere else entirely (e.g. a bundled platform product page)."""
+    req = urllib.parse.urlparse(requested_url)
+    res = urllib.parse.urlparse(resolved_url)
+    return req.path.rstrip("/") != res.path.rstrip("/")
+
+
+# Status codes worth retrying: transient/gateway-level failures where a single
+# observation must not be trusted as permanent (429 rate-limit, 500/502/503/504
+# origin/gateway hiccups). 403/405 are handled separately (HEAD->GET fallback,
+# not a retry) since they often mean "method not supported here", not "flaky".
+_TRANSIENT_RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
+
+# configure() seam (AGENTS.md 16): overridable for tests so verify_url()'s retry
+# loop can be exercised deterministically without real time.sleep() calls or a
+# live network -- monkeypatching time.sleep/requests.Session directly at module
+# level is a T1/T2 lint violation; this indirection is the sanctioned seam.
+_sleep_fn = time.sleep
+
+
+def configure(*, sleep_fn=None) -> None:
+    """configure() seam (AGENTS.md 16) -- override the retry-loop's sleep
+    function for testing (e.g. a no-op) without monkeypatching time.sleep."""
+    global _sleep_fn
+    _sleep_fn = sleep_fn if sleep_fn is not None else time.sleep
+
+
+def _read_output_hash(json_path: Path) -> Optional[str]:
+    """Read provenance.output_hash from an on-disk target-map file. Returns
+    None if the file doesn't exist or can't be parsed -- callers treat a
+    missing/unreadable hash as "no known prior state to compare against",
+    never as a reason to block (used by the write-time concurrency guard)."""
+    if not json_path.exists():
+        return None
+    try:
+        return json.loads(json_path.read_text(encoding="utf-8")).get("provenance", {}).get("output_hash")
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tuple[int, list[str], str, str, int]:
     """
-    Returns (final_http_status, redirect_chain, validated_via, retry_count).
+    Returns (final_http_status, redirect_chain, resolved_url, validated_via, retry_count).
+
+    resolved_url is the URL actually reached after following any redirects
+    (requests' resp.url) -- distinct from redirect_chain, which lists the
+    origin URL of each hop, not the destination. Without this, a redirect
+    that changes the URL PATH (not just scheme/trailing-slash) was silently
+    reported as "200, verified" against the ORIGINAL requested URL, which a
+    caller could not distinguish from a genuinely-canonical 200 (found live:
+    a synthesized products.aspose.com/cells/go/ URL 301s to the bundled
+    products.aspose.com/cells/go-cpp/ page; both requested and destination
+    URLs must be compared by the caller to catch this).
+
     Uses HEAD first; falls back to GET on 403/405/timeout/suspicious.
+
+    Retries on transient HTTP statuses (429/500/502/503/504), not just network
+    exceptions: a *successful* HTTP response carrying one of these was
+    previously returned immediately on the first attempt, indistinguishable in
+    the caller from a confirmed-dead page -- a single CDN gateway hiccup (502)
+    or rate-limit (429) got recorded as permanent fact. 404 is left untouched
+    (a real "not found" signal, not transient) and is still terminal on the
+    first observation.
     """
     redirect_chain: list[str] = []
     retry_delays = [2, 4, 8]
     last_status = 0
     validated_via = "head"
+    resolved_url = url
 
     for attempt in range(max_retries):
         try:
@@ -255,10 +332,19 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
             for r in resp.history:
                 redirect_chain.append(r.url)
             last_status = resp.status_code
-            # HEAD succeeded with a usable status
+            resolved_url = resp.url
+            # HEAD succeeded with a usable, non-transient status
+            if last_status not in (403, 405, 0) and last_status not in _TRANSIENT_RETRY_STATUSES:
+                return last_status, redirect_chain, resolved_url, "head", attempt
             if last_status not in (403, 405, 0):
-                return last_status, redirect_chain, "head", attempt
-            # Fall through to GET
+                # Transient status from HEAD -- retry the whole attempt rather
+                # than falling through to GET on the same attempt (GET would
+                # likely see the same transient failure from the same origin).
+                if attempt < max_retries - 1:
+                    _sleep_fn(retry_delays[attempt])
+                    continue
+                return last_status, redirect_chain, resolved_url, "head", attempt
+            # 403/405 -- fall through to GET on this same attempt
         except (Timeout, ConnError, RequestException):
             pass
 
@@ -272,15 +358,19 @@ def verify_url(url: str, session: requests.Session, max_retries: int = 3) -> tup
             _ = resp.raw.read(4096)
             resp.close()
             redirect_chain = redirect_chain_get
+            resolved_url = resp.url
             validated_via = "get"
-            return resp.status_code, redirect_chain, "get", attempt
+            last_status = resp.status_code
+            if last_status not in _TRANSIENT_RETRY_STATUSES:
+                return last_status, redirect_chain, resolved_url, "get", attempt
+            # Transient status from GET too -- fall through to the retry sleep below
         except (Timeout, ConnError, RequestException):
             pass
 
         if attempt < max_retries - 1:
-            time.sleep(retry_delays[attempt])
+            _sleep_fn(retry_delays[attempt])
 
-    return last_status, redirect_chain, validated_via, max_retries
+    return last_status, redirect_chain, resolved_url, validated_via, max_retries
 
 
 # ── Sitemap fetching ─────────────────────────────────────────────────────────
@@ -316,7 +406,7 @@ def fetch_sitemap_urls(sitemap_url: str, session: requests.Session, depth: int =
         return [], "", 0
 
     try:
-        root = ElementTree.fromstring(raw_xml)  # nosec B314 - input is Aspose sitemap XML from known URLs
+        root = ElementTree.fromstring(raw_xml)
     except ElementTree.ParseError as exc:
         print(f"  WARN: XML parse error for {sitemap_url}: {exc}", file=sys.stderr)
         return [], source_hash, http_status
@@ -345,6 +435,14 @@ def fetch_sitemap_urls(sitemap_url: str, session: requests.Session, depth: int =
             child_url = _find_text(sitemap_elem, "loc")
             if child_url:
                 child_url = child_url.strip()
+                # TC17 (2026-08-21, MT009 SEED-15): sitemap.org's spec requires <loc>
+                # to be absolute, but not every real-world sitemap generator complies --
+                # a relative child <loc> (e.g. "/sitemap-products.xml" instead of
+                # "https://products.aspose.com/sitemap-products.xml") previously broke
+                # the recursive fetch outright, since `session.get()` cannot resolve a
+                # bare relative path with no base. urljoin is a no-op when child_url is
+                # already absolute, so this is safe for the common (compliant) case too.
+                child_url = urllib.parse.urljoin(sitemap_url, child_url)
                 # Skip non-English locale sub-sitemaps (e.g. /de/sitemap.xml, /fr/sitemap.xml)
                 if _NON_EN_LOCALE_RE.search(child_url):
                     continue
@@ -392,17 +490,56 @@ def discover_families_and_platforms(repo_root: Path) -> dict[str, set[str]]:
     return result
 
 
+def load_synthesis_override_candidates(repo_root: Path) -> dict:
+    """TC6 (2026-08-21): flatten lib.backlink_targets.load_canonical_overrides()'s
+    raw {"overrides": {...}} shape into {"{family}/{local_platform}":
+    target_platform_slug} for synthesize_urls_for_subdomain()'s convenience.
+
+    Used to also try an override's suggested slug as a synthesis candidate --
+    without this, synthesis only ever guesses the LOCAL aspose.org platform
+    slug (e.g. "python"), so a real bridge page that only exists under a
+    differently-named slug (e.g. docs.aspose.com/3d/python-net/, HTTP 200,
+    vs docs.aspose.com/3d/python/, HTTP 404) is structurally never
+    discovered for a synthesis-only subdomain, even though resolve_backlink()
+    would apply the exact same override at lookup time and expect to find
+    that entry already present. Deliberately reuses the one shared raw
+    loader rather than re-parsing the YAML file itself (the exact
+    single-canonical-definition discipline TC5 established for
+    PLATFORM_ALIASES). Returns {} if the file is missing/unreadable
+    (non-fatal -- synthesis still works with local slugs alone).
+    """
+    raw = _load_canonical_overrides_raw(repo_root)
+    result: dict[str, str] = {}
+    for key, entry in (raw.get("overrides") or {}).items():
+        if isinstance(entry, dict) and entry.get("http_verified") is True:
+            target_platform = entry.get("target_platform")
+            if target_platform:
+                result[key] = target_platform
+    return result
+
+
 def synthesize_urls_for_subdomain(
     subdomain: str,
     families_platforms: dict[str, set[str]],
     filter_families: Optional[set[str]],
+    canonical_overrides: Optional[dict] = None,
 ) -> list[tuple[str, str, Optional[str], Optional[str]]]:
     """
     Construct candidate URLs for a subdomain from known families/platforms.
     Returns list of (url, url_type, family, platform).
+
+    canonical_overrides: (TC6, 2026-08-21) optional {"{family}/{local_platform}":
+    "{target_platform}"} map from load_synthesis_override_candidates(). When a local
+    platform has a verified override, an ADDITIONAL candidate is emitted
+    using the override's target_platform slug (not a replacement -- both are
+    tried and HTTP-verified independently, since either or neither may be a
+    real page). The additional candidate is keyed under the override's own
+    slug (not the local one), matching what resolve_backlink() will actually
+    look up once the override is applied at resolution time.
     """
     base = f"https://{subdomain}/"
     results: list[tuple[str, str, Optional[str], Optional[str]]] = []
+    overrides = canonical_overrides or {}
 
     for family, platforms in sorted(families_platforms.items()):
         if filter_families and family not in filter_families:
@@ -419,7 +556,63 @@ def synthesize_urls_for_subdomain(
             plat_type = "platform-products" if "products" in subdomain else "platform-docs"
             results.append((plat_url, plat_type, family, platform))
 
+            override_platform = overrides.get(f"{family}/{platform}")
+            if override_platform and override_platform != platform:
+                override_url = f"{base}{family}/{override_platform}/"
+                results.append((override_url, plat_type, family, override_platform))
+
     return results
+
+
+# ── Read-merge-write for scoped runs (TC-01/G-01) ────────────────────────────
+
+def merge_preserved_families(
+    targets: dict[str, dict],
+    all_urls_flat: dict[str, dict],
+    filter_families: set[str],
+    repo_root: Path,
+) -> None:
+    """Preserve on-disk registry entries for families outside filter_families.
+
+    Mutates ``targets`` and ``all_urls_flat`` in place. A --families scoped
+    run only scans the requested families; without this merge, writing the
+    result would silently discard every other family already recorded in
+    data/aspose_com_targets.json (MT009 SEED-16 data-loss incident).
+    """
+    existing_json_path = repo_root / "data" / "aspose_com_targets.json"
+    if not existing_json_path.exists():
+        return
+    try:
+        existing_data = json.loads(existing_json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"  WARN: could not read existing {existing_json_path} for merge: {exc}",
+              file=sys.stderr)
+        return
+
+    existing_targets = existing_data.get("targets", {})
+    for sd, sd_data in existing_targets.items():
+        merged_sd = targets.setdefault(sd, {"families": {}, "platforms": {}})
+        for fam, entry in sd_data.get("families", {}).items():
+            if fam not in filter_families:
+                merged_sd["families"].setdefault(fam, entry)
+        for key, entry in sd_data.get("platforms", {}).items():
+            fam = key.split("/", 1)[0]
+            if fam not in filter_families:
+                merged_sd["platforms"].setdefault(key, entry)
+
+    for url, meta in existing_data.get("all_urls", {}).items():
+        if meta.get("family") not in filter_families:
+            all_urls_flat.setdefault(url, meta)
+
+    preserved_count = sum(
+        len(v.get("families", {})) for v in existing_targets.values()
+    )
+    print(
+        f"  Merged {len(filter_families)} freshly-scanned famil"
+        f"{'y' if len(filter_families) == 1 else 'ies'} into existing "
+        f"{preserved_count}-family registry",
+        file=sys.stderr,
+    )
 
 
 # ── Build target map ─────────────────────────────────────────────────────────
@@ -436,6 +629,7 @@ def build_target_map(
     all_entries: dict[str, TargetEntry] = {}  # url → TargetEntry
     warnings: list[str] = []
     unavailable_sources: list[str] = []
+    run_started_at = datetime.now(timezone.utc).isoformat()  # TC8 (2026-08-21)
 
     filter_families: Optional[set[str]] = set(args.families) if args.families else None
 
@@ -446,24 +640,41 @@ def build_target_map(
         f"Discovered {len(families_platforms)} families from content directory",
         file=sys.stderr,
     )
+    canonical_overrides = load_synthesis_override_candidates(repo_root)  # TC6 (2026-08-21)
 
-    # Subdomains that must be synthesized (no useful product-level sitemaps)
-    SYNTHESIZE_SUBDOMAINS = {"products.aspose.com", "docs.aspose.com"}
+    # Subdomains that must be synthesized (no useful product-level sitemaps).
+    # When --products-sitemap is active, products.aspose.com is fetched from its
+    # real sitemap instead of being synthesized from local content.
+    if getattr(args, "products_sitemap", False):
+        SYNTHESIZE_SUBDOMAINS = {"docs.aspose.com"}
+        print(
+            "[TC-002] --products-sitemap active: products.aspose.com will be fetched "
+            "from real sitemap instead of synthesized from local content.",
+            file=__import__("sys").stderr,
+        )
+    else:
+        SYNTHESIZE_SUBDOMAINS = {"products.aspose.com", "docs.aspose.com"}
 
     # Handle synthesis subdomains first
-    for subdomain in ("products.aspose.com", "docs.aspose.com"):
+    for subdomain in sorted(SYNTHESIZE_SUBDOMAINS):
         priority = "P0"
         print(f"[{priority}] Synthesizing URLs for {subdomain} ...", file=sys.stderr)
-        candidates = synthesize_urls_for_subdomain(subdomain, families_platforms, filter_families)
+        candidates = synthesize_urls_for_subdomain(
+            subdomain, families_platforms, filter_families, canonical_overrides
+        )
         included = 0
         excluded = 0
         redirects_seen = 0
 
         for url, url_type, family, platform in candidates:
             if args.skip_http_verify:
-                http_st, rchain, via, retries = 200, [], "skipped", 0
+                # GOVERNANCE GUARD: store -1 (UNVERIFIED), never 200.
+                # _lookup_platform() checks http_status == 200, so unverified URLs
+                # will be rejected by the resolver and never injected into content.
+                # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
+                http_st, rchain, resolved, via, retries = -1, [], url, "skipped", 0
             else:
-                http_st, rchain, via, retries = verify_url(url, session)
+                http_st, rchain, resolved, via, retries = verify_url(url, session)
 
             if rchain:
                 redirects_seen += 1
@@ -471,8 +682,21 @@ def build_target_map(
                 excluded += 1
                 continue
 
+            final_url = url
+            if rchain and _redirect_changed_path(url, resolved):
+                # A synthesized guess redirected to a DIFFERENT path -- not a
+                # cosmetic scheme/trailing-slash normalization. Store the real
+                # destination instead of silently keeping the wrong guessed URL
+                # (found live: cells/go -> cells/go-cpp, a bundled platform page).
+                print(
+                    f"  NOTE: {url} redirects to a different path -- "
+                    f"using resolved target {resolved}",
+                    file=sys.stderr,
+                )
+                final_url = resolved
+
             entry = TargetEntry(
-                url=url,
+                url=final_url,
                 http_status=http_st,
                 redirect_chain=rchain,
                 validated_via=via,
@@ -481,8 +705,10 @@ def build_target_map(
                 url_type=url_type,
                 family=family,
                 platform=platform,
+                inventory_completeness="synthesized",
+                last_verified=run_started_at,
             )
-            all_entries[url] = entry
+            all_entries[final_url] = entry
             included += 1
 
         sources.append({
@@ -545,9 +771,13 @@ def build_target_map(
 
             # Verify HTTP status
             if args.skip_http_verify:
-                http_st, rchain, via, retries = 200, [], "skipped", 0
+                # GOVERNANCE GUARD: store -1 (UNVERIFIED), never 200.
+                # _lookup_platform() checks http_status == 200, so unverified URLs
+                # will be rejected by the resolver and never injected into content.
+                # Storing 200 here was the root cause of the 2026-07-04 bad injection incident.
+                http_st, rchain, resolved, via, retries = -1, [], norm, "skipped", 0
             else:
-                http_st, rchain, via, retries = verify_url(norm, session)
+                http_st, rchain, resolved, via, retries = verify_url(norm, session)
 
             if rchain:
                 redirects_seen += 1
@@ -556,8 +786,20 @@ def build_target_map(
                 excluded += 1
                 continue
 
+            final_url = norm
+            if rchain and _redirect_changed_path(norm, resolved):
+                # A sitemap-discovered URL still redirected to a materially
+                # different path (site restructure since the sitemap was
+                # cached, or a bundled platform page) -- store the real target.
+                print(
+                    f"  NOTE: {norm} redirects to a different path -- "
+                    f"using resolved target {resolved}",
+                    file=sys.stderr,
+                )
+                final_url = resolved
+
             entry = TargetEntry(
-                url=norm,
+                url=final_url,
                 http_status=http_st,
                 redirect_chain=rchain,
                 validated_via=via,
@@ -566,8 +808,10 @@ def build_target_map(
                 url_type=url_type,
                 family=family,
                 platform=platform,
+                inventory_completeness="crawled",
+                last_verified=run_started_at,
             )
-            all_entries[norm] = entry
+            all_entries[final_url] = entry
             included += 1
 
         sources.append({
@@ -596,6 +840,8 @@ def build_target_map(
             "url": entry.url,
             "http_status": entry.http_status,
             "redirect_chain": entry.redirect_chain,
+            "inventory_completeness": entry.inventory_completeness,
+            "last_verified": entry.last_verified,
         }
         all_urls_flat[norm_url] = {
             "http_status": entry.http_status,
@@ -603,6 +849,8 @@ def build_target_map(
             "family": entry.family,
             "platform": entry.platform,
             "redirect_chain": entry.redirect_chain,
+            "inventory_completeness": entry.inventory_completeness,
+            "last_verified": entry.last_verified,
         }
 
         if entry.url_type in ("family-products", "family-docs", "family-reference",
@@ -614,14 +862,25 @@ def build_target_map(
             key = f"{entry.family}/{entry.platform}"
             targets[sd]["platforms"][key] = entry_dict
 
+    # TC-01/G-01 (MT009 SEED-16): --families scopes the SCAN, not the persisted
+    # registry. Without this merge, a scoped run silently discards every other
+    # family already on disk when the output is written (confirmed data-loss
+    # incident). Read-merge-write: preserve on-disk entries for families NOT
+    # in this run's filter_families; freshly-scanned families always win.
+    if filter_families:
+        merge_preserved_families(targets, all_urls_flat, filter_families, repo_root)
+
     # Build family/platform matrix
     matrix: dict[str, dict] = {}
     products_sd = "products.aspose.com"
     docs_sd = "docs.aspose.com"
     ref_sd = "reference.aspose.com"
 
-    # Collect all families seen
+    # Collect all families seen (post-merge: includes preserved families)
     all_families: set[str] = set()
+    for sd_data in targets.values():
+        all_families.update(sd_data.get("families", {}).keys())
+        all_families.update(k.split("/", 1)[0] for k in sd_data.get("platforms", {}))
     for entry in all_entries.values():
         if entry.family:
             all_families.add(entry.family)
@@ -647,6 +906,28 @@ def build_target_map(
                 if k.startswith(fam + "/")
             ),
         }
+
+    # A9/A10: Reconcile targets with all_urls — all_urls is authoritative for
+    # HTTP status since it contains every URL from both synthesis and sitemaps.
+    # If all_urls says 200 but targets says non-200, update targets to match.
+    reconciled = 0
+    for sd, sd_data in targets.items():
+        for key, entry in sd_data.get("platforms", {}).items():
+            url = entry.get("url")
+            if url and entry.get("http_status") != 200:
+                au = all_urls_flat.get(url, {})
+                if au.get("http_status") == 200:
+                    entry["http_status"] = 200
+                    reconciled += 1
+        for fam, entry in sd_data.get("families", {}).items():
+            url = entry.get("url")
+            if url and entry.get("http_status") != 200:
+                au = all_urls_flat.get(url, {})
+                if au.get("http_status") == 200:
+                    entry["http_status"] = 200
+                    reconciled += 1
+    if reconciled:
+        print(f"  Reconciled {reconciled} targets entries from all_urls", file=sys.stderr)
 
     output_json_str = ""  # placeholder for hash computation
     output_data = {
@@ -742,14 +1023,14 @@ def generate_report(output_data: dict, warnings: list[str]) -> str:
     # Family/platform matrix
     matrix = output_data.get("family_platform_matrix", {})
     if matrix:
-        lines.append("## Family �- Platform Availability Matrix")
+        lines.append("## Family × Platform Availability Matrix")
         lines.append("")
         lines.append("| Family | Products | Docs | Reference | Products Platforms | Docs Platforms |")
         lines.append("|--------|----------|------|-----------|--------------------|----------------|")
         for fam, info in sorted(matrix.items()):
-            prod = "✓" if info["has_family_on_products"] else "�-"
-            docs = "✓" if info["has_family_on_docs"] else "�-"
-            ref = "✓" if info["has_family_on_reference"] else "�-"
+            prod = "✓" if info["has_family_on_products"] else "✗"
+            docs = "✓" if info["has_family_on_docs"] else "✗"
+            ref = "✓" if info["has_family_on_reference"] else "✗"
             prod_plats = ", ".join(info["platforms_on_products"]) or "—"
             docs_plats = ", ".join(info["platforms_on_docs"]) or "—"
             lines.append(f"| {fam} | {prod} | {docs} | {ref} | {prod_plats} | {docs_plats} |")
@@ -775,7 +1056,13 @@ def generate_report(output_data: dict, warnings: list[str]) -> str:
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] | None = None, *, build_fn=None) -> int:
+    """`build_fn` is test-only dependency injection (defaults to the real
+    build_target_map) -- lets tests exercise main()'s concurrency-guard
+    read/compare/write sequence without monkeypatching build_target_map
+    directly (AGENTS.md 16 DI-over-monkeypatch convention, matching
+    package_publish_watch.py's own adapters/scan_fn injection points)."""
+    build_fn = build_fn if build_fn is not None else build_target_map
     parser = argparse.ArgumentParser(
         description="Fetch aspose.com sitemaps and build the canonical backlink target map.",
     )
@@ -795,9 +1082,39 @@ def main(argv: list[str] | None = None) -> int:
         "--repo-root", type=Path, default=REPO_ROOT,
         help="Override repo root path.",
     )
+    parser.add_argument(
+        "--products-sitemap",
+        action="store_true",
+        dest="products_sitemap",
+        help=(
+            "Fetch products.aspose.com from its live sitemap instead of synthesizing "
+            "from local content. Opt-in only — enables discovery of variant product URLs "
+            "(e.g., python-net, python-java) not visible via local content synthesis. "
+            "Requires live HTTP access. Default: synthesize from local content (TC-002)."
+        ),
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Write even if data/aspose_com_targets.json changed on disk since this run "
+            "started (see concurrency guard below). Confirms you have reviewed and want "
+            "to overwrite a concurrent session's write."
+        ),
+    )
     args = parser.parse_args(argv)
 
     repo_root: Path = args.repo_root
+    json_path_early = repo_root / "data" / "aspose_com_targets.json"
+
+    # Concurrency guard (TC-01 hardening): a full run can take minutes (live HTTP
+    # verification of 288+ URLs). If another session writes data/aspose_com_targets.json
+    # while this run is in flight, a bare write_text() at the end would silently clobber
+    # it -- exactly the failure class that already hit this file three times (commits
+    # e40ed6b509/d2dce37de5/94e2f01a02, backlog G-49/TC-MT018-06; a second, separate,
+    # self-healed incident filed as INV-013). Capture the starting hash now; compare
+    # immediately before writing.
+    starting_output_hash = _read_output_hash(json_path_early)
 
     session = requests.Session()  # metrics-scan-exempt: web-scraping transport, not professionalize LLM
     session.headers.update({"User-Agent": USER_AGENT})
@@ -811,7 +1128,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Fetch + build
     try:
-        output_data, warnings = build_target_map(args, session)
+        output_data, warnings = build_fn(args, session)
     except SystemExit as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -831,8 +1148,27 @@ def main(argv: list[str] | None = None) -> int:
         print("\nDRY RUN complete — no files written.", file=sys.stderr)
         return 0 if not warnings else 2
 
-    # Write data/aspose_com_targets.json
+    # Concurrency guard, continued: re-check the on-disk hash immediately before
+    # writing. A full run's live HTTP verification can take minutes; if the file
+    # changed underneath us, our in-memory output_data was built against a stale
+    # base and would silently discard whatever the other session wrote.
     json_path = repo_root / "data" / "aspose_com_targets.json"
+    if json_path.exists() and not args.force:
+        current_on_disk_hash = _read_output_hash(json_path)
+        if (
+            starting_output_hash is not None
+            and current_on_disk_hash is not None
+            and current_on_disk_hash != starting_output_hash
+        ):
+            print(
+                f"\nABORT: {json_path} changed on disk since this run started "
+                f"(another session wrote to it while this run was in flight). "
+                f"Re-run to pick up the new base, or pass --force to overwrite.",
+                file=sys.stderr,
+            )
+            return 1
+
+    # Write data/aspose_com_targets.json
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(
         json.dumps(output_data, indent=2, ensure_ascii=False),

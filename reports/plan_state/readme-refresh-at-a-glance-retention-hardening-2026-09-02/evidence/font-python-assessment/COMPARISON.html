@@ -1,0 +1,291 @@
+<title>font/python README Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#F5F6F2; --paper-2:#ECEEE8; --rule:#D5D9D1; --ink:#1B1F1C; --ink-2:#4A524D; --ink-3:#7A837D;
+  --live:#5C6660; --live-bg:#E9EBE6;
+  --cand:#1F6F5B; --cand-bg:#E1EFE9;
+  --bad:#A2472A; --bad-bg:#F4E6DF;
+  --warn:#9A7B1A; --warn-bg:#F5EFD8;
+  --code-bg:#ECEEE8;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141716; --paper-2:#1C201E; --rule:#2E3431; --ink:#E6E9E3; --ink-2:#B4BBB5; --ink-3:#7F8882;
+    --live:#A7AFA9; --live-bg:#22272464;
+    --cand:#5BBFA3; --cand-bg:#173129;
+    --bad:#E38562; --bad-bg:#3A231A;
+    --warn:#D9B24C; --warn-bg:#352D14;
+    --code-bg:#1C201E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141716; --paper-2:#1C201E; --rule:#2E3431; --ink:#E6E9E3; --ink-2:#B4BBB5; --ink-3:#7F8882;
+  --live:#A7AFA9; --live-bg:#22272464;
+  --cand:#5BBFA3; --cand-bg:#173129;
+  --bad:#E38562; --bad-bg:#3A231A;
+  --warn:#D9B24C; --warn-bg:#352D14;
+  --code-bg:#1C201E;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+.page{max-width:1080px;margin:0 auto;padding:40px 28px 80px}
+h1,h2,h3{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4vw,42px);font-variation-settings:"opsz" 144}
+h2{font-size:24px;margin-top:56px;padding-top:18px;border-top:2px solid var(--ink)}
+h3{font-size:18px;margin-top:28px}
+p{max-width:68ch;margin:12px 0}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+code{background:var(--code-bg);padding:1px 5px;border-radius:3px}
+pre{background:var(--code-bg);padding:12px 14px;overflow-x:auto;border-radius:4px;font-size:13px;line-height:1.45;margin:10px 0}
+pre code{background:none;padding:0}
+a{color:var(--cand)}
+.head{display:grid;grid-template-columns:1fr;gap:22px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.subjects{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.subjects{grid-template-columns:1fr}}
+.subject{border:1px solid var(--rule);padding:14px 16px;border-radius:4px;background:var(--paper-2)}
+.subject .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:8px}
+.tag.live{background:var(--live-bg);color:var(--live);border:1px solid var(--live)}
+.tag.cand{background:var(--cand-bg);color:var(--cand);border:1px solid var(--cand)}
+.subject dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+.subject dt{color:var(--ink-3)}
+.subject dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.stat{padding:12px 14px;border-left:3px solid var(--rule);background:var(--paper-2)}
+.stat.good{border-left-color:var(--cand)}
+.stat.bad{border-left-color:var(--bad)}
+.stat.warn{border-left-color:var(--warn)}
+.stat b{display:block;font-family:Fraunces,serif;font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-2)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+.tablewrap{overflow-x:auto}
+th{text-align:left;font-weight:600;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:8px 10px;border-bottom:1px solid var(--ink)}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+th.live,td.live-col{color:var(--live)}
+th.cand,td.cand-col{color:var(--cand)}
+td.d{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2);white-space:nowrap}
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:1px 7px;border-radius:2px;white-space:nowrap}
+.pill.ok{background:var(--cand-bg);color:var(--cand)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.mute{background:var(--live-bg);color:var(--live)}
+details{border:1px solid var(--rule);border-radius:4px;padding:0 14px;margin:12px 0;background:var(--paper-2)}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+summary:focus-visible{outline:2px solid var(--cand);outline-offset:2px}
+details[open] summary{border-bottom:1px solid var(--rule);margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+.two > div{min-width:0}
+.two .col-h{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+ul{padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+.note{font-size:14px;color:var(--ink-2);border-left:3px solid var(--warn);padding:8px 12px;background:var(--warn-bg);margin:14px 0;max-width:none}
+.fixed{border-left-color:var(--cand);background:var(--cand-bg)}
+.small{font-size:13.5px;color:var(--ink-2)}
+hr{border:0;border-top:1px solid var(--rule);margin:26px 0}
+.footer{margin-top:60px;font-size:13px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:12px}
+</style>
+
+<div class="page">
+<header class="head">
+  <div>
+    <div class="eyebrow">Aspose.Font FOSS for Python · README comparison · measured 2026-09-02</div>
+    <h1>font/python: live README vs. regenerated candidate</h1>
+    <p>Every number below was measured today against the document on GitHub <code>main</code> and the candidate on disk, using the same tools on both: the same fixture-staged runner, the same link checks, the same extractor. Where a claim about the live README is made, it was re-verified live, not read from earlier notes.</p>
+  </div>
+  <div class="subjects">
+    <div class="subject">
+      <span class="tag live">Live</span>
+      <dl>
+        <dt>Where</dt><dd>aspose-font-foss/Aspose.Font-FOSS-for-Python · main</dd>
+        <dt>Commit</dt><dd>c6d8209 · 2026-08-27 · "Release 26.8.4"</dd>
+        <dt>README blob</dt><dd>836746e · 21,994 B · 487 lines</dd>
+        <dt>History</dt><dd>1 commit (weekly re-snapshot; no PR survives)</dd>
+        <dt>vs clone cache</dt><dd>identical modulo CRLF</dd>
+      </dl>
+    </div>
+    <div class="subject">
+      <span class="tag cand">Candidate</span>
+      <dl>
+        <dt>Where</dt><dd>reports/repo-presenter-regen-full/font/python/readme.md</dd>
+        <dt>Run</dt><dd>rr-20260902T104838Z-d00e617b6702</dd>
+        <dt>State</dt><dd>AWAITING_REVIEW · 0 hard-gate findings / 115 checks</dd>
+        <dt>Size</dt><dd>54,227 B · 1,031 lines</dd>
+        <dt>Source pinned</dt><dd>same tree c6d8209 (Release 26.8.4)</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="stat good"><b>112 / 112</b><span>old-README units accounted for (50 prose, 2 structural, 40 code, 20 headings)</span></div>
+    <div class="stat good"><b>24 / 24</b><span>candidate executable blocks run clean; 42 CLI lines, 0 failures</span></div>
+    <div class="stat bad"><b>10 / 12</b><span>live executable blocks run clean — its own Quick Start raises <code>ValueError</code></span></div>
+    <div class="stat warn"><b>2.5×</b><span>longer (4,691 vs 1,164 prose words) — the honest cost</span></div>
+  </div>
+</header>
+
+<h2>1. Headline measurements</h2>
+<p class="small">Same profiler on both documents. "Executable" = <code>python</code> fences plus <code>bash</code> fences containing product commands; <code>text</code> and <code>mermaid</code> fences are never executable.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Measure</th><th class="live">Live</th><th class="cand">Candidate</th><th>Δ / note</th></tr></thead>
+<tbody>
+<tr><td>Size</td><td class="n">21,994 B · 487 lines</td><td class="n">54,227 B · 1,031 lines</td><td class="d">+147 %</td></tr>
+<tr><td>Prose words (outside fences)</td><td class="n">1,164</td><td class="n">4,691</td><td class="d">+3,527</td></tr>
+<tr><td>H2 sections</td><td class="n">13</td><td class="n">12</td><td class="d">template names; see §3</td></tr>
+<tr><td>H3 subsections</td><td class="n">6</td><td class="n">26</td><td class="d">16 example headings + 4 dependency + 6 API groups</td></tr>
+<tr><td>Code fences</td><td class="n">20 (8 py · 8 bash · 4 text)</td><td class="n">37 (20 py · 12 bash · 4 text · 1 mermaid)</td><td class="d">+17</td></tr>
+<tr><td>Lines of code in fences</td><td class="n">286</td><td class="n">363</td><td class="d">+77</td></tr>
+<tr><td>Tables (rows)</td><td class="n">2 tables · 19 rows</td><td class="n">7 tables · 150 rows</td><td class="d">136 are API-reference class rows</td></tr>
+<tr><td>Architecture diagram</td><td class="n">—</td><td class="n">1 mermaid (At a Glance)</td><td class="d">new</td></tr>
+<tr><td>Badges</td><td class="n">0</td><td class="n">3 (license · python ≥3.10 · contributors)</td><td class="d">new</td></tr>
+<tr><td>Images (repo-local)</td><td class="n">5 · all exist</td><td class="n">5 same + banner</td><td class="d">banner HTTP 200</td></tr>
+<tr><td>Internal links</td><td class="n">6 · all resolve</td><td class="n">8 · all resolve</td><td class="d">+CHANGELOG.md, SECURITY.md</td></tr>
+<tr><td>External links</td><td class="n">1 (its own repo URL)</td><td class="n">10 · all HTTP 200 today</td><td class="d">docs / kb / reference / products / MCP / issues</td></tr>
+<tr><td>Real classes named in Python examples</td><td class="n">6</td><td class="n">9</td><td class="d">+AnimationPreviewBuilder, FontConverter, FontType</td></tr>
+<tr><td>API reference coverage</td><td class="n">none</td><td class="n">136 of 159 real classes · 0 non-real</td><td class="d">grouped: Core / CFF / EOT / TrueType / Type1 / WOFF</td></tr>
+<tr><td>CLI subcommands demonstrated (of 43 real)</td><td class="n">26</td><td class="n">26 — the same 26</td><td class="d">17 in neither (see §7)</td></tr>
+<tr><td>Dependency statement</td><td class="n">none</td><td class="n">Required: none · Optional: <code>mcp</code> · Dev: pytest/ruff/build · Python ≥3.10</td><td class="d">from pyproject.toml</td></tr>
+<tr><td>Scope &amp; limitations</td><td class="n">none</td><td class="n">4 designed limitations traced to source + Enterprise paragraph</td><td class="d">no transient defects narrated</td></tr>
+</tbody></table></div>
+
+<h2>2. What actually runs</h2>
+<p>Both documents were fed to the same verifier (<code>python_verification_runner_v2</code>): a fresh venv with the package installed from the pinned tree, every file named in a code block staged from the repository, continuation fragments executed in their example's chain, and every <code>aspose-font …</code> line run through the real console script.</p>
+<div class="two">
+  <div>
+    <div class="col-h" style="color:var(--live)">Live · 20 fences</div>
+    <div class="tablewrap"><table>
+      <tr><td>Ran clean</td><td class="n">10</td><td><span class="pill ok">COMPILED+RAN CLEAN</span></td></tr>
+      <tr><td>Quick Start "release-safe static instance"</td><td class="n">1</td><td><span class="pill bad">RUNTIME-ERROR</span></td></tr>
+      <tr><td>CLI block naming <code>Roboto.ttf</code></td><td class="n">1</td><td><span class="pill bad">FIXTURE-UNAVAILABLE</span></td></tr>
+      <tr><td>pip/git-only bash</td><td class="n">4</td><td><span class="pill mute">NOT-A-PRODUCT-COMMAND</span></td></tr>
+      <tr><td><code>text</code> fences</td><td class="n">4</td><td><span class="pill mute">TOOLCHAIN-UNAVAILABLE</span></td></tr>
+      <tr><td>CLI lines executed</td><td class="n">39</td><td><span class="pill bad">3 failed</span></td></tr>
+    </table></div>
+    <pre><code>font.instantiate({"wght": "Bold", "wdth": "Condensed"}, ...)
+ValueError: could not convert string to float: 'Bold'
+# TtfFont.instantiate (ttf/font.py) takes dict[str, float];
+# only SmartInstancer.instantiate resolves preset names.</code></pre>
+  </div>
+  <div>
+    <div class="col-h" style="color:var(--cand)">Candidate · 37 fences</div>
+    <div class="tablewrap"><table>
+      <tr><td>Ran clean</td><td class="n">24</td><td><span class="pill ok">COMPILED+RAN CLEAN</span></td></tr>
+      <tr><td>Errors of any kind</td><td class="n">0</td><td><span class="pill ok">none</span></td></tr>
+      <tr><td>pip/git-only bash</td><td class="n">8</td><td><span class="pill mute">NOT-A-PRODUCT-COMMAND</span></td></tr>
+      <tr><td><code>text</code> + <code>mermaid</code> fences</td><td class="n">5</td><td><span class="pill mute">TOOLCHAIN-UNAVAILABLE</span></td></tr>
+      <tr><td>CLI lines executed</td><td class="n">42</td><td><span class="pill ok">0 failed</span></td></tr>
+      <tr><td>Fixtures staged</td><td class="n">4</td><td class="small">Roboto-Regular.ttf, Roboto-VariableFont, 2 PNGs</td></tr>
+    </table></div>
+    <pre><code>instanced = font.smart_instancer.instantiate(
+    {"wght": "Bold", "wdth": "Condensed"}, ...)
+# same arguments, the API that resolves preset names</code></pre>
+  </div>
+</div>
+
+<h2>3. Where every old section went</h2>
+<p>The candidate follows the portfolio template, so six of the live document's own H2 names no longer exist as headings. Their content does — the retention ledger traces each unit to the section it landed in. Headings are the one place the live document loses something structural: its "Capability Snapshot" and "Workflow → Output" tables became bullets.</p>
+<div class="tablewrap"><table>
+<thead><tr><th class="live">Live heading</th><th>Verdict</th><th class="cand">Landed in</th></tr></thead>
+<tbody>
+<tr><td># aspose-font</td><td><span class="pill mute">absorbed</span></td><td>Title "Aspose.Font FOSS for Python" + intro paragraph</td></tr>
+<tr><td>## What You Get</td><td><span class="pill warn">heading gone</span></td><td>Intro paragraph + Key Capabilities (units u0002–u0009)</td></tr>
+<tr><td>## Why Teams Use It</td><td><span class="pill warn">heading gone</span></td><td>Key Capabilities bullets; "Workflow → Output" table reframed (fidelity 0.64)</td></tr>
+<tr><td>## Install</td><td><span class="pill mute">absorbed</span></td><td>Installation — commands corrected (§5)</td></tr>
+<tr><td>## Quick Start</td><td><span class="pill ok">present</span></td><td>Quick Start — release-safe example corrected (§5)</td></tr>
+<tr><td>## Real Outputs (+6 H3)</td><td><span class="pill mute">absorbed</span></td><td>Additional Examples: QA Report Package · Release-Safe Static Instance · Variable Instance Review Board · Axis Grid Proof · Delta and Compatibility Evidence · Animation and Showcase Assets — same 5 images</td></tr>
+<tr><td>## Capability Snapshot</td><td><span class="pill warn">heading gone</span></td><td>Key Capabilities — table reframed as bullets (fidelity 0.63)</td></tr>
+<tr><td>## Variable-Font-First Workflows</td><td><span class="pill warn">heading gone</span></td><td>Key Capabilities + Additional Examples (Export Live and Static Variable Web Bundles, Apply Menu-Safe Naming Overrides)</td></tr>
+<tr><td>## Variable Font Discovery</td><td><span class="pill mute">absorbed</span></td><td>Additional Examples › Variable Font Discovery: Axes, Named Instances, and Localized Labels (block verbatim)</td></tr>
+<tr><td>## Python API Highlights</td><td><span class="pill warn">heading gone</span></td><td>Key Capabilities bullets + API Reference (136 classes)</td></tr>
+<tr><td>## CLI Highlights</td><td><span class="pill warn">heading gone</span></td><td>Additional Examples › Drive Every Workflow From the Command Line — same 26 subcommands, 3 lines corrected</td></tr>
+<tr><td>## MCP Server</td><td><span class="pill mute">absorbed</span></td><td>Additional Examples › Expose the Library Through the MCP Server + Dependencies › Optional</td></tr>
+<tr><td>## Development</td><td><span class="pill mute">absorbed</span></td><td>Development and Testing (pytest / ruff / build; <code>uv build</code> line verbatim)</td></tr>
+<tr><td>## License</td><td><span class="pill ok">present</span></td><td>License (MIT, LICENSE.txt)</td></tr>
+</tbody></table></div>
+
+<h2>4. Retention ledger</h2>
+<p>112 rows: every prose unit, fenced block, and heading of the live README, each with a disposition, a target section, and a mechanical verdict on whether it is actually there. Fidelity is the share of a unit's content words present in its target section.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Kind</th><th>Verbatim</th><th>Reframed</th><th>Corrected</th><th>Excluded</th><th>Total</th></tr></thead>
+<tbody>
+<tr><td>Prose units</td><td class="n">6</td><td class="n">38</td><td class="n">1</td><td class="n">5</td><td class="n">50</td></tr>
+<tr><td>Structural blocks</td><td class="n">1</td><td class="n">—</td><td class="n">1</td><td class="n">—</td><td class="n">2</td></tr>
+<tr><td>Code blocks</td><td class="n">32</td><td class="n">1 <span class="small">(+7 with every API call surviving)</span></td><td class="n">—</td><td class="n">—</td><td class="n">40</td></tr>
+<tr><td>Headings</td><td colspan="4">2 present · 12 absorbed · 6 names gone (content retained, §3)</td><td class="n">20</td></tr>
+</tbody></table></div>
+<p class="small">Fidelity across the 50 prose units: mean 0.89, 24 at 1.00, lowest retained 0.56. Every code block that was carried is either byte-identical (32) or has every API call present (7) — the one "reframed" code unit is the Makefile/dev block, restated as the <code>pip install -e</code> + <code>make</code> form.</p>
+
+<details>
+<summary>The 5 units deliberately excluded, with reasons</summary>
+<ul>
+<li><b>u0003</b> — "Public GitHub repository: …" self-link to the repo the README lives in; the URL is already the Installation clone target.</li>
+<li><b>u0011 / u0012 / u0013</b> — one-line captions ("Build a web handoff package:", "Generate QA evidence:", "Create a release-safe static instance:") whose examples are carried in full under their own H3 headings.</li>
+<li><b>u0028</b> — "The current roadmap is centered on variable fonts. The strongest surface area today is …" — a statement of development focus, not a checkable product mechanism. <span class="pill warn">judgment call</span> — the only excluded unit a reader might miss.</li>
+</ul>
+</details>
+
+<details>
+<summary>The 7 units corrected against source (old text was wrong or non-runnable)</summary>
+<ul>
+<li><b>c0001, c0002, c0019</b> — <code>pip install aspose-font</code> / <code>"aspose-font[mcp]"</code>: PyPI returns 404 for both <code>aspose-font</code> and <code>aspose-font-foss</code> (checked today). Candidate gives the from-checkout form and states the future name; MCP extra pinned <code>mcp&lt;2.0</code> because <code>mcp.py</code> imports the 1.x <code>FastMCP</code> path.</li>
+<li><b>c0005</b> — Quick Start release-safe example calls <code>font.instantiate({"wght": "Bold", …})</code>; <code>TtfFont.instantiate</code> is float-only and raises (executed today, §2). Candidate uses <code>font.smart_instancer.instantiate(...)</code> with identical arguments.</li>
+<li><b>u0036</b> — "see <code>docs/variable-presentation-schema.md</code>": there is no <code>docs/</code> directory in the tree. The API facts (<code>to_presentation</code>, <code>variable_presentation</code>, <code>var-info --json-output</code>) are carried; the dead pointer is dropped.</li>
+<li><b>s0002 / c0018a</b> — CLI block's first three lines name <code>Roboto.ttf</code>, a file that exists nowhere in the repository; candidate uses the real fixture <code>Roboto-Regular.ttf</code> (as every Python example already did). Every other CLI line is byte-identical.</li>
+</ul>
+</details>
+
+<details>
+<summary>The 4 lowest-fidelity reframes — old text vs. what the candidate says</summary>
+<div class="tablewrap"><table>
+<thead><tr><th>Unit · fidelity</th><th class="live">Live text</th><th class="cand">Candidate</th></tr></thead>
+<tbody>
+<tr><td class="n">u0006 · 0.56</td><td>"Business artifacts first: packages, reports, manifests, previews, and review boards."</td><td>The tagline is gone as a sentence; each noun is a concrete capability bullet ("…family review boards", "…landing HTML, and manifests", "Package browser-ready web-font bundles…"). Marketing framing softened.</td></tr>
+<tr><td class="n">u0040 · 0.62</td><td>"configurable naming strategies … including <code>menu-safe</code> and <code>ribbi-safe</code> policies plus optional custom family suffixes and explicit family/style overrides for safer app/menu coexistence and release-channel labeling"</td><td>"…static instances with configurable naming strategies (<code>menu-safe</code>, <code>ribbi-safe</code>), optional custom family suffixes such as <code>Beta</code> or <code>Web</code>, and optional STAT metadata" + a full worked example "Apply Menu-Safe Naming Overrides". The <em>why</em> clause (coexistence / release-channel labeling) is not restated.</td></tr>
+<tr><td class="n">u0027 · 0.63</td><td>"Capability Snapshot" table — Area → What You Can Do Now (Load and inspect · Convert · Clean metadata · Subset · Preview · …)</td><td>Same rows as Key Capabilities bullets, each naming the real class (<code>FontCleaner.clean_for_web()</code>, <code>SmartInstancer</code>, …). Table form lost; facts kept and made class-specific.</td></tr>
+<tr><td class="n">u0004 · 0.64</td><td>"Workflow → Output" table (Optimize for the web · Review quality · Create release-safe instances · Generate visual proof)</td><td>Key Capabilities bullets ("Package browser-ready web-font bundles (WOFF2/WOFF, CSS, specimen HTML, JSON manifests)…", "Generate Font QA Reports, variable-font compatibility checks, and glyph delta/interpolation…"). Table form lost.</td></tr>
+</tbody></table></div>
+<p class="small">The remaining 22 units below 1.00 are between 0.69 and 0.96 and miss one to three words each (e.g. "broad", "high", "deployable", "selected") — wording, not facts.</p>
+</details>
+
+<h2>5. Defects in the live README the candidate removes</h2>
+<p>All five re-verified today against the live repository, PyPI, or by execution.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Live README says</th><th>Reality</th><th class="cand">Candidate</th></tr></thead>
+<tbody>
+<tr><td><code>pip install aspose-font</code></td><td><span class="pill bad">PyPI 404</span> (both <code>aspose-font</code> and <code>aspose-font-foss</code>)</td><td>Clone + <code>pip install .</code>; distribution name stated for when it ships</td></tr>
+<tr><td>Quick Start: <code>font.instantiate({"wght": "Bold", "wdth": "Condensed"}, …)</code></td><td><span class="pill bad">raises ValueError</span> on the pinned tree</td><td><code>font.smart_instancer.instantiate(...)</code>, same arguments, runs clean</td></tr>
+<tr><td>"see <code>docs/variable-presentation-schema.md</code>"</td><td><span class="pill bad">no docs/ directory</span> in the repository</td><td>Pointer dropped; API facts kept</td></tr>
+<tr><td><code>aspose-font info Roboto.ttf</code> (3 lines)</td><td><span class="pill bad">file does not exist</span> in the repo</td><td><code>Roboto-Regular.ttf</code> — the shipped fixture; lines execute</td></tr>
+<tr><td>"Public GitHub repository: &lt;its own URL&gt;"</td><td>self-referential</td><td>Dropped; the URL is the clone target in Installation</td></tr>
+</tbody></table></div>
+
+<h2>6. What only the candidate has</h2>
+<ul>
+<li><b>At a Glance</b> — one mermaid diagram of the API surface (loader → <code>Font</code> → conversion / subsetting / instancing / preview / web packaging / QA).</li>
+<li><b>Dependencies</b> — required: none; optional <code>mcp</code> (with the <code>&lt;2.0</code> pin and why); native: none (WOFF2 Brotli is a vendored pure-Python codec); dev: pytest ≥7.4, ruff ≥0.4, build ≥1.2, plus the <code>uv</code> dev-group pin.</li>
+<li><b>Examples restructured, not invented.</b> 16 of the 18 Python blocks under Additional Examples are the live README's own snippets — chiefly its "Python API Highlights" list — each given a heading and a one-line lead-in (previews · clean · subset · naming policy · live/static web bundles · menu-safe overrides · grid-family package · MCP). Only 2 are new Python: <code>AnimationPreviewBuilder.build_axis_sweep(...)</code> (the live document had only the CLI form) and <code>FontCleaner.clean_for_web(...)</code> with its opt-out flags (live had the bare call). All 18 executed clean today.</li>
+<li><b>API Reference</b> — 136 of the 159 real classes, grouped by format family, collapsed in <code>&lt;details&gt;</code>; 0 classes that don't exist in source.</li>
+<li><b>Documentation &amp; Resources</b> — docs, kb, reference, products pages (all HTTP 200), CHANGELOG, SECURITY.</li>
+<li><b>Scope and Limitations</b> — 4 limitations each traced to a source location (<code>Font.to_bytes()</code> base-class behaviour, the narrow OTF export path, no complex-script shaping in <code>TextRenderer</code>, scanline <code>Rasterizer</code> is preview-grade), then the Enterprise Edition paragraph. No "not on PyPI" narration — that is an upstream issue, not a product limitation.</li>
+<li>Navigation list, 3 badges, product banner.</li>
+</ul>
+
+<h2>7. What is not better, or not resolved</h2>
+<div class="note"><b>Length.</b> 2.5× the prose and 1,031 lines. That is the portfolio template's shape, but it is a real cost for a reader who wants the 487-line version's brevity, and a larger surface to keep true on every release.</div>
+<div class="note"><b>Six heading names and two tables are gone.</b> Content is retained (§3, §4), but a reader who navigates the live README by "Capability Snapshot" or "CLI Highlights" will not find those names, and the two comparison tables became bullets.</div>
+<div class="note"><b>One judgment-call exclusion.</b> The roadmap paragraph (u0028) is dropped as non-checkable positioning. Defensible, but it is the one piece of the live document's voice the candidate does not carry.</div>
+<div class="note"><b>Installation will go stale the day the package ships to PyPI.</b> Today "not yet published" is true; the candidate names the future command so the fix is one line, but it is a fact that changes outside this repo.</div>
+<div class="note"><b>17 real subcommands are demonstrated in neither document</b> (<code>estimate</code>, <code>glyphs</code>, <code>metrics</code>, <code>report</code>, <code>stage</code>, <code>sync-completed</code>, <code>preview-batch</code>, <code>preview-grid</code>, the three <code>preview-animation-path*</code>, <code>var-batch</code>, the three <code>var-delta-*-board</code>, <code>web-batch</code>, <code>web-optimize</code>). Parity with live, not an improvement.</div>
+<div class="note"><b>Publication target.</b> The repository is a weekly re-snapshot from GitLab with 22 orphan roots and a single commit on <code>main</code>; a GitHub PR there does not survive the next snapshot. That is the reason publication is undecided, independent of the candidate's quality.</div>
+
+<h2>8. Gate status behind these numbers</h2>
+<p class="small">115 deterministic checks on the candidate: <b>0 hard-gate findings</b>. Advisory findings remain in 11 keys (diagram format-completeness hint, capability-scope contradiction, uncorrelated dropped-content, evidence-supports-claim, classification plausibility, probable duplicate, section traceability, section-job distinctness, internal-only API class, candidate drift since last verified, verification currency) — reviewer prompts, none blocking. Ledgers: 50 + 2 + 40 + 0 entries, rebuilt from the live README (the previous ledgers had been authored against our own earlier merged README and were circular). Runner: <code>python_verification_runner_v2</code>, both documents, same venv build.</p>
+
+<div class="footer">
+Sources: GitHub API (README blob 836746e, commits on main), PyPI JSON API, <code>readme_refresh_run.py retention-report font python --json</code>, <code>python_verification_runner_v2</code> on both documents, <code>check_cli_subcommand_coverage</code> / <code>real_cli_subcommands</code> against <code>aspose_font.cli:main</code> (39) + <code>aspose_font.reporting:main</code> (4). Evidence directory: <code>reports/plan_state/readme-refresh-at-a-glance-retention-hardening-2026-09-02/evidence/font-python-assessment/</code>.
+</div>
+</div>

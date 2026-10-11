@@ -1,14 +1,13 @@
-# Adapted from aspose.org
-"""Deterministic path guard -- validates proposed write paths against an allowlist.
+"""Deterministic path guard — validates proposed write paths against an allowlist.
 
 Checks whether a given file path is permitted for agent/pipeline writes.
 Forbidden governance paths are rejected first, then allowed content prefixes
 are checked, and anything else is denied by default.
 
 Usage:
-    path_guard.py <path>
-    path_guard.py --json <path>
-    git diff --cached --name-only | path_guard.py --stdin
+    python scripts/pipeline/commands/governance/path_guard.py <path>
+    python scripts/pipeline/commands/governance/path_guard.py --json <path>
+    git diff --cached --name-only | python scripts/pipeline/commands/governance/path_guard.py --stdin
 
 Exit codes:
     0  ALLOW - path is in the allowlist (single-path mode)
@@ -37,51 +36,133 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 # Allowlist / denylist definitions
 # ---------------------------------------------------------------------------
 
-# Configurable allowed prefixes -- override for your project content layout.
 ALLOWED_PREFIXES: tuple[str, ...] = (
-    "content/",
+    "content/docs.aspose.org/",
+    "content/blog.aspose.org/",
+    "content/kb.aspose.org/",
+    "content/products.aspose.org/",
+    "content/reference.aspose.org/",
+    "content/www.aspose.org/",
+    # releases.aspose.org — FOSS GitHub+package-manager directory page
+    # (themes/releases + configs/releases.aspose.org.toml). Added 2026-09-09
+    # under override token 20260909-173516-themes-releases.
+    "content/releases.aspose.org/",
+    # mcp.aspose.org — placeholder site for future per-product MCP tools
+    # (themes/mcp + configs/mcp.aspose.org.toml). Added 2026-09-10 under
+    # override token 20260910-101545-themes-mcp.
+    "content/mcp.aspose.org/",
     "knowledge/",
     "reports/",
+    # Hugo-managed registry data — written by update_product_registry.py.
     "data/",
+    # SEO patch manifests — written by scripts/seo/pipeline/report.py.
+    "patches/",
+    # SEO keyword data: Schema B (GSC exports, keywords/{site}.json) is written
+    # by the real GSC-collector CI process. Schema A (LLM-suggested, per-family
+    # keywords/{family}.json) is NOT CI-automated -- it is hand-run locally via
+    # scripts/seo/pipeline/get_keywords.py (the documented monthly refresh
+    # workflow was never actually deployed; see AGENTS.md/Finding #31).
+    "keywords/",
+    # Pipeline and CI maintenance scripts are allowed for operational maintenance.
+    # path_guard.py itself is self-protected via FORBIDDEN_EXACT below.
     "scripts/pipeline/",
     "scripts/ci/",
+    # Operator-run one-off mutation scripts (repairs, migrations); see AGENTS.md §4b.
     "scripts/maintenance/",
+    # Subsystem packages — self-contained tools with their own package structure.
+    "scripts/translator/",
+    "scripts/gap-eval/",
     "scripts/generator/",
+    "scripts/seo/",
     "tests/",
+    # Canonical backlog and plan system — shared across all agents (Kilo, Claude).
+    # These are gitignored internal-only directories.
     "backlog/",
     "plans/",
+    # Human-authored repo documentation (QUICKSTART.md, OPERATOR_BYPASSES.md, etc.).
+    # Agents may write here only when adding operator-visible documentation as part of a
+    # registered skill.  Root-level writes are still DENY (no trailing slash match at root).
     "docs/",
-    # Cross-agent governance layer: capability registry, schemas, reports, pilots
-    ".governance/",
-    # Unified capability sync tooling
-    "tools/",
-    # Skill contracts and generated adapters (modified under skill context + override token)
-    "skills/",
-    ".claude/commands/",
-    ".agents/skills/",
-    ".kilocode/skills/",
-    # Root-level scripts (pre-commit hooks, sync scripts not under sub-prefixes)
-    "scripts/",
+    # Deletion Governance Records — tracked, CI-visible YAML files (DGRs).
+    # Agents write here when creating deletion approvals via deletion_governance_manager.py.
+    "deletion-approvals/",
+    # Website maintenance scripts (clean_locales.py, etc.) — governed batch ops.
+    "scripts/website/",
+    # GitHub Actions CI definitions — governed by S-115 (workflow-harden); edit-time
+    # already required active skill context via check_skill_context_hook.sh's GOVERNED
+    # list, this closes the matching commit-time gate so a token isn't needed per commit.
+    ".github/workflows/",
+    # .supervisor/ post-sprint audit-loop mission state (Stage 1/2/3 outputs, closure
+    # records) — gitignored, local-only, same category as reports/ above. Added
+    # 2026-07-24 (MT007 L1-03): every Stage 1 audit run needs to write here, but the
+    # prefix was never added, so every run required a fresh override token including
+    # the one that wrote the precedent file this convention is based on.
+    ".supervisor/state/",
+    # Product image assets (icons, banner/social-preview PNGs), written by the
+    # S-119 media-optimize skill. Added 2026-08-06: static/ was previously
+    # entirely absent from this allowlist, so every write here — including the
+    # skill's own normal runs — required a fresh override token. Scoped to
+    # static/media/ only, not all of static/ (translations, theme assets, etc.
+    # under static/ have no governed writer and should stay default-deny).
+    "static/media/",
 )
 
-# Configurable forbidden prefixes -- override for your project governance layout.
 FORBIDDEN_PREFIXES: tuple[str, ...] = (
     "themes/",
     "layouts/",
     "configs/",
     ".claude/",
     ".agents/",
+    ".kilocode/",
+    # Kilo-specific workspace prohibition — block custom backlog/plan folders.
+    # These would bypass the shared system at backlog/ and plans/.
+    ".kilo-backlog/",
+    ".kilo-plans/",
+    "kilo-backlog/",
+    "kilo-plans/",
+    "skills/",
+    # Governance child-doc protection (governance refactor Phase 0)
     "docs/governance/",
     "docs/workflows/",
     "docs/registries/",
 )
 
-# Configurable forbidden exact paths -- override for your project governance files.
 FORBIDDEN_EXACT: frozenset[str] = frozenset({
     "AGENTS.md",
+    "CODEX.md",
     "CLAUDE.md",
+    # Operator bypass documentation — agent-invisible by design.
+    "docs/OPERATOR_BYPASSES.md",
     # Self-protection: path_guard.py is its own enforcement oracle.
+    # Editing it bypasses all guard checks. Requires explicit override token.
     "scripts/pipeline/commands/governance/path_guard.py",
+    # Hook script self-protection (TC-08 / DR-05):
+    # These scripts ARE in ALLOWED_PREFIXES (scripts/ci/), so an agent with an
+    # active skill context scoped to scripts/ci/* could otherwise modify them.
+    # Adding them to FORBIDDEN_EXACT blocks that path — hook governance scripts
+    # must not be self-modifiable by agents at runtime.
+    "scripts/ci/hooks/check_session_gate.sh",
+    "scripts/ci/hooks/bootstrap_session_gate.sh",
+    "scripts/ci/hooks/check_content_edit_hook.sh",
+    "scripts/ci/hooks/check_content_write_hook.sh",
+    "scripts/ci/hooks/check_py_write_hook.sh",
+    "scripts/ci/hooks/check_write_path_hook.sh",
+    "scripts/ci/hooks/check_skill_context_hook.sh",
+    "scripts/ci/hooks/check_venv_bash_hook.sh",
+    "scripts/ci/hooks/check_destructive_bash_hook.sh",
+    "scripts/ci/hooks/find_python.sh",
+    "scripts/ci/hooks/check_venv.sh",
+    # 2026-08-30 (stale-guard plan TC-SG-05): the session-lifecycle hooks and
+    # the five hook scripts that were added after the original TC-08 list but
+    # never self-protected (found during the plan's exploration pass).
+    "scripts/ci/hooks/session_start_ledger_hook.sh",
+    "scripts/ci/hooks/session_end_ledger_hook.sh",
+    "scripts/ci/hooks/session_heartbeat_hook.sh",
+    "scripts/ci/hooks/check_ledger_init_hook.sh",
+    "scripts/ci/hooks/check_commit_bash_hook.sh",
+    "scripts/ci/hooks/check_add_bash_hook.sh",
+    "scripts/ci/hooks/check_plan_origination_capture_hook.sh",
+    "scripts/ci/hooks/check_plan_origination_gate_hook.sh",
 })
 
 

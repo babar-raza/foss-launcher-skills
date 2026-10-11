@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """verify.py — Healing verification with regression detection.
 
 Re-evaluates modified files after healing and compares before/after

@@ -1,35 +1,61 @@
-# S-117: LLMs Coverage -- Audit Coverage Gap
+# S-LG-03: llms-coverage — Audit Coverage Gap
 
-**Arguments**: $ARGUMENTS (all optional)
+## Description
 
-## Purpose
-Confirm every eligible content page has a corresponding llms-output/ text
-file, and report per-site coverage percentage.
+Walks content/ for all eligible English .md pages, compares against llms-output/ .txt files,
+and reports coverage percentage per domain. Gate: all domains >= 95% coverage.
 
-## Pre-conditions
-Run `/llms-generate` first (or accept that coverage will read as low/zero).
+## Contract
+
+**Backing script**: `scripts/generator/audit_coverage.py`
+**Input**: `content/` (source pages) + `llms-output/` (generated outputs)
+**Output**: `reports/agent-consumption/coverage-report.json` (local only)
 
 ## Steps
 
-1. Run the coverage audit:
+1. Ensure generator outputs are current (run `/llms-generate` if stale):
+
+2. Run coverage audit:
    ```bash
-   .venv/bin/python scripts/llms_coverage.py --output llms-output --report reports/llms-coverage.json
+   .venv/Scripts/python scripts/generator/audit_coverage.py \
+     --content content \
+     --llms-output llms-output \
+     --output reports/agent-consumption/coverage-report.json
    ```
 
-2. Enforce a gate (exit 1 if any site falls below threshold):
+3. Check per-domain coverage:
    ```bash
-   .venv/bin/python scripts/llms_coverage.py --output llms-output --gate 95
+   .venv/Scripts/python -c "
+   import json
+   d = json.load(open('reports/agent-consumption/coverage-report.json'))
+   for k, v in d.items():
+       pct = v.get('coverage_pct', 0)
+       status = 'PASS' if pct >= 95 else 'FAIL'
+       print(f'{k}: {pct:.1f}% [{status}]')
+   "
    ```
 
 ## Gate
-Default recommendation: 95% per site. If any site falls below, inspect that
-site's `missing_pages` list in the JSON report -- missing pages usually mean
-either a generator bug, or new content not yet regenerated (`/llms-generate`).
 
-## Output
-`reports/llms-coverage.json` (or wherever `--report` points): per-site
-`{eligible_pages, covered_pages, coverage_pct, missing_pages}`.
+All 5 domains >= 95%. If any fail, inspect `missing_pages` list in the report.
+Missing pages indicate either:
+- Generator bug (source not processed)
+- Draft pages (excluded by design)
+- New pages not yet regenerated (run `/llms-generate`)
+
+## Committed Baseline
+
+Coverage baseline (without missing_pages list) is committed to:
+`scripts/generator/baselines/coverage-baseline.json`
+
+Use this for regression comparison after regeneration.
 
 ## Related Skills
-- `/llms-generate` -- regenerate outputs to close a coverage gap
-- `/llms-fidelity` -- checks content *quality*, not just presence
+
+- `/llms-generate` — regenerate outputs to fix coverage gaps
+- `/llms-fidelity` — verify content quality (not just presence)
+- `/llms-stale` — detect hash-level staleness
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It reads and compares pre-generated outputs only.

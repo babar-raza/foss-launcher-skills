@@ -1,0 +1,1 @@
+internal static string PowerPointDeck => PathTo("PowerPointDeck.pptx");

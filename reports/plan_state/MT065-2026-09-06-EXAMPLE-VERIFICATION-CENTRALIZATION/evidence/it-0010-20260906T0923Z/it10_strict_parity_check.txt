@@ -1,0 +1,15 @@
+TASKCARD/PLAN PARITY: 14 problem(s):
+  [untagged_under_strict_coverage] store has C1 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C10 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C11 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C12 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C13 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C14 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C2 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C3 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C4 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C5 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C6 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C7 (CLOSED) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C8 (TODO) but plan carries no [STATUS] tag
+  [untagged_under_strict_coverage] store has C9 (TODO) but plan carries no [STATUS] tag

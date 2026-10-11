@@ -1,0 +1,276 @@
+[
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/markdown_reader.py",
+    "line": 24,
+    "direction": "import"
+  },
+  {
+    "format": "left",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/md_import/reader_context.py",
+    "line": 80,
+    "direction": "import"
+  },
+  {
+    "format": "center",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/md_import/reader_context.py",
+    "line": 80,
+    "direction": "import"
+  },
+  {
+    "format": "right",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/md_import/reader_context.py",
+    "line": 80,
+    "direction": "import"
+  },
+  {
+    "format": "DOC",
+    "enum": "LoadFormat",
+    "value": "10",
+    "file": "aspose/words_foss/document.py",
+    "line": 52,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "DOCX",
+    "enum": "LoadFormat",
+    "value": "20",
+    "file": "aspose/words_foss/document.py",
+    "line": 52,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "RTF",
+    "enum": "LoadFormat",
+    "value": "30",
+    "file": "aspose/words_foss/document.py",
+    "line": 52,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "TEXT",
+    "enum": "LoadFormat",
+    "value": "62",
+    "file": "aspose/words_foss/document.py",
+    "line": 52,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "MARKDOWN",
+    "enum": "LoadFormat",
+    "value": "63",
+    "file": "aspose/words_foss/document.py",
+    "line": 52,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 115,
+    "direction": "import"
+  },
+  {
+    "format": "DOC",
+    "enum": "SaveFormat",
+    "value": "10",
+    "file": "aspose/words_foss/document.py",
+    "line": 133,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "DOCX",
+    "enum": "SaveFormat",
+    "value": "20",
+    "file": "aspose/words_foss/document.py",
+    "line": 133,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "PDF",
+    "enum": "SaveFormat",
+    "value": "40",
+    "file": "aspose/words_foss/document.py",
+    "line": 133,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "TEXT",
+    "enum": "SaveFormat",
+    "value": "70",
+    "file": "aspose/words_foss/document.py",
+    "line": 133,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "MARKDOWN",
+    "enum": "SaveFormat",
+    "value": "73",
+    "file": "aspose/words_foss/document.py",
+    "line": 133,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Context",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/docx_reader/ldm_builder/_context.py",
+    "line": 21,
+    "direction": "import"
+  },
+  {
+    "format": "PDFContext",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/pdf_writer/_context.py",
+    "line": 16,
+    "direction": "export"
+  },
+  {
+    "format": "Paragraph",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/pdf_writer/paragraph_renderer.py",
+    "line": 118,
+    "direction": "export"
+  },
+  {
+    "format": "Run",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/pdf_writer/run_renderer.py",
+    "line": 34,
+    "direction": "export"
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/saving.py",
+    "line": 187,
+    "direction": "export"
+  },
+  {
+    "format": "Ooxml",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/saving.py",
+    "line": 305,
+    "direction": "export"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/saving.py",
+    "line": 354,
+    "direction": "export"
+  },
+  {
+    "format": "Words",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 196,
+    "direction": "import"
+  },
+  {
+    "format": "val",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/doc_reader/doc_file_reader.py",
+    "line": 756,
+    "direction": "import"
+  },
+  {
+    "format": "reference",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/md_writer.py",
+    "line": 993,
+    "direction": "export"
+  },
+  {
+    "format": "points",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/doc_reader/table_builder.py",
+    "line": 256,
+    "direction": "import"
+  },
+  {
+    "format": "percent",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/docx_reader/ldm_builder/tables.py",
+    "line": 133,
+    "direction": "import"
+  },
+  {
+    "format": "mime",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/docx_reader/shapes.py",
+    "line": 79,
+    "direction": "import"
+  },
+  {
+    "format": "val",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/docx_writer/paragraphs.py",
+    "line": 455,
+    "direction": "export"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 415,
+    "direction": "export"
+  },
+  {
+    "format": "text",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 451,
+    "direction": "export"
+  },
+  {
+    "format": "pdf",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 458,
+    "direction": "export"
+  },
+  {
+    "format": "docx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/words_foss/document.py",
+    "line": 470,
+    "direction": "export"
+  }
+]

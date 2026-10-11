@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_professionalize_call_sites.py — CI gate: verify all professionalize call sites are registered.
 
 Scans the repository for patterns that indicate professionalize transport calls
@@ -26,15 +25,15 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
-import os
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_REGISTRY = _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_callsite_registry.yaml"
 
 # Patterns that suggest professionalize transport
@@ -59,9 +58,16 @@ _TRANSPORT_CODE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("base_url=", re.compile(r"\bbase_url\s*=")),
 ]
 
+# Directory names excluded no matter how deeply nested (vendored deps inside
+# any worktree, submodule, or cache dir — these recur unpredictably, so they
+# can't be defended by enumerating one more top-level entry each time a new
+# worktree happens to contain one; see _is_excluded()).
+_UNIVERSAL_NOISE_NAMES = {".venv", "venv", "__pycache__", ".git", "node_modules"}
+
 # Files/dirs that are always excluded (boundary systems, generated files, etc.)
 _ALWAYS_EXCLUDE_PATHS = {
-    ".venv", "venv", "__pycache__", ".git", "node_modules",
+    ".kilo",                                    # Git worktrees — copies of repo scripts, not our transport
+    ".claude",                                  # Git worktrees — copies of repo scripts, not our transport
     "runs",                                     # Clone cache — FOSS code, not our transport
     "scripts/ci",                               # CI check scripts reference patterns as strings, not calls
     # Core metrics infrastructure — these ARE the approved transport layer, not new call sites
@@ -115,6 +121,45 @@ class CheckResult:
     registry_count: int = 0
     files_scanned: int = 0
     passed: bool = True
+    governance_errors: list[str] = field(default_factory=list)
+
+
+def _has_direct_transport(path: Path) -> bool:
+    """Detect application-owned HTTP/SDK calls without matching string literals."""
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError):
+        return False
+    forbidden = {"urlopen", "OpenAI", "AsyncOpenAI"}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if isinstance(func, ast.Name) and func.id in forbidden:
+            return True
+        if isinstance(func, ast.Attribute) and func.attr in {"post", "urlopen", "OpenAI", "AsyncOpenAI"}:
+            return True
+    return False
+
+
+def _router_calls(path: Path) -> list[tuple[int, bool]]:
+    """Return (line, has_context) for logical router calls."""
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, SyntaxError):
+        return []
+    calls = []
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr in {"call_chat", "call_embeddings"}
+        ):
+            calls.append((
+                node.lineno,
+                any(keyword.arg == "context" for keyword in node.keywords),
+            ))
+    return calls
 
 
 def _load_registry(registry_path: Path) -> tuple[list[RegistryEntry], list[str]]:
@@ -181,7 +226,12 @@ def _load_registry_simple(registry_path: Path) -> tuple[list[RegistryEntry], lis
 def _is_excluded(rel_path: str, include_tests: bool, include_reports: bool) -> bool:
     """Return True if this path should be skipped."""
     forward = rel_path.replace("\\", "/")
-    # Always-excluded dirs/files
+    # Universal noise: excluded at ANY depth, not just at the repo root —
+    # a vendored .venv/node_modules/etc. inside a nested worktree is just as
+    # irrelevant as one at the top level.
+    if any(p in _UNIVERSAL_NOISE_NAMES for p in forward.split("/")):
+        return True
+    # Always-excluded dirs/files (specific, repo-root-relative locations)
     for exc in _ALWAYS_EXCLUDE_PATHS:
         if forward == exc or forward.startswith(exc + "/"):
             return True
@@ -292,9 +342,109 @@ def run_check(
     include_reports: bool = False,
 ) -> CheckResult:
     result = CheckResult()
-    _entries, registry_paths = _load_registry(registry_path)
+    entries, registry_paths = _load_registry(registry_path)
     result.registry_paths = registry_paths
     result.registry_count = len(registry_paths)
+
+    canonical_transport_paths = {
+        "scripts/pipeline/commands/ops/professionalize_client.py",
+        # Router retains direct HTTP only for the local Ollama provider.
+        "scripts/pipeline/commands/ops/llm_router.py",
+    }
+    for entry in entries:
+        registered = root / entry.path
+        if not entry.path or not registered.exists():
+            result.governance_errors.append(
+                f"{entry.call_site_id}: registered source path is missing: {entry.path}"
+            )
+            continue
+        if entry.capture_method == "legacy_temporary":
+            result.governance_errors.append(
+                f"{entry.call_site_id}: legacy_temporary is prohibited"
+            )
+        normalized = entry.path.replace("\\", "/")
+        if normalized not in canonical_transport_paths and _has_direct_transport(registered):
+            result.governance_errors.append(
+                f"{entry.call_site_id}: direct transport outside ProfessionalizeClient: {normalized}"
+            )
+
+    try:
+        registry_text = registry_path.read_text(encoding="utf-8")
+        if "legacy_temporary" in registry_text:
+            result.governance_errors.append(
+                "registry declares prohibited legacy_temporary metadata"
+            )
+        if 'api_key_source: "PROFESSIONALIZE_API_KEY' in registry_text:
+            result.governance_errors.append(
+                "registry credential metadata disagrees with llm_registry alias authority"
+            )
+    except OSError as exc:
+        result.governance_errors.append(f"cannot read registry: {exc}")
+
+    logical_paths: set[str] = set()
+    try:
+        import yaml  # type: ignore[import]
+        registry_data = yaml.safe_load(registry_text) or {}
+        call_sites_data = registry_data.get("call_sites", {}) or {}
+        logical_paths = {
+            item.get("path", "").replace("\\", "/")
+            for item in registry_data.get("logical_consumers", [])
+            if item.get("path")
+        }
+        for call_site_id, metadata in call_sites_data.items():
+            if not isinstance(metadata, dict):
+                result.governance_errors.append(
+                    f"{call_site_id}: callsite metadata must be a mapping"
+                )
+                continue
+            if metadata.get("capture_method") == "llm_router_native":
+                if "LLMRouter" not in str(metadata.get("transport_type", "")):
+                    result.governance_errors.append(
+                        f"{call_site_id}: llm_router_native metadata disagrees with transport_type"
+                    )
+                metadata_text = " ".join(str(value) for value in metadata.values()).lower()
+                if "direct urllib" in metadata_text:
+                    result.governance_errors.append(
+                        f"{call_site_id}: stale direct-transport metadata"
+                    )
+
+        summary = registry_data.get("summary")
+        if isinstance(summary, dict):
+            expected_counts = {
+                "total_registered_transport_sites": len(call_sites_data),
+                "active": sum(
+                    1 for metadata in call_sites_data.values()
+                    if isinstance(metadata, dict) and metadata.get("status") == "active"
+                ),
+                "wrapper_native": sum(
+                    1 for metadata in call_sites_data.values()
+                    if isinstance(metadata, dict)
+                    and metadata.get("capture_method") == "wrapper_native"
+                ),
+                "llm_router_native": sum(
+                    1 for metadata in call_sites_data.values()
+                    if isinstance(metadata, dict)
+                    and metadata.get("capture_method") == "llm_router_native"
+                ),
+                "approved_adapter": sum(
+                    1 for metadata in call_sites_data.values()
+                    if isinstance(metadata, dict)
+                    and metadata.get("capture_method") == "approved_adapter"
+                ),
+            }
+            for field, expected in expected_counts.items():
+                if summary.get(field) != expected:
+                    result.governance_errors.append(
+                        f"registry summary {field}={summary.get(field)!r}, expected {expected}"
+                    )
+    except Exception as exc:
+        result.governance_errors.append(f"cannot validate logical consumers: {exc}")
+
+    for logical_path in logical_paths:
+        if not (root / logical_path).exists():
+            result.governance_errors.append(
+                f"logical consumer source path is missing: {logical_path}"
+            )
 
     # Combine transport + code patterns for scanning
     all_patterns = _PROFESSIONALIZE_TRANSPORT_PATTERNS + _TRANSPORT_CODE_PATTERNS
@@ -309,6 +459,17 @@ def run_check(
         result.files_scanned += 1
         norm_rel = rel.replace("\\", "/")
         is_registered = norm_rel in registry_paths
+
+        if norm_rel != "scripts/pipeline/commands/ops/llm_router.py":
+            for line, has_context in _router_calls(py_file):
+                if norm_rel not in logical_paths:
+                    result.governance_errors.append(
+                        f"unregistered logical router consumer: {norm_rel}:{line}"
+                    )
+                elif not has_context:
+                    result.governance_errors.append(
+                        f"contextless router call: {norm_rel}:{line}"
+                    )
 
         matches = _scan_file(py_file, rel, registry_paths, all_patterns)
         for m in matches:
@@ -337,7 +498,10 @@ def run_check(
                 # Only flag if they appear to be executable (e.g. not llm_registry.yaml/taxonomy)
                 pass
 
-    result.passed = len(result.unregistered_matches) == 0
+    result.passed = (
+        len(result.unregistered_matches) == 0
+        and len(result.governance_errors) == 0
+    )
     return result
 
 
@@ -374,14 +538,17 @@ def main(argv: list[str] | None = None) -> int:
                 {"file": m.file, "line": m.line, "pattern": m.pattern}
                 for m in result.unregistered_matches
             ],
+            "governance_errors": result.governance_errors,
         }, indent=2))
     else:
         print(f"check_professionalize_call_sites: scanned {result.files_scanned} files, "
               f"{result.registry_count} registered paths")
-        if result.unregistered_matches:
+        if result.unregistered_matches or result.governance_errors:
             print(f"FAIL — {len(result.unregistered_matches)} unregistered professionalize pattern(s):")
             for m in result.unregistered_matches:
                 print(f"  {m.file}:{m.line}  [{m.pattern}]  {m.excerpt}")
+            for error in result.governance_errors:
+                print(f"  GOVERNANCE: {error}")
         else:
             print(f"PASS — {len(result.registered_matches)} registered pattern(s) accounted for, "
                   "no unregistered direct calls detected")

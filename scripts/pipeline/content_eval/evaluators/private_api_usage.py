@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Private API usage evaluator — detects underscore-prefixed member access in code blocks.
 
 Python convention: identifiers starting with a single underscore (e.g. `_control_points`)
@@ -30,6 +29,15 @@ from . import BaseEvaluator
 # Group 2: private member name (starts with exactly one _)
 _PRIVATE_ACCESS_RE = re.compile(
     r"\b([A-Za-z_]\w*)\s*\.\s*(_[A-Za-z]\w*)\b"
+)
+
+# Match import from a private (underscore-prefixed) submodule:
+#   from aspose_tex._input.reader import StringInputSource
+#   from aspose_font._brotli import BrotliEncoder
+# Group 1: the full dotted module path containing the private segment
+_PRIVATE_IMPORT_RE = re.compile(
+    r"^from\s+([\w.]+\._\w[\w.]*)\s+import\b",
+    re.MULTILINE,
 )
 
 # Dunder pattern -- these are standard Python protocol methods, not private
@@ -143,6 +151,41 @@ class PrivateApiUsageEvaluator(BaseEvaluator):
                         f"Replace `{receiver}.{member}` with the equivalent public API. "
                         f"Check knowledge/{{family}}/{{platform}}/merged/api_surface.json "
                         f"for the correct public member name."
+                    ),
+                    evaluator=self.name,
+                ))
+
+        # --- Import-path detection ---
+        # Detect `from pkg._submodule import X` in Python code blocks.
+        # Emits WARN (not FAIL) — private imports are less severe than direct
+        # ._member access and may occasionally be intentional.
+        reported_imports: set[str] = set()
+        for block in page.code_blocks:
+            lang = (block.lang or "").lower().strip()
+            if lang not in _PYTHON_LIKE_LANGS and lang != "":
+                if lang:
+                    continue
+            for match in _PRIVATE_IMPORT_RE.finditer(block.content):
+                mod_path = match.group(1)
+                if mod_path in reported_imports:
+                    continue
+                reported_imports.add(mod_path)
+                line_offset = block.content[: match.start()].count("\n")
+                abs_line = block.start_line + 1 + line_offset
+                findings.append(Finding(
+                    level="WARN",
+                    category="PA",
+                    filepath=str(page.filepath),
+                    line_no=abs_line,
+                    message=(
+                        f"Code imports from private module `{mod_path}`. "
+                        f"Underscore-prefixed modules are internal implementation "
+                        f"details and may change without notice."
+                    ),
+                    suggestion=(
+                        f"Use the public top-level import instead "
+                        f"(e.g. `from <package> import <name>` if re-exported "
+                        f"in __init__.py)."
                     ),
                     evaluator=self.name,
                 ))

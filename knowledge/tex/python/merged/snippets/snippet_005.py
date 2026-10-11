@@ -1,0 +1,1 @@
+def test_active_char_definition_restores_with_group(self) -> None:

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Repair utility: reorder grade frontmatter fields to satisfy check_grade_integrity.py.
 
 Root cause: grade_writer.py (before fix) emitted graded_content_hash immediately after
@@ -15,7 +14,7 @@ Usage:
     python scripts/pipeline/commands/migration/fix_grade_field_order.py               # dry-run
     python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply       # write fixes
     python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply --limit 10  # first 10 only
-    python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply --scope content/blog
+    python scripts/pipeline/commands/migration/fix_grade_field_order.py --apply --scope content/blog.aspose.org
 """
 from __future__ import annotations
 
@@ -201,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="Stop after N files changed (0 = no limit)")
     parser.add_argument("--scope", type=str, default=None,
                         help="Restrict to subtree path relative to repo root "
-                             "(e.g. content/blog)")
+                             "(e.g. content/blog.aspose.org)")
     parser.add_argument("--files", nargs="+",
                         help="Explicit file list (overrides --scope)")
     args = parser.parse_args(argv)

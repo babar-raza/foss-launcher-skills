@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """check_locale_topology.py — Compare H2 heading structure between English source and locale files.
 
 Catches merged, dropped, or reordered H2 sections that cause silent content loss

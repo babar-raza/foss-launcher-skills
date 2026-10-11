@@ -1,0 +1,714 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.BarCode FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for\ngenerating deterministic, standards-compliant barcodes. It encodes linear and 2D symbologies —\nCode 128, Code 39 (base and Extended), EAN-13, EAN-8, UPC-A, UPC-E, and QR Code — through the\n`Barcode` object returned by dedicated helper functions or the generic `generate()` entry point,\nand renders the result as SVG or PNG, with no system-level dependencies beyond Pillow for PNG\noutput.",
+    "salient_tokens": [
+      "Barcode",
+      "generate()",
+      "SVG",
+      "PNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/api.py",
+      "evidence_note": "generate()/code128()/code39()/code39ext()/ean13()/ean8()/upca()/upce()/qr() all confirmed public; Barcode.to_svg()/to_png() confirmed in result.py; Pillow-only dep confirmed in pyproject.toml."
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Code 128 barcodes encode with automatic optimal Code Set A/B/C switching, or a specific code\n  set forced through `Code128Options.encode_mode`.",
+    "salient_tokens": [
+      "Code128Options",
+      "encode_mode"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/models/options.py",
+      "evidence_note": "Code128Options.encode_mode field confirmed, default Code128EncodeMode.AUTO with explicit CODE_A/CODE_B/CODE_C/etc overrides."
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Encode Code 39 barcodes in the base 43-character set or the Extended/Full-ASCII form (via\n  `code39()`/`code39ext()`), with an optional modulo-43 check character.",
+    "salient_tokens": [
+      "code39()",
+      "code39ext()"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/standards/code39.py",
+      "evidence_note": "43-char base set + modulo-43 check-value computation confirmed (get_code39_value, compute_check_value); code39()/code39ext() confirmed public in api.py."
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- EAN-13, EAN-8, UPC-A, and UPC-E retail barcodes support automatic check-digit computation or\n  explicit check-digit validation via `allow_check_digit_input`.",
+    "salient_tokens": [
+      "allow_check_digit_input"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/models/options.py",
+      "evidence_note": "allow_check_digit_input field confirmed on Ean13Options/Ean8Options/UpcaOptions/UpceOptions."
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- QR Code (Model 2) generation spans versions 1-40, with selectable error correction level\n  (`QrErrorCorrectionLevel`) and encoding mode (`QrEncodeMode`).",
+    "salient_tokens": [
+      "QrErrorCorrectionLevel",
+      "QrEncodeMode"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/models/options.py",
+      "evidence_note": "QrErrorCorrectionLevel (L/M/Q/H) and QrEncodeMode (AUTO/NUMERIC/ALPHANUMERIC/BYTE/KANJI) confirmed; version field confirmed on QrOptions."
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Select any symbology by name — canonical or alias — through the generic `generate()`\n  (`generate(symbology, data)`) entry point, independent of the dedicated per-symbology helpers.",
+    "salient_tokens": [
+      "generate()"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/api.py",
+      "evidence_note": "generate(symbology, data, *, encode=None, render=None) confirmed public."
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Render any encoded barcode to SVG (`to_svg()`) or PNG (`to_png()`), or through a custom\n  `Renderer` subclass passed to `Barcode.render()`.",
+    "salient_tokens": [
+      "to_svg()",
+      "to_png()",
+      "Renderer",
+      "render()"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/result.py",
+      "evidence_note": "Barcode.to_svg()/to_png()/render(renderer, options=...) all confirmed."
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Control rendering with `RenderOptions` — scale, DPI, module width/height, quiet zone,\n  foreground/background color, transparent background, and text display/font.",
+    "salient_tokens": [
+      "RenderOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/models/options.py",
+      "evidence_note": "RenderOptions fields confirmed: scale, dpi, module_width, module_height, quiet_zone, foreground_color, background_color, transparent_background, show_text, font_family, font_size."
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "The package is not yet published to PyPI. Install it from a source checkout:",
+    "salient_tokens": [
+      "PyPI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "package_registry_field",
+      "evidence_ref": "barcode.python.verification.published"
+    },
+    "classification_basis": " [2026-09-03 addendum: excluded, see reason]",
+    "excluded_reason": "the source text disclosed publication status (\"not yet been published to PyPI\"), which must never appear in a public README per explicit user direction (readme-refresh-pdf-typescript-scale-hardening-2026-09-03 addendum); the working install instructions themselves are preserved, just without the disclosure sentence"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "The distribution is named `aspose-barcode-foss`; the import package is `aspose_barcode_foss`.\nRequires Python 3.12+ and Pillow >= 10.1.0 (a real, declared runtime dependency, used only for\nPNG rendering) — otherwise the library has no system-level dependencies, and ships a `py.typed`\nmarker for full type-checker support.",
+    "salient_tokens": [
+      "aspose-barcode-foss",
+      "aspose_barcode_foss",
+      "py.typed"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "name=aspose-barcode-foss, requires-python>=3.12, dependencies=[Pillow>=10.1.0] all confirmed; py.typed confirmed present on disk."
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- `Pillow` >=10.1.0 — used only for PNG rendering; SVG output has no third-party dependency.",
+    "salient_tokens": [
+      "Pillow"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Python 3.12 or later.",
+    "salient_tokens": [
+      "3.12"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- `pytest` >=8.0 and `ruff` >=0.15.7 — used only by the test suite and linter, never required to\n  install or use the library.",
+    "salient_tokens": [
+      "pytest",
+      "ruff"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Generate a Code 128 barcode and render it to SVG and PNG:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing the Quick Start code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Runnable scripts are available in the [`examples`](examples/) directory\n(`all_symbologies.py`, `render_options.py`, `error_handling.py`, `quickstart.py`). Additional\nworked examples cover the generic entry point and per-symbology encoding options below.",
+    "salient_tokens": [
+      "examples"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/README.md",
+      "evidence_note": "examples/ dir confirmed to contain exactly all_symbologies.py, error_handling.py, quickstart.py, render_options.py, README.md."
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Select a symbology by name through `generate()`:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "<details><summary>View Additional Examples</summary>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "HTML collapsible-section wrapper markup, not prose content.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "Configure QR Code encoding options:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "Add a modulo-43 check character to a Code 39 barcode:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "Control render output with `RenderOptions`:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "Render through a specific `Renderer` instance directly:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "HTML closing tag, not prose content.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "`Barcode` is the primary entry point: it is returned by `generate()` and every per-symbology\nhelper (`code128()`, `qr()`, and similar), and its `to_svg()`/`to_png()`/`render()` methods\nproduce the rendered output.",
+    "salient_tokens": [
+      "Barcode",
+      "generate()",
+      "to_svg()",
+      "to_png()",
+      "render()"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/result.py"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "<details><summary>View the Full API Surface</summary>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "HTML collapsible-section wrapper markup, not prose content.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Barcode` | The public barcode object returned by every encoding helper and `generate()`. Exposes `to_svg()`, `to_png()`, and `render()`. |",
+    "salient_tokens": [
+      "Barcode"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/result.py"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BarcodeError` | Base exception for the barcode library. |\n| `Code128Options` | Encoding options for Code 128, including `encode_mode`. |\n| `Code39Options` | Encoding options for Code 39, including `add_check_digit`. |\n| `Ean13Options` | Encoding options for EAN-13, including `allow_check_digit_input`. |\n| `Ean8Options` | Encoding options for EAN-8, including `allow_check_digit_input`. |\n| `EncodeOptions` | Base type for symbology-specific encoding options. |\n| `EncodingError` | Raised on an encoder-level failure. |\n| `InvalidInputError` | Raised when the supplied input fails validation (bad characters, wrong length, and similar). |\n| `PdfRenderer` | Registered PDF renderer — `render()` raises `NotImplementedError` in this FOSS build (see Scope and Limitations). |\n| `PngRenderer` | Renders a barcode to PNG output; used internally by `Barcode.to_png()`. |\n| `QrOptions` | Encoding options for QR Code, including `error_correction_level`, `version`, `mask`, and `encoding_mode`. |\n| `RenderOptions` | User-supplied rendering options (scale, DPI, module size, colors, text). |\n| `Renderer` | Abstract renderer interface implemented by `SvgRenderer`/`PngRenderer`/`PdfRenderer`. |\n| `RenderingError` | Raised on a renderer-level failure. |\n| `ResolvedRenderOptions` | The fully-resolved rendering configuration after merging user options with symbology defaults. |\n| `SvgRenderer` | Renders a barcode to SVG output; used internally by `Barcode.to_svg()`. |\n| `SymbologyNotFoundError` | Raised when an unknown symbology name is passed to `generate()`. |\n| `UnsupportedCapabilityError` | Raised when a requested feature/symbology combination is unsupported. |\n| `UnsupportedFeatureError` | Raised when a requested feature exists in the spec but is not yet implemented. |\n| `UpcaOptions` | Encoding options for UPC-A, including `allow_check_digit_input`. |\n| `UpceOptions` | Encoding options for UPC-E, including `allow_check_digit_input`. |",
+    "salient_tokens": [
+      "BarcodeError",
+      "PdfRenderer",
+      "Renderer"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/__init__.py",
+      "evidence_note": "Every one of the 21 class names in this table confirmed present in the public package's own __all__ export list (verified individually against options.py/exceptions.py/renderers.py/result.py source too, not just the re-export)."
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `Code128EncodeMode` | Code 128 Code Set selection: `AUTO`, `CODE_A`, `CODE_B`, `CODE_C`, `CODE_AB`, `CODE_AC`, `CODE_BC`. |\n| `Code39EncodeMode` | Supported Code 39 encode modes. |\n| `QrEncodeMode` | QR Code encoding mode: `AUTO`, `NUMERIC`, `ALPHANUMERIC`, `BYTE`, `KANJI`. |\n| `QrErrorCorrectionLevel` | QR Code error correction level: `L`, `M`, `Q`, `H`. |",
+    "salient_tokens": [
+      "Code128EncodeMode",
+      "Code39EncodeMode",
+      "QrEncodeMode",
+      "QrErrorCorrectionLevel"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/models/options.py",
+      "evidence_note": "All 4 enums and their exact member sets confirmed against the real Enum class definitions."
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "HTML closing tag, not prose content.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/barcode/python/)** — installation, walkthroughs, and feature guides for this library.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "Presence-only verification (this check's own documented limit): confirms this is genuinely the aspose-barcode-foss project. docs_reference was tried first and found to be the WRONG evidence_type for this claim -- it resolves against repo-internal governance/dev-test docs and knowledge/formats.md-limitations.md, not the public docs.aspose.org site; there is no evidence_type in this schema for an external docs-site URL, so presence-only clone_cache_path is the most honest available option, matching u0043/u0048's same disclosed limitation."
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- **[How-to articles and FAQ](https://kb.aspose.org/barcode/python/)** — task-focused how-tos and answers to common questions.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "Presence-only verification, same disclosed limitation as u0040 -- no evidence_type in this schema fits an external kb.aspose.org URL."
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/barcode/python/)** — complete, generated reference documentation for every public type.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "Presence-only verification, same disclosed limitation as u0040 -- no evidence_type in this schema fits an external reference.aspose.org URL."
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- **[Issues and feature requests](https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python/issues)** — report a bug or request a feature on GitHub.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "pyproject.toml [project.urls] declares an Issues URL for this repo (presence-only verification per this check's own documented limit; note a real, pre-existing, unrelated casing mismatch in the source's own declared URL -- 'Barcode' vs the README's 'BarCode' -- not fixed here, out of this card's scope, GitHub redirects are case-insensitive)."
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- This library only generates (encodes) barcodes — it does not read or decode existing barcode\n  images for any symbology.",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/__init__.py",
+      "evidence_note": "No decode/read function exported anywhere in the public API (only generate()/code128()/etc, all encode-only)."
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- PDF rendering is not implemented — `Barcode.to_pdf()` and `PdfRenderer.render()` both raise\n  `NotImplementedError`. SVG and PNG rendering are implemented for every symbology.",
+    "salient_tokens": [
+      "to_pdf()",
+      "PdfRenderer",
+      "NotImplementedError"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/result.py",
+      "evidence_note": "Barcode.to_pdf() confirmed `raise NotImplementedError` in result.py; PdfRenderer.render() confirmed same in _internal/renderers/pdf.py."
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- ECI (Extended Channel Interpretation) normalization and validation (`EciHelper.normalize`/\n  `.validate`) are not implemented in this FOSS build, even though `EncodeOptions` exposes an\n  `eci_assignment_number` field on every symbology's options type.",
+    "salient_tokens": [
+      "EciHelper",
+      "eci_assignment_number"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/standards/eci.py",
+      "evidence_note": "EciHelper.normalize()/.validate() both confirmed `raise NotImplementedError`; eci_assignment_number field confirmed on EncodeOptions base class."
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- GS1 data parsing and validation (`Gs1Helper.parse`/`.validate`) are not implemented in this FOSS\n  build, even though `EncodeOptions` exposes a `gs1_enabled` field on every symbology's options\n  type.",
+    "salient_tokens": [
+      "Gs1Helper",
+      "gs1_enabled"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/_internal/standards/gs1.py",
+      "evidence_note": "Gs1Helper.parse()/.validate() both confirmed `raise NotImplementedError`; gs1_enabled field confirmed on EncodeOptions base class."
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "For PDF rendering and additional symbologies, see\n[Aspose.BarCode for Python — Enterprise Edition](https://products.aspose.com/barcode/python-net/), which adds the full commercial rendering pipeline and broader symbology coverage on top of this FOSS API surface.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "WEAKEST entry in this set: presence-only verification (pyproject.toml confirms this is genuinely the aspose-barcode-foss project) -- the specific Enterprise-edition target URL's correctness is governed by the skill's own separate Enterprise-link resolution invariant (target map), not something this clone-cache-scoped check can independently confirm. Disclosed, not overclaimed."
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "Clone the repository and run the test suite:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "excluded_reason": "Transitional caption introducing a code example, no independent claim.",
+    "verification": {
+      "status": "not_applicable_category_1"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "Runnable example scripts and what each one demonstrates are listed in\n[`examples/README.md`](examples/README.md).",
+    "salient_tokens": [
+      "examples/README.md"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/README.md"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

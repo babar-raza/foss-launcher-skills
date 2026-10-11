@@ -1,0 +1,2052 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "ImageLoad_Official_ReturnsPsd",
+    "source_line": 17,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5633deee8487657dd7c8b5c054ec08f446c27f88b9f81042fd652d21a22a77ba",
+      "norm": "5633deee8487657dd7c8b5c054ec08f446c27f88b9f81042fd652d21a22a77ba"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "Metadata_OfficialTypes_Reads",
+    "source_line": 31,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3411a6e0605751902f991058044541cbe21d42c039e91d72e7a072b18178f549",
+      "norm": "3411a6e0605751902f991058044541cbe21d42c039e91d72e7a072b18178f549"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "Channels_OfficialShape_ReadsOnly",
+    "source_line": 49,
+    "classes_used": [
+      "ChannelInformation",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef4b77ce7f659cbb06cf6aba39cf9889d72b8abb9fa4be86a191db05f41748ff",
+      "norm": "ef4b77ce7f659cbb06cf6aba39cf9889d72b8abb9fa4be86a191db05f41748ff"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "LayerMask_OfficialShape_Reads",
+    "source_line": 66,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "LayerBlendingRangesData",
+      "LayerMaskData",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "LayerBlendingRangesData.LayerBlendingRangesData",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce8eea036e18bc5551e1946e50f1205ce840f5533f21735980de246ed4154385",
+      "norm": "ce8eea036e18bc5551e1946e50f1205ce840f5533f21735980de246ed4154385"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "Rectangle_MutableShape_Updates",
+    "source_line": 81,
+    "classes_used": [
+      "Point",
+      "Rectangle",
+      "Size"
+    ],
+    "methods_used": [
+      "Rectangle.Contains",
+      "Rectangle.FromLeftTopRightBottom",
+      "Rectangle.Inflate",
+      "Rectangle.IntersectsWith",
+      "Rectangle.Offset"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "21f714983133f1c7864b37df3d6164530afcbaba866ab3bd74f56eedcc4a1f2a",
+      "norm": "21f714983133f1c7864b37df3d6164530afcbaba866ab3bd74f56eedcc4a1f2a"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "ImageSetters_UpdateMetadata",
+    "source_line": 107,
+    "classes_used": [
+      "ColorModes",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3116dd8634b12f5517efd6c305eccc33ecd870d94d50295ee6f37c67b1d28d62",
+      "norm": "3116dd8634b12f5517efd6c305eccc33ecd870d94d50295ee6f37c67b1d28d62"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "Resources_OfficialShape_Reads",
+    "source_line": 128,
+    "classes_used": [
+      "GlobalLayerMaskInfo",
+      "Image",
+      "Layer",
+      "LayerResource",
+      "PsdImage",
+      "ResourceBlock",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c952c4b762d23e00f73693b47b93d275c365f9e4f5ef272c8b60b047347c479",
+      "norm": "3c952c4b762d23e00f73693b47b93d275c365f9e4f5ef272c8b60b047347c479"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/AsposeCompatibilityTests.cs",
+    "source_function": "Save_OfficialMutation_Persists",
+    "source_line": 156,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6393d37a70bbce13d9bf5582d0ac2a3c9a4e1f630032c35e45cfa63d19e7bd9d",
+      "norm": "6393d37a70bbce13d9bf5582d0ac2a3c9a4e1f630032c35e45cfa63d19e7bd9d"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Load_TooLongColorMode_Throws",
+    "source_line": 16,
+    "classes_used": [
+      "Image",
+      "PsdImage",
+      "PsdLoadException"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "36d703e041126c6a6651b6f8319361a1f41b52d5e870e19f0fbfb0ab856852bb",
+      "norm": "36d703e041126c6a6651b6f8319361a1f41b52d5e870e19f0fbfb0ab856852bb"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Load_RgbPayload_Classifies",
+    "source_line": 30,
+    "classes_used": [
+      "ColorModes"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "271bf089e46968acd7ffcd91cab43b1b3a25e71eff0d97fa76a54e3c98e87fd6",
+      "norm": "271bf089e46968acd7ffcd91cab43b1b3a25e71eff0d97fa76a54e3c98e87fd6"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Load_IndexedData_ParsesPalette",
+    "source_line": 48,
+    "classes_used": [
+      "ColorModes"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c5fdd7a28fefd37fa70d39bd97a74d7b446d180e8d603df896a8cb92d23902f",
+      "norm": "3c5fdd7a28fefd37fa70d39bd97a74d7b446d180e8d603df896a8cb92d23902f"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Load_CmykPayload_Classifies",
+    "source_line": 69,
+    "classes_used": [
+      "ColorModes"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d8c4781ff75aa89f08fbb61b2d1dc480b97ce40a4d466c40fbe9b0bb7e1aadc1",
+      "norm": "d8c4781ff75aa89f08fbb61b2d1dc480b97ce40a4d466c40fbe9b0bb7e1aadc1"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Load_IndexedFixture_ReadsData",
+    "source_line": 87,
+    "classes_used": [
+      "ColorModes",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "61a40b224a53da3d3571535379777fd61078bb6ed28e00d1e9cdeedbb3d5978a",
+      "norm": "61a40b224a53da3d3571535379777fd61078bb6ed28e00d1e9cdeedbb3d5978a"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ColorDataTests.cs",
+    "source_function": "Save_IndexedFixture_IsByteExact",
+    "source_line": 107,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "df8f05467e01eec10e31ede4e0efaf73101839912bba0def2356771be74d7a05",
+      "norm": "df8f05467e01eec10e31ede4e0efaf73101839912bba0def2356771be74d7a05"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Load_BasicRgb_ReadsMetadata",
+    "source_line": 17,
+    "classes_used": [
+      "ColorModes",
+      "CompressionMethod",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "PsdVersion"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7e54249a5108d72f19856856e7d6c63f8149dbb51fa7ab8f3c1e727836788f93",
+      "norm": "7e54249a5108d72f19856856e7d6c63f8149dbb51fa7ab8f3c1e727836788f93"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_BasicRgb_IsByteExact",
+    "source_line": 38,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0459abb9a4d83267ef71fe38715e26c0b958d01f091adf2d594b0a4b0eab05d9",
+      "norm": "0459abb9a4d83267ef71fe38715e26c0b958d01f091adf2d594b0a4b0eab05d9"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_BasicRgb_RenamesLayer",
+    "source_line": 48,
+    "classes_used": [
+      "Layer",
+      "Rectangle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f15c9ebba8c3b609910cd7799c4901afd8817b3f2be9c56148a9a23bdfd45d8",
+      "norm": "3f15c9ebba8c3b609910cd7799c4901afd8817b3f2be9c56148a9a23bdfd45d8"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Load_BasicCmyk_ReadsMetadata",
+    "source_line": 58,
+    "classes_used": [
+      "ColorModes",
+      "CompressionMethod",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "afac82e1f5e6ded6e026eaa31a2524f08f2ea504cb3393984f8174cd640596a2",
+      "norm": "afac82e1f5e6ded6e026eaa31a2524f08f2ea504cb3393984f8174cd640596a2"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_BasicCmyk_IsByteExact",
+    "source_line": 77,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e328ceff128974c190281b7ef341841c80c0557b5260e6daa5bcc66fb13097af",
+      "norm": "e328ceff128974c190281b7ef341841c80c0557b5260e6daa5bcc66fb13097af"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Load_BasicPsb_ReadsMetadata",
+    "source_line": 87,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "79411607aa6d44769a43faa4505a7b6bc568e34fd53f3cadc6ff6f332b15cced",
+      "norm": "79411607aa6d44769a43faa4505a7b6bc568e34fd53f3cadc6ff6f332b15cced"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_BasicPsb_IsByteExact",
+    "source_line": 108,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3707ed7451a548993641f229b8c1ab2e9eaea14e31ac10f920bebd1f29b08b0e",
+      "norm": "3707ed7451a548993641f229b8c1ab2e9eaea14e31ac10f920bebd1f29b08b0e"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Load_LayeredPsb_ReadsLayers",
+    "source_line": 118,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bf2d673ea5b6704bdc8cec34686da1551861593d8ed422d0412858155f1e9efb",
+      "norm": "bf2d673ea5b6704bdc8cec34686da1551861593d8ed422d0412858155f1e9efb"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_LayeredPsb_RenamesLayer",
+    "source_line": 136,
+    "classes_used": [
+      "Layer",
+      "Rectangle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "39bc41c88fc50af359e0e7207a3b1ed39275c4b5444e56193e1074078dc1d007",
+      "norm": "39bc41c88fc50af359e0e7207a3b1ed39275c4b5444e56193e1074078dc1d007"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_LayeredPsb_ChangesBlendMode",
+    "source_line": 146,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "66c5dbc547d9dc938b111598c81b5b053b9503d47d8135a81d76d5099b2139dd",
+      "norm": "66c5dbc547d9dc938b111598c81b5b053b9503d47d8135a81d76d5099b2139dd"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Load_LayerVariants_ReadsFlags",
+    "source_line": 165,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "09c2a2d93e01511ae0c4cdddfaae6424a6d4aca2ff7867e471b0e1ac5f7fc9de",
+      "norm": "09c2a2d93e01511ae0c4cdddfaae6424a6d4aca2ff7867e471b0e1ac5f7fc9de"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_LayerVariants_Clipping",
+    "source_line": 182,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c1c43ead7b93487732a942dbbb6b7c8b7cab29548e6a53ea0f1992911bad4d58",
+      "norm": "c1c43ead7b93487732a942dbbb6b7c8b7cab29548e6a53ea0f1992911bad4d58"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/FixtureDocumentTests.cs",
+    "source_function": "Save_LayerVariants_PreservesTail",
+    "source_line": 201,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "52eb28f170acd714365ebc60fe6646e8c03ee84aebc9703a5be0ab74f1650ed6",
+      "norm": "52eb28f170acd714365ebc60fe6646e8c03ee84aebc9703a5be0ab74f1650ed6"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_RleFixture_ReadsImageData",
+    "source_line": 16,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4bb786c7d7fabe6389b77ea68bfd31067f33a8fc92c5c9ae60b5bb8021b4f25",
+      "norm": "c4bb786c7d7fabe6389b77ea68bfd31067f33a8fc92c5c9ae60b5bb8021b4f25"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Save_RleFixture_IsByteExact",
+    "source_line": 32,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "040405c848fb7c7fa22fd31ef4113ab6f27b986ed0140342efb20fe1f959e4e8",
+      "norm": "040405c848fb7c7fa22fd31ef4113ab6f27b986ed0140342efb20fe1f959e4e8"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_ZipFixture_ReadsImageData",
+    "source_line": 42,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f4b0f981612899a1a3a6f87d8e52a5a04044a02052b6ae9dbae4c2ec9b7558f",
+      "norm": "3f4b0f981612899a1a3a6f87d8e52a5a04044a02052b6ae9dbae4c2ec9b7558f"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Save_ZipFixture_IsByteExact",
+    "source_line": 58,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2241b3ad544a7a887bbd2f79a988846cd5351f7f39f5b0d6e006085693b155b7",
+      "norm": "2241b3ad544a7a887bbd2f79a988846cd5351f7f39f5b0d6e006085693b155b7"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_PsdRle_ReadsStructure",
+    "source_line": 68,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "582d57ce9d5abcc52504198b84407fd5825f7574ba039d329df22b433c688b88",
+      "norm": "582d57ce9d5abcc52504198b84407fd5825f7574ba039d329df22b433c688b88"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_PsbRle_ReadsStructure",
+    "source_line": 90,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "74a0073cdd72e751562bae28532a1b7c33a43959835a8540eb0bb812fdd2817d",
+      "norm": "74a0073cdd72e751562bae28532a1b7c33a43959835a8540eb0bb812fdd2817d"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_PsdZip_ReadsStructure",
+    "source_line": 119,
+    "classes_used": [
+      "CompressionMethod",
+      "Image"
+    ],
+    "methods_used": [
+      "Image.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5350dcc86188eff8daf7b4dedf972226b406a26633bb1370a91a1f553b52b5d9",
+      "norm": "5350dcc86188eff8daf7b4dedf972226b406a26633bb1370a91a1f553b52b5d9"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageDataTests.cs",
+    "source_function": "Load_TruncatedRleRows_Throws",
+    "source_line": 137,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "PsdLoadException"
+    ],
+    "methods_used": [
+      "Image.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d37d568c378f98da1ac03193e0c6bf5b9edb08afa51ea456588ca83d3fd4afe",
+      "norm": "3d37d568c378f98da1ac03193e0c6bf5b9edb08afa51ea456588ca83d3fd4afe"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageResourcesSectionTests.cs",
+    "source_function": "Load_Resources_ReadsBlocks",
+    "source_line": 16,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [
+      "Image.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a45fe613980d66c383b34a812111b8f5f99c9c42d9424e3fceec9535720d4d1f",
+      "norm": "a45fe613980d66c383b34a812111b8f5f99c9c42d9424e3fceec9535720d4d1f"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageResourcesSectionTests.cs",
+    "source_function": "Save_Resources_PreservesRaw",
+    "source_line": 47,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eb83a30279ba7c519cc6fa8c0ec5a4003bb579c6549bfabbddf460bb76d39654",
+      "norm": "eb83a30279ba7c519cc6fa8c0ec5a4003bb579c6549bfabbddf460bb76d39654"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageResourcesSectionTests.cs",
+    "source_function": "Load_ResourcesFixture_Reads",
+    "source_line": 73,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4897ae94abfd1c9b346dff69f975eb090f486bdba45263139b45c374c9014c89",
+      "norm": "4897ae94abfd1c9b346dff69f975eb090f486bdba45263139b45c374c9014c89"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/ImageResourcesSectionTests.cs",
+    "source_function": "Save_ResourcesFixture_Raw",
+    "source_line": 88,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "de249c2d6c71f62c9638de960779abc27bbed7a1e573551ca498a411b879283e",
+      "norm": "de249c2d6c71f62c9638de960779abc27bbed7a1e573551ca498a411b879283e"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/InspectionDtoTests.cs",
+    "source_function": "Load_DocumentDtos_ReadValues",
+    "source_line": 17,
+    "classes_used": [
+      "Image",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9e7415fbd4e2a4c5099762a3c025220d84732b42811ce9dac2f3edaaad2ac5f4",
+      "norm": "9e7415fbd4e2a4c5099762a3c025220d84732b42811ce9dac2f3edaaad2ac5f4"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/InspectionDtoTests.cs",
+    "source_function": "Load_LayerDtos_ReadValues",
+    "source_line": 48,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e04f7fbcb54c751412a1691b620f118dfb5b9681c4832f8e63862eb937099e9",
+      "norm": "4e04f7fbcb54c751412a1691b620f118dfb5b9681c4832f8e63862eb937099e9"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Load_TooLongLayerMask_Throws",
+    "source_line": 19,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "PsdLoadException"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "39025bf9b11a7961ee874d658ec8e17caf33fed0007a08db9d69ac7082be57d0",
+      "norm": "39025bf9b11a7961ee874d658ec8e17caf33fed0007a08db9d69ac7082be57d0"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Load_TooLongLayerExtra_Throws",
+    "source_line": 37,
+    "classes_used": [
+      "Layer",
+      "PsdLoadException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e005e45a3a2006bd3f1c8d0e78a69c0bb8fa4df2d82aff06983dd7d762c02f35",
+      "norm": "e005e45a3a2006bd3f1c8d0e78a69c0bb8fa4df2d82aff06983dd7d762c02f35"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Load_NegativeLayerExtra_Throws",
+    "source_line": 54,
+    "classes_used": [
+      "Layer",
+      "PsdLoadException"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8bc091e83ee6e3db28cfa43859bb110e1b04e72fb722aee4c16d9c5cf1ba6927",
+      "norm": "8bc091e83ee6e3db28cfa43859bb110e1b04e72fb722aee4c16d9c5cf1ba6927"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Load_LayerInspection_ReadsValues",
+    "source_line": 69,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "LayerBlendingRangesData",
+      "LayerMaskData",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "882fa3ca2fa3226e129bec7ec4a8de1ea40b271dd843ea086374717af48458b1",
+      "norm": "882fa3ca2fa3226e129bec7ec4a8de1ea40b271dd843ea086374717af48458b1"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Save_ChangesBlendMode",
+    "source_line": 93,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23fd952242e627b17c08b594850423bd3dd6de37ad0a0a46a7cb0273e3a4ee47",
+      "norm": "23fd952242e627b17c08b594850423bd3dd6de37ad0a0a46a7cb0273e3a4ee47"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Save_ChangesClipping",
+    "source_line": 116,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9064ec839ac91276bbac781bc5f98ae7707671d741aaaf646ca09f0d6d31a7f1",
+      "norm": "9064ec839ac91276bbac781bc5f98ae7707671d741aaaf646ca09f0d6d31a7f1"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Save_ChangesBounds",
+    "source_line": 139,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save",
+      "Rectangle.FromLeftTopRightBottom"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1ac0cb5df92f63535c0dba892ddf4cda3e5f6f2a24ab24657661ee755c94d081",
+      "norm": "1ac0cb5df92f63535c0dba892ddf4cda3e5f6f2a24ab24657661ee755c94d081"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Save_ChangesCoordinates",
+    "source_line": 166,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a831cf379f61475e7601b29b01a2746ddda7fc1220e89518572f72d041b0610f",
+      "norm": "a831cf379f61475e7601b29b01a2746ddda7fc1220e89518572f72d041b0610f"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/LayerSectionTests.cs",
+    "source_function": "Load_PsbLayerRecord_Reads",
+    "source_line": 193,
+    "classes_used": [
+      "Layer",
+      "Rectangle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9ea8be7f26ec9620e5e8f1e559bb69752455cc4a9cfe5ea9bf59c0c8954390e1",
+      "norm": "9ea8be7f26ec9620e5e8f1e559bb69752455cc4a9cfe5ea9bf59c0c8954390e1"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PascalStringTests.cs",
+    "source_function": "ReadAligned2_ConsumesPadding",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7909bbd1f8072a67f1ffbe2c3a185c216bd0b215a6bf059f3265c9482fc1f861",
+      "norm": "7909bbd1f8072a67f1ffbe2c3a185c216bd0b215a6bf059f3265c9482fc1f861"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PascalStringTests.cs",
+    "source_function": "ReadAligned4_ConsumesPadding",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b9e4e6f2d9468c151270cc0cce7917722093c4dd97a2c2653d1b48172f4801ea",
+      "norm": "b9e4e6f2d9468c151270cc0cce7917722093c4dd97a2c2653d1b48172f4801ea"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdHeaderTests.cs",
+    "source_function": "Load_NonZeroReserved_Throws",
+    "source_line": 16,
+    "classes_used": [
+      "PsdLoadException",
+      "PsdVersion"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "64c251eeaa35bcbe845aee432e1cf0dcf628f0d5014f340724090cf7211443c0",
+      "norm": "64c251eeaa35bcbe845aee432e1cf0dcf628f0d5014f340724090cf7211443c0"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdHeaderTests.cs",
+    "source_function": "Load_InvalidHeaderField_Throws",
+    "source_line": 36,
+    "classes_used": [
+      "ColorModes",
+      "PsdLoadException",
+      "PsdVersion"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7dd80a8a0f2811c29a38011d64e1e9b47b8f157e506cb546ccc93236c4fcf6a5",
+      "norm": "7dd80a8a0f2811c29a38011d64e1e9b47b8f157e506cb546ccc93236c4fcf6a5"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdHeaderTests.cs",
+    "source_function": "Load_PsdHeader_ReadsMetadata",
+    "source_line": 61,
+    "classes_used": [
+      "ColorModes",
+      "PsdVersion"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c46ec547bafe29a0c0f35c00ff45d4f5bb92984a7412f33fdd7b683e7e423c05",
+      "norm": "c46ec547bafe29a0c0f35c00ff45d4f5bb92984a7412f33fdd7b683e7e423c05"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdHeaderTests.cs",
+    "source_function": "Load_PsbHeader_ReadsMetadata",
+    "source_line": 81,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2a07657241f484b61732a17e46ee457c3a28f32ae4e1ce22f21533265fc43055",
+      "norm": "2a07657241f484b61732a17e46ee457c3a28f32ae4e1ce22f21533265fc43055"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_Document_ReadsProperties",
+    "source_line": 19,
+    "classes_used": [
+      "ColorModes",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "45ca2622552191382f4affefd32a4dee00fe76d0e87dc2d1c155ae0bf9fc5d15",
+      "norm": "45ca2622552191382f4affefd32a4dee00fe76d0e87dc2d1c155ae0bf9fc5d15"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_Layer_ReadsProperties",
+    "source_line": 42,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Rectangle"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "654f91475708b4ca9ddf903221fdd6d10bf363d18a8761e1c8e1762c937894fe",
+      "norm": "654f91475708b4ca9ddf903221fdd6d10bf363d18a8761e1c8e1762c937894fe"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_Layers_Indexable",
+    "source_line": 66,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3436a1d2c65e0996d00b716981b5445daddc21a64abb03625dbd3e7b1f26c34d",
+      "norm": "3436a1d2c65e0996d00b716981b5445daddc21a64abb03625dbd3e7b1f26c34d"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_Seekable_PreservesPosition",
+    "source_line": 81,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f566b80f1b6668b6175c65f15d3f96e731998cab70dedf1223b9d0980f49aae8",
+      "norm": "f566b80f1b6668b6175c65f15d3f96e731998cab70dedf1223b9d0980f49aae8"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_NonSeekableStream_Succeeds",
+    "source_line": 101,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "598baaed9b44da17d77d082ea2a5f0f004d1c7774a7fed9396fdf3122965a1d8",
+      "norm": "598baaed9b44da17d77d082ea2a5f0f004d1c7774a7fed9396fdf3122965a1d8"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_NullStream_Throws",
+    "source_line": 116,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4276e52e7432fb52f031766902ec482fcb3d7af82afce1d295cbe3e5eb4d7cb0",
+      "norm": "4276e52e7432fb52f031766902ec482fcb3d7af82afce1d295cbe3e5eb4d7cb0"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_MissingFile_Throws",
+    "source_line": 126,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d125a067bfcf937689e646eac03158faf08f558ba28d8b33059b6f545649168",
+      "norm": "8d125a067bfcf937689e646eac03158faf08f558ba28d8b33059b6f545649168"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_InvalidSignature_Throws",
+    "source_line": 137,
+    "classes_used": [
+      "PsdLoadException",
+      "PsdVersion"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4713dbf870b00b947466f99d42720d1e0d9eef9c6b9c0ab50cd36288c5c4d5f",
+      "norm": "c4713dbf870b00b947466f99d42720d1e0d9eef9c6b9c0ab50cd36288c5c4d5f"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageLoadTests.cs",
+    "source_function": "Load_DocInspection_Reads",
+    "source_line": 153,
+    "classes_used": [
+      "CompressionMethod",
+      "Image",
+      "Layer",
+      "PsdImage",
+      "PsdVersion"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "919a826ed5395ad08248309a56df9b349f844be800b25f08bde65aa71bcad128",
+      "norm": "919a826ed5395ad08248309a56df9b349f844be800b25f08bde65aa71bcad128"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_RoundTrip_LoadsAgain",
+    "source_line": 17,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3bb4b79667b5033dd1193f1d9123509dfd1c4419511c7a12ccc542dcfb1441f",
+      "norm": "c3bb4b79667b5033dd1193f1d9123509dfd1c4419511c7a12ccc542dcfb1441f"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_RoundTrip_IsByteExact",
+    "source_line": 48,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "04cade776b6d400b33a797114c08be5262b76039fae4934863ad8e6956fdaa88",
+      "norm": "04cade776b6d400b33a797114c08be5262b76039fae4934863ad8e6956fdaa88"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_ChangesLayerName",
+    "source_line": 76,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9265489fa59d050b84401599c91988e8ab79112684a25c68cfe868ce7bb9145f",
+      "norm": "9265489fa59d050b84401599c91988e8ab79112684a25c68cfe868ce7bb9145f"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_ChangesLayerVisibility",
+    "source_line": 101,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "387cae0749d417d9a9d48d6ce5599e7c1a83178b041e128055e143aec8c27500",
+      "norm": "387cae0749d417d9a9d48d6ce5599e7c1a83178b041e128055e143aec8c27500"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_ChangesLayerOpacity",
+    "source_line": 126,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9ec99ab97bf24cc5b6babe7796d46c65d31a5220bf24f270382c5551a91a799d",
+      "norm": "9ec99ab97bf24cc5b6babe7796d46c65d31a5220bf24f270382c5551a91a799d"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdImageSaveTests.cs",
+    "source_function": "Save_Mutation_PreservesFlags",
+    "source_line": 152,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c14749b49f173ed01902a3de1b85bc5c0c03a5ba53176aeeccbb710b5de9b63b",
+      "norm": "c14749b49f173ed01902a3de1b85bc5c0c03a5ba53176aeeccbb710b5de9b63b"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "PsdTestFixtureBase",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4651a68b0442d44e68637f5eff270671b21d45c10e2a7d719dbfea713c6b6573",
+      "norm": "4651a68b0442d44e68637f5eff270671b21d45c10e2a7d719dbfea713c6b6573"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "Dispose",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d427a01dc4bee002d882feb99534e2673ac563c43d1a4890094fc398ffb5cd4",
+      "norm": "3d427a01dc4bee002d882feb99534e2673ac563c43d1a4890094fc398ffb5cd4"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "GetPersistentArtifactPath",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "967e5bc165ffe85f8fc601656a9f47d65ab276d2fbf3114c90323eef4ac7884a",
+      "norm": "967e5bc165ffe85f8fc601656a9f47d65ab276d2fbf3114c90323eef4ac7884a"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "GetTestDataPath",
+    "source_line": 69,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "37af37be32e1846c139ed2fce1992561346bb6bb38356007e00ae0d0c344df65",
+      "norm": "37af37be32e1846c139ed2fce1992561346bb6bb38356007e00ae0d0c344df65"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "LogArtifactDirectory",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d071bed043e61ea86d4f3f982329c54eff101f8eca985d2fd46dc7e2398a62fa",
+      "norm": "d071bed043e61ea86d4f3f982329c54eff101f8eca985d2fd46dc7e2398a62fa"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "SanitizePathSegment",
+    "source_line": 98,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "99d59f5cb078650aa85c8bf6589cd2f3352e443aefc5962efec65a17e2e6ded8",
+      "norm": "99d59f5cb078650aa85c8bf6589cd2f3352e443aefc5962efec65a17e2e6ded8"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "AssertByteExactRoundTrip",
+    "source_line": 116,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e7b91b8cfed1a65afe4fe1b4930cb5060def480ade833742ba9385dc1a186e20",
+      "norm": "e7b91b8cfed1a65afe4fe1b4930cb5060def480ade833742ba9385dc1a186e20"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "AssertRenameSave",
+    "source_line": 137,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dd86e908dfafeb43bd8a6da469b25d5d8ac8458a4e02efb51e1ac8189578224b",
+      "norm": "dd86e908dfafeb43bd8a6da469b25d5d8ac8458a4e02efb51e1ac8189578224b"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "WriteUInt32BigEndian",
+    "source_line": 158,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e21a0d3a907eb6920a2393cf2e2b16eaf6d3224eefcbe7c8d83266ae5896b1be",
+      "norm": "e21a0d3a907eb6920a2393cf2e2b16eaf6d3224eefcbe7c8d83266ae5896b1be"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildHeaderBytes",
+    "source_line": 177,
+    "classes_used": [
+      "ColorModes"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ee4083814c6d0815f7e15efd0547edc17c5936674bc0b7989d88b87cb50b2628",
+      "norm": "ee4083814c6d0815f7e15efd0547edc17c5936674bc0b7989d88b87cb50b2628"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildColorDataSection",
+    "source_line": 206,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0aeee68ee0fe9ac20ee50e0d175e46b6be98d1ca59ba9cdfa14ecfc22a862eb2",
+      "norm": "0aeee68ee0fe9ac20ee50e0d175e46b6be98d1ca59ba9cdfa14ecfc22a862eb2"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildImageDataSection",
+    "source_line": 222,
+    "classes_used": [
+      "CompressionMethod",
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15e1e28e1781bba4ce4efefe788b140e866ad23a90cbea7e814e00c1d22a9ffe",
+      "norm": "15e1e28e1781bba4ce4efefe788b140e866ad23a90cbea7e814e00c1d22a9ffe"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildIndexedPalettePayload",
+    "source_line": 236,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e4990ce99d6b5d21292ff01ef4c9f5ee016e6457f2754be10d131d2591ff483d",
+      "norm": "e4990ce99d6b5d21292ff01ef4c9f5ee016e6457f2754be10d131d2591ff483d"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildResourcesPayload",
+    "source_line": 255,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bbaafcb80da56ba97ab893b11f0759a67fa9da67b2d096b5f885f89db80273d8",
+      "norm": "bbaafcb80da56ba97ab893b11f0759a67fa9da67b2d096b5f885f89db80273d8"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildLayerRecordBytesWithExtraData",
+    "source_line": 303,
+    "classes_used": [
+      "Layer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3188c6b61ca6679bd42fd30b129082a6bf4f7389a373e9fc9d1ad17513780ea5",
+      "norm": "3188c6b61ca6679bd42fd30b129082a6bf4f7389a373e9fc9d1ad17513780ea5"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "ExtractImageResourcesSection",
+    "source_line": 331,
+    "classes_used": [
+      "Image"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a134cb4138f2ab05f52045ba692fec8f28b2ae86cd180f00ea86329907f57f5e",
+      "norm": "a134cb4138f2ab05f52045ba692fec8f28b2ae86cd180f00ea86329907f57f5e"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "ReadLayerInfoLength",
+    "source_line": 349,
+    "classes_used": [
+      "Layer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "579e54bbdba60ebd3314c14feec715a5baf92a97bf7146e84464c56c66b5b4ab",
+      "norm": "579e54bbdba60ebd3314c14feec715a5baf92a97bf7146e84464c56c66b5b4ab"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "ReadLayerAndMaskTail",
+    "source_line": 366,
+    "classes_used": [
+      "Layer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1da507f703f03e5dfa4878736015eb4958db07b57917bf5ffaac70913371b554",
+      "norm": "1da507f703f03e5dfa4878736015eb4958db07b57917bf5ffaac70913371b554"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cs",
+    "source_file": "src/Aspose.PSD.FOSS.Test/PsdTestFixtureBase.cs",
+    "source_function": "BuildPsbLayerRecordBytes",
+    "source_line": 393,
+    "classes_used": [
+      "Layer"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8c161e72869851f74435b42e318c5dc739348913b306dcd8c23bb2ac59886ba3",
+      "norm": "8c161e72869851f74435b42e318c5dc739348913b306dcd8c23bb2ac59886ba3"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cs",
+    "source_file": "samples/Aspose.PSD.FOSS.Samples.Basic/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "596aca906d1463d21091366897e163647b8c7a2dc1d9a1bcfd9bec8988aba34f",
+      "norm": "ea1c8a1a825918e7ec41f62572caa4c70e4441ba22e86705e9e694b6b22cb8d4"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cs",
+    "source_file": "samples/Aspose.PSD.FOSS.Samples.Layers/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "LayerBlendingRangesData",
+      "LayerMaskData",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ebf2780bd8ec75284ea0edd059da9108d3fbe88f0d36630b74237e13fe14a50f",
+      "norm": "ed76819a4772a329d89e5e5f970938b87b7ba83bfcfb2f3dbca22279029d8bf3"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cs",
+    "source_file": "samples/Aspose.PSD.FOSS.Samples.Streams/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd9c95a3490f779ee9f5e9f3d5b321cfc844bd350a05319e1c0dcf03fb538976",
+      "norm": "337e673b479aeffc7c91ba77be146037ec393d3bece862189ea42578419476d1"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cs",
+    "source_file": "samples/Aspose.PSD.FOSS.Samples.StructuralEditing/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f53b619f334aa380675668ec91153112d1b1dad2dcf0ecec40d384453c8c2230",
+      "norm": "f53b619f334aa380675668ec91153112d1b1dad2dcf0ecec40d384453c8c2230"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cs",
+    "source_file": "samples/Aspose.PSD.NuGet.Samples.Basic/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "Image",
+      "Layer",
+      "PsdImage",
+      "Size"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "596aca906d1463d21091366897e163647b8c7a2dc1d9a1bcfd9bec8988aba34f",
+      "norm": "ea1c8a1a825918e7ec41f62572caa4c70e4441ba22e86705e9e694b6b22cb8d4"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cs",
+    "source_file": "samples/Aspose.PSD.NuGet.Samples.Layers/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "LayerBlendingRangesData",
+      "LayerMaskData",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "PsdImage.Load"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ebf2780bd8ec75284ea0edd059da9108d3fbe88f0d36630b74237e13fe14a50f",
+      "norm": "ed76819a4772a329d89e5e5f970938b87b7ba83bfcfb2f3dbca22279029d8bf3"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cs",
+    "source_file": "samples/Aspose.PSD.NuGet.Samples.Streams/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "Image",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd9c95a3490f779ee9f5e9f3d5b321cfc844bd350a05319e1c0dcf03fb538976",
+      "norm": "337e673b479aeffc7c91ba77be146037ec393d3bece862189ea42578419476d1"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cs",
+    "source_file": "samples/Aspose.PSD.NuGet.Samples.StructuralEditing/Program.cs",
+    "source_function": "(top_level_program)",
+    "source_line": 1,
+    "classes_used": [
+      "BlendMode",
+      "Image",
+      "Layer",
+      "PsdImage"
+    ],
+    "methods_used": [
+      "Image.Load",
+      "Image.Save",
+      "PsdImage.Load",
+      "PsdImage.Save"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f53b619f334aa380675668ec91153112d1b1dad2dcf0ecec40d384453c8c2230",
+      "norm": "f53b619f334aa380675668ec91153112d1b1dad2dcf0ecec40d384453c8c2230"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cs",
+    "source_file": "samples/Common/SampleOutputHelper.cs",
+    "source_function": "OpenOutputFolder",
+    "source_line": 14,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef4e2607b9ccdf2eebd40e89c4e1af8066449252fba2fb61c81203ad1ba1434c",
+      "norm": "ef4e2607b9ccdf2eebd40e89c4e1af8066449252fba2fb61c81203ad1ba1434c"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cs",
+    "source_file": "samples/Common/SamplePathHelper.cs",
+    "source_function": "ResolveInputPath",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "544a88ad492dfdd87966ae9182388a85227dae3f2b7a2307470c682a6cb8fe31",
+      "norm": "544a88ad492dfdd87966ae9182388a85227dae3f2b7a2307470c682a6cb8fe31"
+    }
+  }
+]

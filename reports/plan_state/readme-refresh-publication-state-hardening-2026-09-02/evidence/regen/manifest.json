@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "run_id": "rr-20260902T144200Z-b2ad89dcc424",
+  "family": "3d",
+  "platform": "python",
+  "repo_full_name": "aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "repo_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python",
+  "clone_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git",
+  "candidate_tree": "repo-presenter-regen-full",
+  "state": "AWAITING_REVIEW",
+  "session_owner": "9d8aa2aa-a458-4688-acc4-4048b8aa9955",
+  "created_at": "2026-09-02T14:42:01.823009Z",
+  "updated_at": "2026-09-02T15:04:13.554662Z",
+  "pinned_inputs": {
+    "clone_cache_head": "d9f3bfe50d47e8156266955dda52ec5abf2d9dec",
+    "preflight": {
+      "archived": false,
+      "default_branch": "master",
+      "disabled": false,
+      "permissions": {
+        "admin": true,
+        "maintain": true,
+        "pull": true,
+        "push": true,
+        "triage": true
+      }
+    },
+    "full_manifest": {
+      "clone_cache": {
+        "commit": "d9f3bfe50d47e8156266955dda52ec5abf2d9dec",
+        "tree": "cc8ae48f0a5d6eb99fe54903767ac3985368afd6"
+      },
+      "enterprise_edition_target": {
+        "entry": null,
+        "entry_sha256": null
+      },
+      "manifest_version": {
+        "version": "26.1.0",
+        "source_path": "setup.py",
+        "source_field": "ast:setup(version=...)"
+      },
+      "manifest_hash": "88d24396f36ac81678133f59f06dfdcf50fc8955bffc24290a1ac8bdbdbb1cb7"
+    },
+    "publication": {
+      "effective_published": true,
+      "latest_version": "26.1.0",
+      "source": "live_probe",
+      "probed_at": "2026-09-02T14:42:11.856799Z"
+    }
+  },
+  "stage_checkpoints": {
+    "inputs_pinned": {
+      "state": "INPUTS_PINNED",
+      "completed_at": "2026-09-02T14:42:01.825664Z"
+    },
+    "planned": {
+      "state": "PLANNED",
+      "completed_at": "2026-09-02T14:42:13.593715Z"
+    },
+    "ingested": {
+      "state": "VERIFYING_EXAMPLES",
+      "completed_at": "2026-09-02T14:49:29.020894Z"
+    },
+    "verified": {
+      "state": "AWAITING_REVIEW",
+      "completed_at": "2026-09-02T14:50:45.957921Z"
+    }
+  },
+  "publication_line": "PUBLICATION: PUBLISHED aspose-3d-foss 26.1.0 on pypi (2026-08-29) [bdist_wheel] -- live probe https://pypi.org/pypi/aspose-3d-foss/json; registry metadata defects (3): project_url_not_this_repository, no_license_metadata, no_sdist -> upstream-issues.md, never README",
+  "last_reverified_at": "2026-09-02T15:04:13.554626Z"
+}

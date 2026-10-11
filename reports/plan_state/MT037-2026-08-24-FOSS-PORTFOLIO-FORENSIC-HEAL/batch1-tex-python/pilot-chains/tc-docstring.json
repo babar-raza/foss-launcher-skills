@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-tex-python-003a",
+  "root_cause_id": "RC-tex-python-04",
+  "task_id": "TC-tex-python-02-DOCSTRING-RPREFIX",
+  "system_fix_diff_ref": "e42275e5d8 (scripts/pipeline/extraction/api_surface.py, _strip_string_prefix_and_quotes)",
+  "regen_command": "batch_reference.py tex python --update (6 pages) + --generate-index, run-ids MT037-batch1-tex-python-docstring-fix-20260825 / -index-20260825",
+  "verification_before_hash": "b0a8fc676e73d42f2c7af83fa3213ac01991347bf0ef14b99c7619093e992382",
+  "verification_after_hash": "09326d70608bbf2f55ab604d8baaa9b036a7295e4dd8a2c27e0653aa51515455",
+  "agentic_consumption_recheck_passed": true
+}

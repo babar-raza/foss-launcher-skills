@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Standalone full-tree scanner for duplicate or malformed grade frontmatter keys.
 
 Role: on-demand audit tool for the whole content tree. Run after backfills,

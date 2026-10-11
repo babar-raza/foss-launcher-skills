@@ -1,0 +1,2170 @@
+"""test_backlink_backfill.py — Regression tests for backlink_backfill.py.
+
+Focus: FU-4 — verify that target_type="family" and target_type="platform" produce
+the correct anchor text, preventing the bug class where a family-fallback URL was
+paired with a platform-level anchor (e.g., "for Python" on a family URL).
+
+Tests cover:
+- _build_see_also_entry: family/platform anchor rules
+- _apply_overview_template: family/platform anchor rules for products YAML
+- backfill_markdown: idempotency, section insertion, family-anchor rule end-to-end
+- font/python family-fallback scenario (confirmed-404 platform -> family URL)
+- reference family URL never produces "for Python / .NET / Java"
+- URL and anchor both derive from the same resolution record (no stale reuse)
+
+Run:
+    python -m pytest scripts/pipeline/tests/test_backlink_backfill.py -v
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+import textwrap
+from pathlib import Path
+
+import pytest
+
+# Adjust path so commands/ops/ and lib/ are importable
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+
+import commands.ops.backlink_backfill as _bbm
+
+
+@pytest.fixture(autouse=True)
+def _reset_bbm_configure():
+    """Reset the backlink_backfill configure() seam after every test."""
+    yield
+    _bbm.configure()
+from commands.ops.backlink_backfill import (
+    _build_see_also_entry,
+    _apply_overview_template,
+    backfill_markdown,
+)
+from lib.backlink_targets import build_enterprise_anchor_suffix
+
+# ── Shared fixtures ──────────────────────────────────────────────────────────
+
+FAMILIES_MAP = {
+    "words": "Aspose.Words",
+    "cells": "Aspose.Cells",
+    "font": "Aspose.Font",
+    "3d": "Aspose.3D",
+    "slides": "Aspose.Slides",
+}
+
+PLATFORMS_MAP = {
+    "python": "Python",
+    "net": ".NET",
+    "java": "Java",
+    "cpp": "C++",
+    "typescript": "TypeScript",
+}
+
+# ── _build_see_also_entry ────────────────────────────────────────────────────
+
+
+class TestBuildSeeAlsoEntry:
+    """Unit tests for the See Also entry builder.
+
+    The FAMILY-ANCHOR rule: when target_type == "family", the anchor must never
+    include "for {Platform}" even if platform is present in the source metadata.
+    """
+
+    def test_family_target_type_omits_platform(self):
+        """target_type='family' must not include 'for Python' in anchor."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/font/",
+            family="font",
+            platform="python",
+            subdomain="blog.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "for Python" not in entry
+        assert "for python" not in entry.lower()
+        assert "Aspose.Font" in entry
+        assert "https://products.aspose.com/font/" in entry
+
+    def test_platform_target_type_includes_platform(self):
+        """target_type='platform' must include 'for Python' in anchor."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/words/python/",
+            family="words",
+            platform="python",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "for Python" in entry
+        assert "Aspose.Words" in entry
+        assert "https://products.aspose.com/words/python/" in entry
+
+    def test_family_target_type_omits_net(self):
+        """target_type='family' must not include '.NET' even for net platform."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/3d/",
+            family="3d",
+            platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "for .NET" not in entry
+        assert "for net" not in entry.lower()
+        assert "Aspose.3D" in entry
+
+    def test_family_target_type_omits_java(self):
+        """target_type='family' must not include 'for Java' even for java platform."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/cells/",
+            family="cells",
+            platform="java",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "for Java" not in entry
+        assert "Aspose.Cells" in entry
+
+    def test_none_target_type_and_no_platform_is_family_anchor(self):
+        """With no platform, anchor must always be family-level."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/words/",
+            family="words",
+            platform=None,
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type=None,
+        )
+        # No "for X" suffix at all
+        assert not re.search(r'for (?:Python|\.NET|Java|C\+\+|TypeScript)', entry)
+        assert "Aspose.Words" in entry
+
+    def test_platform_target_net_produces_correct_anchor(self):
+        """target_type='platform' with net must produce 'for .NET'."""
+        entry = _build_see_also_entry(
+            target_url="https://docs.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "for .NET" in entry
+        assert "Aspose.Slides" in entry
+
+    def test_entry_contains_enterprise_product_family_suffix(self):
+        """The entry must use 'Enterprise Product Family' suffix for family-type targets."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/font/",
+            family="font",
+            platform="python",
+            subdomain="blog.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in entry
+        assert "Commercial Edition" not in entry
+
+    def test_url_and_anchor_are_consistent(self):
+        """The URL in the entry must match the target_url passed in.
+
+        Guards against stale URL reuse: anchor and URL must both come from the
+        same resolved target, never from a prior resolution.
+        """
+        platform_url = "https://products.aspose.com/words/python/"
+        family_url = "https://products.aspose.com/words/"
+
+        platform_entry = _build_see_also_entry(
+            platform_url, "words", "python", "docs.aspose.org",
+            FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        family_entry = _build_see_also_entry(
+            family_url, "words", "python", "docs.aspose.org",
+            FAMILIES_MAP, PLATFORMS_MAP, target_type="family",
+        )
+
+        # Platform entry: URL is platform URL, anchor includes "for Python"
+        assert platform_url in platform_entry
+        assert "for Python" in platform_entry
+
+        # Family entry: URL is family URL, anchor does NOT include "for Python"
+        assert family_url in family_entry
+        assert "for Python" not in family_entry
+
+        # Cross-check: platform URL must not appear in family entry
+        # (check as full URL token followed by ) delimiter)
+        assert f"({platform_url})" not in family_entry
+        # Family-only URL must not appear as a standalone link target in platform entry
+        # (platform URL is "words/python/", family is "words/" -- need exact match check)
+        assert f"({family_url})" not in platform_entry
+
+
+# ── Font/python family-fallback scenario ─────────────────────────────────────
+
+
+class TestFontPythonFamilyFallback:
+    """Regression: products.aspose.com/font/python/ is a confirmed 404.
+
+    The resolver falls back to the family URL https://products.aspose.com/font/
+    with chosen_type='family'. The anchor must be 'Aspose.Font -- Enterprise Product Family',
+    not 'Aspose.Font for Python -- Enterprise Product'.
+    """
+
+    FAMILY_URL = "https://products.aspose.com/font/"
+
+    def test_family_fallback_anchor_is_family_only(self):
+        """When font/python resolves to family URL, anchor must not include 'for Python'."""
+        entry = _build_see_also_entry(
+            target_url=self.FAMILY_URL,
+            family="font",
+            platform="python",  # source has python platform...
+            subdomain="blog.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",  # ...but target is family-level
+        )
+        assert "for Python" not in entry
+        assert "Aspose.Font" in entry
+        assert self.FAMILY_URL in entry
+
+    def test_family_fallback_url_is_family_url(self):
+        """The URL in the entry must be the family URL, not any platform URL."""
+        entry = _build_see_also_entry(
+            target_url=self.FAMILY_URL,
+            family="font",
+            platform="python",
+            subdomain="blog.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        # Must contain the family URL
+        assert "products.aspose.com/font/" in entry
+        # Must NOT contain any platform URL pattern
+        assert "products.aspose.com/font/python" not in entry
+
+
+# ── Reference family URL anchor rule ─────────────────────────────────────────
+
+
+class TestReferenceAnchorRule:
+    """Reference pages: when target is reference.aspose.com/{family}/ (family-level),
+    anchor must not include 'for Python', 'for .NET', 'for Java', 'for TypeScript'
+    regardless of source platform.
+    """
+
+    @pytest.mark.parametrize("platform,display_name", [
+        ("python", "Python"),
+        ("net", ".NET"),
+        ("java", "Java"),
+        ("typescript", "TypeScript"),
+        ("cpp", "C++"),
+    ])
+    def test_reference_family_url_no_platform_in_anchor(self, platform, display_name):
+        """reference.aspose.com/{family}/ target with family target_type: no 'for X' in anchor."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/3d/",
+            family="3d",
+            platform=platform,
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert f"for {display_name}" not in entry, (
+            f"Family-URL reference anchor must not contain 'for {display_name}'"
+        )
+
+    def test_reference_platform_url_includes_platform(self):
+        """reference.aspose.com/{family}/{platform}/ target: anchor must include platform."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/3d/net/",
+            family="3d",
+            platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "for .NET" in entry
+
+
+# ── _apply_overview_template ──────────────────────────────────────────────────
+
+
+class TestApplyOverviewTemplate:
+    """Tests for the products YAML overview template generator.
+
+    Same FAMILY-ANCHOR rule applies: target_type='family' must omit platform.
+    """
+
+    def test_family_target_type_omits_platform_in_overview(self):
+        """target_type='family' must not produce 'for Python' in overview sentence."""
+        content = (
+            "Aspose.Font FOSS is an open-source font manipulation library. "
+            "It is MIT-licensed and fully open-source on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/font/",
+            family="font",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "for Python" not in result
+        assert "Aspose.Font" in result
+        assert "https://products.aspose.com/font/" in result
+        # Original content must be preserved
+        assert "MIT-licensed" in result
+
+    def test_family_fallback_uses_enterprise_product_family_anchor(self):
+        """When platform source falls back to family URL (target_type='family'),
+        the overview sentence must use 'Enterprise Product Family', not 'Enterprise Product'.
+
+        Regression guard for: _apply_overview_template previously selected P-4 (platform
+        template) whenever platform was truthy, even with target_type='family'.
+        """
+        content = "Aspose.Font FOSS."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/font/",
+            family="font",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in result
+        assert "Enterprise Product" in result  # substring is fine
+        assert "for Python" not in result
+        assert "Commercial" not in result
+
+    def test_platform_target_type_includes_platform_in_overview(self):
+        """target_type='platform' must produce 'for Python' in overview sentence."""
+        content = (
+            "Aspose.Words FOSS is a document conversion library. "
+            "It is MIT-licensed and available on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/words/python/",
+            family="words",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "for Python" in result
+        assert "Aspose.Words" in result
+        assert "https://products.aspose.com/words/python/" in result
+
+    def test_family_page_no_platform(self):
+        """Family page (no platform) must always use family-only anchor."""
+        content = "Aspose.Words FOSS provides open-source document processing. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/words/",
+            family="words",
+            platform=None,
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type=None,
+        )
+        # No "for <Platform>" pattern
+        assert not re.search(r'for (?:Python|\.NET|Java|C\+\+|TypeScript)', result)
+        assert "products.aspose.com/words/" in result
+
+    def test_original_content_retained_after_insert(self):
+        """Original content must survive the template insertion (>= 80% retention)."""
+        content = (
+            "Aspose.Cells FOSS provides spreadsheet reading and writing. "
+            "Read Excel, CSV, and ODS files. Write formula results to JSON. "
+            "It is MIT-licensed and open on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/cells/python/",
+            family="cells",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        # Original sentences should all still be present
+        assert "spreadsheet reading and writing" in result
+        assert "MIT-licensed" in result
+
+
+# ── backfill_markdown idempotency ─────────────────────────────────────────────
+
+
+class TestBackfillMarkdownIdempotency:
+    """backfill_markdown must not double-insert a backlink that already exists.
+
+    backfill_markdown calls file_path.relative_to(_REPO_ROOT) internally.
+    We patch the module-level _REPO_ROOT to tmp_path so temp files resolve correctly.
+    """
+
+    def _make_file(self, tmp_path: Path, body: str) -> Path:
+        f = tmp_path / "page.md"
+        fm = "---\ntitle: Test Page\nfamily: words\nplatform: python\n---\n"
+        f.write_text(fm + body, encoding="utf-8")
+        return f
+
+    @pytest.fixture(autouse=True)
+    def patch_repo_root(self, tmp_path, monkeypatch):
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+
+    def test_idempotent_when_url_already_present(self, tmp_path):
+        """No second See Also entry if the target URL is already in the body."""
+        body = textwrap.dedent("""\
+            Some content here.
+
+            ## See Also
+
+            - [Aspose.Words for Python -- Enterprise Product](https://products.aspose.com/words/python/)
+        """)
+        f = self._make_file(tmp_path, body)
+        change = backfill_markdown(
+            file_path=f,
+            target_url="https://products.aspose.com/words/python/",
+            family="words",
+            platform="python",
+            subdomain="docs.aspose.org",
+            page_type="docs-article",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+            target_type="platform",
+        )
+        assert change.skipped is True
+        assert "Already" in change.skip_reason or "idempotent" in change.skip_reason.lower()
+
+    def test_inserts_see_also_when_missing(self, tmp_path):
+        """See Also section is added when not present."""
+        body = "Some content here about Aspose.Words FOSS.\n"
+        f = self._make_file(tmp_path, body)
+        change = backfill_markdown(
+            file_path=f,
+            target_url="https://products.aspose.com/words/python/",
+            family="words",
+            platform="python",
+            subdomain="docs.aspose.org",
+            page_type="docs-article",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+            target_type="platform",
+        )
+        assert change.skipped is False
+        assert "See Also" in change.after_snippet or "Enterprise Product" in change.after_snippet
+
+    def test_second_run_is_idempotent_after_write(self, tmp_path):
+        """Running backfill_markdown twice (write=True then dry_run=True) skips on second run."""
+        body = "Content about Aspose.Words FOSS. It is MIT-licensed.\n"
+        f = self._make_file(tmp_path, body)
+        url = "https://products.aspose.com/words/python/"
+
+        # First run: write
+        backfill_markdown(
+            file_path=f, target_url=url, family="words", platform="python",
+            subdomain="docs.aspose.org", page_type="docs-article",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=False, target_type="platform",
+        )
+        # Second run: should skip
+        change2 = backfill_markdown(
+            file_path=f, target_url=url, family="words", platform="python",
+            subdomain="docs.aspose.org", page_type="docs-article",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True, target_type="platform",
+        )
+        assert change2.skipped is True
+
+    def test_family_target_type_produces_family_anchor_in_written_file(self, tmp_path):
+        """End-to-end: written file must contain family-level anchor, not 'for Python'."""
+        body = "Content about Aspose.Font FOSS. MIT-licensed.\n"
+        f = self._make_file(tmp_path, body)
+        url = "https://products.aspose.com/font/"
+
+        backfill_markdown(
+            file_path=f, target_url=url, family="font", platform="python",
+            subdomain="blog.aspose.org", page_type="blog-post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=False, target_type="family",
+        )
+
+        written = f.read_text(encoding="utf-8")
+        assert "for Python" not in written
+        assert "Aspose.Font" in written
+        assert url in written
+
+
+# ── No independent URL construction ──────────────────────────────────────────
+
+
+class TestNoIndependentUrlConstruction:
+    """Guard: the URL in the final entry must always come from the target_url
+    argument, never be constructed independently from family/platform strings.
+
+    This ensures that even if platform aliases differ, the exact resolved URL
+    (which was HTTP-verified) is what gets inserted.
+    """
+
+    def test_custom_target_url_is_preserved_verbatim(self):
+        """The exact target_url passed in must appear verbatim in the entry."""
+        custom_url = "https://reference.aspose.com/3d/"
+        entry = _build_see_also_entry(
+            target_url=custom_url,
+            family="3d",
+            platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert custom_url in entry, (
+            f"Expected verbatim URL '{custom_url}' in entry, got: {entry!r}"
+        )
+        # No independently-constructed platform URL
+        assert "reference.aspose.com/3d/net" not in entry
+
+    def test_family_url_not_reconstructed_as_platform_url(self):
+        """When target_url is a family URL, no platform segment must be appended."""
+        family_url = "https://products.aspose.com/cells/"
+        entry = _build_see_also_entry(
+            target_url=family_url,
+            family="cells",
+            platform="java",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "products.aspose.com/cells/java" not in entry
+        assert family_url in entry
+
+
+# ── Dead code removal guard ───────────────────────────────────────────────────
+
+
+class TestDeadCodeRemoved:
+    """Guard: _get_link_sentence was dead code with a broken fallback path.
+
+    It was removed in the Backlink QA Sprint (BQA-SYS-2). This test ensures it
+    stays removed and is not accidentally re-introduced by future refactoring.
+    """
+
+    def test_get_link_sentence_does_not_exist(self):
+        """_get_link_sentence must NOT be a member of the backlink_backfill module."""
+        assert not hasattr(_bbm, "_get_link_sentence"), (
+            "_get_link_sentence was dead code and has been removed. "
+            "Do not re-introduce it — use _apply_overview_template or _build_see_also_entry instead."
+        )
+
+
+# ── Domain-aware anchor suffix (build_enterprise_anchor_suffix) ───────────────
+
+
+class TestBuildEnterpriseAnchorSuffix:
+    """Unit tests for build_enterprise_anchor_suffix in lib/backlink_targets.py.
+
+    Policy:
+    - products.aspose.com/family/ → "Enterprise Product Family"
+    - products.aspose.com/family/platform/ → "Enterprise Product"
+    - docs.aspose.com/* → "Enterprise Documentation"
+    - reference.aspose.com/* → "Enterprise API Reference"
+    - kb.aspose.com/* → "Enterprise Knowledge Base"
+    - Unknown domain → "Enterprise Product" (safe fallback)
+    """
+
+    @pytest.mark.parametrize("url,target_type,expected", [
+        # products.aspose.com family
+        ("https://products.aspose.com/slides/", "family", "Enterprise Product Family"),
+        ("https://products.aspose.com/words/", "family", "Enterprise Product Family"),
+        # products.aspose.com platform
+        ("https://products.aspose.com/slides/net/", "platform", "Enterprise Product"),
+        ("https://products.aspose.com/words/python/", "platform", "Enterprise Product"),
+        # docs.aspose.com — any path, any target_type → Documentation
+        ("https://docs.aspose.com/slides/java/", "platform", "Enterprise Documentation"),
+        ("https://docs.aspose.com/slides/net/", "platform", "Enterprise Documentation"),
+        ("https://docs.aspose.com/slides/", "family", "Enterprise Documentation"),
+        # reference.aspose.com — any path → API Reference
+        ("https://reference.aspose.com/slides/net/", "platform", "Enterprise API Reference"),
+        ("https://reference.aspose.com/slides/", "family", "Enterprise API Reference"),
+        # kb.aspose.com
+        ("https://kb.aspose.com/slides/net/", "platform", "Enterprise Knowledge Base"),
+    ])
+    def test_suffix_by_domain_and_type(self, url, target_type, expected):
+        result = build_enterprise_anchor_suffix(url, target_type)
+        assert result == expected, (
+            f"URL={url!r} target_type={target_type!r}: "
+            f"expected {expected!r}, got {result!r}"
+        )
+
+    def test_docs_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com target must NEVER produce 'Enterprise Product Family'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://docs.aspose.com/slides/java/", "family"
+        )
+        assert suffix != "Enterprise Product Family", (
+            "docs.aspose.com target produced 'Enterprise Product Family' — "
+            "this was the anchor-target domain mismatch bug. Must be 'Enterprise Documentation'."
+        )
+        assert suffix == "Enterprise Documentation"
+
+    def test_docs_never_enterprise_product(self):
+        """docs.aspose.com platform target must NOT be 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://docs.aspose.com/slides/net/", "platform"
+        )
+        assert suffix == "Enterprise Documentation"
+        assert "Product" not in suffix
+
+    def test_products_family_never_enterprise_product(self):
+        """products.aspose.com family URL must be 'Enterprise Product Family', not 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://products.aspose.com/slides/", "family"
+        )
+        assert suffix == "Enterprise Product Family"
+
+    def test_unknown_domain_falls_back_to_enterprise_product(self):
+        """Unknown domain uses safe fallback 'Enterprise Product'."""
+        suffix = build_enterprise_anchor_suffix(
+            "https://purchase.aspose.com/buy", "platform"
+        )
+        assert suffix == "Enterprise Product"
+
+
+# ── Domain-aware See Also entries ─────────────────────────────────────────────
+
+
+class TestDomainAwareSeeAlsoEntry:
+    """Verify _build_see_also_entry produces correct anchors for each target domain.
+
+    The critical regression: before this fix, docs.aspose.com targets produced
+    'Enterprise Product Family' or 'Enterprise Product' anchors — wrong domain.
+    """
+
+    def test_docs_target_produces_enterprise_documentation_anchor(self):
+        """docs.aspose.com target → 'Enterprise Documentation' in anchor text."""
+        entry = _build_see_also_entry(
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Documentation" in entry
+        assert "Enterprise Product" not in entry.replace("Enterprise Documentation", "")
+        assert "docs.aspose.com/slides/java/" in entry
+
+    def test_docs_target_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com must NEVER produce 'Enterprise Product Family'."""
+        entry = _build_see_also_entry(
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" not in entry, (
+            f"docs.aspose.com entry must not contain 'Enterprise Product Family': {entry!r}"
+        )
+        assert "Enterprise Documentation" in entry
+
+    def test_reference_platform_produces_api_reference_anchor(self):
+        """reference.aspose.com platform target → 'Enterprise API Reference'."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise API Reference" in entry
+        assert "Enterprise Product" not in entry.replace("Enterprise API Reference", "")
+
+    def test_products_family_target_produces_enterprise_product_family(self):
+        """products.aspose.com family target → 'Enterprise Product Family'."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/",
+            family="slides",
+            platform="java",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in entry
+
+    def test_products_platform_target_produces_enterprise_product(self):
+        """products.aspose.com platform target → 'Enterprise Product'."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Product" in entry
+        assert "Enterprise Product Family" not in entry
+
+
+# ── Domain-aware overview template ────────────────────────────────────────────
+
+
+class TestDomainAwareOverviewTemplate:
+    """Verify _apply_overview_template produces correct sentences for each target domain.
+
+    Regression guard for the anchor-target semantic mismatch:
+    [Aspose.Slides for Java — Enterprise Product Family](https://docs.aspose.com/slides/java/)
+    ↑ anchor says "Enterprise Product Family" but target is docs.aspose.com → wrong
+    """
+
+    def test_docs_target_produces_enterprise_documentation_sentence(self):
+        """docs.aspose.com target must produce 'Enterprise Documentation' in sentence."""
+        content = "Aspose.Slides FOSS for Java is an open-source slides library. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Documentation" in result
+        assert "Enterprise Product Family" not in result, (
+            "REGRESSION: docs.aspose.com overview must not contain 'Enterprise Product Family'"
+        )
+        assert "docs.aspose.com/slides/java/" in result
+
+    def test_docs_family_target_never_enterprise_product_family(self):
+        """REGRESSION: docs.aspose.com with target_type='family' must NOT produce 'Enterprise Product Family'."""
+        content = "Aspose.Slides FOSS."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" not in result, (
+            f"docs.aspose.com overview must not contain 'Enterprise Product Family': {result!r}"
+        )
+        assert "Enterprise Documentation" in result
+
+    def test_reference_target_produces_api_reference_sentence(self):
+        """reference.aspose.com target must produce 'Enterprise API Reference'."""
+        content = "Aspose.Slides FOSS for .NET is a presentation library. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise API Reference" in result
+        assert "Enterprise Product Family" not in result
+
+    def test_products_family_target_produces_enterprise_product_family_sentence(self):
+        """products.aspose.com family target must produce 'Enterprise Product Family'."""
+        content = "Aspose.Slides FOSS. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/",
+            family="slides",
+            platform="java",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert "Enterprise Product Family" in result
+        assert "docs.aspose.com" not in result
+
+    def test_products_platform_target_produces_enterprise_product_sentence(self):
+        """products.aspose.com platform target must produce 'Enterprise Product'."""
+        content = (
+            "Aspose.Slides FOSS for .NET is a presentation library with extensive format support. "
+            "It handles PPTX, PPT, ODP, and more. MIT-licensed and open-source on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides",
+            platform="net",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert "Enterprise Product" in result
+        assert "Enterprise Product Family" not in result
+        assert "products.aspose.com/slides/net/" in result
+
+
+# ── Em-dash style enforcement ─────────────────────────────────────────────────
+
+
+class TestEmDashStyleEnforcement:
+    """Anchor style consistency: BOTH _apply_overview_template and _build_see_also_entry
+    MUST use em-dash (U+2014) between the display name and the Enterprise suffix.
+
+    Canonical style: [Aspose.Slides for Java — Enterprise Documentation](...)
+    Forbidden style: [Aspose.Slides for Java Enterprise Documentation](...)
+
+    Style decision: em-dash is canonical (99% of all content links, 3293 vs 30).
+    This class enforces the lock across all generation paths.
+    """
+
+    EM_DASH = "\u2014"
+
+    def test_overview_template_uses_em_dash_for_products_family(self):
+        """_apply_overview_template must use em-dash for products.aspose.com family target."""
+        content = "Aspose.Slides FOSS. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        assert self.EM_DASH in result, (
+            "STYLE_BUG: _apply_overview_template must use em-dash in anchor text. "
+            f"Got: {result!r}"
+        )
+        assert "Aspose.Slides \u2014 Enterprise Product Family" in result
+
+    def test_overview_template_uses_em_dash_for_products_platform(self):
+        """_apply_overview_template must use em-dash for products.aspose.com platform target."""
+        content = "Aspose.Slides FOSS for .NET. MIT-licensed and open-source on GitHub."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from overview anchor"
+        assert "Aspose.Slides for .NET \u2014 Enterprise Product" in result
+
+    def test_overview_template_uses_em_dash_for_docs_target(self):
+        """_apply_overview_template must use em-dash for docs.aspose.com target."""
+        content = "Aspose.Slides FOSS for Java. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://docs.aspose.com/slides/java/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from docs overview anchor"
+        assert "Aspose.Slides for Java \u2014 Enterprise Documentation" in result
+
+    def test_overview_template_uses_em_dash_for_reference_target(self):
+        """_apply_overview_template must use em-dash for reference.aspose.com target."""
+        content = "Aspose.Slides FOSS for .NET. MIT-licensed."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in result, "em-dash missing from reference overview anchor"
+        assert "Aspose.Slides for .NET \u2014 Enterprise API Reference" in result
+
+    def test_see_also_entry_uses_em_dash(self):
+        """_build_see_also_entry must use em-dash (already canonical — guard against regression)."""
+        entry = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="docs.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in entry, "em-dash missing from See Also entry"
+        assert "Aspose.Slides for .NET \u2014 Enterprise Product" in entry
+
+    def test_both_generators_produce_em_dash_for_same_target(self):
+        """Both generators must use em-dash — style consistency across generation paths."""
+        overview = _apply_overview_template(
+            current_content="Aspose.Slides FOSS for .NET. MIT-licensed on GitHub.",
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        see_also = _build_see_also_entry(
+            target_url="https://products.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="products.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert self.EM_DASH in overview, f"No em-dash in overview: {overview!r}"
+        assert self.EM_DASH in see_also, f"No em-dash in see_also: {see_also!r}"
+
+    def test_no_space_before_em_dash_and_space_after(self):
+        """Style: '{display} — {suffix}' — one space before, one space after em-dash."""
+        entry = _build_see_also_entry(
+            target_url="https://reference.aspose.com/slides/net/",
+            family="slides", platform="net",
+            subdomain="reference.aspose.org",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        # Pattern: " — " (space-emdash-space)
+        assert " \u2014 " in entry, f"Expected ' — ' (space-em-space) in: {entry!r}"
+        assert " —" not in entry and "  —" not in entry, f"Double-space before em-dash is forbidden in: {entry!r}"
+
+
+# ── CTA end-placement enforcement ──────────────────────────────────────────────────────────────────────────────
+
+
+class TestCtaEndPlacement:
+    """_apply_overview_template must always produce the CTA as the final sentence.
+
+    The enterprise CTA is an exit link. It must appear at the very end of overview.content
+    so it never interrupts license terms, FOSS-identity statements, runtime requirements,
+    or platform-compatibility paragraphs.
+
+    Regression guard: the prior implementation inserted the CTA before MIT/GitHub closing
+    sentences, producing FAIL_INTERRUPTS_LICENSE_FLOW and FAIL_WRONG_TRANSITION patterns
+    across 11 product pages.
+    """
+
+    def test_cta_is_final_when_content_ends_with_mit_sentence(self):
+        """CTA must follow (not precede) a trailing MIT license sentence."""
+        content = (
+            "Aspose.Cells FOSS for .NET runs on Windows, macOS, and Linux. "
+            "The MIT License permits unrestricted commercial use with no royalties."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/cells/net/",
+            family="cells", platform="net",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        mit_pos = result.find("MIT License")
+        cta_pos = result.find("products.aspose.com/cells/net/")
+        assert mit_pos >= 0 and cta_pos >= 0
+        assert mit_pos < cta_pos, (
+            f"MIT sentence (pos {mit_pos}) must precede CTA (pos {cta_pos}). Got: {result!r}"
+        )
+
+    def test_cta_is_final_when_content_ends_with_github_sentence(self):
+        """CTA must follow (not precede) a trailing GitHub/open-source sentence."""
+        content = (
+            "Aspose.Words FOSS for Python converts documents programmatically. "
+            "It is MIT-licensed and fully open-source on GitHub."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/words/python/",
+            family="words", platform="python",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        github_pos = result.find("open-source on GitHub")
+        cta_pos = result.find("products.aspose.com/words/python/")
+        assert github_pos >= 0 and cta_pos >= 0
+        assert github_pos < cta_pos, (
+            f"GitHub sentence (pos {github_pos}) must precede CTA (pos {cta_pos}). Got: {result!r}"
+        )
+
+    def test_cta_is_final_with_no_closing_sentence(self):
+        """CTA must be appended at end when there is no special closing sentence."""
+        content = "Aspose.Slides FOSS for Java supports PPTX round-trip editing."
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/slides/java/",
+            family="slides", platform="java",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="platform",
+        )
+        assert result.rstrip().endswith(")."), f"CTA must be final: {result!r}"
+        assert result.count("products.aspose.com/slides/java/") == 1
+
+    def test_cta_is_final_with_multiline_content(self):
+        """CTA must be appended at end for multi-paragraph content."""
+        content = (
+            "Aspose.Font FOSS for Python loads TTF, OTF, and WOFF fonts.\n\n"
+            "The library exposes a FontLoader API. "
+            "Aspose.Font FOSS is MIT licensed and installable from PyPI with pip install."
+        )
+        result = _apply_overview_template(
+            current_content=content,
+            target_url="https://products.aspose.com/font/",
+            family="font", platform="python",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            target_type="family",
+        )
+        mit_pos = result.find("MIT licensed")
+        cta_pos = result.find("products.aspose.com/font/")
+        assert mit_pos >= 0 and cta_pos >= 0
+        assert mit_pos < cta_pos, (
+            f"MIT sentence (pos {mit_pos}) must precede CTA (pos {cta_pos})"
+        )
+
+
+# ── TC-BF-NEG: Negative controls for prose integration (BL-REPAIR-001) ───────
+
+class TestBackfillNegativeControls:
+    """
+    Negative-control tests for backfill prose integration.
+    All tests pass after Phase 4 prose machinery implementation.
+    """
+
+    def _make_blog_file(self, tmp_path: Path, body: str) -> Path:
+        """Create a minimal blog index.md for testing."""
+        content = (
+            "---\ntitle: Test Post\ncategories: [Aspose.Words]\nauthor: Test\n---\n"
+            + body
+        )
+        f = tmp_path / "index.md"
+        f.write_text(content, encoding="utf-8")
+        return f
+
+    def test_bf_neg_002_exact_url_idempotent_skip(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-002: exact URL already in body → idempotent skip, skipped=True."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        target_url = "https://blog.aspose.com/"
+        body_content = (
+            "## Related Resources\n\n"
+            f"- [Aspose.Words — Enterprise Blog]({target_url})\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is True, f"Expected skipped=True; skip_reason={result.skip_reason!r}"
+        assert "idempotent" in result.skip_reason.lower() or "already" in result.skip_reason.lower()
+
+    def test_bf_neg_008_validate_overview_update_low_ratio(self):
+        """TC-BF-NEG-008: products YAML: retained-text ratio < 0.80 → _validate_overview_update() False."""
+        from commands.ops.backlink_backfill import _validate_overview_update
+        original = "A" * 100  # 100 chars of prose
+        # Updated has only 50% of original text remaining (ratio = 0.5 < 0.80)
+        updated = ("A" * 50) + " [Enterprise Product](https://products.aspose.com/words/)"
+        result = _validate_overview_update(original, updated, "https://products.aspose.com/words/")
+        assert result is False, "Expected False for low retained-text ratio"
+
+    def _make_docs_file(self, tmp_path: Path, body: str) -> Path:
+        """Create a minimal docs page for testing."""
+        content = (
+            "---\ntitle: Test Docs Page\nauto_updatable: true\n---\n"
+            + body
+        )
+        f = tmp_path / "page.md"
+        f.write_text(content, encoding="utf-8")
+        return f
+
+    # TC-4: NEAR_DUPLICATE hard-block (2026-07-04)
+    def test_near_duplicate_hard_block_at_high_similarity(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-HARD-001: Jaccard sim >= 0.90 → injection hard-blocked (skipped=True, NEAR_DUPLICATE_HARD_BLOCK)."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        # Build a body where the existing "See Also" entry has nearly identical tokens
+        # to the candidate entry. After URL-stripping, both reduce to {cells, python, knowledge, base}.
+        # Jaccard of {cells,python,knowledge,base} vs {cells,python,knowledge,base} = 1.0 >= 0.90.
+        body_content = (
+            "Some content about Aspose.Cells for Python.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Cells for Python \u2014 Enterprise Knowledge Base](https://kb.aspose.com/cells/python/)\n"
+        )
+        f = self._make_docs_file(tmp_path, body_content)
+        # Target is an article-level URL on the same family/platform KB
+        target_url = "https://kb.aspose.com/cells/python/how-to-convert-csv-to-pdf-in-python/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="cells", platform="python",
+            subdomain="docs.aspose.org",
+            page_type="docs_page",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is True, (
+            f"Expected hard-block skipped=True; got skipped={result.skipped}, reason={result.skip_reason!r}"
+        )
+        assert "NEAR_DUPLICATE_HARD_BLOCK" in result.skip_reason, (
+            f"Expected NEAR_DUPLICATE_HARD_BLOCK in skip_reason; got: {result.skip_reason!r}"
+        )
+
+    def test_near_duplicate_below_hard_block_still_warns(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-HARD-002: 0.65 <= Jaccard < 0.90 → warning-only, injection proceeds."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        # Body tokens ≈ {words, net, blog} — same as in existing TC-BF-NEG-001.
+        # Similarity 0.75 is above warn threshold (0.65) but below hard-block (0.90).
+        body_content = (
+            "See Aspose.Words for .NET blog resources.\n\n"
+            "## Related Resources\n\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        target_url = "https://blog.aspose.com/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is False, "Should inject when similarity is below hard-block threshold"
+        assert any("NEAR_DUPLICATE" in w for w in result.warning_messages), (
+            "Expected near-duplicate warning in warning_messages"
+        )
+
+    def test_bf_neg_001_near_duplicate_warning_accumulated(self, tmp_path, monkeypatch):
+        """TC-BF-NEG-001: near-duplicate in existing body → warning_messages non-empty, single link injected."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        from commands.ops.backlink_backfill import _detect_near_duplicate
+        # Body sentence shares enough tokens with the entry to trigger Jaccard >= 0.65.
+        # After URL-stripping, entry tokens ≈ {words, net, blog}.
+        # Body below: tokens = {words, net, blog, resources} → similarity = 3/4 = 0.75 >= 0.65
+        body_content = (
+            "See Aspose.Words for .NET blog resources.\n\n"
+            "## Related Resources\n\n"
+        )
+        f = self._make_blog_file(tmp_path, body_content)
+        target_url = "https://blog.aspose.com/"
+        result = backfill_markdown(
+            file_path=f,
+            target_url=target_url,
+            family="words", platform="net",
+            subdomain="blog.aspose.org",
+            page_type="blog_post",
+            families_map=FAMILIES_MAP, platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+        assert result.skipped is False, "Should inject even when near-duplicate detected"
+        assert hasattr(result, "warning_messages"), "BackfillChange must have warning_messages field"
+        assert len(result.warning_messages) > 0, "Expected near-duplicate warning"
+        assert any("NEAR_DUPLICATE" in w for w in result.warning_messages)
+
+    def test_bf_neg_003_llm_output_missing_anchor_text(self):
+        """TC-BF-NEG-003: LLM output missing anchor text → _validate_llm_output() returns errors."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        updated = "Aspose.Words FOSS for .NET provides document conversion. For more, see https://blog.aspose.com/."
+        errors = _validate_llm_output(original, updated, "https://blog.aspose.com/", "Aspose.Words — Enterprise Blog")
+        assert any("anchor" in e.lower() for e in errors), f"Expected anchor error; got {errors}"
+
+    def test_bf_neg_004_llm_output_missing_target_url(self):
+        """TC-BF-NEG-004: LLM output missing target URL → _validate_llm_output() returns errors."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        updated = "Aspose.Words FOSS for .NET provides document conversion. For more, see [Aspose.Words — Enterprise Blog](https://wrong.com/)."
+        errors = _validate_llm_output(original, updated, "https://blog.aspose.com/", "Aspose.Words — Enterprise Blog")
+        assert any("url" in e.lower() for e in errors), f"Expected URL error; got {errors}"
+
+    def test_bf_neg_005_llm_output_unsupported_claim(self):
+        """TC-BF-NEG-005: LLM output with 'industry-leading' → unsupported_claim error."""
+        from commands.ops.backlink_backfill import _validate_llm_output
+        original = "Aspose.Words FOSS for .NET provides document conversion."
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        updated = (
+            f"Aspose.Words FOSS is an industry-leading library. "
+            f"For enterprise tutorials, see [{anchor_text}]({target_url})."
+        )
+        errors = _validate_llm_output(original, updated, target_url, anchor_text)
+        assert any("industry" in e.lower() or "unsupported" in e.lower() for e in errors), \
+            f"Expected unsupported_claim error; got {errors}"
+
+    def test_bf_neg_006_validate_prose_anchor_unchanged(self, tmp_path):
+        """TC-BF-NEG-006: after injection, _validate_prose() confirms entry anchor unchanged."""
+        from commands.ops.backlink_backfill import _validate_prose
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        entry = f"- [{anchor_text}]({target_url})"
+        section_text = f"## Related Resources\n\n{entry}\n"
+        errors = _validate_prose(section_text, entry, target_url)
+        assert errors == [], f"Expected no errors for correct anchor; got {errors}"
+
+    def test_bf_neg_007_validate_prose_url_unchanged(self, tmp_path):
+        """TC-BF-NEG-007: after injection, _validate_prose() confirms entry URL unchanged."""
+        from commands.ops.backlink_backfill import _validate_prose
+        anchor_text = "Aspose.Words — Enterprise Blog"
+        target_url = "https://blog.aspose.com/"
+        entry = f"- [{anchor_text}]({target_url})"
+        # Simulate a corrupted injection where URL differs
+        bad_section = f"## Related Resources\n\n- [{anchor_text}](https://wrong.com/)\n"
+        errors = _validate_prose(bad_section, entry, target_url)
+        assert len(errors) > 0, "Expected errors when URL is missing from section"
+
+
+# ── Oscillation guard tests (TC-BL-005) ──────────────────────────────────────
+
+class TestOscillationGuard:
+    """Tests for the oscillation guard added in TC-BL-005.
+
+    The guard detects when an enterprise-backlink marker is present in YAML
+    overview.content but the actual link URL has been removed externally.
+    In that case, the backfill should WARN and SKIP (not silently re-inject).
+    """
+
+    _YAML_TMPL = """\
+---
+layout: plugin
+family_name: Aspose.Test FOSS
+{extra_fm}overview:
+  enable: true
+  content: '{content}'
+---
+"""
+
+    def _make_yaml_file(self, tmp_path, content: str, extra_fm: dict | None = None) -> "Path":
+        """Write a minimal YAML frontmatter file for oscillation guard tests.
+
+        extra_fm: optional dict of extra top-level frontmatter keys to inject
+                  (e.g. {"enterprise_backlink_injected": "https://..."}).
+        """
+        fm_lines = ""
+        if extra_fm:
+            for k, v in extra_fm.items():
+                fm_lines += f'{k}: "{str(v)}"\n'
+        text = self._YAML_TMPL.replace("{extra_fm}", fm_lines).replace("{content}", content)
+        p = tmp_path / "_index.md"
+        p.write_text(text, encoding="utf-8")
+        return p
+
+    def test_oscillation_guard_triggers_when_marker_present_url_absent(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-A: frontmatter field set but URL removed from content -> oscillation_guard."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        # Frontmatter has the injected marker but content does NOT have the URL
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link."
+        fpath = self._make_yaml_file(
+            tmp_path, content,
+            extra_fm={"enterprise_backlink_injected": target_url},
+        )
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is True
+        assert result.skip_reason == "oscillation_guard"
+
+    def test_oscillation_guard_does_not_trigger_when_url_present(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-B: frontmatter field AND URL in content -> idempotent (not oscillation_guard)."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        # Content has the actual link AND frontmatter has the injected field
+        content = (
+            "See [Aspose.3D for Python \u2014 Enterprise Product]"
+            "(https://products.aspose.com/3d/python-net/) for enterprise features."
+        )
+        fpath = self._make_yaml_file(
+            tmp_path, content,
+            extra_fm={"enterprise_backlink_injected": target_url},
+        )
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is True
+        assert result.skip_reason == "Already contains target URL (idempotent)"
+
+    def test_oscillation_guard_does_not_trigger_without_marker(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-C: no frontmatter field, no URL -> injection proceeds (not oscillation_guard)."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
+        fpath = self._make_yaml_file(tmp_path, content)  # no extra_fm
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=True,
+        )
+
+        assert result.skipped is False
+        assert result.skip_reason is None or result.skip_reason == ""
+
+    def test_oscillation_guard_marker_embedded_on_write(self, tmp_path, monkeypatch):
+        """TC-BL-005-05-D: after --write, frontmatter has enterprise_backlink_injected; no HTML comment in content."""
+        _bbm.configure(repo_root=tmp_path)  # seam (AGENTS.md §16)
+        target_url = "https://products.aspose.com/3d/python-net/"
+        content = "Some overview text about Aspose.3D FOSS library. No enterprise link yet."
+        fpath = self._make_yaml_file(tmp_path, content)
+
+        result = _bbm.backfill_products_yaml(
+            file_path=fpath,
+            target_url=target_url,
+            family="3d",
+            platform="python",
+            families_map=FAMILIES_MAP,
+            platforms_map=PLATFORMS_MAP,
+            dry_run=False,
+        )
+
+        assert result.skipped is False
+        written = fpath.read_text(encoding="utf-8")
+        # Frontmatter must have the injected field
+        assert "enterprise_backlink_injected" in written, (
+            f"enterprise_backlink_injected not found in written file. Got:\n{written[:500]}"
+        )
+        # Content must NOT contain any HTML comment
+        assert "<!--" not in written, (
+            f"HTML comment found in written file (should use frontmatter only). Got:\n{written[:500]}"
+        )
+
+
+# ── YAML style preservation tests ────────────────────────────────────────────
+
+class TestRewriteYamlLiteralBlockScalar:
+    """Verify _rewrite_yaml_file preserves | block scalar style for multi-line strings."""
+
+    def test_multiline_content_uses_literal_block_scalar(self):
+        """Multi-line strings must be serialized with | style, not single-quoted flow."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: |\n"
+            "    First paragraph.\n"
+            "\n"
+            "    ```python\n"
+            "    import foo\n"
+            "    ```\n"
+            "---\n"
+        )
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        # Simulate backfill modifying content
+        data["overview"]["content"] += "\nFor enterprise, see [link](https://example.com).\n"
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        # Must NOT contain single-quoted flow scalar wrapping entire content
+        assert "content: '" not in result, (
+            f"Content wrapped in single quotes (flow scalar). Got:\n{result[:400]}"
+        )
+        # Must NOT contain double-quoted \n escapes
+        assert 'content: "' not in result, (
+            f"Content wrapped in double quotes (escaped newlines). Got:\n{result[:400]}"
+        )
+        # Must contain | block scalar indicator
+        assert "content: |" in result, (
+            f"Expected | block scalar for content. Got:\n{result[:400]}"
+        )
+
+    def test_single_line_strings_not_affected(self):
+        """Single-line strings should remain plain (no | style needed)."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        raw = "---\ntitle: Simple Title\n---\n"
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        data["enterprise_backlink_injected"] = "https://example.com/"
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        assert "title: Simple Title" in result
+
+    def test_round_trip_preserves_content_semantics(self):
+        """Content must be semantically identical after round-trip through _LiteralDumper."""
+        from commands.ops.backlink_backfill import _rewrite_yaml_file
+        original_content = (
+            "First paragraph with code.\n\n"
+            "```python\nimport aspose\nbc = aspose.generate()\n```\n\n"
+            "Second paragraph.\n"
+        )
+        raw = f"---\noverview:\n  content: |\n    placeholder\n---\n"
+        import yaml
+        data = yaml.safe_load(raw.split("---")[1])
+        data["overview"]["content"] = original_content
+        result = _rewrite_yaml_file(raw, data, raw.split("---")[1])
+        assert result is not None
+        # Re-parse and verify content is identical
+        new_data = yaml.safe_load(result.split("---")[1])
+        assert new_data["overview"]["content"] == original_content
+
+
+# ---------------------------------------------------------------------------
+# TC15 canary (2026-08-22): _surgical_replace_overview_content() unit tests.
+# Proves the minimal-diff patcher (a) actually produces a minimal diff on
+# both real page shapes seen in production -- cells' plain-scalar content
+# and words' `|-` block-literal content -- and (b) safely signals "don't
+# touch it" (returns None) when the frontmatter structure doesn't match its
+# narrow assumptions, so callers fall back to the proven full-reserialization
+# path instead of guessing.
+# ---------------------------------------------------------------------------
+
+
+class TestSurgicalReplaceOverviewContent:
+    def test_plain_scalar_style_minimal_diff(self):
+        """cells-shaped fixture: content is a single-line plain scalar.
+
+        Only the content: line itself and the new trailing marker line
+        should change -- every other field's line stays byte-identical.
+        """
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "title: Aspose.Cells FOSS\n"
+            "head_description: A very long unwrapped description that spans well past eighty characters on a single physical line, exactly like a real products.aspose.org page.\n"
+            "button:\n"
+            "  enable: true\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: Old sentence ending in the wrong wording, [Aspose.Cells commercial edition](https://products.aspose.com/cells/).\n"
+            "testimonialswrapper:\n"
+            "  enable: true\n"
+            "  title: What Developers Are Saying\n"
+            "provenance:\n"
+            "  auto_updatable: true\n"
+            "---\n"
+        )
+        new_content = (
+            "New sentence. For the enterprise product family, see "
+            "[Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/)."
+        )
+        result = _surgical_replace_overview_content(
+            raw, new_content, inject_url="https://products.aspose.com/cells/"
+        )
+        assert result is not None
+
+        # Every unrelated line must be byte-identical to the original.
+        for line in [
+            "title: Aspose.Cells FOSS",
+            "head_description: A very long unwrapped description that spans well past eighty characters on a single physical line, exactly like a real products.aspose.org page.",
+            "button:",
+            "  enable: true",
+            "overview:",
+            "  enable: true",
+            "testimonialswrapper:",
+            "  enable: true",
+            "  title: What Developers Are Saying",
+            "provenance:",
+            "  auto_updatable: true",
+        ]:
+            assert line in result, f"unrelated line was altered or dropped: {line!r}"
+
+        assert "commercial edition" not in result
+        assert "enterprise_backlink_injected: https://products.aspose.com/cells/" in result
+
+        # Round-trip: re-parsed content/injected-url must match exactly.
+        import yaml
+        fm = result[3:result.find("---", 3)]
+        data = yaml.safe_load(fm)
+        assert data["overview"]["content"] == new_content
+        assert data["enterprise_backlink_injected"] == "https://products.aspose.com/cells/"
+
+    def test_block_literal_style_minimal_diff(self):
+        """words-shaped fixture: content is a `|-` block-literal, two paragraphs.
+
+        Replacement content has no embedded newline, so the patched line
+        legitimately becomes a plain scalar -- but every OTHER field must
+        stay byte-identical, and no unrelated field may gain/lose wrapping.
+        """
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "description: Work with Word documents programmatically\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  title: The Open-Source Word File Format Engine\n"
+            "  content: |-\n"
+            "    First paragraph about the engine.\n"
+            "\n"
+            "    Second paragraph about editions.\n"
+            "testimonialswrapper:\n"
+            "  enable: true\n"
+            "  title: What Developers Are Saying\n"
+            "grade: A\n"
+            "grade_reasons:\n"
+            "- No findings -> grade A\n"
+            "---\n"
+        )
+        new_content = (
+            "First paragraph about the engine. Second paragraph about editions. "
+            "For the enterprise product family, see "
+            "[Aspose.Words — Enterprise Product Family](https://products.aspose.com/words/)."
+        )
+        result = _surgical_replace_overview_content(
+            raw, new_content, inject_url="https://products.aspose.com/words/"
+        )
+        assert result is not None
+
+        for line in [
+            "description: Work with Word documents programmatically",
+            "overview:",
+            "  enable: true",
+            "  title: The Open-Source Word File Format Engine",
+            "testimonialswrapper:",
+            "  enable: true",
+            "  title: What Developers Are Saying",
+            "grade: A",
+            "grade_reasons:",
+            "- No findings -> grade A",
+        ]:
+            assert line in result, f"unrelated line was altered or dropped: {line!r}"
+
+        # The old two-paragraph block-literal form (indented continuation
+        # lines) must be gone -- content is now a single flowed line.
+        assert "    Second paragraph about editions.\n" not in result
+        assert "content: |-" not in result
+        assert "enterprise_backlink_injected: https://products.aspose.com/words/" in result
+
+        import yaml
+        fm = result[3:result.find("---", 3)]
+        data = yaml.safe_load(fm)
+        assert data["overview"]["content"] == new_content
+        assert data["enterprise_backlink_injected"] == "https://products.aspose.com/words/"
+
+    def test_no_overview_block_returns_none(self):
+        """No top-level overview: key at all -- must signal fallback, never guess."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = "---\ntitle: No Overview Here\n---\n"
+        result = _surgical_replace_overview_content(raw, "new content", inject_url=None)
+        assert result is None
+
+    def test_overview_without_content_key_returns_none(self):
+        """overview: block exists but has no content: sub-key -- must signal fallback."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  title: Some Title\n"
+            "---\n"
+        )
+        result = _surgical_replace_overview_content(raw, "new content", inject_url=None)
+        assert result is None
+
+    def test_no_inject_url_omits_marker_line(self):
+        """inject_url=None must not add an enterprise_backlink_injected line."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: Old text.\n"
+            "---\n"
+        )
+        result = _surgical_replace_overview_content(raw, "New text.", inject_url=None)
+        assert result is not None
+        assert "enterprise_backlink_injected" not in result
+
+    def test_body_after_frontmatter_untouched(self):
+        """Markdown body content after the closing --- must survive byte-for-byte."""
+        from commands.ops.backlink_backfill import _surgical_replace_overview_content
+        raw = (
+            "---\n"
+            "overview:\n"
+            "  content: Old text.\n"
+            "---\n\n"
+            "Some markdown body text that must not be touched.\n"
+        )
+        result = _surgical_replace_overview_content(raw, "New text.", inject_url=None)
+        assert result is not None
+        assert result.endswith("Some markdown body text that must not be touched.\n")
+
+
+# ---------------------------------------------------------------------------
+# TC1 (2026-08-21): the governed-chokepoint regression test. Reproduces the
+# exact real-world defect: the ungoverned LLM-copy cache
+# (reports/backlinks/products_llm_copy_generation.json) contained stale
+# "commercial edition" wording that backfill_products_yaml() wrote verbatim
+# onto products.aspose.org/cells (commit 9dc60356e7, 2026-06-07) because the
+# validator gating it (_validate_overview_update) only checked URL presence
+# and 80% retention -- never anchor wording. This test proves the wired-in
+# _validate_llm_output() gate now rejects that exact cache content and falls
+# through to the governed template instead.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import backfill_products_yaml as _backfill_products_yaml  # noqa: E402
+from commands.ops.backlink_backfill import _check_backlink_exemption  # noqa: E402
+from commands.ops.backlink_backfill import _insert_see_also  # noqa: E402
+
+
+# ---------------------------------------------------------------------------
+# TC3 (2026-08-21): auto_updatable: false no longer blanket-blocks backlink
+# reconciliation -- only an explicit, reasoned, unexpired backlink_scope:
+# exempt marker does. Reproduces the exact real-world defect: commit
+# 3729d558a6 (2026-06-06) used auto_updatable: false to justify deleting the
+# CTA from products.aspose.org/words, which then carried zero backlink for
+# 2.5+ months because nothing could ever touch it again.
+# ---------------------------------------------------------------------------
+
+class TestBacklinkExemption:
+    def test_auto_updatable_false_alone_is_not_exempt(self):
+        """The exact real-world words/_index.md case: auto_updatable: false
+        with no exemption marker must NOT be treated as exempt -- this is
+        what makes reconciliation proceed instead of skipping forever."""
+        raw = "---\nprovenance:\n  auto_updatable: false\n---\n"
+        assert _check_backlink_exemption(raw) is None
+
+    def test_explicit_exemption_with_reason_is_honored(self):
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: pending legal review of enterprise terms\n"
+            "---\n"
+        )
+        reason = _check_backlink_exemption(raw)
+        assert reason is not None
+        assert "pending legal review" in reason
+
+    def test_exemption_without_reason_is_not_honored(self):
+        """A frivolous/incomplete exemption (no stated reason) must not be
+        honored -- refuses to silently exempt a page with no justification."""
+        raw = "---\nbacklink_scope: exempt\n---\n"
+        assert _check_backlink_exemption(raw) is None
+
+    def test_expired_exemption_auto_degrades(self):
+        """An exemption past its stated expiry must NOT stay honored forever
+        -- it degrades back to normal reconciliation automatically."""
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: temporary\n"
+            "backlink_exempt_expires: 2020-01-01\n"
+            "---\n"
+        )
+        assert _check_backlink_exemption(raw) is None
+
+    def test_unexpired_exemption_with_future_date_is_honored(self):
+        raw = (
+            "---\nbacklink_scope: exempt\n"
+            "backlink_exempt_reason: temporary\n"
+            "backlink_exempt_expires: 2099-01-01\n"
+            "---\n"
+        )
+        assert _check_backlink_exemption(raw) is not None
+
+
+class TestGovernedChokepointRejectsStaleCache:
+    _CELLS_FIXTURE = textwrap.dedent("""\
+        ---
+        layout: family
+        title: Aspose.Cells FOSS
+        overview:
+          enable: true
+          content: Aspose.Cells FOSS is a free, open-source Excel library.
+        provenance:
+          auto_updatable: true
+        ---
+        """)
+
+    def _write_fixture(self, tmp_path):
+        products_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        products_dir.mkdir(parents=True)
+        fp = products_dir / "_index.md"
+        fp.write_text(self._CELLS_FIXTURE, encoding="utf-8")
+        return fp
+
+    def _write_stale_cache(self, tmp_path, rel_path, output_text):
+        reports_dir = tmp_path / "reports" / "backlinks"
+        reports_dir.mkdir(parents=True)
+        import json
+        (reports_dir / "products_llm_copy_generation.json").write_text(
+            json.dumps([{"file_path": rel_path, "output_text": output_text}]),
+            encoding="utf-8",
+        )
+
+    def test_stale_commercial_edition_cache_is_rejected_falls_back_to_template(self, tmp_path):
+        fp = self._write_fixture(tmp_path)
+        rel_path = "content/products.aspose.org/en/cells/_index.md"
+        # The exact real-world stale cache content (paraphrased structure,
+        # same defect: correct URL, banned "commercial edition" wording).
+        stale_cache_text = (
+            "Aspose.Cells FOSS is a free, open-source Excel library. For more capabilities, "
+            "see the [Aspose.Cells commercial edition](https://products.aspose.com/cells/)."
+        )
+        self._write_stale_cache(tmp_path, rel_path, stale_cache_text)
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = _backfill_products_yaml(
+                fp, "https://products.aspose.com/cells/", "cells", None,
+                FAMILIES_MAP, PLATFORMS_MAP, dry_run=True, target_type="family",
+            )
+        finally:
+            _bbm.configure()
+
+        assert "commercial edition" not in change.after_snippet.lower()
+        assert "https://products.aspose.com/cells/" in change.after_snippet
+        # Falls through to the governed template's own wording instead.
+        assert "Enterprise Product Family" in change.after_snippet
+
+    def test_clean_cache_content_still_accepted(self, tmp_path):
+        """Negative control: a cache entry that DOES use governed wording
+        must still be accepted, not always forced to the template."""
+        fp = self._write_fixture(tmp_path)
+        rel_path = "content/products.aspose.org/en/cells/_index.md"
+        clean_cache_text = (
+            "Aspose.Cells FOSS is a free, open-source Excel library. For the enterprise "
+            "product family, see "
+            "[Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/)."
+        )
+        self._write_stale_cache(tmp_path, rel_path, clean_cache_text)
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = _backfill_products_yaml(
+                fp, "https://products.aspose.com/cells/", "cells", None,
+                FAMILIES_MAP, PLATFORMS_MAP, dry_run=True, target_type="family",
+            )
+        finally:
+            _bbm.configure()
+
+        assert change.after_snippet == clean_cache_text[:200]
+
+
+# ---------------------------------------------------------------------------
+# TC4 (2026-08-21): _insert_see_also() must REPLACE a stale family-level
+# bullet when inserting a platform-level one, not append alongside it.
+# Reproduces the exact defect confirmed live on 64 kb.aspose.org pages
+# (commit 0750217ce8 added platform-level KB links to pages that already
+# had family-level ones, e.g. slides/python/faq.md going from 1 to 2 links).
+# ---------------------------------------------------------------------------
+
+class TestReplaceNotAppendFamilyLink:
+    def test_platform_insertion_replaces_stale_family_bullet(self):
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides — Enterprise Knowledge Base](https://kb.aspose.com/slides/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            family_url_to_replace="https://kb.aspose.com/slides/",
+        )
+        assert "kb.aspose.com/slides/)" not in result  # stale family bullet gone
+        assert "kb.aspose.com/slides/python/" in result  # new platform bullet present
+        assert result.count("- [") == 1  # exactly one bullet, not two
+
+    def test_no_family_url_to_replace_still_just_appends(self):
+        """Negative control: omitting family_url_to_replace (e.g. inserting
+        a family-level link, or a platform link when no family link exists
+        yet) must behave exactly as before -- pure append, no side effects."""
+        body = "\n## See Also\n\n- [Existing Unrelated Link](https://kb.aspose.com/pdf/)\n"
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(body, "## See Also", new_entry, "kb.aspose.org")
+        assert "kb.aspose.com/pdf/" in result  # unrelated existing bullet untouched
+        assert "kb.aspose.com/slides/python/" in result
+        assert result.count("- [") == 2
+
+    def test_family_url_not_present_is_a_no_op_removal(self):
+        """If the family bullet isn't actually there, nothing is removed --
+        this must not accidentally delete an unrelated bullet."""
+        body = "\n## See Also\n\n- [Existing Unrelated Link](https://kb.aspose.com/pdf/)\n"
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            family_url_to_replace="https://kb.aspose.com/slides/",
+        )
+        assert "kb.aspose.com/pdf/" in result
+        assert result.count("- [") == 2
+
+    def test_backfill_markdown_end_to_end_replaces_not_duplicates(self, tmp_path):
+        """Full end-to-end reproduction of the confirmed-live kb defect via
+        backfill_markdown(), not just the lower-level helper."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides — Enterprise Knowledge Base](https://kb.aspose.com/slides/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert not change.skipped
+        assert change.after_snippet.count("- [") <= 1  # within the 200-char snippet window
+        assert any("REPLACED_FAMILY_LINK" in w for w in change.warning_messages)
+
+
+# ---------------------------------------------------------------------------
+# TC9 (2026-08-21): max_enterprise_links_per_page single-source-of-truth.
+# Proves _max_qualifying_links() here and get_max_enterprise_links_per_page()
+# in backlink_targets.py are the same function/cache, not two independent
+# literals that happen to agree today -- the exact failure mode this card
+# closes (previously: MAX_QUALIFYING_LINKS here, a hardcoded `> 2` in
+# classify_compliance(), and a third hardcoded `> 2` in
+# backlink_html_audit.py, none of them reading link_slot_registry.yaml
+# despite its own header claiming all 3 "enforce" it).
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import _max_qualifying_links  # noqa: E402
+from lib.backlink_targets import get_max_enterprise_links_per_page  # noqa: E402
+
+
+class TestMaxQualifyingLinksConfig:
+    def _write_registry(self, tmp_path: Path, value) -> Path:
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        registry_path = tmp_path / "link_slot_registry.yaml"
+        registry_path.write_text(
+            f"global:\n  max_enterprise_links_per_page: {value}\n",
+            encoding="utf-8",
+        )
+        return registry_path
+
+    def test_delegates_to_shared_config_reader(self, tmp_path):
+        registry_path = self._write_registry(tmp_path, 4)
+        assert _max_qualifying_links(registry_path) == 4
+
+    def test_changing_the_yaml_value_changes_the_effective_cap(self, tmp_path):
+        """The card's own acceptance check: changing max_enterprise_links_per_page
+        in the YAML changes the effective cap here -- via the exact same call
+        (and cache) that backlink_targets.classify_compliance() and
+        backlink_html_audit.classify_html_record() also make."""
+        low = self._write_registry(tmp_path / "low", 1)
+        high = self._write_registry(tmp_path / "high", 9)
+        assert _max_qualifying_links(low) == 1
+        assert _max_qualifying_links(high) == 9
+
+    def test_default_call_matches_the_shared_reader_exactly(self):
+        # No registry_path on either side -> both must resolve identically,
+        # proving this module has no independent literal of its own anymore.
+        assert _max_qualifying_links() == get_max_enterprise_links_per_page()
+
+
+# ---------------------------------------------------------------------------
+# TC10 (2026-08-21): insertion-time subdomain-diversity enforcement. Directly
+# implements the write-side half of the user's own requirement: "those links
+# must be from different subdomains on aspose.com." classify_compliance()
+# (test_backlink_targets.py::TestDuplicateSubdomain) proves the READ/audit
+# side detects this; these tests prove the WRITE side stops creating it and
+# actively cleans it up when found.
+# ---------------------------------------------------------------------------
+
+class TestInsertionTimeSubdomainDiversity:
+    def test_fresh_insertion_scrubs_other_same_host_bullet(self):
+        """Inserting a new platform-level bullet must remove a pre-existing,
+        unrelated bullet on the SAME host (not just the family-fallback
+        case TC4 already covers) -- otherwise the page ends up with 2 links
+        to the same aspose.com subdomain the moment insertion completes."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            new_target_url="https://kb.aspose.com/slides/python/",
+        )
+        assert "kb.aspose.com/cells/)" not in result  # unrelated same-host bullet gone
+        assert "kb.aspose.com/slides/python/" in result  # new bullet present
+        assert result.count("- [") == 1
+
+    def test_fresh_insertion_without_new_target_url_does_not_scrub(self):
+        """Negative control: omitting new_target_url (the pre-TC10 call
+        shape) must not scrub anything -- purely additive, backward compatible."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(body, "## See Also", new_entry, "kb.aspose.org")
+        assert "kb.aspose.com/cells/)" in result  # untouched
+        assert result.count("- [") == 2
+
+    def test_different_host_bullet_is_never_touched(self):
+        """Negative control: a pre-existing bullet on a DIFFERENT host must
+        survive insertion untouched -- diversity is the goal, not indiscriminate
+        cleanup."""
+        body = (
+            "\nSome intro text.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides Docs](https://docs.aspose.com/slides/)\n"
+        )
+        new_entry = "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)"
+        result = _insert_see_also(
+            body, "## See Also", new_entry, "kb.aspose.org",
+            new_target_url="https://kb.aspose.com/slides/python/",
+        )
+        assert "docs.aspose.com/slides/" in result
+        assert "kb.aspose.com/slides/python/" in result
+        assert result.count("- [") == 2
+
+    def test_backfill_markdown_idempotent_case_removes_other_same_host_bullet(self, tmp_path):
+        """End-to-end via backfill_markdown(): the correct target is already
+        present, but a stale, unrelated same-host bullet is also there --
+        this is the DUPLICATE_SUBDOMAIN precursor classify_compliance() now
+        detects, and this proves the write path actually resolves it rather
+        than treating 'target already present' as fully idempotent."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)\n"
+            "- [Some Unrelated Aspose.Cells Page](https://kb.aspose.com/cells/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert not change.skipped
+        assert "kb.aspose.com/cells/" not in change.after_snippet
+        assert "kb.aspose.com/slides/python/" in change.after_snippet
+        assert any("REMOVED_DUPLICATE_SUBDOMAIN_LINK" in w for w in change.warning_messages)
+
+    def test_backfill_markdown_idempotent_case_different_host_left_alone(self, tmp_path):
+        """Negative control for the idempotency-path cleanup: a same-page
+        sibling bullet on a DIFFERENT host must not be touched, and the page
+        must be reported as the normal idempotent skip."""
+        content_dir = tmp_path / "content" / "kb.aspose.org" / "en" / "slides" / "python"
+        content_dir.mkdir(parents=True)
+        fp = content_dir / "faq.md"
+        fp.write_text(
+            "---\ntitle: FAQ\n---\n\n"
+            "Some FAQ content.\n\n"
+            "## See Also\n\n"
+            "- [Aspose.Slides for Python — Enterprise Knowledge Base](https://kb.aspose.com/slides/python/)\n"
+            "- [Aspose.Slides Docs](https://docs.aspose.com/slides/)\n",
+            encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            change = backfill_markdown(
+                fp, "https://kb.aspose.com/slides/python/", "slides", "python",
+                "kb.aspose.org", "kb-article", FAMILIES_MAP, PLATFORMS_MAP,
+                dry_run=True, target_type="platform",
+            )
+        finally:
+            _bbm.configure()
+        assert change.skipped
+        assert change.skip_reason == "Already contains target URL (idempotent)"
+
+
+# ---------------------------------------------------------------------------
+# TC15 canary (2026-08-22): run_backfill()'s OUTER-LOOP pre-write compliance
+# gate is the actual live cells/_index.md defect, reproduced end-to-end.
+# Found live during the cells+words canary dry-run: the outer loop's own
+# classify_compliance() call (distinct from backfill_products_yaml()'s
+# TC1-fixed write-time validator) never passed existing_links/
+# expected_anchor_text, so a correct-URL/wrong-wording page was classified
+# plain COMPLIANT and permanently skipped before backfill_products_yaml()
+# ever got a chance to run its own, already-correct validator. Confirmed
+# this exact gap had ZERO prior test coverage: run_backfill() itself (as
+# opposed to backfill_products_yaml()/backfill_markdown() in isolation) was
+# never called by any test in this file before this one.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import run_backfill  # noqa: E402
+
+
+class TestRunBackfillOuterLoopAnchorText:
+    def _target_map(self, url: str = "https://products.aspose.com/cells/") -> dict:
+        return {
+            "targets": {
+                "products.aspose.com": {
+                    "families": {"cells": {"url": url, "http_status": 200}},
+                    "platforms": {},
+                },
+            },
+            "all_urls": {},
+        }
+
+    def test_correct_url_wrong_anchor_is_not_silently_skipped(self, tmp_path):
+        """The exact confirmed-live cells/_index.md regression case: URL is
+        correct, wording says 'commercial edition' -- must NOT be classified
+        plain COMPLIANT and skipped. Reproduces the real live defect this
+        entire mission exists to fix, at the run_backfill() orchestration
+        level, not just the lower-level functions it calls."""
+        content_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        content_dir.mkdir(parents=True)
+        (content_dir / "_index.md").write_text(
+            "---\ntitle: Aspose.Cells\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: >-\n"
+            "    Aspose.Cells FOSS is free. For more capabilities, see the\n"
+            "    [Aspose.Cells commercial edition](https://products.aspose.com/cells/).\n"
+            "---\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "families.json").write_text(
+            '{"cells": "Aspose.Cells"}', encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            manifest = run_backfill(
+                tmp_path, self._target_map(),
+                subdomains=["products.aspose.org"], family_filter="cells",
+                dry_run=True,
+            )
+        finally:
+            _bbm.configure()
+
+        assert manifest.total_modified == 1, (
+            f"cells-style wrong-anchor page must be fixed, not skipped -- "
+            f"changes={manifest.changes}"
+        )
+        change = manifest.changes[0]
+        assert not change["skipped"]
+        assert "commercial edition" not in change["after_snippet"].lower()
+
+    def test_correct_url_correct_anchor_still_skipped_as_compliant(self, tmp_path):
+        """Negative control: a genuinely compliant page (correct URL, correct
+        registry-governed wording) must still be skipped -- this fix must not
+        turn into a blanket 'always rewrite' bug."""
+        content_dir = tmp_path / "content" / "products.aspose.org" / "en" / "cells"
+        content_dir.mkdir(parents=True)
+        (content_dir / "_index.md").write_text(
+            "---\ntitle: Aspose.Cells\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: >-\n"
+            "    Aspose.Cells FOSS is free. For the enterprise product family, see\n"
+            "    [Aspose.Cells — Enterprise Product Family](https://products.aspose.com/cells/).\n"
+            "---\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "data").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "families.json").write_text(
+            '{"cells": "Aspose.Cells"}', encoding="utf-8",
+        )
+        _bbm.configure(repo_root=tmp_path)
+        try:
+            manifest = run_backfill(
+                tmp_path, self._target_map(),
+                subdomains=["products.aspose.org"], family_filter="cells",
+                dry_run=True,
+            )
+        finally:
+            _bbm.configure()
+
+        assert manifest.total_modified == 0
+        assert manifest.changes[0]["skipped"]
+        assert manifest.changes[0]["skip_reason"] == "Already COMPLIANT"
+
+
+# ---------------------------------------------------------------------------
+# TC13 (2026-08-26): _compute_markdown_backlink_insertion() -- the pure core
+# extracted from backfill_markdown() so batch_reference.py's in-process
+# callers share exactly the same idempotency/near-duplicate/max-link/
+# replace-stale-bullet logic, not a re-derivation of it. backfill_markdown()
+# itself is already covered end-to-end by every test above (via real file
+# I/O); these tests call the pure function directly to prove it is
+# independently usable with no I/O, and that its 5-tuple return shape
+# (before_body, after_body, warnings, skipped, skip_reason) matches
+# backfill_markdown()'s own pre-extraction return-value semantics exactly.
+# ---------------------------------------------------------------------------
+
+from commands.ops.backlink_backfill import _compute_markdown_backlink_insertion  # noqa: E402
+
+
+class TestComputeMarkdownBacklinkInsertion:
+    def test_fresh_insertion_returns_new_body_not_skipped(self):
+        body = "\n## Overview\n\nSome text.\n"
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://products.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is False
+        assert skip_reason == ""
+        assert before == body
+        assert "products.aspose.com/words/python/" in after
+        assert after != body
+
+    def test_idempotent_already_present_returns_after_equal_before(self):
+        body = (
+            "\n## See Also\n\n"
+            "- [Aspose.Words for Python — Enterprise Product Family]"
+            "(https://products.aspose.com/words/python/)\n"
+        )
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://products.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is True
+        assert skip_reason == "Already contains target URL (idempotent)"
+        assert before == body
+        assert after == body
+
+    def test_max_link_guard_returns_empty_after_body(self):
+        """Matches backfill_markdown()'s pre-extraction behavior exactly:
+        the max-link-guard skip reports an EMPTY after_body, not body --
+        a real, deliberate distinction from the idempotent-skip case above,
+        confirmed by direct diff against backfill_markdown()'s original
+        BackfillChange construction before this function was extracted."""
+        body = (
+            "\n## See Also\n\n"
+            "- [A](https://products.aspose.com/words/)\n"
+            "- [B](https://docs.aspose.com/words/)\n"
+        )
+        before, after, warnings, skipped, skip_reason = _compute_markdown_backlink_insertion(
+            body, "https://reference.aspose.com/words/python/", "words", "python",
+            "docs.aspose.org", FAMILIES_MAP, PLATFORMS_MAP, target_type="platform",
+        )
+        assert skipped is True
+        assert "max links" in skip_reason
+        assert before == body
+        assert after == ""
+
+    def test_no_io_no_file_path_needed(self):
+        """The whole point of the extraction: callable with a bare string,
+        no Path/file_path argument at all."""
+        import inspect
+        params = inspect.signature(_compute_markdown_backlink_insertion).parameters
+        assert "file_path" not in params
+        assert "dry_run" not in params

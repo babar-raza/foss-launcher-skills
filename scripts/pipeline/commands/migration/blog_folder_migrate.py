@@ -1,6 +1,5 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
-"""blog_folder_migrate.py — Governed folder slug migration for [a-zA-Z0-9.\-]+.
+"""blog_folder_migrate.py — Governed folder slug migration for blog.aspose.org.
 
 Renames blog post folders that have been identified as MIGRATION_READY by
 blog_slug_inventory.py. Operates from a repair candidates JSON file.
@@ -42,7 +41,7 @@ from pathlib import Path
 _HERE = Path(__file__).resolve()
 _DEFAULT_REPO_ROOT = _HERE.parents[4]
 
-sys.path.insert(0, str(_PIPELINE_ROOT))
+sys.path.insert(0, str(_DEFAULT_REPO_ROOT / "scripts" / "pipeline"))
 
 import yaml
 from lib.blog_slug_policy import (
@@ -75,7 +74,7 @@ def split_frontmatter_and_body(text: str) -> tuple[str, str]:
 
 # Regex for detecting blog slug references in body text.
 # Matches /{family}/{platform}/{slug} followed by / ? # " ' ) whitespace or EOL.
-# Also matches absolute URLs: https?://[a-zA-Z0-9.\-]+/... and protocol-relative //the content domain/...
+# Also matches absolute URLs: https?://blog.aspose.org/... and protocol-relative //blog.aspose.org/...
 def _build_slug_pattern(family: str, platform: str, slug: str) -> re.Pattern:
     esc_family = re.escape(family)
     esc_platform = re.escape(platform)
@@ -84,7 +83,7 @@ def _build_slug_pattern(family: str, platform: str, slug: str) -> re.Pattern:
     # Root-relative form: /{family}/{platform}/{slug}
     # Negative lookbehind prevents matching /blog/3d/java/slug when family=3d
     path_form = rf"(?<![a-zA-Z0-9_./\-])/{esc_family}/{esc_platform}/{esc_slug}{tail}"
-    # Absolute: https://[a-zA-Z0-9.\-]+/family/platform/slug...
+    # Absolute: https://blog.aspose.org/family/platform/slug...
     abs_form = rf"https?://blog\.aspose\.org/{esc_family}/{esc_platform}/{esc_slug}{tail}"
     # Protocol-relative
     proto_form = rf"//blog\.aspose\.org/{esc_family}/{esc_platform}/{esc_slug}{tail}"
@@ -147,15 +146,15 @@ def rewrite_blog_slug_references(
         nonlocal count
         original = m.group(0)
         # Determine the prefix (absolute, proto-relative, root-relative)
-        if original.startswith("https://[a-zA-Z0-9.\-]+"):
-            old_prefix = f"https://[a-zA-Z0-9.\-]+/{family}/{platform}/{old_slug}"
-            new_prefix = f"https://[a-zA-Z0-9.\-]+/{family}/{platform}/{new_slug}"
-        elif original.startswith("http://[a-zA-Z0-9.\-]+"):
-            old_prefix = f"http://[a-zA-Z0-9.\-]+/{family}/{platform}/{old_slug}"
-            new_prefix = f"http://[a-zA-Z0-9.\-]+/{family}/{platform}/{new_slug}"
-        elif original.startswith("//[a-zA-Z0-9.\-]+"):
-            old_prefix = f"//[a-zA-Z0-9.\-]+/{family}/{platform}/{old_slug}"
-            new_prefix = f"//[a-zA-Z0-9.\-]+/{family}/{platform}/{new_slug}"
+        if original.startswith("https://blog.aspose.org"):
+            old_prefix = f"https://blog.aspose.org/{family}/{platform}/{old_slug}"
+            new_prefix = f"https://blog.aspose.org/{family}/{platform}/{new_slug}"
+        elif original.startswith("http://blog.aspose.org"):
+            old_prefix = f"http://blog.aspose.org/{family}/{platform}/{old_slug}"
+            new_prefix = f"http://blog.aspose.org/{family}/{platform}/{new_slug}"
+        elif original.startswith("//blog.aspose.org"):
+            old_prefix = f"//blog.aspose.org/{family}/{platform}/{old_slug}"
+            new_prefix = f"//blog.aspose.org/{family}/{platform}/{new_slug}"
         else:
             old_prefix = f"/{family}/{platform}/{old_slug}"
             new_prefix = f"/{family}/{platform}/{new_slug}"
@@ -517,8 +516,7 @@ def run_migration(
     results = []
     skipped = []
 
-    # Content root is configurable via --content-subdir
-    blog_root = repo_root / "content"
+    blog_root = repo_root / "content" / "blog.aspose.org"
 
     for cand in candidates:
         old_slug = cand["old_folder_slug"]
@@ -635,8 +633,8 @@ def run_migration(
             print(f"  Moved folder: {old_folder.name} -> {new_folder.name}")
 
             # --- Step 3: Update source_file in locale files ---
-            old_sf = f"[a-zA-Z0-9.\-]+/{family}/{platform}/{old_slug}/index.md"
-            new_sf = f"[a-zA-Z0-9.\-]+/{family}/{platform}/{new_slug}/index.md"
+            old_sf = f"blog.aspose.org/{family}/{platform}/{old_slug}/index.md"
+            new_sf = f"blog.aspose.org/{family}/{platform}/{new_slug}/index.md"
 
             for update in cand.get("source_file_updates", []):
                 locale_filename = Path(update["file"]).name
@@ -799,7 +797,7 @@ def run_migration(
         "seo_note": (
             "Old URLs are preserved via aliases: in migrated English index.md files. "
             "Hugo build generates redirect HTML pages at old paths. "
-            "enableRedirects: true in [a-zA-Z0-9.\-]+ config."
+            "enableRedirects: true in blog.aspose.org config."
         ),
     }
 
@@ -818,8 +816,8 @@ def run_migration(
         }
         for r in results:
             rollback["rollback_commands"].append(
-                f"git mv content/[a-zA-Z0-9.\-]+/{r['family']}/{r['platform']}/{r['new_folder_slug']} "
-                f"content/[a-zA-Z0-9.\-]+/{r['family']}/{r['platform']}/{r['old_folder_slug']}"
+                f"git mv content/blog.aspose.org/{r['family']}/{r['platform']}/{r['new_folder_slug']} "
+                f"content/blog.aspose.org/{r['family']}/{r['platform']}/{r['old_folder_slug']}"
             )
             if r.get("site_plan_changes"):
                 rollback["rollback_commands"].append(
@@ -828,7 +826,7 @@ def run_migration(
             # Alias rollback instruction
             if r.get("alias_update") and r["alias_update"].get("added"):
                 new_index = (
-                    f"content/[a-zA-Z0-9.\-]+/{r['family']}/{r['platform']}/"
+                    f"content/blog.aspose.org/{r['family']}/{r['platform']}/"
                     f"{r['new_folder_slug']}/index.md"
                 )
                 old_url = r["alias_update"]["old_url"]

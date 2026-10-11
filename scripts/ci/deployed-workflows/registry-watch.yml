@@ -1,0 +1,293 @@
+# registry-watch.yml
+#
+# LOCATION: Aspose/aspose.org-workflows  (NOT in Aspose/aspose.org)
+#
+# MT075-2026-09-28-REGISTRY-WATCH-CONSOLIDATION-AND-SCANNER-HARDENING, T7:
+# replaces package-publish-watch.yml + maven-publish-watcher.yml with one
+# unified watcher covering all 6 registries (pypi, nuget, npm, go_modules,
+# cargo, maven) through registry_watch.py's uniform CheckResult adapter
+# contract and check_registry_merge_safety.py's two-tier gate (Tier 1:
+# version bump of an already-published, same-identity entry -- auto-applies
+# on deterministic checks alone; Tier 2: first publish or identity change --
+# auto-applies only when corroborated against the product's own GitHub
+# repo tags/releases, else held for a later cycle, never touching the live
+# registry and never blocking on a person). See the governing plan, section
+# R2.12, for the full design.
+#
+# FULLY AUTONOMOUS FROM THE FIRST RUN (explicit operator decision, 2026-09-28,
+# plan Revision 2 R2.13 -- supersedes this workflow's own original R2.12
+# bootstrap design within 24h of first deploy). No PR, no human step, for
+# EITHER tier, from the start. This deliberately supersedes, ONLY for this
+# one watcher, the "this workflow may never merge its own PR" norm documented
+# in package-publish-watch.yml and maven-publish-watcher.yml (human-authority
+# boundary, MT062/MT066, 2026-09-17); that norm is otherwise unchanged and
+# still governs install-literal-sweep.yml and upstream-monitor.yml -- this is
+# not a repo-wide policy change.
+#
+# Why the bootstrap-PR design (a human merges the first 5) was removed rather
+# than kept: real evidence gathered the same day it was deployed showed the
+# "human reviews the PR" step this repo's OTHER bot workflows already used
+# doesn't function as designed here -- PR #105 (predecessor workflow) sat
+# open and untouched for 9 days; PR #113 sat open despite being fully
+# superseded; no PR-attention/triage mechanism exists anywhere in either repo
+# for non-SEO-prefixed automated PRs (the one that does exist, the SEO
+# arbiter+dashboard, is scoped to `seo/`-prefixed branches only). Worse: the
+# SEO precedent this design partly modeled itself on turned out, on
+# inspection, to not be a real human-review step either -- 7 of 8 recent SEO
+# PRs merged in 3-10 seconds with zero recorded reviews, a scripted merge
+# riding a human's PAT identity, not a person reading a diff. Removing the
+# bootstrap gate replaces a safety step that wasn't actually functioning with
+# the one net-new control that actually matters once nothing is in the loop
+# at all: check_registry_merge_safety.py's velocity/anomaly check (MT075-T9),
+# reusing scripts/seo/pipeline/change_budget.py's proven rolling-baseline
+# design (mechanism="registry_watch") -- a cross-run check that catches a
+# sustained abnormal pattern the old single-run 5-entry cap alone could not.
+#
+# MT074-2026-10-05-PDF-JAVA-FEATURE-REFRESH-AND-HARDENING, W2/W3 (2026-10-07):
+# adds ONE non-blocking step after the commit/push logic above (which is
+# unchanged): the RELEASE TRIGGER. For every registry entry the watcher changed
+# THIS run it runs `fleet_drift.py --release-trigger <family>/<platform>`
+# (clone-free; reads the just-updated data/package_registry.json) to refresh
+# that product's release_state and file/update its single deduplicated
+# `FLEET-PROPAGATE-{family}-{platform}` issue on Aspose/aspose.org -- the
+# missing "new release detected -> work item" link. ISSUE-ONLY: no content, no
+# registry write beyond what the watcher already did (fleet_drift also updates
+# its own state file inside the runner workspace, which is never committed
+# here -- the weekly upstream-monitor PR carries state). `continue-on-error`
+# so a failure there can never block or undo the registry update; it is
+# surfaced in the job summary instead.
+#
+# Change-list source: registry_watch.py writes no machine-readable list of the
+# entries it applied (its stdout summary is human text; --held-report-out
+# covers only held/rejected), so the job snapshots data/package_registry.json
+# before the watch step and diffs entry-by-entry against the updated file
+# afterwards. Only applied entries differ (the watcher replaces just those),
+# so the diff is exactly the set of changed products -- independent of whether
+# the commit/push step ran or was a no-op.
+#
+# Hardened (S-115): `permissions: contents: read` (the push to
+# Aspose/aspose.org and every issue operation go through the REPO_TOKEN/
+# GH_TOKEN PAT, never GITHUB_TOKEN), a concurrency group with
+# cancel-in-progress: false (a run is never killed between its registry write
+# and its push), the existing timeout, no new secrets, actions keep their tag
+# pins, schedule unchanged. Cost: public workflows repo; the release-trigger
+# step is clone-free (ls-remote + the compare API) and a no-op on the many runs
+# where nothing changed.
+#
+# Required secrets (set in Aspose/aspose.org-workflows, same ones every
+# other migrated watcher already uses -- not new exposure, and this
+# workflow's own script never touches anything but data/package_registry.json):
+#   REPO_TOKEN   - PAT with repo (full) scope on Aspose/aspose.org -- PRIMARY.
+#   GH_TOKEN     - same-shaped PAT, used only as a fallback if REPO_TOKEN is unset.
+
+name: Registry Watch (pypi/nuget/npm/go/cargo/maven, unified)
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'  # every 6 hours
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: registry-watch
+  cancel-in-progress: false
+
+jobs:
+  check-publish-status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Verify GitHub token is valid
+        id: token_check
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Neither REPO_TOKEN nor GH_TOKEN secret is set in Aspose/aspose.org-workflows. Add one under Settings -> Secrets -> Actions."
+            echo "reason=missing" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          if ! WHOAMI=$(gh api user --jq .login 2>&1); then
+            echo "::error::GitHub token (REPO_TOKEN/GH_TOKEN) is set but rejected by the GitHub API -- almost certainly expired or revoked. Real error: $WHOAMI"
+            echo "reason=invalid" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "Token OK -- authenticated as $WHOAMI"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Aspose/aspose.org
+          token: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: scripts/pipeline/requirements-ci.txt
+
+      - name: Set up venv
+        run: |
+          python -m venv .venv
+          echo "$(pwd)/.venv/bin" >> $GITHUB_PATH
+          .venv/bin/pip install -r scripts/pipeline/requirements-ci.txt --quiet
+
+      # Pre-watch copy of the registry: the release-trigger step below diffs against it to find
+      # which entries the watcher changed this run (see header).
+      - name: Snapshot the registry before the watch (for the release-trigger change list)
+        run: cp data/package_registry.json "$RUNNER_TEMP/package_registry.before.json"
+
+      - name: Observe all 6 registries and stage eligible changes
+        id: watch
+        run: |
+          # set -o pipefail is load-bearing, not defensive boilerplate: the
+          # first real pilot run of this workflow (2026-09-29) found that
+          # `python ... | tee ...` without it reports THIS step's outcome as
+          # 'success' even when the python command genuinely fails (its exit
+          # code is masked by tee's own success) -- the exact incident this
+          # closes: a missing commands.ops.registry_watch module (a real
+          # commit-scoping gap, fixed the same day) failed silently for
+          # every run since first deploy, and the downstream commit step's
+          # `if: steps.watch.outcome == 'success'` check never caught it.
+          set -o pipefail
+          PYTHONPATH=scripts/pipeline python -m commands.ops.registry_watch \
+            --auto-apply --held-report-out /tmp/held-report.json \
+            | tee /tmp/watch-stdout.txt
+        continue-on-error: true
+
+      - name: Commit and push directly (no PR, no human step, either tier)
+        if: steps.watch.outcome == 'success'
+        run: |
+          if git diff --quiet -- data/package_registry.json; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "registry-watch-bot"
+          git config user.email "noreply@anthropic.com"
+          git add data/package_registry.json
+          git commit -m "chore(package-registry): automated registry-watch update (MT075-T7/T9/T10)"
+          git push origin HEAD:main
+
+      # MT074 W2 -- RELEASE TRIGGER. Non-blocking and issue-only (see header): one
+      # `fleet_drift.py --release-trigger` per product whose registry entry changed this run.
+      - name: Release trigger -- refresh release_state and file/update the FLEET-PROPAGATE issue (non-blocking)
+        id: release_trigger
+        if: steps.watch.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+        run: |
+          CHANGED=$(python - "$RUNNER_TEMP/package_registry.before.json" data/package_registry.json <<'PYEOF'
+          import json
+          import sys
+
+          before = json.load(open(sys.argv[1], encoding="utf-8"))
+          after = json.load(open(sys.argv[2], encoding="utf-8"))
+          for family in sorted(after):
+              platforms = after[family]
+              if not isinstance(platforms, dict):
+                  continue
+              for platform in sorted(platforms):
+                  if (before.get(family) or {}).get(platform) != platforms[platform]:
+                      print(f"{family}/{platform}")
+          PYEOF
+          )
+          if [ -z "$CHANGED" ]; then
+            echo "No registry entries changed this run -- nothing to trigger."
+            exit 0
+          fi
+          FAILED=0
+          echo "### Release trigger" >> "$GITHUB_STEP_SUMMARY"
+          for PRODUCT in $CHANGED; do
+            echo "Release trigger for $PRODUCT"
+            if PYTHONPATH=scripts/pipeline python scripts/pipeline/commands/diagnostics/fleet_drift.py \
+                 --release-trigger "$PRODUCT" --repo Aspose/aspose.org; then
+              echo "- $PRODUCT: triggered" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- $PRODUCT: FAILED (non-blocking)" >> "$GITHUB_STEP_SUMMARY"
+              FAILED=1
+            fi
+          done
+          exit $FAILED
+
+      - name: Note a failed release trigger in the job summary (never blocks)
+        if: steps.release_trigger.outcome == 'failure'
+        run: |
+          echo "::warning::The release-trigger step failed (non-blocking). The registry update above is unaffected."
+          {
+            echo "> Warning: the release-trigger step failed (non-blocking). The registry update and push above are unaffected;"
+            echo "> the weekly upstream-monitor run will still file the FLEET-PROPAGATE issue for any drifted product."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report held/rejected candidates (visibility only, never blocks)
+        if: always() && hashFiles('/tmp/held-report.json') != ''
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+        run: |
+          HELD_COUNT=$(.venv/bin/python -c "import json; d=json.load(open('/tmp/held-report.json')); print(len(d.get('held', [])))")
+          if [ "$HELD_COUNT" = "0" ]; then
+            echo "Nothing held this run."
+            exit 0
+          fi
+          today=$(date -u +%Y-%m-%d)
+          BODY=$(cat <<EOF
+          ## Registry Watch -- $HELD_COUNT candidate(s) held this run
+
+          These did not clear \`check_registry_merge_safety.py\`'s gate (uncorroborated
+          first publish/identity change, or a batch cap) and were NOT applied. They
+          are automatically re-evaluated every run -- no action required unless one
+          has been held for an unexpectedly long time.
+
+          \`\`\`json
+          $(cat /tmp/held-report.json)
+          \`\`\`
+
+          Triggered by: [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) (Aspose/aspose.org-workflows).
+          EOF
+          )
+          EXISTING=$(gh issue list --repo Aspose/aspose.org --label registry-watch-held --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo Aspose/aspose.org --body "$BODY"
+          else
+            gh issue create --repo Aspose/aspose.org \
+              --title "Registry Watch: candidates held pending stronger evidence" \
+              --label registry-watch-held --body "$BODY"
+          fi
+
+      - name: Open or update a tracking issue if this run itself failed (on this repo, matching SEO-template convention)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+        run: |
+          gh label create registry-watch-failure --repo Aspose/aspose.org-workflows \
+            --color d73a4a --description "registry-watch.yml run failed" 2>/dev/null || true
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          REASON="${{ steps.token_check.outputs.reason || 'see run log' }}"
+          BODY=$(cat <<EOF
+          Run failed: $RUN_URL
+          Trigger: ${{ github.event_name }} at $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          Likely cause: $REASON
+          EOF
+          )
+          EXISTING=$(gh issue list --repo Aspose/aspose.org-workflows --label registry-watch-failure --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo Aspose/aspose.org-workflows --body "$BODY"
+          else
+            gh issue create --repo Aspose/aspose.org-workflows \
+              --title "registry-watch.yml is failing" \
+              --label registry-watch-failure \
+              --body "$BODY"
+          fi
+
+      - name: Close the failure-tracking issue if this run succeeded
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.REPO_TOKEN || secrets.GH_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --repo Aspose/aspose.org-workflows --label registry-watch-failure --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo Aspose/aspose.org-workflows \
+              --body "Resolved -- this run (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) completed successfully."
+            gh issue close "$EXISTING" --repo Aspose/aspose.org-workflows
+          fi

@@ -1,0 +1,1 @@
+def test_matrix_shape_invocation_raises_not_implemented(self) -> None:

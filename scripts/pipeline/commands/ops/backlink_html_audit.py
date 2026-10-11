@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """backlink_html_audit.py — Post-Hugo rendered HTML backlink validator (TC-BL-010).
 
 Parses generated HTML files in a Hugo public/ output directory and validates that
@@ -9,7 +8,7 @@ For products pages specifically counts overview + CTA links per §Y:
   COMPLIANT_TWO_LINKS  — overview link (1) + CTA link (1) = 2
   COMPLIANT_ONE_LINK   — overview link only (family page or plugin without CTA)
   COMPLIANT_CTA_ONLY   — CTA exists, overview missing → flag for review
-  OVER_LIMIT           — > 2 qualifying content-area links
+  OVER_LIMIT           — more than max_enterprise_links_per_page qualifying content-area links
   MISSING              — 0 qualifying links in content area
 
 Usage:
@@ -32,9 +31,11 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
-import os
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+
+sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
+from lib.backlink_targets import get_max_enterprise_links_per_page  # noqa: E402
 
 SCRIPT_VERSION = "1.0.0"
 
@@ -200,9 +201,18 @@ def classify_html_record(
     overview_links: int,
     cta_links: int,
     total: int,
+    max_links: int | None = None,
 ) -> str:
-    """Classify products page rendered HTML per §Y."""
-    if total > 2:
+    """Classify products page rendered HTML per §Y.
+
+    max_links defaults to link_slot_registry.yaml's max_enterprise_links_per_page
+    (TC9, 2026-08-21) -- previously a hardcoded 2, independently duplicated (and
+    disagreeing in principle, if never in practice) with the same cap enforced
+    in backlink_backfill.py and backlink_targets.py.
+    """
+    if max_links is None:
+        max_links = get_max_enterprise_links_per_page()
+    if total > max_links:
         return "OVER_LIMIT"
     if overview_links >= 1 and cta_links >= 1:
         return "COMPLIANT_TWO_LINKS"

@@ -1,0 +1,79 @@
+mission_authority:
+  mission_id: backlink-governance-redesign
+  mission_summary: >
+    Fix the aspose.org <-> aspose.com backlink pipeline's confirmed structural defects across
+    all 5 content subdomains (products, docs, kb, reference, blog), found via three escalating
+    assessment passes after two live defects were reported (products.aspose.org/cells wrong
+    anchor wording, products.aspose.org/words missing backlink). Unifies two ungoverned
+    insertion write-paths into one chokepoint that actually consults the governed anchor-text
+    registry; makes compliance classification anchor/link-type-aware so drift self-heals
+    instead of becoming permanent; unifies two disagreeing platform-name alias tables and
+    fixes subdomain-unscoped override reuse so platform-specific links resolve correctly
+    instead of silently falling back to family-level 37% of the time; adds a single-sourced,
+    configurable link-count cap with cross-subdomain-diversity enforcement; hardens HTTP
+    target verification to reject redirects instead of silently following them to a stored
+    "200"; and closes the repeatability gap where refresh-product -- the skill built to run
+    repeatedly against an already-launched product -- has zero backlink logic in its real
+    executable path despite governance documentation claiming otherwise. Concludes with a
+    systematic, pipeline-executed (never hand-edited) content backfill across the ~125+
+    pages already censused as non-compliant. Explicitly excludes deep content-to-content
+    linking (point 3 of the original 5 requirements) as a separate, later-scoped initiative.
+    Re-verified 2026-08-21 against live current state (3 weeks, ~450 unrelated commits after
+    the original assessment): scope narrowed where already solved by unrelated work (MT022),
+    2 new taskcards added (TC16 family-root audit routing from backlog G-29, TC17 real
+    sitemap crawl for docs/products.aspose.com), and a 5-stage safety-gated rollout added to
+    the content-backfill card per explicit user request after they raised direct concern
+    about live-page risk.
+  governing_plan_path: '<local-plan-cache>/https-products-aspose-org-cells-this-pag-serene-harbor.md'
+  current_phase: "Assessment complete (3 passes + 2026-08-21 re-verification); mission archived and taskcards seeded as local uncommitted files; no code or content changes made yet"
+  in_scope_outcomes:
+    - "[NARROWED] Wire the existing-but-dead _validate_llm_output() validator into both write paths as the real anchor-text gate (not a from-scratch chokepoint build -- the hard part already exists, unwired)"
+    - "classify_compliance() extended with WRONG_ANCHOR_TEXT, DUPLICATE_LINK, DUPLICATE_SUBDOMAIN, AMBIGUOUS_PLATFORM_TARGET, STALE_VERIFICATION statuses, backward-compatible with existing callers (FAMILY_FALLBACK_WHILE_PLATFORM_AVAILABLE already shipped 2026-05-26, out of scope now)"
+    - "auto_updatable write-scope split (cta_only vs full-prose) so protected pages still receive mandatory backlink reconciliation -- confirmed still fully needed, unchanged"
+    - "[SCOPE CORRECTED] _insert_see_also() fixed to actually replace a stale family-level link (confirmed live on 64 kb.aspose.org pages, not 5) when a platform-level link is inserted, and to block rendering of registry entries marked deprecated: true (26 blog posts affected, not 23) -- raised to P0"
+    - "[TIGHTENED per explicit user instruction] PLATFORM_ALIASES merged into exactly one canonical definition, imported by both fetch_aspose_com_targets.py and backlink_targets.py; the fetcher's local copy is deleted outright, not kept as a second synced copy"
+    - "[NEW, per explicit user instruction: 'will this plan solve it? If not, it better should'] docs.aspose.com/products.aspose.com's synthesized (guessed, never-crawled) target inventory is fixed: --products-sitemap's crawl bug is repaired and wired in for products.aspose.com, reusing the same proven sitemap-crawl mechanism already working for reference/kb/blog.aspose.com; docs.aspose.com is either moved to real-crawl status or explicitly, machine-readably marked synthesis-only so absence-of-match is never confused with verified-absent"
+    - "[RESCOPED] resolve_backlink()'s existing, already-correct subdomain-aware override scoping is actually invoked: canonical_overrides= wired into batch_reference.py and generate_product_backlink_copy.py call sites (confirmed currently missing); docs.aspose.com bridge-page data gaps for 3d/python and pdf/go closed"
+    - "Ambiguous-platform disambiguation (existing but dead AMBIGUOUS_PLATFORM_TARGETS/variant-authority code) wired into resolve_backlink(), routing genuine multi-candidate cases to S-90 instead of silent alias-table-order selection -- confirmed still fully needed, unchanged"
+    - "[NARROWED] Per-URL last_verified freshness field only -- the TTL gate and scheduled re-verification workflow already shipped via unrelated mission MT022, confirmed live and working"
+    - "link_slot_registry.yaml's max_enterprise_links_per_page wired as the single source of truth, replacing 3 independent hardcoded literals in backlink_backfill.py, backlink_targets.py, backlink_html_audit.py -- confirmed still fully needed, unchanged"
+    - "Subdomain-diversity enforcement: N permitted links must span N distinct aspose.com hosts, with a new DUPLICATE_SUBDOMAIN status -- confirmed still fully needed, unchanged"
+    - "[NARROWED -- REDIRECT-REJECTION HALF ALREADY CLOSED by MT022, confirmed live and working] Only the --skip-http-verify promotion guardrail and docs/reference/hugo-rendering.md correction remain, and even those were not re-verified in the 2026-08-21 pass -- re-check before building"
+    - "refresh_run.py apply_run() gains a real backlink-reconciliation writer step covering all 5 subdomains, closing the gap where only reference.aspose.org gets ongoing maintenance today -- confirmed still fully needed, unchanged, still the single highest-leverage item"
+    - "[RESCOPED] new-docs-index/new-kb-index/new-reference-index injection: apply the already-drafted, human-approval-blocked diff (backlog PDFPY-SKILLGAP-001) rather than designing a new one"
+    - "[NARROWED] launch-product Stage 8 already auto-backfills MISSING before shipping (more built than originally found) -- extend its explicit hard-gate criteria to OVER_LIMIT/WRONG_TARGET/DUPLICATE_SUBDOMAIN"
+    - "A genuine periodic whole-site backlink audit wired into an existing sweep skill or a new scheduled workflow -- confirmed still absent; now explicitly gated on the new TC16 prerequisite"
+    - "[NEW] Fix audit.py/no_downgrade_guard.py to actually cover family-root pages (backlog G-29) -- a newly-discovered prerequisite without which a periodic sweep would silently keep missing words/cells/etc."
+    - "docs/governance/backlink-policy.md corrected to remove the false claim that refresh-product supports --deep backlink mode -- confirmed still false, evidence strengthened (self-contradicts the same document's own section 4)"
+    - "PR-scoped blocking CI check + scheduled full-site ratcheted audit workflow, covering all new states -- confirmed still absent; the new aspose-com-targets-watch.yml is a different, orthogonal fix and must not be mistaken for this"
+    - "Systematic, pipeline-executed content backfill across all 5 subdomains for the already-censused non-compliant pages (family/platform tier), sequenced products -> kb -> reference -> docs -> blog, through a 5-stage safety-gated rollout (preflight, canary, per-subdomain staged rollout, re-audit, refresh-product exercise) -- confirmed via 14-page live spot-check on 2026-08-21 that zero content remediation has occurred; backlog undiminished and, per the corrected duplicate-link count, larger than originally measured"
+  out_of_scope_items:
+    - "Deep content-to-content linking (docs/blog page-body scraping and embedding-based relevance matching; KB deep-link re-enablement pending a replaced matching algorithm) -- separate initiative, requires its own design pass and an explicit blog auto-approve policy decision"
+    - "Layers 1/1.5/2/2.5/3 of the Three-Layer Architecture (deep_target_index.json, ai_enrichment_index.json, candidate_graph.json, backlink_authority.json generation) -- confirmed sound, not touched"
+    - "The working reference.aspose.org <-> reference.aspose.com exact-class-name linking (1,271 live AUTO_APPROVE_EXACT records) -- confirmed working, left untouched"
+    - "A real sitemap crawl of docs.aspose.com or products.aspose.com if none is discoverable -- if the products.aspose.com sitemap fetch (once its relative-URL bug is fixed) proves viable it is in-scope per TC17; if docs.aspose.com has no discoverable sitemap at all, that limitation is documented, not solved, in this delivery"
+    - "Any change to the KB_ARTICLE_DEPTH hard block introduced by TC-HEAL-007 -- stays active"
+  mandatory_acceptance_criteria:
+    - "[NARROWED] _validate_llm_output() (or its successor) is the only reachable gate for anchor text on both write paths, verified by a wiring test (the AST-check approach is still valid but targets a smaller diff now that the validator itself pre-exists)"
+    - "A page with 2 existing aspose.com links to the same host is classified DUPLICATE_SUBDOMAIN, not COMPLIANT (regression test against today's confirmed pass-through behavior -- still true as of 2026-08-21)"
+    - "[ALREADY TRUE as of 2026-08-21, confirmed live -- keep as a standing regression test in the permanent corpus, not a build task] A URL that 301-redirects to a 200 destination is never stored as http_status: 200 in a fresh fetch_aspose_com_targets.py run (solved by unrelated mission MT022's _redirect_changed_path())"
+    - "An end-to-end test proves refresh-product repairs a deliberately-broken backlink on a fixture product across all 5 subdomains, not just reference.aspose.org (confirmed still 0% true as of 2026-08-21)"
+    - "Post-backfill, unscoped backlink_audit.py across all 5 subdomains shows the non-compliant count dropping from the corrected ~125+ (now known to be an undercount once duplicate-link locale fan-out is included -- 64 kb pages alone, not the 5 originally measured) to a small, explained remainder (documented exemptions only)"
+    - "cells and words (the two originally reported defects) show COMPLIANT status with registry-exact anchor text, verified as a named regression case in the permanent test corpus -- reconfirmed unchanged/still broken as of 2026-08-21 (words has now carried zero backlink for 2.5+ months since its removal)"
+    - "Family-root pages (words/_index.md and siblings) are reachable by audit.py/no_downgrade_guard.py, not unconditionally SKIPped (new criterion, TC16, from backlog G-29)"
+    - "No change in this mission touches Layers 1/1.5/2/2.5/3's generation logic or the reference-class 1,271 live records (diff-scoped verification)"
+    - "[NEW, per explicit user safety request 2026-08-21] TC15's content backfill never proceeds past its canary (cells+words only) or any per-subdomain stage without an explicit, recorded human approval; the real deploy trigger is confirmed (not assumed) and the manifest-based rollback mechanism is proven working on a throwaway page before any real production write"
+  conflicts_found:
+    - "The repo root MISSION_AUTHORITY.yaml projection currently shows a different mission (concurrent-toasting-biscuit, open) as 'current' -- per this repo's own governance, that root file is a human-authorized-write-only path (check_write_path_hook.sh DENYs agent writes there; ROOT_WRITE_AUTHORIZED=1 is documented across docs/_archive/root-orphans/operator-bypasses-human-only.md and related docs as an operator-only bypass). This mission's durable state is therefore archived directly here, under reports/plan_state/backlink-governance-redesign/, exactly as mission_authority.py's own 'open' command would have produced -- the only difference is the root file's 'current mission' pointer has not been flipped, since doing so requires the human-authorized write this session correctly declined to self-grant. Per explicit user instruction 2026-08-21 ('write the mission contract + taskcards as local, uncommitted files for now'), this is the intended, safest form for this step. concurrent-toasting-biscuit's own durable data at reports/plan_state/concurrent-toasting-biscuit/ is completely unaffected by this file's existence."
+    - "Repo working tree has substantial unrelated uncommitted changes across many files/missions as of 2026-08-21 (confirmed via git status). Per explicit user instruction 2026-08-21 ('dont worry about uncommitted work. workers responsible for that will commit them eventually'), this is not this mission's concern. This mission's own bootstrap (this file + taskcards.jsonl) is itself uncommitted, by explicit user instruction, pending a future deliberate commit decision."
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-21T00:00:00Z'
+  _archive_note: >
+    Written directly to this durable path rather than via `mission_authority.py open`,
+    because that command requires the root MISSION_AUTHORITY.yaml to already carry this
+    mission_id, and writing to the root file is gated behind a human-only ROOT_WRITE_AUTHORIZED
+    bypass this session correctly declined to self-grant. Content and shape otherwise match
+    exactly what `open` would have produced. To make this mission the root "current" projection,
+    a human operator should copy this mission_authority block (sans the _archive_* fields) into
+    MISSION_AUTHORITY.yaml with ROOT_WRITE_AUTHORIZED=1, or run the open command themselves.

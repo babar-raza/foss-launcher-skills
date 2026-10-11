@@ -1,0 +1,1 @@
+def test_discretionary_node_shape(self) -> None:

@@ -1,0 +1,14 @@
+{
+  "_comment": "MT056 (2026-08-18, Fifty-Sixth incident) — canonical README-candidate store record. Authoritative plan: C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md, MT056 §2. The canonical-tree DECISION itself was made by the user through MT055 TC-MICRO-03-02's AskUserQuestion human gate (2026-08-18): promote repo-presenter-regen-full to the default candidate tree; retire repo-presenter. This file makes that decision durable and machine-consumable so no future session re-derives or re-litigates it. Consumed by readme_refresh_run.py: start/push refuse to operate on a non-canonical tree; audit-portfolio may read archived trees explicitly (read-only) and tags its output non-canonical; any tree not listed here at all is refused everywhere (stale-path protection). Archival integrity for each archived tree is carried by an _ARCHIVED.json marker at that tree's root (per-product readme.md sha256 fingerprints recorded at freeze time); a listed-archived tree with no marker is an 'archival incomplete' finding, and a marker whose fingerprints no longer match is an 'archive violated' finding.",
+  "schema_version": 1,
+  "canonical_tree": "repo-presenter-regen-full",
+  "archived_trees": [
+    "repo-presenter",
+    "repo-presenter-regen-test",
+    "repo-presenter-regen-reproof"
+  ],
+  "decided_at": "2026-08-18",
+  "decided_by": "user (AskUserQuestion human gate, MT055 TC-MICRO-03-02) + MT056 user mission (single-canonical-location requirement)",
+  "rationale": "repo-presenter-regen-full is the more current tree in every measured dimension: 16 of 30 active products carry MT041's mandatory '## Dependencies' section only there (0 the reverse); fresher mtimes for 24 of 31 products; structure/badge/code-example disposition coverage 24/19/15 products vs 3/3/2. Evidence: reports/_scratch/mt055_tree_divergence_inventory.json, MT054 final report, MT056 regression ledger (reports/_scratch/mt056_regression_ledger.md pattern 6).",
+  "reconciliation": "Per-product reconciliation of the 7 products that were mtime-fresher in repo-presenter is recorded at reports/_scratch/mt056_tree_reconciliation.json. Mechanical promotions (tree copy equals the published upstream README while canonical does not) are performed with backups under reports/_archive/mt056/; every other divergence is flagged NEEDS_REVIEW in the product's acceptance-registry.json rather than silently overwritten in either direction."
+}

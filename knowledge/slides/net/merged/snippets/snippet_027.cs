@@ -1,0 +1,1 @@
+internal static string SimpleDeck => PathTo("Presentation.pptx");

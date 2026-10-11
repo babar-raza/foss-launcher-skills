@@ -11,27 +11,27 @@ This distinction converts undetectable bypass (FU-2 class defect) into documente
 
 Usage:
   # Create a new pending run record before/during skill execution
-  python scripts/pipeline/skill_run_manager.py create \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py create \\
     --skills S-48 S-23 --plan lovely-wandering-reef.md
 
   # Record each skill's invocation detail as you work
-  python scripts/pipeline/skill_run_manager.py record-step \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py record-step \\
     --run-id <id> --skill S-01 --type full \\
     --note "Path validated via path_guard.py"
 
   # Get only the skills valid for "Skills invoked:" (excludes inline_reasoning)
-  python scripts/pipeline/skill_run_manager.py get-declared-skills --run-id <id>
+  python scripts/pipeline/commands/ops/skill_run_manager.py get-declared-skills --run-id <id>
 
   # Validate that declared skills in a commit message match the record
-  python scripts/pipeline/skill_run_manager.py validate \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py validate \\
     --run-id <id> --declared "S-48, S-23, S-01"
 
   # Finalize a run record after the commit
-  python scripts/pipeline/skill_run_manager.py finalize \\
+  python scripts/pipeline/commands/ops/skill_run_manager.py finalize \\
     --run-id <id> --outcome success --commit-sha abc123
 
   # Find the most recent pending (not finalized) run record
-  python scripts/pipeline/skill_run_manager.py find-pending
+  python scripts/pipeline/commands/ops/skill_run_manager.py find-pending
 
 Exit codes:
   0  success / valid
@@ -43,22 +43,35 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-# foss: inline repo_rel (path_utils not present in foss)
-def repo_rel(path, root=None):
-    """Return path relative to repo root, or str(path) if not relative."""
-    from pathlib import Path as _Path
-    _root = root or _Path(__file__).resolve().parents[2]
-    try:
-        return str(_Path(path).relative_to(_root))
-    except ValueError:
-        return str(path)
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from path_utils import repo_rel
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-_RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+
+
+def _default_runs_dir() -> Path:
+    """Resolve the records directory.
+
+    SKILL_RUN_RECORDS_DIR overrides the default. This exists so hook tests
+    (e.g. test_commit_coauthor_hook.py, which runs commit-msg-skills.sh as a
+    subprocess) can isolate themselves from the repo's LIVE pending records —
+    without it, any real pending record makes those tests fail spuriously
+    (TC-W3H-007).
+    """
+    env = os.environ.get("SKILL_RUN_RECORDS_DIR")
+    if env:
+        return Path(env)
+    return _REPO_ROOT / "reports" / "skill-runs"
+
+
+_RUNS_DIR = _default_runs_dir()
 
 
 def configure(*, runs_dir: Path | str | None = None) -> None:
@@ -70,7 +83,7 @@ def configure(*, runs_dir: Path | str | None = None) -> None:
     if runs_dir is not None:
         _RUNS_DIR = Path(runs_dir)
     else:
-        _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
+        _RUNS_DIR = _default_runs_dir()
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +118,11 @@ def _parse_declared_skills(declared: str) -> list[str]:
 
 def cmd_create(args: argparse.Namespace) -> int:
     """Create a new pending skill run record."""
+    # Accept both space-separated (--skills S-73 S-62) and comma-separated
+    # (--skills S-73,S-62) forms. Without this, the comma form stored the
+    # literal "S-73,S-62" as ONE skill id and every commit-msg validation
+    # mismatched until the record JSON was hand-edited (TC-W3H-008).
+    args.skills = [s.strip() for arg in args.skills for s in arg.split(",") if s.strip()]
     now = datetime.now(tz=timezone.utc)
     ts = now.strftime("%Y%m%d-%H%M%S")
     slug = "-".join(s.lower().replace("-", "") for s in args.skills[:2])
@@ -121,8 +139,9 @@ def cmd_create(args: argparse.Namespace) -> int:
         "outcome": "pending",
         "started_at": now.isoformat().replace("+00:00", "Z"),
         "completed_at": None,
-        "commit_sha": None,
+        "commit_sha": getattr(args, "commit_sha", "") or None,
         "retroactive": args.retroactive,
+        "run_type": getattr(args, "run_type", None) or "unknown",
     }
 
     out = _record_path(run_id)
@@ -245,8 +264,17 @@ def cmd_finalize(args: argparse.Namespace) -> int:
 
 
 def cmd_find_pending(args: argparse.Namespace) -> int:
-    """Print the most recent pending (outcome=pending) run record ID."""
+    """Print the most recent pending (outcome=pending) run record ID.
+
+    Ignores records older than ``--max-age-hours`` (default 48) to prevent
+    stale records from prior sessions blocking commits in new sessions.
+    A record is considered stale when its ``started_at`` timestamp is more
+    than ``max_age_hours`` in the past.  Stale records are printed to stderr
+    as warnings but not returned as the active pending record.
+    """
     _RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    max_age = getattr(args, "max_age_hours", 48)
+    cutoff = datetime.now(tz=timezone.utc) - timedelta(hours=max_age)
     candidates = [
         f for f in sorted(_RUNS_DIR.glob("*.json"), reverse=True)
         if "retroactive" not in f.name
@@ -254,12 +282,26 @@ def cmd_find_pending(args: argparse.Namespace) -> int:
     for f in candidates:
         try:
             r = _load_record(f)
-            if r.get("outcome") == "pending":
-                print(r["run_id"])
-                return 0
+            if r.get("outcome") != "pending":
+                continue
+            started_raw = r.get("started_at", "")
+            if started_raw:
+                try:
+                    started = datetime.fromisoformat(started_raw)
+                    if started < cutoff:
+                        print(
+                            f"WARN: skipping stale pending record {r['run_id']!r} "
+                            f"(started_at={started_raw}, older than {max_age}h)",
+                            file=sys.stderr,
+                        )
+                        continue
+                except ValueError:
+                    pass  # Unparseable timestamp — include the record
+            print(r["run_id"])
+            return 0
         except (json.JSONDecodeError, OSError):
             continue
-    # No pending record
+    # No pending record within the age window
     return 2
 
 
@@ -280,6 +322,20 @@ def main(argv: list[str] | None = None) -> int:
     p_create.add_argument("--plan", default="", help="Plan reference")
     p_create.add_argument("--retroactive", action="store_true",
                           help="Mark as retroactive (documents a past execution)")
+    p_create.add_argument("--commit-sha", dest="commit_sha", default="",
+                          help="Known commit SHA at creation time (2026-08-29 stale-guard "
+                               "plan, T4): lets git_plumb_commit.py file the record with the "
+                               "built commit's sha BEFORE pushing, so a crash between push "
+                               "and finalize still leaves a sha-linked, discoverable record "
+                               "(outcome stays 'pending' until finalize).")
+    p_create.add_argument(
+        "--run-type",
+        dest="run_type",
+        default="unknown",
+        choices=["full-s84", "reference-only", "knowledge-only", "targeted", "harness", "unknown"],
+        help="Run type label for this skill run (default: unknown). "
+             "Missing run_type in existing records is tolerated (backward compatible).",
+    )
 
     # record-step
     p_step = sub.add_parser("record-step", help="Add skill step detail to a run record")
@@ -313,7 +369,15 @@ def main(argv: list[str] | None = None) -> int:
     p_fin.add_argument("--commit-sha", default="")
 
     # find-pending
-    sub.add_parser("find-pending", help="Print most recent pending run record ID")
+    p_fp = sub.add_parser("find-pending", help="Print most recent pending run record ID")
+    p_fp.add_argument(
+        "--max-age-hours",
+        dest="max_age_hours",
+        type=float,
+        default=48.0,
+        help="Ignore pending records older than this many hours (default: 48). "
+             "Prevents stale records from prior sessions blocking new-session commits.",
+    )
 
     args = parser.parse_args(argv)
     dispatch = {

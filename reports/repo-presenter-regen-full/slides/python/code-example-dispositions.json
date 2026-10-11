@@ -1,0 +1,302 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CHANGELOG.md"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ShapeCollection.py"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/PortionFormat.py"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Hyperlink.py"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Table.py"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Connector.py"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/FillFormat.py"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ImageCollection.py"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/NotesSlideManager.py"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Comment.py"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/DocumentProperties.py"
+    }
+  },
+  {
+    "unit_id": "c0015a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015d",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015e",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015f",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015g",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015h",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015i",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0015j",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/charts/ChartType.py"
+    }
+  },
+  {
+    "unit_id": "c0016",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/slideshow/TransitionType.py"
+    }
+  },
+  {
+    "unit_id": "c0017",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/GroupShape.py"
+    }
+  },
+  {
+    "unit_id": "c0018a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/MarkdownSaveOptions.py"
+    }
+  },
+  {
+    "unit_id": "c0018b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/MarkdownSaveOptions.py"
+    }
+  },
+  {
+    "unit_id": "c0018c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/MarkdownSaveOptions.py"
+    }
+  },
+  {
+    "unit_id": "c0018d",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/export/MarkdownSaveOptions.py"
+    }
+  }
+]

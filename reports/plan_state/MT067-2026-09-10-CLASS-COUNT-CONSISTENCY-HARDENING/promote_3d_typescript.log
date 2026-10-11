@@ -1,0 +1,22 @@
+Promote: 3d/typescript
+  Scout: 1406 claims, 153 api_surface entries
+  Enriched: 988 claims (from enrich.py)
+  Total claims: 2394
+  WARNING: 17 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (32 excess removed)
+    CLM-3d-112579: 7 occurrences
+    CLM-3d-54f361: 7 occurrences
+    CLM-3d-cea830: 7 occurrences
+    CLM-3d-203a67: 2 occurrences
+    CLM-3d-a7cfdc: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 950 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 153 entries (150 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 150 classes, 56764 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\3d\typescript\merged.staging.66121477-0f1a-4cd1-8b42-6429abe88a89
+  Format-claims reconciliation: PASS (16 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 66121477-0f1a-4cd1-8b42-6429abe88a89 promoted for 3d/typescript
+
+PROMOTE: PASS

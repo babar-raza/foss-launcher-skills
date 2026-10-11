@@ -1,59 +1,85 @@
 ---
 name: llms-fidelity
-id: S-118
+id: S-LG-04
 description: >
-  Score content fidelity between source .md pages and their generated
-  llms-output/ .txt outputs. Generalized from aspose.org's llms-fidelity
-  skill (S-LG-04) -- ported 2026-08-29.
-args: "[--output llms-output] [--gate 90] [--report path.json]"
+  Skill description pending
 ---
 
-# S-118: LLMs Fidelity -- Audit Content Fidelity
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-**Arguments**: $ARGUMENTS (all optional)
+# S-LG-04: llms-fidelity — Audit Content Fidelity
 
-## Purpose
-Score each generated page against its source across title preservation,
-heading/code-fence/table counts, and absence of Hugo-shortcode or
-evidence-frontmatter leakage -- catches quality regressions that a plain
-presence/coverage check (`/llms-coverage`) would miss.
+## Description
 
-## Pre-conditions
-Run `/llms-generate` first.
+Samples source .md files and their corresponding .txt outputs, scoring fidelity
+across title preservation, H2 count, code fence count, table row count,
+and absence of shortcodes/evidence leakage. Gate: overall score >= 90%.
+
+## Contract
+
+**Backing script**: `scripts/generator/audit_fidelity.py`
+**Input**: `content/` (source) + `llms-output/` (outputs)
+**Output**: `reports/agent-consumption/fidelity-report.json` (local only)
 
 ## Steps
 
-1. Run the fidelity audit:
+1. Quick fidelity check (10 pages per domain, random seed=42):
    ```bash
-   .venv/bin/python scripts/llms_fidelity.py --output llms-output --report reports/llms-fidelity.json
+   .venv/Scripts/python scripts/generator/audit_fidelity.py \
+     --content content \
+     --output-dir llms-output \
+     --report reports/agent-consumption/fidelity-report.json
    ```
 
-2. Enforce a gate:
+2. Full corpus audit (all pages — use for TC-W8 regression gate):
    ```bash
-   .venv/bin/python scripts/llms_fidelity.py --output llms-output --gate 90
+   .venv/Scripts/python scripts/generator/audit_fidelity.py \
+     --content content \
+     --output-dir llms-output \
+     --report reports/agent-consumption/fidelity-report.json \
+     --full-corpus
    ```
 
-## Fidelity Dimensions (per page, each worth 1/6 of the page score)
+3. Check score:
+   ```bash
+   .venv/Scripts/python -c "
+   import json
+   r = json.load(open('reports/agent-consumption/fidelity-report.json'))
+   print(f'Overall score: {r[\"overall_score\"]}% [{r[\"gate\"]}]')
+   for domain, d in r['domains'].items():
+       if d['status'] != 'no_pages':
+           print(f'  {domain}: {d[\"domain_score\"]}% ({d[\"failing_pages\"]} failing)')
+   "
+   ```
+
+## Fidelity Dimensions (per page)
 
 | Check | Description |
 |-------|-------------|
-| `title_preserved` | Source title appears near the top of the output |
+| `title_preserved` | Frontmatter title appears in first 10 lines of output |
 | `h2_count_ok` | Output H2 count >= source H2 count (headings not dropped) |
-| `code_fence_count_ok` | Output code-fence count >= source code-fence count |
-| `table_row_count_ok` | Output table-row count >= source table-row count |
+| `code_fence_count_ok` | Output code fences >= source code fences |
+| `table_row_count_ok` | Output table rows >= source table rows |
 | `no_shortcode` | No `{{` or `{%` in output (Hugo shortcodes not leaked) |
-| `no_evidence_field` | No `claim_id:`/`model_sha:`/`graded_content_hash:` leakage |
+| `no_evidence_field` | No `claim_id:`, `model_sha:` in output (evidence not leaked) |
 
 ## Gate
-Default recommendation: overall score >= 90%. Pages scoring below 80% count
-as `failing_pages` for that site.
 
-## Negative Control (how to verify the auditor actually catches regressions)
-Take a generated .txt output, delete one of its `##` sections, and re-run.
-That page's score must drop below 80% -- if it doesn't, the auditor itself
-is broken. (This exact scenario is covered by an automated negative-control
-test: `tests/test_llms_generate.py::test_fidelity_negative_control_detects_dropped_section`.)
+Overall score >= 90%. Scores per page range 0-100%.
+Pages scoring < 80% are counted as `failing_pages` per domain.
+
+## Negative Control (manual verification)
+
+To confirm the auditor correctly rejects false-complete outputs:
+1. Take a source .md with a `## Limitations` section
+2. Create a .txt without that section
+3. Run auditor on that pair — score should be < 80% for that page
 
 ## Related Skills
-- `/llms-generate` -- regenerate to fix a fidelity issue
-- `/llms-coverage` -- checks presence, not quality
+
+- `/llms-generate` — regenerate to fix fidelity issues
+- `/llms-coverage` — check presence (not quality)
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It audits pre-generated output content against source pages only.

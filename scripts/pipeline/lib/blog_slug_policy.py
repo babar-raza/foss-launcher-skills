@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """blog_slug_policy.py — Shared folder slug policy for blog.aspose.org.
 
 Provides classification, validation, repair proposal, and URL derivation
@@ -13,8 +12,16 @@ from the folder path.
 """
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
+from commands.ops.llm_router import LLMCallContext
+
+if TYPE_CHECKING:
+    from commands.ops.llm_router import LLMRouter
+
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Slug normalization
@@ -276,6 +283,125 @@ def propose_folder_slug_repair(
     # Final cleanup
     slug_str = re.sub(r"-{2,}", "-", slug_str).strip("-")
     return slug_str
+
+
+# ---------------------------------------------------------------------------
+# SEO slug constraints
+# ---------------------------------------------------------------------------
+
+SEO_MIN_WORDS = 3
+SEO_MAX_WORDS = 5
+SEO_SOFT_MAX_CHARS = 60
+
+_GENERIC_VERBS = frozenset({
+    "introducing", "working", "using", "getting", "started",
+})
+
+_SEO_SYSTEM_PROMPT = """\
+You are an SEO specialist generating URL slugs for technical blog posts about \
+open-source developer libraries.
+
+Generate a single URL slug that:
+- Is 3-5 words, max 60 characters
+- Uses only lowercase letters, digits, and hyphens
+- Leads with the primary technical keyword (specific format, feature, or action)
+- Includes the platform name ({platform}) when natural
+- Avoids generic verbs: "introducing", "working-with", "using", "getting-started"
+- Avoids stopwords: a, the, with, for, of, in, and, or
+- Is specific enough that a developer searching would click this URL
+- Reads naturally as a URL path segment
+
+Respond with ONLY the slug, nothing else."""
+
+_SEO_USER_PROMPT = """\
+Title: {title}
+Description: {description}
+Summary: {summary}
+Family: {family}
+Platform: {platform}"""
+
+
+def validate_seo_slug(slug: str) -> list[str]:
+    """Validate a slug against SEO constraints. Returns list of violations."""
+    violations: list[str] = []
+    words = slug.split("-")
+
+    if not re.match(r"^[a-z0-9][a-z0-9-]*[a-z0-9]$", slug):
+        violations.append("invalid characters (only a-z, 0-9, hyphens)")
+
+    if len(words) < SEO_MIN_WORDS:
+        violations.append(f"too few words ({len(words)} < {SEO_MIN_WORDS})")
+
+    if len(words) > SEO_MAX_WORDS:
+        violations.append(f"too many words ({len(words)} > {SEO_MAX_WORDS})")
+
+    if len(slug) > SEO_SOFT_MAX_CHARS:
+        violations.append(f"too long ({len(slug)} > {SEO_SOFT_MAX_CHARS})")
+
+    if any(w in _GENERIC_VERBS for w in words):
+        violations.append("contains generic verb")
+
+    if any(w in _STOPWORDS for w in words):
+        violations.append("contains stopword")
+
+    return violations
+
+
+def generate_seo_slug(
+    title: str,
+    description: str,
+    summary: str,
+    family: str,
+    platform: str,
+    *,
+    llm_router: "LLMRouter | None" = None,
+) -> str:
+    """Generate an SEO-optimized slug via LLM, with deterministic fallback.
+
+    Calls the LLM to propose a slug from page content, then validates it
+    against SEO constraints. Falls back to ``propose_folder_slug_repair()``
+    if the LLM is unreachable or produces an invalid slug.
+    """
+    if llm_router is not None:
+        try:
+            from commands.ops.llm_router import EndpointStatus
+        except ImportError:
+            EndpointStatus = None
+
+        system = _SEO_SYSTEM_PROMPT.format(platform=platform)
+        user = _SEO_USER_PROMPT.format(
+            title=title,
+            description=description or "(none)",
+            summary=summary or "(none)",
+            family=family,
+            platform=platform,
+        )
+
+        result = llm_router.call_chat(
+            system, user,
+            temperature=0.3,
+            max_tokens=100,
+            json_extract=False,
+            context=LLMCallContext.create("blog-slug-policy", "blog-slug", "classification"),
+        )
+
+        if EndpointStatus is not None and result.status == EndpointStatus.OK:
+            raw = (result.data or "").strip().strip("`\"' \n")
+            candidate = normalize_folder_slug(raw)
+            violations = validate_seo_slug(candidate)
+            if not violations:
+                return candidate
+            log.warning(
+                "LLM slug '%s' failed validation: %s — falling back",
+                candidate, "; ".join(violations),
+            )
+        else:
+            log.warning(
+                "LLM call failed (status=%s) — falling back to deterministic",
+                result.status.value if hasattr(result.status, "value") else result.status,
+            )
+
+    return propose_folder_slug_repair("", title, family, platform)
 
 
 # ---------------------------------------------------------------------------

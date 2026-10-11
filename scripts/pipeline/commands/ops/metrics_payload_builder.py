@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Payload builder for agent metrics: aggregation and MetricsRow construction.
 
 Provides two helpers on top of metrics_schema.py:

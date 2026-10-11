@@ -1,0 +1,50 @@
+fix(foss): C7 fast-follow -- address independent reviewer notes on the RC2 dispatch fix
+
+An independent reviewer (ACCEPT WITH NOTES) confirmed commit 6dd66d0c109f5e0c
+(C7's auto-dispatch fix) is a correct, non-scope-creeping dispatch change with
+no under-verification regression, but found 3 real, addressable gaps:
+
+1. Two stale comments now made false claims after the dispatch fix. The
+   TC-HARDEN-01 module comment above `_ANY_LANG_CODE_BLOCK_RE`
+   (readme_refresh_run.py) said python_verification_runner was reachable only
+   via the explicit `--python-runner` flag and that the hardcoded default was
+   deliberately left untouched to avoid adding real venv/network cost
+   silently -- both now false for platform="python" runs. The `--python-runner`
+   /`--typescript-runner` CLI help text made the same now-false claim
+   ("omitting this flag keeps the honest, side-effect-free stub... matching
+   every prior invocation's behavior exactly"). Both updated to state the
+   real, current behavior: these platforms auto-dispatch to the real runner
+   now, and the explicit flags are kept only as an override for callers who
+   want to force one.
+
+2. Real coverage gap: the original 6 tests proved the dispatch DECISION in
+   isolation and proved the unregistered-platform (stub) path end-to-end, but
+   nothing drove `verify_examples()` itself through a platform that resolves
+   through `_LANGUAGE_RUNNERS` to something other than the stub. Added
+   `test_verify_examples_dispatches_through_language_runners_for_a_registered_platform`,
+   which temporarily registers the already-fixtured "testplat" platform as a
+   `_LANGUAGE_RUNNERS` entry via `monkeypatch.setitem` (a plain module-level
+   dict -- T4/permitted dict-patching, not the banned T2 internal-function
+   replacement monkeypatch.setattr would be) and drives the real
+   `start_run`/`plan_run`/`ingest_candidate`/`verify_examples` state machine
+   through it with a fast, network-free double, proving the real call path
+   actually selects the registered runner over the default stub.
+
+3. Cosmetic: my earlier edit truncated the original "TC-HARDEN-01 (MT033):
+   python_verification_runner" section-header comment along with its first
+   line, leaving the paragraph explaining why the real pip-install path isn't
+   exercised in the committed suite orphaned with no lead-in a few lines
+   below the new C7 tests. Restored the header and lead-in line so the
+   paragraph reads correctly again.
+
+Verification: full test_readme_refresh_run.py suite, 226/226 passing (216
+original + 6 from the first C7 commit + this fast-follow's 1 new test), run
+in full after these changes.
+scripts/ci/checks/check_monkeypatch_lint.py run directly against both changed
+files: 0 violations, confirming the new monkeypatch.setitem usage is not a T2
+regression.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C7 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

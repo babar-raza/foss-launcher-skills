@@ -1,0 +1,29 @@
+mission_authority:
+  mission_id: readme-refresh-retention-vs-redundancy-hardening-2026-09-04
+  mission_summary: 'User-directed production post-mortem: the readme-refresh-pdf-typescript-
+    scale-hardening-2026-09-03 retention-fidelity fix caused pdf/typescript to balloon from
+    235KB to 315KB (bigger than the 276KB upstream source) with real cross-section content
+    duplication. Root-caused (not just patched): the fix applied a blanket "verbatim-dump
+    everything" remedy with no per-unit reconciliation, and the check battery has no symmetric
+    machinery guarding against over-inclusion (only under-inclusion). Full design at
+    <local-plan-cache>/i-want-to-investigate-refactored-petal.md, approved by the
+    user via ExitPlanMode 2026-09-04.'
+  governing_plan_path: <local-plan-cache>/i-want-to-investigate-refactored-petal.md
+  binding_pattern: hand-authored record (root MISSION_AUTHORITY.yaml slot held by MT058)
+  in_scope_outcomes:
+  - 'Generalize check_content_unit_probable_duplicate (or a new sibling) into a cross-section,
+    word-overlap-based redundancy check -- advisory first, portfolio-measured'
+  - 'Rewrite skills/readme-refresh.md remedy procedure for a reframe-fidelity failure: per-unit
+    reconciliation before verbatim reinsertion, redundant_with_existing disposition path'
+  - 'Coarse, advisory, section-scoped document growth-ratio check'
+  - 'Fix the stale _retention_fidelity docstring ("never a gate")'
+  - 'Portfolio-wide before/after measurement of the new check(s); regression fixtures'
+  - 'pdf/typescript content cleanup for the 4 confirmed >150-word duplicate pairs (separate,
+    scheduled pass, not blocking the check-engineering work)'
+  out_of_scope:
+  - 'Hard-gating the new redundancy check on day one (advisory-first, matching established
+    rollout precedent)'
+  - 'True semantic deduplication beyond the same-identifier heuristic'
+  - 'Push/PR -- reports/ candidate work stays local; only code/skill/test changes are committed'
+  recorded_at: '2026-09-04T12:00:00Z'
+  recorded_by: session-9d8aa2aa

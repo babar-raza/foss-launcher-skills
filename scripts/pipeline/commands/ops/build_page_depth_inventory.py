@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """build_page_depth_inventory.py — Build a depth-aware page type inventory across all in-scope aspose.org content.
 
 Walks all 5 subdomain content roots, classifies each file by the §Q.3 page type
@@ -24,10 +23,9 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass, asdict
 from pathlib import Path
-import os
 from typing import Optional
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _REPO_ROOT
 
 # ── Locale patterns (§1.2 + §Q.2) ───────────────────────────────────────────

@@ -1,69 +1,43 @@
-"""Knowledge model loading, content discovery, and evidence validation.
+"""Knowledge model loader.
 
-Extracted from audit.py. Provides the shared knowledge infrastructure used by
-content audit, change guard, attach evidence, and evaluator tools.
+Provides the Knowledge class.
 
 Public API:
     Knowledge           — loaded knowledge model for a single family/platform
-    KNOWLEDGE_ROOT      — Path("knowledge")
-    PLATFORM_MAP        — {} (empty; content and knowledge paths now use the same names)
-    PLATFORM_RMAP       — {} (empty; content and knowledge paths now use the same names)
-    SITE_PATHS          — list of (site, path_pattern) tuples
-    LOCALE_RE           — regex to detect translation file suffixes
-    discover_content(family, platform) -> list[Path]
-    discover_products() -> list[(family, platform)]
-    infer_product(filepath) -> (family, platform) | (None, None)
-    parse_frontmatter(filepath) -> dict
-    verify_evidence(frontmatter, knowledge, filepath) -> list[Finding]
+
+Removed symbols (see canonical homes):
+    discover_content / discover_products / infer_product → content_discovery
+    KNOWLEDGE_ROOT / PLATFORM_MAP / PLATFORM_RMAP        → content_discovery  (R-4)
+    SITE_PATHS / LOCALE_RE                               → content_discovery  (R-4)
+    verify_evidence                                       → evidence_verifier
+    parse_frontmatter / _FRONTMATTER_RE                  → core.markdown
+
+CLI Commands:
+    diff {family} {platform} {repo_path}  — Compare repo SHA with stored SHA in model.yaml
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import yaml
 from pathlib import Path
 
-# --- Standalone repo path resolution via config_loader ---
-_HERE = Path(__file__).resolve().parent          # scripts/pipeline/commands/knowledge/
-_PIPELINE = _HERE.parent.parent                  # scripts/pipeline/
-_SCRIPTS = _HERE.parent.parent.parent            # scripts/
-import sys as _sys
-if str(_PIPELINE) not in _sys.path:
-    _sys.path.insert(0, str(_PIPELINE))
-if str(_SCRIPTS) not in _sys.path:
-    _sys.path.insert(0, str(_SCRIPTS))
-from config_loader import (                       # noqa: E402
-    resolve_knowledge_root as _resolve_knowledge_root,
-    resolve_content_repo as _resolve_content_repo,
-)
-# --------------------------------------------------------
-
-from commands.ops.token_ops import Finding  # noqa: E402 (moved to commands/ops/)
-
 
 # ---------------------------------------------------------------------------
-# Constants
+# R-4: constant re-exports removed; import from content_discovery directly.
+# KNOWLEDGE_ROOT kept as a private import — used by Knowledge.__init__.
 # ---------------------------------------------------------------------------
 
-KNOWLEDGE_ROOT = _resolve_knowledge_root()
+import sys  # noqa: E402
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from content_discovery import KNOWLEDGE_ROOT as _KNOWLEDGE_ROOT  # noqa: E402  (internal only — R-4)
 
-# Platform path mapping: content paths and knowledge directories now use the
-# same name ("net" for .NET/C#). These dicts remain for API compatibility but
-# are intentionally empty.
-PLATFORM_MAP: dict[str, str] = {}
-PLATFORM_RMAP: dict[str, str] = {}
-
-# Site content paths relative to CONTENT_ROOT
-SITE_PATHS = [
-    ("products.aspose.org", "content/products.aspose.org/en/{family}/{platform}"),
-    ("reference.aspose.org", "content/reference.aspose.org/en/{family}/{platform}"),
-    ("docs.aspose.org", "content/docs.aspose.org/en/{family}/{platform}"),
-    ("blog.aspose.org", "content/blog.aspose.org/{family}/{platform}"),
-    ("kb.aspose.org", "content/kb.aspose.org/en/{family}/{platform}"),
-]
-
-# Locale codes to skip (translation files)
-LOCALE_RE = re.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fi|fr|he|hi|hr|hu|id|it|ja|ko|lt|lv|ms|nl|no|pl|pt|ro|ru|sk|sl|sr|sv|th|tr|uk|vi|zh)\.md$")
+# _REPO_ROOT is still needed by Knowledge.__init__ path construction
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent.parent  # scripts/pipeline/ -> scripts/ -> repo root
 
 
 # ---------------------------------------------------------------------------
@@ -71,29 +45,76 @@ LOCALE_RE = re.compile(r"\.(?:ar|bg|ca|cs|da|de|el|es|et|fi|fr|he|hi|hr|hu|id|it
 # ---------------------------------------------------------------------------
 
 class Knowledge:
-    """Loaded knowledge model for a single family/platform."""
+    """Loaded knowledge model for a single family/platform.
 
-    def __init__(self, family, platform):
+    Construction is zero-I/O: no files are read until the first attribute
+    access (``available``, ``classes``, ``methods``, etc.).  All data is loaded
+    on first access via :meth:`_ensure_loaded`.
+    """
+
+    def __init__(self, family, platform, knowledge_root=None):
         self.family = family
         self.platform = platform
-        merged = KNOWLEDGE_ROOT / family / platform / "merged"
-        self.available = (merged / "api_surface.json").exists()
-        if not self.available:
+        _root = Path(knowledge_root) if knowledge_root is not None else _KNOWLEDGE_ROOT
+        # Store path; no I/O here.
+        self.__dict__["_merged"] = _root / family / platform / "merged"
+
+    # ------------------------------------------------------------------
+    # Lazy loading
+    # ------------------------------------------------------------------
+
+    def _ensure_loaded(self) -> None:
+        """Load all knowledge artifacts from disk.  Idempotent (no-op after first call)."""
+        if "_knowledge_loaded" in self.__dict__:
+            return
+        # Set sentinel FIRST to prevent recursion if called during load
+        self.__dict__["_knowledge_loaded"] = True
+        merged = self.__dict__["_merged"]
+
+        available = (merged / "api_surface.json").exists()
+        self.__dict__["available"] = available
+        self.__dict__["workaround_members"] = {}
+
+        if not available:
+            # Set all data attributes to safe defaults so callers need not guard
+            self.__dict__.update(dict(
+                version="", repo_sha="", config_sha=None, claims_hash="",
+                enrichment_status=None, stale_since=None,
+                classes={}, classes_by_import={},
+                methods={}, properties={}, enum_members={},
+                return_types={}, property_types={}, method_params={},
+                parents={}, valid_imports=set(),
+                claim_ids=set(), api_to_claim={}, claims_by_id={},
+                surface_tier=3, install_cmd="",
+                snippet_index=[], _snippet_classes=set(), _snippet_methods=set(),
+                class_importance={}, class_kind={},
+            ))
             return
 
         model = yaml.safe_load((merged / "model.yaml").read_text(encoding="utf-8"))
-        self.version = model.get("version", "")
-        self.repo_sha = model.get("repo_sha", "")
+        self.__dict__["version"] = model.get("version", "")
+        self.__dict__["repo_sha"] = model.get("repo_sha", "")
+        # config_sha: None means field absent (pre-backfill model). stale_detect treats
+        # None as missing (INFO) rather than stale.  Set after running promote.py.
+        self.__dict__["config_sha"] = model.get("config_sha", None)
+        # enrichment_status: None means field absent (product bootstrapped before TC-4
+        # tracking was added).  Callers treat None as "unknown — assume full" for
+        # backward-compat.  "scout-only" means LLM enrichment was skipped or failed;
+        # claim-based evaluators may produce false positives against scout-only knowledge.
+        self.__dict__["enrichment_status"] = model.get("enrichment_status", None)
+        self.__dict__["stale_since"] = model.get("stale_since", None)
 
         api_list = json.loads((merged / "api_surface.json").read_text(encoding="utf-8"))
 
         # Build lookup structures
         self.classes = {}          # name -> class dict
+        self.classes_by_import = {}  # class_import -> class dict (FQ-name index)
         self.methods = {}          # name -> set of method names
         self.properties = {}       # name -> set of property names
         self.enum_members = {}     # name -> set of member names
         self.return_types = {}     # (class, method) -> return_type
         self.property_types = {}   # (class, property) -> type_string
+        self.method_params = {}    # (class, method) -> set[int] of observed param counts (for overload detection)
 
         for cls in api_list:
             if not isinstance(cls, dict):
@@ -102,6 +123,10 @@ class Knowledge:
             if not name:
                 continue
             self.classes[name] = cls
+            # FQ-name index: use class_import for disambiguation
+            class_import = cls.get("class_import", "")
+            if class_import:
+                self.classes_by_import[class_import] = cls
 
             meths = self.methods.get(name, set())
             for m in cls.get("methods", []):
@@ -111,6 +136,13 @@ class Knowledge:
                     ret = m.get("return_type", "")
                     if ret:
                         self.return_types[(name, mname)] = ret.strip("'\"")
+                    # Track param count for signature verification (overload detection)
+                    params = m.get("params", [])
+                    if isinstance(params, list):
+                        key = (name, mname)
+                        counts = self.method_params.get(key, set())
+                        counts.add(len(params))
+                        self.method_params[key] = counts
             self.methods[name] = meths
 
             props = self.properties.get(name, set())
@@ -142,15 +174,27 @@ class Knowledge:
             if isinstance(graph, dict):
                 for cls_name, info in graph.items():
                     if isinstance(info, dict):
-                        self.parents[cls_name] = info.get("bases", [])
+                        # OBS-03: Filter self-referential bases defensively
+                        self.parents[cls_name] = [b for b in info.get("bases", []) if b != cls_name]
                     elif isinstance(info, list):
-                        self.parents[cls_name] = info
+                        self.parents[cls_name] = [b for b in info if b != cls_name]
+            elif isinstance(graph, list):
+                # Array format: [{"child": "Foo", "parent": "Bar", ...}, ...]
+                for entry in graph:
+                    if isinstance(entry, dict):
+                        child = entry.get("child")
+                        parent = entry.get("parent")
+                        if child and parent and parent != child:  # OBS-03: filter self-ref
+                            if child not in self.parents:
+                                self.parents[child] = []
+                            self.parents[child].append(parent)
         # Also use bases from api_surface
         for cls in api_list:
             if isinstance(cls, dict) and cls.get("bases"):
                 name = cls.get("name", "")
                 if name and name not in self.parents:
-                    self.parents[name] = cls["bases"]
+                    # OBS-03: Filter self-referential bases defensively
+                    self.parents[name] = [b for b in cls["bases"] if b != name]
 
         # Derive valid import prefixes from file paths in api_surface
         self.valid_imports = set()
@@ -174,27 +218,69 @@ class Knowledge:
                     for i in range(1, len(mod_parts)):
                         self.valid_imports.add(".".join(mod_parts[:i]))
 
+        # C#/.NET: supplement valid_imports with canonical_namespace values.
+        # Directory-path-derived imports (above) do not capture C# namespaces
+        # which are declared in source code, not reflected in directory structure.
+        if self.platform in ("net", "dotnet"):
+            for cls in api_list:
+                if isinstance(cls, dict) and cls.get("canonical_namespace"):
+                    self.valid_imports.add(cls["canonical_namespace"])
+
         # Claims index (for evidence validation and api_to_claim mapping)
         claims_path = merged / "claims.json"
         self.claim_ids = set()
-        self.api_to_claim = {}  # "ClassName.method" → claim_id (deterministic mapping)
+        self.api_to_claim = {}    # "ClassName.method" (CLM-) or "ClassName" (ERC-) → claim_id
+        self.claims_by_id = {}    # claim_id → full claim dict (for policy context lookup)
+        self.claims_hash = ""     # sha256 of claims.json bytes (GAP-14 idempotency tracking)
         if claims_path.exists():
-            claims_list = json.loads(claims_path.read_text(encoding="utf-8"))
-            for c in claims_list:
+            claims_bytes = claims_path.read_bytes()
+            self.claims_hash = hashlib.sha256(claims_bytes).hexdigest()
+            claims_list = json.loads(claims_bytes.decode("utf-8"))
+            # Sort by claim_id so the api_to_claim mapping is order-independent:
+            # the lexicographically smallest claim_id always wins for each key.
+            # CLM- sorts before ERC- so syntactic method-level keys are registered first.
+            for c in sorted(claims_list, key=lambda c: c.get("claim_id") or ""):
                 if not isinstance(c, dict):
                     continue
                 cid = c.get("claim_id", "")
                 if not cid:
                     continue
                 self.claim_ids.add(cid)
-                # Build reverse index: parse "ClassName.method(params) -> ret" from text field
+                self.claims_by_id[cid] = c   # full dict for policy context lookup
                 text = c.get("text", "")
-                m = re.match(r"^(\w+)\.(\w+)\(", text)
-                if m:
-                    key = f"{m.group(1)}.{m.group(2)}"
-                    # First claim wins (earlier in list = higher confidence)
-                    if key not in self.api_to_claim:
-                        self.api_to_claim[key] = cid
+                if cid.startswith("ERC-"):
+                    # ERC- enriched claims: extract class names in two formats:
+                    # 1. **ClassName** bold notation (Python/TypeScript ERC- claims)
+                    # 2. Leading word validated against self.classes (Java ERC-
+                    #    claims often start with the class name as plain text)
+                    # Register class-only keys so the evidence mapper can resolve
+                    # ERC- claims when a code token references a class but has no
+                    # specific method (e.g. constructor calls, import references).
+                    # These keys never conflict with CLM- ClassName.method keys.
+                    found = re.findall(r'\*\*([A-Z]\w+)\*\*', text)
+                    if not found:
+                        # Try first word as a known class name.  This avoids
+                        # false positives from English words ("The", "This").
+                        first_word = text.split()[0] if text else ""
+                        if first_word in self.classes:
+                            found = [first_word]
+                    for cls_name in found:
+                        if cls_name not in self.api_to_claim:
+                            self.api_to_claim[cls_name] = cid
+                else:
+                    # CLM- syntactic claims: two formats produced by scout.py:
+                    # 1. Method:   "ClassName.method(params) -> ret"
+                    # 2. Property: "ClassName.member property of type X"
+                    # 3. Class:    "Class ClassName defined in src/..."  (no dot — skipped)
+                    m = re.match(r"^(\w+)\.(\w+)\(", text)
+                    if not m:
+                        # Try property/field/event format (no parens)
+                        m = re.match(r"^(\w+)\.(\w+)\s+(?:property|field|event)\b", text)
+                    if m:
+                        key = f"{m.group(1)}.{m.group(2)}"
+                        # First claim wins (earlier in list = higher confidence)
+                        if key not in self.api_to_claim:
+                            self.api_to_claim[key] = cid
 
         # Surface tier
         idx_path = merged / "index.json"
@@ -233,7 +319,62 @@ class Knowledge:
             except (json.JSONDecodeError, OSError):
                 pass
 
-    def has_method(self, cls_name, method_name):
+        # Coverage matrix — class importance scores and kind metadata
+        # Used by CoverageEvaluator to avoid direct filesystem reads
+        self.class_importance: dict[str, float] = {}
+        self.class_kind: dict[str, str] = {}
+        matrix_path = merged / "coverage_matrix.json"
+        if matrix_path.exists():
+            try:
+                matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
+                for entry in matrix:
+                    if not isinstance(entry, dict):
+                        continue
+                    cname = entry.get("class", "")
+                    if not cname:
+                        continue
+                    # Compute importance score same as CoverageEvaluator._compute_class_importance
+                    mc = entry.get("method_count", 0)
+                    pc = entry.get("property_count", 0)
+                    base = min(1.0, (mc + pc) / 20)
+                    if entry.get("has_tests"):
+                        base += 0.15
+                    if entry.get("has_doc"):
+                        base += 0.1
+                    if mc <= 1 and pc == 0:
+                        base -= 0.2
+                    self.class_importance[cname] = max(0.0, min(1.0, base))
+                    self.class_kind[cname] = entry.get("kind", "")
+            except (json.JSONDecodeError, OSError):
+                pass
+
+        # Workaround members — known private-API references that are correct
+        workaround_path = merged / "workarounds.json"
+        if workaround_path.exists():
+            try:
+                wk_list = json.loads(workaround_path.read_text(encoding="utf-8"))
+                for entry in wk_list:
+                    if isinstance(entry, dict):
+                        cls = entry.get("class", "")
+                        pm = entry.get("private_member", "")
+                        if cls and pm:
+                            self.workaround_members[(cls, pm)] = entry.get("reason", "")
+            except (json.JSONDecodeError, OSError):
+                pass
+
+    def __getattr__(self, name: str):
+        """Trigger lazy load on first access of any data attribute."""
+        # Guard: private attrs that are missing → AttributeError immediately,
+        # avoiding infinite recursion (e.g. _merged looked up before __init__ sets it).
+        if name.startswith("_"):
+            raise AttributeError(f"'Knowledge' object has no attribute {name!r}")
+        self._ensure_loaded()
+        try:
+            return self.__dict__[name]
+        except KeyError:
+            raise AttributeError(f"'Knowledge' object has no attribute {name!r}")
+
+    def has_method(self, cls_name: str, method_name: str) -> bool:
         """Check if method exists on class or any parent."""
         visited = set()
         to_check = [cls_name]
@@ -250,7 +391,7 @@ class Knowledge:
             to_check.extend(self.parents.get(cn, []))
         return False
 
-    def has_property(self, cls_name, prop_name):
+    def has_property(self, cls_name: str, prop_name: str) -> bool:
         """Check if property exists on class or any parent."""
         visited = set()
         to_check = [cls_name]
@@ -267,11 +408,37 @@ class Knowledge:
             to_check.extend(self.parents.get(cn, []))
         return False
 
-    def has_enum_member(self, enum_name, member_name):
+    def has_enum_member(self, enum_name: str, member_name: str) -> bool:
         """Check if enum member exists."""
         return member_name in self.enum_members.get(enum_name, set())
 
-    def get_return_type(self, cls_name, method_name):
+    # --- Fully-qualified name lookups (S-1 disambiguation) ---
+
+    def has_class_fq(self, class_import: str) -> bool:
+        """Check if a class exists by its fully-qualified import path."""
+        return class_import in self.classes_by_import
+
+    def get_class_fq(self, class_import: str) -> dict | None:
+        """Return the class dict for a fully-qualified import, or None."""
+        return self.classes_by_import.get(class_import)
+
+    def has_method_fq(self, class_import: str, method_name: str) -> bool:
+        """Check if method exists on a class identified by FQ import path."""
+        cls = self.classes_by_import.get(class_import)
+        if cls is None:
+            return False
+        cls_name = cls.get("name", "")
+        return self.has_method(cls_name, method_name)
+
+    def has_property_fq(self, class_import: str, prop_name: str) -> bool:
+        """Check if property exists on a class identified by FQ import path."""
+        cls = self.classes_by_import.get(class_import)
+        if cls is None:
+            return False
+        cls_name = cls.get("name", "")
+        return self.has_property(cls_name, prop_name)
+
+    def get_return_type(self, cls_name: str, method_name: str) -> str | None:
         """Get return type for class.method, walking inheritance."""
         visited = set()
         to_check = [cls_name]
@@ -286,7 +453,7 @@ class Knowledge:
             to_check.extend(self.parents.get(cn, []))
         return None
 
-    def get_property_type(self, cls_name, prop_name):
+    def get_property_type(self, cls_name: str, prop_name: str) -> str | None:
         """Get property type for class.property, walking inheritance."""
         visited = set()
         to_check = [cls_name]
@@ -301,34 +468,34 @@ class Knowledge:
             to_check.extend(self.parents.get(cn, []))
         return None
 
-    def resolve_chain(self, placeholder):
-        """Resolve a dotted placeholder like 'Scene.root_node' to a class name.
+    def resolve_chain(self, placeholder: str) -> str | None:
+        """Resolve a dotted placeholder like 'Workbook.getWorksheets.get' to a class name.
 
-        Splits into (class, property), looks up the property type or method
-        return type, and returns the resolved class name if it exists in
-        self.classes. Returns None if unresolvable.
+        Walks each hop via property type or method return type:
+          Workbook -> getWorksheets() return type -> WorksheetCollection
+          WorksheetCollection -> get() return type -> Worksheet
+        Returns None at any hop that cannot be resolved from metadata.
         """
         parts = placeholder.split(".")
-        if len(parts) != 2:
+        if len(parts) < 2:
             return None
-        cls_name, member = parts
+        cls_name = parts[0]
         if cls_name not in self.classes:
             return None
-        # Try property type first
-        resolved = self.get_property_type(cls_name, member)
-        if not resolved:
-            # Try method return type
-            resolved = self.get_return_type(cls_name, member)
-        if not resolved:
-            return None
-        # Normalize: strip List[], Optional[], etc.
-        resolved = re.sub(r"^(?:List|Optional|Set|Tuple)\[(.+)\]$", r"\1", resolved)
-        resolved = resolved.strip("'\"")
-        if resolved in self.classes:
-            return resolved
-        return None
+        for member in parts[1:]:
+            resolved = self.get_property_type(cls_name, member)
+            if not resolved:
+                resolved = self.get_return_type(cls_name, member)
+            if not resolved:
+                return None
+            resolved = re.sub(r"^(?:List|Optional|Set|Tuple)\[(.+)\]$", r"\1", resolved)
+            resolved = resolved.strip("'\"")
+            if resolved not in self.classes:
+                return None
+            cls_name = resolved
+        return cls_name
 
-    def is_property_only(self, cls_name, member_name):
+    def is_property_only(self, cls_name: str, member_name: str) -> bool:
         """Check if member is a property but NOT a method on the class.
 
         Used to detect property-as-method anti-patterns (calling a property
@@ -350,7 +517,7 @@ class Knowledge:
             to_check.extend(self.parents.get(cn, []))
         return is_prop and not is_meth
 
-    def closest_match(self, candidates, target, limit=3):
+    def closest_match(self, candidates: list[str], target: str, limit: int = 3) -> list[str]:
         """Find closest matches by Levenshtein-like similarity."""
         if not candidates:
             return []
@@ -368,150 +535,93 @@ class Knowledge:
 
 
 # ---------------------------------------------------------------------------
-# Content discovery
+# Content discovery — R-1b: re-export stubs removed; import from content_discovery
+# Evidence validator — R-3b: re-export stub removed; import from evidence_verifier
+# parse_frontmatter — R-2b: removed; import from core.markdown
+# _FRONTMATTER_RE   — R-2b: removed; import from core.markdown
 # ---------------------------------------------------------------------------
-
-def discover_content(family: str, platform: str) -> list[Path]:
-    """Find all English content .md files for a family/platform."""
-    content_platform = PLATFORM_RMAP.get(platform, platform)
-    files = []
-    for site_name, pattern in SITE_PATHS:
-        # Try mapped platform name first, fall back to original
-        path = _resolve_content_repo() / "content" / Path(pattern.format(family=family, platform=content_platform)).relative_to("content")
-        if not path.exists() and content_platform != platform:
-            path = _resolve_content_repo() / "content" / Path(pattern.format(family=family, platform=platform)).relative_to("content")
-        if path.exists():
-            for f in sorted(path.rglob("*.md")):
-                # Skip translation files
-                if LOCALE_RE.search(f.name):
-                    continue
-                files.append(f)
-    return files
-
-
-def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
-    """Infer (family, platform) from a content file path."""
-    parts = filepath.parts
-    for i, p in enumerate(parts):
-        if p in ("products.aspose.org", "reference.aspose.org",
-                  "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
-            # Path structure: .../site/[en/]{family}/{platform}/...
-            remaining = parts[i + 1:]
-            if remaining and remaining[0] == "en":
-                remaining = remaining[1:]
-            if len(remaining) >= 2:
-                family = remaining[0]
-                platform = remaining[1]
-                knowledge_platform = PLATFORM_MAP.get(platform, platform)
-                return family, knowledge_platform
-    return None, None
-
-
-def discover_products() -> list[tuple[str, str]]:
-    """Find all products with knowledge models (have api_surface.json)."""
-    products = []
-    for family_dir in sorted(KNOWLEDGE_ROOT.iterdir()):
-        if not family_dir.is_dir() or family_dir.name.startswith("_"):
-            continue
-        for plat_dir in sorted(family_dir.iterdir()):
-            if not plat_dir.is_dir():
-                continue
-            if (plat_dir / "merged" / "api_surface.json").exists():
-                products.append((family_dir.name, plat_dir.name))
-    return products
 
 
 # ---------------------------------------------------------------------------
-# Frontmatter evidence parser + validator (S-24)
+# CLI Commands
 # ---------------------------------------------------------------------------
 
-_FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 
-
-def parse_frontmatter(filepath: Path) -> dict:
-    """Extract YAML frontmatter dict from a markdown file. Returns {} if absent."""
-    text = filepath.read_text(encoding="utf-8")
-    m = _FRONTMATTER_RE.match(text)
-    if not m:
-        return {}
-    try:
-        return yaml.safe_load(m.group(1)) or {}
-    except yaml.YAMLError:
-        return {}
-
-
-def verify_evidence(frontmatter: dict, knowledge: Knowledge, filepath: Path) -> list[Finding]:
-    """Validate the evidence: frontmatter block against the knowledge model.
-
-    Returns a list of Finding objects.
-    - Missing evidence block         → WARN
-    - Stale model_sha                → WARN
-    - Invalid claim_id               → FAIL  (only when claim index is populated)
-    - Invalid api class/member       → FAIL
+def diff(family: str, platform: str, repo_path: Path) -> str:
+    """Compare repo SHA with stored SHA in model.yaml.
+    
+    Returns a diff report string.
     """
-    findings = []
-    evidence = frontmatter.get("evidence")
+    import subprocess
+    
+    # Validate repo_path exists and is a directory
+    if not repo_path.exists():
+        return f"ERROR: Repo path does not exist: {repo_path}"
+    if not repo_path.is_dir():
+        return f"ERROR: Repo path is not a directory: {repo_path}"
+    
+    # Get current SHA from repo
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=str(repo_path),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        current_sha = result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        return f"ERROR: Failed to get current SHA from repo: {e.stderr}"
+    except FileNotFoundError:
+        return f"ERROR: git command not found"
+    
+    # Get stored SHA from model.yaml
+    knowledge = Knowledge(family, platform)
+    if not knowledge.available:
+        return f"ERROR: Knowledge model not available for {family}/{platform}"
+    
+    stored_sha = knowledge.repo_sha
+    
+    # Compare SHAs
+    if current_sha == stored_sha:
+        return f"SHA MATCH: Current repo SHA ({current_sha[:8]}) matches stored SHA in model.yaml"
+    else:
+        return (
+            f"SHA MISMATCH:\n"
+            f"  Current repo SHA: {current_sha[:8]}\n"
+            f"  Stored SHA:       {stored_sha[:8]}\n"
+            f"  Model version:    {knowledge.version}\n"
+            f"\n"
+            f"Run repo-scout to update the knowledge model."
+        )
 
-    if not evidence or not isinstance(evidence, dict):
-        findings.append(Finding(
-            "WARN", filepath, 0,
-            "Missing `evidence:` frontmatter block — run attach_evidence.py",
-        ))
-        return findings
 
-    # Model SHA — detect staleness
-    ev_sha = evidence.get("model_sha", "")
-    if not ev_sha:
-        findings.append(Finding(
-            "WARN", filepath, 0,
-            "`evidence.model_sha` is missing — pin the knowledge model SHA",
-        ))
-    elif ev_sha != knowledge.repo_sha:
-        findings.append(Finding(
-            "WARN", filepath, 0,
-            f"Evidence stale: model updated to {knowledge.repo_sha[:8]}, "
-            f"evidence references {ev_sha[:8]} — rerun attach_evidence.py",
-        ))
+def main():
+    """CLI entry point for knowledge_core commands."""
+    import sys
+    
+    if len(sys.argv) < 2:
+        print("Usage: python scripts/pipeline/lib/knowledge_core.py <command> [args...]")
+        print("Commands:")
+        print("  diff {family} {platform} {repo_path}  — Compare repo SHA with stored SHA")
+        sys.exit(0)
+    
+    command = sys.argv[1]
+    
+    if command == "diff":
+        if len(sys.argv) != 5:
+            print("Usage: python scripts/pipeline/lib/knowledge_core.py diff {family} {platform} {repo_path}")
+            sys.exit(1)
+        family = sys.argv[2]
+        platform = sys.argv[3]
+        repo_path = Path(sys.argv[4])
+        result = diff(family, platform, repo_path)
+        print(result)
+    else:
+        print(f"Unknown command: {command}")
+        print("Available commands: diff")
+        sys.exit(1)
 
-    # Claim ID validation — only possible when claim index is populated.
-    # An empty claim_ids set can mean either "no claims.json" or "empty claims.json";
-    # in both cases we cannot distinguish valid from invalid IDs, so skip FAILs.
-    can_validate_claims = bool(knowledge.claim_ids)
-    if can_validate_claims:
-        for claim_id in evidence.get("claims", []):
-            if claim_id and claim_id not in knowledge.claim_ids:
-                findings.append(Finding(
-                    "FAIL", filepath, 0,
-                    f"`evidence.claims` references unknown claim_id `{claim_id}`",
-                    "Check merged/claims.json for valid IDs",
-                ))
-    elif evidence.get("claims"):
-        findings.append(Finding(
-            "WARN", filepath, 0,
-            "Cannot validate claim IDs — claims.json is absent or empty for this product",
-        ))
 
-    # API reference validation
-    for api_ref in evidence.get("apis", []):
-        if not api_ref:
-            continue
-        if "." in api_ref:
-            cls_name, member = api_ref.split(".", 1)
-        else:
-            cls_name, member = api_ref, None
-        if cls_name not in knowledge.classes:
-            findings.append(Finding(
-                "FAIL", filepath, 0,
-                f"`evidence.apis` references unknown class `{cls_name}` in `{api_ref}`",
-                "Check merged/api_surface.json for valid class names",
-            ))
-        elif member and not knowledge.has_method(cls_name, member) \
-                and not knowledge.has_property(cls_name, member) \
-                and not knowledge.has_enum_member(cls_name, member):
-            findings.append(Finding(
-                "FAIL", filepath, 0,
-                f"`evidence.apis` references unknown member `{api_ref}`",
-                "Check merged/api_surface.json for valid methods/properties",
-            ))
-
-    return findings
+if __name__ == "__main__":
+    main()

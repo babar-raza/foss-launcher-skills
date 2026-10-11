@@ -75,13 +75,23 @@ class ClaimCoverageEvaluator(BaseEvaluator):
         evidence = page.frontmatter.get("evidence", {})
         if not isinstance(evidence, dict):
             return []
-        cited_ids: list[str] = evidence.get("claims", [])
+        cited_ids: list[str] = evidence.get("claims") or []
         if not cited_ids:
             return []
 
         # Need knowledge to be meaningful
         if not (hasattr(knowledge, "available") and knowledge.available):
-            return []
+            return [Finding(
+                level="WARN",
+                category="CC",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            )]
 
         # Skip very short pages
         prose_word_count = sum(len(line.split()) for _, line in page.prose_lines)

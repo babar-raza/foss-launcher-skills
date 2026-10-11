@@ -1,0 +1,37 @@
+family: cells
+platform: rust
+product_name: aspose-cells-foss-rust
+version: 26.7.0
+license: MIT
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust.git
+repo_sha: 1a6004af47b1ef15385f9d36d381a8172428cc7e
+config_sha: 5676a5ada3d9dda2
+stale_since: null
+promoted_at: '2026-09-10T11:07:24.873552+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 379bb3dd-d963-432d-b108-6edfdc77b43c
+bundle_generated_at: '2026-09-10T11:07:24.761007+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 5676a5ada3d9dda2
+  scout_claims_sha: 90abc84788d7bdad72d7aaa4c5fad3e7fb222d14fd65f722823d6016fd967a5c
+  scout_api_surface_sha: 58cd69979844f58d2f75e276791c1c5c52e77b4c2d841d9f519992575dd062c4
+  enriched_claims_sha: ba0f4bb44ca8a74e1e3a77a9d441118f1fd9a67b7ca46d7d8ec5fb985abcd26d
+  products_json_entry_sha: fef2a0b5739b631c2713cf4d878f02655c4307ce347648b379305c777823e7ac
+stats:
+  scout_claims: 2153
+  enriched_claims: 202
+  supplemental_claims: 0
+  total_claims: 2035
+  class_count: 213
+  classes:
+    total_declared: 213
+    public_documented: 213
+    raw_entries_including_non_class: 219
+  forbidden_count: 0
+  snippet_count: 21

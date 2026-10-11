@@ -1,0 +1,1 @@
+def test_amp_in_outer_vertical_mode_raises(self) -> None:

@@ -1,0 +1,363 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002a",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/presentation.h"
+    }
+  },
+  {
+    "unit_id": "c0002b",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/presentation.h"
+    }
+  },
+  {
+    "unit_id": "c0002c",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    }
+  },
+  {
+    "unit_id": "c0002d",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape_collection.h"
+    }
+  },
+  {
+    "unit_id": "c0004a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/portion_format.h"
+    }
+  },
+  {
+    "unit_id": "c0004b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/portion_format.h"
+    }
+  },
+  {
+    "unit_id": "c0004c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/portion_format.cpp"
+    }
+  },
+  {
+    "unit_id": "c0005a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/table.h"
+    }
+  },
+  {
+    "unit_id": "c0005b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/table.h"
+    }
+  },
+  {
+    "unit_id": "c0005c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/table.h"
+    }
+  },
+  {
+    "unit_id": "c0005d",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/table.cpp"
+    }
+  },
+  {
+    "unit_id": "c0006a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/connector.h"
+    }
+  },
+  {
+    "unit_id": "c0006b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/connector.h"
+    }
+  },
+  {
+    "unit_id": "c0006c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/connector.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/fill_format.h"
+    }
+  },
+  {
+    "unit_id": "c0007b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/fill_format.h"
+    }
+  },
+  {
+    "unit_id": "c0007c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/fill_format.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/notes_slide_manager.h"
+    }
+  },
+  {
+    "unit_id": "c0009a",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/comment.h"
+    }
+  },
+  {
+    "unit_id": "c0009b",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/comment.h"
+    }
+  },
+  {
+    "unit_id": "c0009c",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    }
+  },
+  {
+    "unit_id": "c0009d",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    }
+  },
+  {
+    "unit_id": "c0009e",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    }
+  },
+  {
+    "unit_id": "c0009f",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/document_properties.h"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0016",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0017",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "c0018",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "excluded_reason: this is a shell one-liner verifying this library's own header-leak counts (44/172/74/266), not example code demonstrating the public API; the verified counts themselves are already stated in prose in Scope and Limitations",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/presentation.h"
+    }
+  },
+  {
+    "unit_id": "c0019",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/presentation.cpp"
+    }
+  }
+]

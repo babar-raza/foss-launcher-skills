@@ -1,0 +1,1 @@
+def test_accent_builds_kerned_hbox_over_base_char(self) -> None:

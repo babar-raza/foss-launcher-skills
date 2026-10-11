@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """generate_product_backlink_copy.py — LLM-driven products overview backlink copy generator.
 
 Generates a natural contextual aspose.com backlink sentence for insertion into
@@ -36,13 +35,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 log = logging.getLogger(__name__)
 
-SCRIPT_VERSION = "1.0.0"
-PROMPT_VERSION = "v1.0"
+SCRIPT_VERSION = "1.1.0"
+PROMPT_VERSION = "v2.0"
 CALLSITE_ID = "CS-010"
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -88,20 +87,26 @@ class CopyGenerationRecord:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# System prompt (§S.3 — v1.0)
+# System prompt (§S.3 — v2.0 — enterprise anchor policy)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def build_system_prompt(resolved_target_url: str) -> str:
     return f"""You are a technical copywriter for an open-source developer library.
 Your task is to insert exactly one natural Markdown hyperlink into the provided product overview text.
-The link must point to the commercial counterpart of the open-source library.
+The link must point to the enterprise product on Aspose.com for this open-source library.
 
 Rules:
 - Insert exactly one Markdown link: [anchor text](target URL)
 - Target URL must be exactly: {resolved_target_url}
 - Place the link near the end of the overview, before the final sentence mentioning MIT license or GitHub.
-- Anchor text must identify the commercial product naturally (e.g., "Aspose.Words for Python", "Aspose.Cells commercial edition").
+- Anchor text must use an em dash separator (e.g., "Aspose.Words for Python — Product Suite", "Aspose.Cells — Product Suite").
+- For platform pages use "{{Family}} for {{Platform}} — Product Suite"; for family pages use "{{Family}} — Product Suite".
 - Do not add hype, "buy now", "click here", "best", "ultimate", or sales language.
+- Do not use vague leads: forbidden phrases include "For more capabilities", "For more advanced capabilities", "For more advanced functionality", "For more features", "For additional features", "For additional capabilities", "For extended functionality", "refer to the [", "consider [".
+- Do not use deprecated commercial wording: forbidden phrases include "commercial edition", "commercial licensing", "commercial support", "commercial version", "commercial product family".
+- The lead sentence MUST NOT repeat what the anchor already says. Write a concrete capability or use-case instead.
+- Prefer the pattern: "To {{concrete verb phrase about what the developer gains}}, see the [{{Anchor}}]({{url}})."
+- Do not close with "alongside these open-source resources" or "alongside these open-source libraries".
 - Do not duplicate any sentence.
 - Preserve all existing text, including MIT license statements and GitHub references.
 - Do not make claims not present in the original text.
@@ -171,7 +176,34 @@ def save_cache_entry(cache_dir: Path, cache_key: str, entry: dict) -> None:
 # Validation (§S.4 — 10 rules)
 # ──────────────────────────────────────────────────────────────────────────────
 
-_FORBIDDEN_PHRASES = ["buy now", "click here", "full-featured commercial edition"]
+_FORBIDDEN_PHRASES = [
+    "buy now",
+    "click here",
+    "full-featured commercial edition",
+    "commercial edition",
+    "commercial product family",
+    "commercial counterpart",
+    "commercial licensing",
+    "commercial support",
+    "commercial version",
+    # Vague leads — no concrete developer benefit
+    "for more capabilities",
+    "for more advanced capabilities",
+    "for more advanced functionality",
+    "for more features",
+    "for additional features",
+    "for additional capabilities",
+    "for extended functionality",
+    "for extended capabilities",
+    # Stilted / weak
+    "refer to the [",
+    "consider [",
+    # Repetitive enterprise pattern (lead repeats anchor text)
+    "for the enterprise product family, see",
+    # Formulaic "alongside" close
+    "alongside these open-source resources",
+    "alongside these open-source libraries",
+]
 _MD_LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
 _ASPOSE_COM_URL_RE = re.compile(r'https?://[a-z0-9-]+\.aspose\.com/[^\s\)]*', re.IGNORECASE)
 
@@ -228,6 +260,13 @@ def validate_output(original: str, output: str, target_url: str) -> tuple[bool, 
     # Rule 8: YAML round-trip (deferred — checked in backfill when writing YAML)
     # We note this as DEFERRED_TO_BACKFILL — not a failure at generation time
 
+    # Rule 9: repetitive anchor — lead must not restate what the anchor already says
+    # e.g. "to access the product suite, see [... Product Suite]" is FAIL
+    anchor_text_lower = links[0][0].lower()
+    lead_text = _MD_LINK_RE.split(output)[0].lower()
+    if "product suite" in anchor_text_lower and "product suite" in lead_text:
+        return False, "Repetitive: anchor already says 'Product Suite' — lead sentence must not repeat it"
+
     return True, ""
 
 
@@ -269,18 +308,18 @@ def apply_template_fallback(req: BacklinkCopyRequest) -> tuple[str, str]:
     display = req.product_display_name  # e.g. "Aspose.Words for Python" or "Aspose.Words"
 
     if req.page_type == "family":
-        # P-3: Family page
-        sentence = f"For the complete commercial product family with dedicated support, visit [{display}]({url})."
+        # P-3: Family page — lead must NOT restate "enterprise product family" (Rule 9)
+        sentence = f"To access the complete API with production-grade support, see [{display} \u2014 Product Suite]({url})."
         template_id = "P-3"
     elif wc <= 140:
         # P-4: Platform page, compact overview
-        sentence = f"The commercial counterpart is [{display}]({url})."
+        sentence = f"To access production-grade features and dedicated support, see [{display} \u2014 Product Suite]({url})."
         template_id = "P-4"
     else:
         # P-1: Platform page, API bridge (default for long overviews)
         sentence = (
-            f"Developers who need the complete commercial API with full production support can use "
-            f"[{display}]({url}) alongside these open-source resources."
+            f"To access the complete {display} API with production-grade support and extended features, "
+            f"see [{display} \u2014 Product Suite]({url})."
         )
         template_id = "P-1"
 
@@ -403,6 +442,7 @@ def generate_copy(
     response_hash = ""
     token_in: int | None = None
     token_out: int | None = None
+    from commands.ops.llm_router import LLMCallContext
 
     # Attempt 1
     result = router.call_chat(
@@ -411,6 +451,7 @@ def generate_copy(
         temperature=0.0,
         max_tokens=800,
         json_extract=False,
+        context=LLMCallContext.create("backlink-copy", "backlink", "generate"),
     )
     metrics_events.extend(result.metrics_events)
 
@@ -455,6 +496,7 @@ def generate_copy(
                 temperature=0.0,
                 max_tokens=800,
                 json_extract=False,
+                context=LLMCallContext.create("backlink-copy", "backlink", "repair"),
             )
             metrics_events.extend(repair_result.metrics_events)
 
@@ -580,6 +622,8 @@ def build_request(
     families_map: dict,
     platforms_map: dict,
     target_map: dict,
+    *,
+    canonical_overrides: dict | None = None,
 ) -> BacklinkCopyRequest | None:
     """Build a BacklinkCopyRequest for a products page."""
     try:
@@ -607,6 +651,7 @@ def build_request(
         platform=platform,
         source_subdomain="products.aspose.org",
         target_map=target_map,
+        canonical_overrides=canonical_overrides,
     )
     if not chosen_url:
         log.warning("BLOCKED_TARGET for %s/%s — skipping", family, platform or "")
@@ -732,8 +777,15 @@ def main() -> int:
 
     # Load target map
     try:
-        from lib.backlink_targets import load_target_map
+        from lib.backlink_targets import load_target_map, load_canonical_overrides
         target_map = load_target_map(repo_root)
+        # TC6 (2026-08-21): this call site never loaded/passed canonical_overrides
+        # to resolve_backlink() at all, silently making every verified override
+        # (e.g. words/python -> python-net) inert for products.aspose.org LLM
+        # copy generation specifically -- the same recurring call-site-omission
+        # pattern MT043 already found and fixed once, independently, in
+        # readme_refresh_run.py.
+        canonical_overrides = load_canonical_overrides(repo_root)
     except Exception as exc:
         log.error("Cannot load target map: %s", exc)
         return 1
@@ -754,7 +806,8 @@ def main() -> int:
     records: list[CopyGenerationRecord] = []
     for fpath, family, platform in pages:
         req = build_request(fpath, family, platform, repo_root,
-                            families_map, platforms_map, target_map)
+                            families_map, platforms_map, target_map,
+                            canonical_overrides=canonical_overrides)
         if req is None:
             continue
 

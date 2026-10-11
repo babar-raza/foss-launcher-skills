@@ -1,0 +1,13 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "Options",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/presentation/__init__.py"
+    }
+  }
+]

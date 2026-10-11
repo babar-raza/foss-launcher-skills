@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """check_python_placement.py — Python file placement governance.
 
@@ -43,11 +42,10 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 BASELINE_PATH = REPO_ROOT / "scripts" / "ci" / "fixtures" / "python_placement_baseline.json"
 MAINTENANCE_REGISTRY = REPO_ROOT / "scripts" / "maintenance" / "registry.yaml"
 
@@ -105,6 +103,8 @@ def _staged_py_files() -> list[str]:
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
         paths = [p.strip() for p in result.stdout.splitlines() if p.strip().endswith(".py")]
@@ -121,6 +121,8 @@ def _newly_added_staged_files() -> set[str]:
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=False,
         )
         return {p.strip() for p in result.stdout.splitlines() if p.strip()}

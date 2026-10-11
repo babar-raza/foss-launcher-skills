@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_sheet_payload_schema.py — CI gate: validate dry/test/failed payload shape.
 
 Inspects:
@@ -11,6 +10,8 @@ Validates:
   - Test-mode rows have job_type="test" and item_name starting with "[TEST]"
   - Failed payloads do not contain token-like values
   - Production rows not present unless --allow-production
+
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
 
 Usage:
     python scripts/ci/checks/check_metrics_sheet_payload_schema.py
@@ -26,12 +27,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _PIPELINE_ROOT = _REPO_ROOT / "scripts" / "pipeline"
 
 # The 17 required Google Sheet fields

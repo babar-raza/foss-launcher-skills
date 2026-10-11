@@ -1,7 +1,9 @@
 # S-41: Batch Eval Fix — Quick Eval + Auto-Fix Only
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform}` or `{eval-report-path}` — e.g. `3d python` or `reports/content_eval/eval-20260324.json`
+Expected format: `{family} {platform}` or `{eval-report-path}` or `--eval-report {eval-report-path}` — e.g. `3d python` or `reports/content_eval/eval-20260324.json`
+
+When `--eval-report` is provided, skip the evaluation step and consume the existing report directly. This is useful when chaining with S-89 (heal-batch) or when re-running fixes after a previous evaluation.
 
 ## Purpose
 
@@ -16,12 +18,18 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 
 ## Steps
 
-1. **Parse arguments.** If two words, treat as `{family} {platform}`. If a `.json` path, use it directly as the eval report.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-41 --scope "*"
+> ```
 
-2. **Run evaluation** (skip if consuming existing report):
+
+1. **Parse arguments.** If two words, treat as `{family} {platform}`. If a `.json` path or `--eval-report {path}`, use it directly as the eval report.
+
+2. **Run evaluation** (skip if consuming existing report via path or `--eval-report`):
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
    ```
 
    Note the report path from stderr output (e.g. `reports/content_eval/eval-{timestamp}.json`).
@@ -29,7 +37,7 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 3. **Dry-run auto-fix** to preview changes:
 
    ```bash
-   python scripts/pipeline/commands/content/remediate.py fix {eval-report-path} --dry-run
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path} --dry-run
    ```
 
    Review the dry-run output. Confirm findings and planned fixes look correct.
@@ -37,13 +45,13 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
 4. **Apply auto-fixes**:
 
    ```bash
-   python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
    ```
 
 5. **Refresh evidence** on modified files. Extract the list of modified files from the remediation report, then run:
 
    ```bash
-   python scripts/pipeline/commands/content/attach_evidence.py --files {file1} {file2} ...
+   .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {file1} {file2} ...
    ```
 
 6. **Report results** to the user:
@@ -56,6 +64,11 @@ Lightweight remediation pipeline: evaluate content (or consume an existing repor
    Deferred to human: {count}
    Reports: {json_path}, {md_path}
    ```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-41 --status completed
+> ```
 
 ## Post-conditions
 

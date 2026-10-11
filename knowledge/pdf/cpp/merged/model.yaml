@@ -1,0 +1,37 @@
+family: pdf
+platform: cpp
+product_name: Aspose_PDF_FOSS
+version: 1.0.0
+license: ''
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Cpp.git
+repo_sha: 40858b60e9babbab4865180e00e2db39f2ba27f8
+config_sha: ba558925e966ce6d
+stale_since: null
+promoted_at: '2026-09-10T11:11:39.463658+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 6c189574-b5f2-4072-82f7-d24fe43b3b3d
+bundle_generated_at: '2026-09-10T11:11:39.249415+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: ba558925e966ce6d
+  scout_claims_sha: 2d4ba01b4d20b784fb537e1f98c6ffa39e2fe62694b734a5c323b87698926e9f
+  scout_api_surface_sha: cf5284ea0e97de783848078b7e58e05ea9e2fcc82768542b01daf40652413c70
+  enriched_claims_sha: 7741acd3726b4b9782966962bb70ade24430617577b6f635a816300960ba366d
+  products_json_entry_sha: d9d78661cbb98774bda8e0c256d3ca74aba8ab68a1ae99a5ec20130ddacb8bda
+stats:
+  scout_claims: 2754
+  enriched_claims: 382
+  supplemental_claims: 0
+  total_claims: 3049
+  class_count: 340
+  classes:
+    total_declared: 340
+    public_documented: 316
+    raw_entries_including_non_class: 340
+  forbidden_count: 9
+  snippet_count: 100

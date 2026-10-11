@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_stale_path_refs.py — Detect stale old-path references after migration.
 
 Scans non-content files for references to scripts at old root-level locations
@@ -18,11 +16,10 @@ from __future__ import annotations
 
 import argparse
 import re
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # Pattern: scripts/pipeline/{name}.py where name is a lowercase module (not __init__, _bootstrap)
 # This catches old root-level paths like scripts/pipeline/commands/content/audit.py
@@ -47,7 +44,7 @@ STALE_GAPEVAL_RE = re.compile(
 
 # Files/dirs to scan
 SCAN_GLOBS = [
-    "*.md", ".github/workflows/*.yml", ".gitlab-ci*.yml", ".claude/**/*.json", ".claude/**/*.md",
+    "*.md", ".github/workflows/*.yml", ".claude/**/*.json", ".claude/**/*.md",
     "skills/*.md", ".agents/skills/**/*.md", ".kilocode/skills/**/*.md",
     "scripts/**/*.sh", "scripts/**/*.py",
     "docs/**/*.md",

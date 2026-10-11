@@ -1,24 +1,26 @@
-"""path_utils.py — Repo-relative path helpers.
+"""path_utils.py — Shared path rendering utilities for pipeline and CI scripts."""
 
-Ported from aspose.org scripts/pipeline/lib/path_utils.py.
-"""
 from __future__ import annotations
 
 from pathlib import Path
 
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent  # scripts/pipeline/lib/ -> pipeline/ -> scripts/ -> repo root
 
-def repo_rel(path: str | Path, root: str | Path | None = None) -> str:
-    """Return *path* as a repo-relative forward-slash string.
 
-    If *root* is None, the repository root is inferred by walking up from
-    this file's location (scripts/pipeline/lib/ -> repo root is 3 levels up).
+def repo_rel(path: Path, root: Path | None = None) -> str:
+    """Return a repo-relative display string; fall back to absolute path if outside root.
 
-    Returns the forward-slash relative path string, or the original path
-    as a string if it cannot be made relative (e.g. on a different drive).
+    Args:
+        path: The path to render.
+        root: The root to relativise against. Defaults to the repository root.
+
+    Returns:
+        A string that is relative to *root* when *path* is a descendant of *root*,
+        or the absolute path string otherwise. Never raises.
     """
     if root is None:
-        root = Path(__file__).resolve().parents[3]
+        root = _REPO_ROOT
     try:
-        return str(Path(path).resolve().relative_to(Path(root).resolve())).replace("\\", "/")
+        return str(path.relative_to(root))
     except ValueError:
-        return str(path).replace("\\", "/")
+        return str(path)

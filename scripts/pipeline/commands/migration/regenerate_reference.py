@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """Regenerate email/net reference pages from api_surface.json.
 
@@ -10,7 +9,6 @@ batch-reference run.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -20,7 +18,7 @@ FAMILY = "email"
 PLATFORM = "net"
 SURFACE_PATH = REPO_ROOT / f"knowledge/{FAMILY}/{PLATFORM}/merged/api_surface.json"
 SURFACE_MD = REPO_ROOT / f"knowledge/{FAMILY}/{PLATFORM}/merged/api_surface.md"
-OUTPUT_DIR = Path(os.environ.get("OUTPUT_DIR", str(REPO_ROOT / f"content/reference/en/{FAMILY}/{PLATFORM}")))
+OUTPUT_DIR = REPO_ROOT / f"content/reference.aspose.org/en/{FAMILY}/{PLATFORM}"
 MODEL_SHA = "a8999e259143a9ffc660086b34a7f39516da29f5"
 
 
@@ -31,7 +29,14 @@ def pascal_to_kebab(name: str) -> str:
 
 
 def merge_partial_classes(classes: list[dict]) -> dict[str, dict]:
-    """Merge partial class definitions (e.g. MapiMessage appears 3x)."""
+    """Merge partial class definitions (e.g. MapiMessage appears 3x).
+
+    NOTE: As of 2026-06-13, consolidation now happens at extraction time
+    via ``consolidate_classes()`` in api_surface.py. When this migration
+    script reads merged/api_surface.json, duplicates are already resolved.
+    This function is kept for backward compatibility but is effectively a
+    no-op on consolidated data.
+    """
     merged: dict[str, dict] = {}
     for cls in classes:
         name = cls["name"]
@@ -234,15 +239,15 @@ def generate_page(cls: dict) -> str:
 
     if is_enum(cls):
         if base_str:
-            lines.append(f"`{name}` is an enum in the target library (base type: `{base_str}`).")
+            lines.append(f"`{name}` is an enum in Aspose.Email FOSS for .NET (base type: `{base_str}`).")
         else:
-            lines.append(f"`{name}` is an enum in the target library.")
+            lines.append(f"`{name}` is an enum in Aspose.Email FOSS for .NET.")
     else:
         if base_str:
-            lines.append(f"`{name}` is a class in the target library.  ")
+            lines.append(f"`{name}` is a class in Aspose.Email FOSS for .NET.  ")
             lines.append(f"Inherits from: `{base_str}`.")
         else:
-            lines.append(f"`{name}` is a class in the target library.")
+            lines.append(f"`{name}` is a class in Aspose.Email FOSS for .NET.")
 
     lines.append("")
 

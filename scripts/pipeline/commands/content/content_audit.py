@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Deterministic semantic content audit — classifies prose by evidence tier.
 
 Extracts every prose paragraph from content files and classifies each against
@@ -25,40 +24,32 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Resolve imports from sibling modules (audit.py, content_eval)
 # ---------------------------------------------------------------------------
-_HERE = Path(__file__).resolve().parent
-_PIPELINE = _HERE.parents[1]
-_SCRIPTS = _HERE.parents[2]
-_COMMANDS = _HERE.parent
-for _path in (_SCRIPTS, _PIPELINE):
-    if str(_path) not in sys.path:
-        sys.path.insert(0, str(_path))
+# sys.path.insert removed: Python adds the script directory to sys.path
+# automatically when invoked directly.
 
-from config_loader import resolve_content_repo  # noqa: E402
-try:
-    from knowledge_core import Knowledge  # noqa: E402
-except ImportError:
-    Knowledge = None
-try:
-    from content_discovery import (  # noqa: E402
-        PLATFORM_MAP,
-        discover_content,
-        discover_products,
-        infer_product,
-    )
-except ImportError:
-    PLATFORM_MAP = {}
-    def discover_content(f, p): return []
-    def discover_products(): return []
-    def infer_product(fp): return (None, None)
-try:
-    from token_ops import extract_tokens, verify_tokens  # noqa: E402
-except ImportError:
-    def extract_tokens(fp, plat): return []
-    def verify_tokens(tokens, k, fp): return []
-try:
-    from content_eval.models import Page  # noqa: E402
-except ImportError:
-    Page = None
+_LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from knowledge_core import Knowledge  # noqa: E402
+from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
+    PLATFORM_MAP,
+    discover_content,
+    discover_products,
+    infer_product,
+)
+from token_ops import extract_tokens, verify_tokens  # noqa: E402
+from content_eval.models import Page  # noqa: E402
+# RC-W1-004 (MT026 blind-spot audit): reuse content_eval's code_block_api
+# reachability logic here rather than duplicating it in token_ops.py/lib/ —
+# see _check_code_reachability() below and content_eval/evaluators/_reachability.py
+# for the full three-language rationale.
+from content_eval.evaluators import _reachability as _reach  # noqa: E402
+from content_eval.evaluators.code_block_api import (  # noqa: E402
+    _extract_bare_type_names,
+    _IGNORE_CLASSES,
+    _LANG_NORMALIZE,
+    _MEMBER_ACCESS_RE,
+)
 
 
 def _log(*args, **kwargs):
@@ -128,6 +119,130 @@ TIER_WEAK = "WEAK"
 TIER_UNSUPPORTED = "UNSUPPORTED"
 TIER_CONTRADICTED = "CONTRADICTED"
 
+# ---------------------------------------------------------------------------
+# Polarity check (RC-W1-002, blind-spot audit MT026, added 2026-08-09)
+#
+# Step 4 below ("Compute token overlap with claims") matches a paragraph to
+# a claim purely by lexical/token overlap, and step 5 treats a high overlap
+# score as grounds for SUPPORTED/PROBABLE. High overlap only proves the
+# paragraph and the claim are ABOUT the same topic -- it says nothing about
+# whether they AGREE. A claim asserting X and a paragraph asserting NOT-X
+# about the same topic share most of their vocabulary and, before this fix,
+# could reach SUPPORTED/PROBABLE with the *contradicting* claim cited as
+# supporting evidence (same root cause as truth_audit_content.py's
+# verify_unit(), see that module's matching comment block for the concrete
+# repro case: knowledge/html/python's CLM-html-aa4514 vs. kb/html/python's
+# faq.md "pure Python -- no compiled extensions").
+#
+# The functions below add the same narrowly-scoped LLM refinement used
+# there: SUPPORTS / CONTRADICTS / UNRELATED-DESPITE-SIMILARITY, invoked
+# only for a paragraph that already cleared the pre-existing "strong
+# overlap" bar (>= 0.5) -- a refinement of an already-positive match, not a
+# new full pass over every paragraph. If the LLM is unavailable or fails
+# for any reason, the refinement returns None and tiering falls back
+# UNCHANGED to its pre-fix, overlap-only behavior (fail-safe, never
+# fail-closed).
+# ---------------------------------------------------------------------------
+POLARITY_SUPPORTS = "SUPPORTS"
+POLARITY_CONTRADICTS = "CONTRADICTS"
+POLARITY_UNRELATED = "UNRELATED-DESPITE-SIMILARITY"
+_POLARITY_RELATIONS = {POLARITY_SUPPORTS, POLARITY_CONTRADICTS, POLARITY_UNRELATED}
+
+# Matches the "strong overlap" threshold already used by step 5's
+# SUPPORTED/PROBABLE tiering below -- the polarity check only refines
+# matches that would already qualify.
+_POLARITY_CHECK_MIN_OVERLAP = 0.5
+
+_POLARITY_SYSTEM_PROMPT = (
+    "You are a strict fact-checking classifier for software product "
+    "documentation. You will be given a KNOWLEDGE CLAIM (verified ground "
+    "truth extracted from the product's source repository) and a CONTENT "
+    "PARAGRAPH (prose from a published documentation page) that was "
+    "matched to it purely by word overlap. Word overlap only means the two "
+    "are about the same topic -- it does NOT mean they agree. Decide "
+    "whether the content paragraph SUPPORTS the knowledge claim (asserts "
+    "the same thing), CONTRADICTS it (asserts the opposite or a "
+    "materially different thing), or is UNRELATED-DESPITE-SIMILARITY "
+    "(shares vocabulary but is not actually making a comparable "
+    "assertion). Respond with JSON only, exactly this shape: "
+    '{"relation": "SUPPORTS"} or {"relation": "CONTRADICTS"} or '
+    '{"relation": "UNRELATED-DESPITE-SIMILARITY"}.'
+)
+
+
+def _try_import_llm_router():
+    """Import and instantiate LLMRouter; return None on any failure.
+
+    Mirrors the fail-safe pattern already used elsewhere in the pipeline
+    (e.g. commands/ops/backlink_adjudicate_review.py) -- any import,
+    config, or credential problem degrades to "no router available" rather
+    than raising out of the audit run.
+    """
+    try:
+        from commands.ops.llm_router import LLMRouter  # type: ignore
+        return LLMRouter()
+    except Exception:
+        return None
+
+
+def _check_claim_polarity(unit_text: str, claim_text: str, llm_router=None):
+    """Ask a narrowly-scoped LLM yes/no question: does claim_text SUPPORT,
+    CONTRADICT, or turn out UNRELATED-DESPITE-SIMILARITY to unit_text?
+
+    This is a refinement step only -- see the module-level comment block
+    above. Returns one of POLARITY_SUPPORTS / POLARITY_CONTRADICTS /
+    POLARITY_UNRELATED, or None if the LLM is unavailable, mis-configured,
+    or returns something unparseable. Callers MUST treat None as "polarity
+    unknown" and fall back to the pre-fix, overlap-only tiering -- never as
+    a definitive answer, and never as a reason to abort the run.
+    """
+    if llm_router is None:
+        return None
+    try:
+        from commands.ops.llm_router import LLMCallContext
+        user_prompt = (
+            f"KNOWLEDGE CLAIM: {claim_text}\n\n"
+            f"CONTENT PARAGRAPH: {unit_text}\n\n"
+            "Relation?"
+        )
+        result = llm_router.call_chat(
+            _POLARITY_SYSTEM_PROMPT,
+            user_prompt,
+            temperature=0.0,
+            # 400, not ~100: confirmed live against the professionalize
+            # endpoint (gpt-oss) that a small budget is silently consumed
+            # entirely by the model's own hidden reasoning tokens, leaving
+            # none for the visible JSON content -- the call then reports
+            # PARSE_FAILED ("choices[0].message.content is None") and this
+            # function correctly (but needlessly) fails open. 400 leaves
+            # headroom above the ~300 observed to be sufficient for this
+            # reply shape.
+            max_tokens=400,
+            context=LLMCallContext.create(
+                "content-audit", "content-verification", "polarity-check"
+            ),
+        )
+        status = getattr(result, "status", None)
+        status_val = status.value if hasattr(status, "value") else str(status).lower()
+        if status_val != "ok":
+            return None
+        data = getattr(result, "data", None)
+        relation = ""
+        if isinstance(data, dict):
+            relation = str(data.get("relation", "")).strip().upper()
+        elif isinstance(data, str):
+            m = re.search(r"\{.*\}", data, re.DOTALL)
+            if m:
+                try:
+                    relation = str(json.loads(m.group()).get("relation", "")).strip().upper()
+                except (json.JSONDecodeError, AttributeError):
+                    relation = ""
+        if relation in _POLARITY_RELATIONS:
+            return relation
+        return None
+    except Exception:  # never let a polarity refinement abort the audit
+        return None
+
 
 def _classify_paragraph(
     line_no: int,
@@ -136,6 +251,7 @@ def _classify_paragraph(
     claim_tokens: list[tuple[str, set[str]]],
     forbidden_tokens: list[tuple[str, set[str]]],
     format_support: dict[str, str],
+    llm_router=None,
 ) -> dict:
     """Classify a single prose paragraph against knowledge.
 
@@ -208,6 +324,35 @@ def _classify_paragraph(
             best_overlap = overlap
             best_claim = claim_text
 
+    # --- 4b. Polarity refinement (RC-W1-002) ---
+    # A strong overlap match is a candidate for SUPPORTED/PROBABLE under
+    # step 5 below, but never proves agreement -- only aboutness. Refine it
+    # with a bounded LLM check before step 5 can act on it. See the
+    # module-level comment block above _try_import_llm_router() for full
+    # rationale and the fail-safe contract. This never fires below the
+    # pre-existing 0.5 "strong overlap" bar, so it changes zero behavior
+    # for weak/incidental matches.
+    if best_claim and best_overlap >= _POLARITY_CHECK_MIN_OVERLAP:
+        polarity = _check_claim_polarity(text, best_claim, llm_router)
+        if polarity is None:
+            details.append(
+                f"Polarity check unavailable (overlap {best_overlap:.2f} with: "
+                f"\"{best_claim[:80]}\") -- fell back to overlap-only tiering"
+            )
+        elif polarity == POLARITY_CONTRADICTS:
+            details.append(
+                f"Polarity check: CONTRADICTS matched claim "
+                f"(overlap {best_overlap:.2f}): \"{best_claim[:80]}\""
+            )
+            return {
+                "line_no": line_no,
+                "text": text,
+                "tier": TIER_CONTRADICTED,
+                "details": details,
+            }
+        # SUPPORTS or UNRELATED-DESPITE-SIMILARITY: fall through unchanged
+        # to the pre-existing overlap-only tiering below.
+
     # --- 5. Classify tier ---
     if api_checked and api_verified and best_overlap >= 0.5:
         tier = TIER_SUPPORTED
@@ -237,12 +382,101 @@ def _classify_paragraph(
 
 
 # ---------------------------------------------------------------------------
+# RC-W1-004: code-block reachability (mirrors code_block_api.py's evaluator)
+# ---------------------------------------------------------------------------
+
+def _check_code_reachability(page: Page, knowledge: Knowledge) -> list[dict]:
+    """Flag code-block identifiers that are confirmed unreachable/non-public.
+
+    ``token_ops.verify_tokens`` (called above in ``audit_page``) only checks
+    whether a class NAME is known to api_surface.json and, for `.member`
+    accesses, whether the member exists on it -- never whether the class
+    itself is reachable/public for its language. This reuses the same
+    detection logic as ``content_eval.evaluators.code_block_api`` (both the
+    `.member`-access scan and the bare-type-reference scan for constructs
+    like `catch (Type ex)` or Python `from pkg import Name`) so
+    ``content_audit.py``'s separate code-parsing path gets the same check
+    rather than a second, drifting implementation.
+    """
+    findings: list[dict] = []
+    seen: set[tuple[str, int]] = set()
+
+    def _resolve(class_name: str, abs_line: int) -> None:
+        key = (class_name, abs_line)
+        if key in seen:
+            return
+        class_entry = knowledge.classes.get(class_name)
+        primary = _reach.class_reachability(class_entry)
+        if primary is False:
+            seen.add(key)
+            findings.append({
+                "level": "FAIL",
+                "line_no": abs_line,
+                "message": (
+                    f"Code references `{class_name}`, which api_surface.json "
+                    f"marks `reachable: false` — not part of the public API "
+                    f"a real consumer of this package can reach"
+                ),
+                "suggestion": (
+                    f"Replace `{class_name}` with a publicly reachable class, "
+                    f"or verify the exact import/usage path a real consumer "
+                    f"would need and document that instead."
+                ),
+            })
+            return
+        if primary is True:
+            return  # explicit positive primary signal — trust it
+        # primary is None here: either the class is entirely absent from
+        # api_surface.json, or present but with no `reachable` key yet
+        # (knowledge not re-scouted since Part 1 landed) — try the live
+        # fallback either way; mere presence isn't proof of reachability.
+        is_unreachable, reason = _reach.live_unreachable(
+            class_name, page.family, page.platform, lang)
+        if is_unreachable:
+            seen.add(key)
+            findings.append({
+                "level": "FAIL",
+                "line_no": abs_line,
+                "message": f"Code references `{class_name}` — {reason}",
+                "suggestion": (
+                    f"Replace `{class_name}` with a publicly reachable class, "
+                    f"or verify the exact import/usage path a real consumer "
+                    f"would need and document that instead."
+                ),
+            })
+
+    for block in page.code_blocks:
+        lang = _LANG_NORMALIZE.get(block.lang.lower(), "")
+        if not lang:
+            continue
+
+        for match in _MEMBER_ACCESS_RE.finditer(block.content):
+            class_name = match.group(1)
+            if class_name in _IGNORE_CLASSES:
+                continue
+            line_offset = block.content[:match.start()].count("\n")
+            _resolve(class_name, block.start_line + 1 + line_offset)
+
+        for class_name, offset in _extract_bare_type_names(block.content, lang):
+            if class_name in _IGNORE_CLASSES:
+                continue
+            line_offset = block.content[:offset].count("\n")
+            _resolve(class_name, block.start_line + 1 + line_offset)
+
+    return findings
+
+
+# ---------------------------------------------------------------------------
 # Audit a single page
 # ---------------------------------------------------------------------------
-def audit_page(page: Page, knowledge: Knowledge) -> dict:
+def audit_page(page: Page, knowledge: Knowledge, llm_router=None) -> dict:
     """Audit a page, returning structured results.
 
     Returns dict with keys: file, paragraphs, code_findings, summary.
+
+    ``llm_router`` (RC-W1-002) is optional and defaults to None, which
+    disables the polarity refinement entirely -- callers that do not pass
+    one get exactly the pre-fix, overlap-only tiering behavior.
     """
     family = page.family or knowledge.family
     platform = page.platform or knowledge.platform
@@ -273,7 +507,8 @@ def audit_page(page: Page, knowledge: Knowledge) -> dict:
         if len(_tokenize(text)) < 3:
             continue  # Skip trivially short lines
         result = _classify_paragraph(
-            line_no, text, knowledge, claim_tokens, forbidden_tokens, format_support
+            line_no, text, knowledge, claim_tokens, forbidden_tokens, format_support,
+            llm_router=llm_router,
         )
         paragraphs.append(result)
 
@@ -289,6 +524,12 @@ def audit_page(page: Page, knowledge: Knowledge) -> dict:
                 "message": f.message,
                 "suggestion": getattr(f, "suggestion", ""),
             })
+        # RC-W1-004: token_ops.py's verify_tokens() above only checks whether
+        # a class NAME is known and, for `.member` accesses, whether the
+        # member exists -- never whether the class itself is reachable/public.
+        # This second pass closes that gap using the same detection logic as
+        # content_eval's code_block_api evaluator.
+        code_findings.extend(_check_code_reachability(page, knowledge))
 
     # Summary stats
     tier_counts = defaultdict(int)
@@ -318,6 +559,15 @@ def audit_page(page: Page, knowledge: Knowledge) -> dict:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+def _resolve_no_llm_flag(no_llm_flag: bool, polarity_check_flag: bool) -> bool:
+    """F-18-01: the RC-W1-002 polarity check is opt-in, not opt-out -- a bare CLI
+    invocation (`no_llm_flag=False, polarity_check_flag=False`) must resolve to
+    `no_llm=True` (stay offline/deterministic), matching this tool's behavior before
+    RC-W1-002 was ever added. `--no-llm` always wins on conflict (safe default takes
+    precedence when both flags are passed)."""
+    return no_llm_flag or not polarity_check_flag
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="content_audit",
@@ -329,16 +579,29 @@ def main(argv=None):
                         help="Specific .md files to audit")
     parser.add_argument("--json", action="store_true",
                         help="Machine-readable JSON output")
+    parser.add_argument("--polarity-check", action="store_true",
+                        help="RC-W1-002/F-18-01 (opt-in, off by default): enable the "
+                             "LLM-backed polarity refinement. Makes live network calls and "
+                             "is non-deterministic run-to-run; the bare CLI stays "
+                             "fast/offline/deterministic (overlap-only tiering) unless this "
+                             "is explicitly passed.")
+    parser.add_argument("--no-llm", action="store_true",
+                        help="Explicitly disable the polarity refinement even if "
+                             "--polarity-check is also passed (safe default; kept for "
+                             "explicit clarity and backward compatibility -- this is now "
+                             "the default behavior regardless of this flag)")
     args = parser.parse_args(argv)
+    # F-18-01: opt-in, not opt-out -- a bare CLI invocation stays fast/offline/deterministic
+    # exactly as it did before RC-W1-002. --no-llm always wins on conflict (safe default).
+    # Extracted to a pure function specifically so this exact regression has a direct unit
+    # test (test_content_audit.py::TestResolveNoLlmFlag), not just a one-off manual check.
+    args.no_llm = _resolve_no_llm_flag(args.no_llm, args.polarity_check)
 
     # --- Resolve pages and knowledge ---
     pages_by_product: dict[tuple[str, str], list[Page]] = {}
 
     if args.files:
-        try:
-            from content_eval.loader import load_files  # noqa: E402
-        except ImportError:
-            def load_files(files): return []
+        from content_eval.loader import load_files  # noqa: E402
         pages = load_files(args.files)
         for page in pages:
             fam = page.family
@@ -374,6 +637,17 @@ def main(argv=None):
         sys.exit(0)
 
     # --- Run audit ---
+    # RC-W1-002: instantiate the polarity-check LLM router ONCE for the
+    # whole run, not per paragraph -- _classify_paragraph() only spends a
+    # call on paragraphs that already cleared the strong-overlap bar, so
+    # this stays bounded even when the router is available. On any
+    # unavailability, _check_claim_polarity() already fails open on its own.
+    llm_router = None if args.no_llm else _try_import_llm_router()
+    if not args.no_llm and llm_router is None:
+        _log("WARNING: LLM router unavailable -- RC-W1-002 polarity "
+             "refinement disabled for this run; falling back to pre-fix, "
+             "overlap-only tiering")
+
     all_results = []
     has_contradicted = False
 
@@ -382,7 +656,7 @@ def main(argv=None):
         knowledge = Knowledge(family, platform)
 
         for page in pages:
-            result = audit_page(page, knowledge)
+            result = audit_page(page, knowledge, llm_router=llm_router)
             all_results.append(result)
             if result["summary"]["tiers"].get(TIER_CONTRADICTED, {}).get("count", 0) > 0:
                 has_contradicted = True

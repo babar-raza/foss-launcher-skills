@@ -1,0 +1,227 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    },
+    "excluded_reason": "the old 'At a Glance' mermaid diagram (generic capability-label tokens, not real API calls) was entirely re-authored (see structural unit s0001); the equivalent capability set is captured by the new diagram + Key Capabilities, not literal code."
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "relocated",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/obj/ObjImporter.ts"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "relocated",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/stl/StlExporter.ts"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Mesh.ts"
+    },
+    "excluded_reason": "building a mesh from raw control points (Mesh.controlPoints/createPolygon) is a real, current capability documented in Key Capabilities and the API Reference Mesh row; no standalone 'from scratch' worked example was retained after Additional Examples was compacted to 2 examples + 1 flagship (mechanical fingerprint overlap with surviving code is exactly 50%, driven by generic Scene/Vector4/scene.save reuse elsewhere, not by this specific capability actually surviving as code)."
+  },
+  {
+    "unit_id": "c0006a",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PbrMaterial.ts"
+    },
+    "excluded_reason": "empty-fingerprint import-only fragment of the 'Apply a PBR Material' example; see c0006b/c/d for the real-capability exclusion reason (PBR assignment documented in Key Capabilities/API Reference, no standalone example retained)."
+  },
+  {
+    "unit_id": "c0006b",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PbrMaterial.ts"
+    },
+    "excluded_reason": "PbrMaterial assignment is a real, current capability documented in Key Capabilities and the API Reference Materials table; no standalone code example retained."
+  },
+  {
+    "unit_id": "c0006c",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Mesh.ts"
+    },
+    "excluded_reason": "Mesh.createPolygon from raw control points is documented in the API Reference Mesh row; no standalone code example retained for this specific PBR-material combination."
+  },
+  {
+    "unit_id": "c0006d",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    },
+    "excluded_reason": "Node.createChildNode is documented in the API Reference Node row; no standalone code example retained for this specific PBR-material combination."
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/PolygonModifier.ts"
+    }
+  },
+  {
+    "unit_id": "c0008a",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/collada/ColladaExporter.ts"
+    },
+    "excluded_reason": "empty-fingerprint import-only fragment of the 'Export to COLLADA With a Phong Material' example; see c0008b-e for the real-capability exclusion reason (COLLADA export + Phong material both documented, no standalone example retained)."
+  },
+  {
+    "unit_id": "c0008b",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/Mesh.ts"
+    },
+    "excluded_reason": "Mesh construction from raw control points is documented in the API Reference Mesh row; no standalone code example retained for this specific COLLADA/Phong combination."
+  },
+  {
+    "unit_id": "c0008c",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PhongMaterial.ts"
+    },
+    "excluded_reason": "PhongMaterial assignment is a real, current capability documented in Key Capabilities and the API Reference Materials table; no standalone code example retained."
+  },
+  {
+    "unit_id": "c0008d",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/Node.ts"
+    },
+    "excluded_reason": "Node.createChildNode is documented in the API Reference Node row; no standalone code example retained for this specific COLLADA/Phong combination."
+  },
+  {
+    "unit_id": "c0008e",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/collada/ColladaExporter.ts"
+    },
+    "excluded_reason": "COLLADA export via scene.save is documented in Key Capabilities and the API Reference COLLADA Format table; no standalone code example retained for this specific COLLADA/Phong combination."
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    },
+    "excluded_reason": "converting STL to glTF (with the explicit binaryMode=false workaround for the real, independently re-verified binary-GLB-export RangeError) is documented as prose in the new Scope and Limitations bullet (with fresh executable-proof evidence) rather than repeated as a standalone code example."
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfImporter.ts"
+    },
+    "excluded_reason": "inspecting an imported PbrMaterial's channels via GltfLoadOptions/openFromBuffer is a real, current capability documented in the API Reference table; no standalone code example retained after compaction (candidate's own flagship Additional-Examples example enumerates node/mesh stats generically, not material channels)."
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/utilities/Vector3.ts"
+    },
+    "excluded_reason": "Vector3/Quaternion/Matrix4 math utilities are real, current, documented in the API Reference Math Utilities table; no standalone worked-math-example code retained after Additional Examples was compacted to 2 examples + 1 flagship."
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "corrected",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    },
+    "correction_reason": "candidate uses the equivalent npm alias 'npm test' instead of the old README's literal 'npm run test' -- functionally identical (npm test is the built-in alias for the test script), merged_verbatim incorrectly asserted exact text preservation."
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  }
+]

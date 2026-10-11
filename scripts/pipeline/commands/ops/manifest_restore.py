@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """manifest_restore.py — Restore freshness manifest from Gate 3 pre-write backup.
 
 Restores the pre-Gate-3 backup file (freshness-manifest.pre-gate3.json) to the
@@ -22,7 +21,7 @@ import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parents[4])))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 _STATE_ROOT = _REPO_ROOT / "runs" / "state"
 
 

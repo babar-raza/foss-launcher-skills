@@ -115,6 +115,14 @@ if [[ "$FILE_PATH" == /* ]]; then
         fi
     done
     unset _oor_prefix
+    # S-110 foss-java-publish: allow edits inside cloned Aspose FOSS product repos
+    # (e.g. D:/OneDrive/Documents/GitHub/Aspose.Slides-FOSS-for-Java/), where Phase A's
+    # surgical pom.xml/workflow/PUBLISHING.md changes are made per skills/foss-java-publish.md.
+    if [ "$_OOR_ALLOWED" != "1" ]; then
+        case "$FILE_PATH" in
+            */GitHub/*-FOSS-for-*/*) _OOR_ALLOWED=1 ;;
+        esac
+    fi
     if [ "$_OOR_ALLOWED" = "1" ]; then
         unset _OOR_ALLOWED
         exit 0
@@ -216,9 +224,13 @@ if [ "$GOVERNED" != "true" ]; then
 fi
 
 ACTIVE_FILE="$REPO_ROOT/reports/skill-context/ACTIVE.json"
+# RPR-G-03: per-session contexts live here (opt-in --session-id). A session on the OCC
+# path has no legacy ACTIVE.json, so the marker check accepts either. With no session
+# files present this is byte-identical to the previous behavior.
+ACTIVE_DIR="$REPO_ROOT/reports/skill-context/active"
 
-# Fast check: does the marker file exist?
-if [ ! -f "$ACTIVE_FILE" ]; then
+# Fast check: does a context marker exist (legacy ACTIVE.json OR any per-session file)?
+if [ ! -f "$ACTIVE_FILE" ] && ! ls "$ACTIVE_DIR"/*.json >/dev/null 2>&1; then
     _gov_block "Edit/Write denied — no active skill context." \
         "$FILE_PATH is under a governed path and requires skill context." \
         "Invoke a registered skill that covers this file." \
@@ -234,19 +246,27 @@ PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" "$REPO_ROOT/scripts/pipeline/
     check --file "$FILE_PATH" 2>/dev/null || CHECK_EXIT=$?
 
 if [ $CHECK_EXIT -eq 0 ]; then
-    # File is in scope — record touch with skill attribution (best-effort, non-blocking)
-    ACTIVE_SKILL=$(printf '%s' "$(cat "$ACTIVE_FILE")" | "$PYTHON" -c "
-import json, sys
-try:
-    print(json.load(sys.stdin).get('skill_id', ''))
-except Exception:
-    pass
-" 2>/dev/null || true)
-    if [ -n "$ACTIVE_SKILL" ]; then
+    # File is in scope — record touch with skill+session attribution (best-effort,
+    # non-blocking). HARDEN-A3/F1: session-aware. The old block read skill_id ONLY
+    # from legacy ACTIVE.json, so a session on the per-session path (AGENT_SESSION_ID
+    # exported — now the default) had no ACTIVE.json, recording silently stopped,
+    # ledgers starved, and agents were pushed toward `adopt --all` — re-opening the
+    # exact cross-session sweep A2 guards against. Attribution order (env identity's
+    # per-session context > legacy ACTIVE.json > sole live per-session file) lives in
+    # skill_context_attribution.py — extracted out of an inline heredoc (finding-3
+    # remediation) specifically so it has its own direct pytest coverage.
+    ATTRIB=$("$PYTHON" "$SCRIPT_DIR/skill_context_attribution.py" \
+        "$REPO_ROOT/reports/skill-context" 2>/dev/null || true)
+    if [ -n "$ATTRIB" ]; then
+        ACTIVE_SKILL="${ATTRIB%%$'\t'*}"
+        ATTRIB_SID="${ATTRIB#*$'\t'}"
+        _REC_ARGS=(record --file "$FILE_PATH" --action modified --skill "$ACTIVE_SKILL")
+        if [ -n "$ATTRIB_SID" ] && [ "$ATTRIB_SID" != "$ATTRIB" ]; then
+            _REC_ARGS+=(--session-id "$ATTRIB_SID")
+        fi
         PYTHONPATH="$REPO_ROOT/scripts/pipeline" "$PYTHON" \
             "$REPO_ROOT/scripts/pipeline/commands/ops/session_ledger.py" \
-            record --file "$FILE_PATH" --action modified \
-            --skill "$ACTIVE_SKILL" 2>/dev/null || true
+            "${_REC_ARGS[@]}" 2>/dev/null || true
     fi
     exit 0
 elif [ $CHECK_EXIT -eq 2 ]; then

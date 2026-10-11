@@ -1,30 +1,68 @@
+<!-- CONTRACT: agent-executed
+     purpose: generate a blog post for blog.aspose.org with knowledge-grounded content
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.md available
+     postcondition: new blog post at blog.aspose.org/{family}/{platform}/{slug}/index.md with provenance
+     idempotent: no — LLM-generated content varies between invocations
+     verified: 2026-04-11
+-->
+# S-57: New Blog Post — Generate Blog Post for blog.aspose.org
+
 Generate a new blog post for blog.aspose.org.
 
 **Arguments:** `$ARGUMENTS`
 **Expected format:** `{family} {platform} {slug}` — e.g. `3d python working-with-3d-formats`
 
+> **⚠ BYPASS PREVENTION (healing-sprint governance addition)**
+>
+> NEVER create blog files manually or by writing to
+> `content/blog.aspose.org/` outside this skill. Manual creation bypasses:
+> - `no-downgrade-guard` (structural regression check)
+> - `attach_evidence.py` (knowledge grounding)
+> - `content-check` and `change-guard` (claim/API verification)
+>
+> All blog files MUST use the **directory structure** `{slug}/index.md` — flat
+> `{slug}.md` files are invalid and will be rejected by `check-blog-slugs.py`.
+>
+> Any file found with `content_origin: unknown` and a non-Aspose author is
+> evidence of a rogue generation path and must be audited and remediated before
+> publishing. The `author` field must always be exactly `Aspose` (FAIL if wrong,
+> enforced by `page_role.py`).
+
 ## Knowledge Pre-conditions
 
 Before generating any content, you MUST:
 
-0. **Validate setup**: Run `python scripts/check_setup.py --family {family} --platform {platform}`
-   - If exit code 2 (ERROR): STOP and report the error to the user before proceeding.
-   - If exit code 1 (WARN): proceed but surface all warnings.
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt (see printed message)
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run
+     `/knowledge-diff` to review what changed before generating content, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
-    - This is the concise, human-readable API reference
-    - Every class name, method, property, and enum value in your generated content MUST appear in this file
-    - If a name is not in api_surface.md, do not use it
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load snippets**: Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` — the human-readable API reference.
+     Every class name, method, property, and enum value in your generated content MUST appear in
+     this file. If a name is not in api_surface.md, do not use it.
+   - Read `knowledge/{family}/{platform}/merged/formats.json` — only reference formats confirmed here
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json` — never include these
+   - Read `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import` (the language import
+     name, e.g. for mentioning "import aspose.words" in prose or code — NOT the install command;
+     the install command comes exclusively from `data/package_registry.json`, see Constraints below)
+   - Check `knowledge/{family}/{platform}/merged/snippets/` for verified code examples
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
+     if absent) — **limitations cross-check**: for every format capability claim you plan to make
+     (e.g., "export to PDF", "write FBX", "convert to GLTF"), verify it does not contradict a
+     limitation marked as "not supported", "read-only", or "detect-only". If a contradiction is found,
+     remove or correct the claim before generating any content.
 
 ## Steps
+
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-57 --scope "*"
+> ```
+
 
 1. **Parse** `$ARGUMENTS` into: `family`, `platform`, `slug` (slug becomes the directory name and title source).
 
@@ -49,6 +87,15 @@ Before generating any content, you MUST:
    tags: []
    categories:
    - Aspose.{Family}
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
+   evidence:
+     model_sha: ""
+     model_version: ""
+     claims: []
+     apis: []
    ---
    ```
 
@@ -56,7 +103,7 @@ Before generating any content, you MUST:
 
    `## Introduction`
    - 2–3 paragraphs: announce or introduce the topic; what problem this solves; who it's for
-   - Mention the package name (PyPI name), MIT license, and zero-dependency nature
+   - Mention the package name (per `canonical_import`, not a package-manager identity), MIT license, and zero-dependency nature
 
    `---`
 
@@ -68,8 +115,10 @@ Before generating any content, you MUST:
    `---`
 
    `## Quick Start`
-   - Install snippet in ` ```bash ` block: `pip install {package-name}`
-   - A 10–20 line Python example covering the core task described by the slug
+   - Install instructions: use the shortcode for `{platform}` per Constraints below (never a
+     literal `pip install`/`dotnet add package`/`npm install` line — see the install-instructions
+     rule in Constraints)
+   - A 10–20 line code example (language per `{platform}`) covering the core task described by the slug
 
    `---`
 
@@ -87,31 +136,103 @@ Before generating any content, you MUST:
    `---`
 
    `## Getting Started`
-   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute internal paths:
-     - `[Getting Started](/docs.aspose.org/en/{family}/{platform}/getting-started/)`
-     - `[Developer Guide](/docs.aspose.org/en/{family}/{platform}/developer-guide/)`
-     - `[KB Articles](/kb.aspose.org/en/{family}/{platform}/)`
-     - `[API Reference](/reference.aspose.org/en/{family}/{platform}/)`
+   - Bullet list of 4–6 links to docs, KB, and reference pages using absolute `https://` URLs.
+     Omit `/en/` from all links (English pages use the root path):
+     - `[Getting Started](https://docs.aspose.org/{family}/{platform}/getting-started/)`
+     - `[Developer Guide](https://docs.aspose.org/{family}/{platform}/developer-guide/)`
+     - `[KB Articles](https://kb.aspose.org/{family}/{platform}/)`
+     - `[API Reference](https://reference.aspose.org/{family}/{platform}/)`
 
 5. **Constraints**:
+   - **Tone**: Write in technical/informational tone. Avoid marketing language such as
+     "powerful", "robust", "seamlessly", "cutting-edge", "industry-leading", "comprehensive",
+     "state-of-the-art", "best-in-class", and similar superlatives. Focus on what the API
+     does, not on selling it. Use specific technical details and concrete code examples.
+     The `consumer_usefulness` evaluator will FAIL posts that read as marketing copy.
    - `author` is always exactly `Aspose`
    - `tags` is always `[]`
    - `categories` uses the format `Aspose.{Family}` with a capital F and correct family name casing (e.g. `Aspose.3D`, `Aspose.Cells`, `Aspose.Slides`)
-   - Every code block uses ` ```python ` or ` ```bash ` language identifier
+   - **Code fence language** — resolve from `{platform}` argument (never hardcode `python`):
+     `python` → `python`, `net` → `csharp`, `java` → `java`, `cpp` → `cpp`, `typescript` → `typescript`.
+   - **Install instructions: never write `pip install`/`dotnet add package`/`npm install` (or any
+     package-manager identity) from LLM knowledge or from `model.yaml` — always render it via a
+     shortcode reading `data/package_registry.json`.** Same mandatory rule `new-products-page.md`
+     (S-61), `new-docs-page.md` (S-56), and `new-kb-howto.md` (S-58) enforce (Mission
+     MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1):
+     - **for `platform: java`**: write `{{< maven-coord "{family}" "java" >}}` on its own line
+       (blank line before/after) instead of a fenced Maven XML block. For inline mentions, use
+       `{{< maven-gav "{family}" "java" >}}` with NO surrounding backticks (it already renders
+       its own `<code>` wrapper).
+     - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
+     - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
+       `{{< package-install "{family}" "{platform}" >}}` for a block-level mention, or
+       `{{< package-install-inline "{family}" "{platform}" >}}` (NO surrounding backticks) for
+       any inline mid-sentence mention.
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: STOP —
+       do not invoke any shortcode (it will `errorf`) and do not hand-write install prose of any
+       vintage (neither a guessed command nor a "not yet published" fallback sentence). Add a
+       `data/package_registry.json` entry first (even a `published: false` one — 14 real products
+       already ship pages this way), then the shortcode renders correctly automatically. See
+       `registry_backfill.py` / TC-MT015-07's `naming_convention_candidate()`.
+   - **Package name** for import statements/code blocks always comes from
+     `knowledge/{family}/{platform}/scout/model.yaml` → `canonical_import`. Never use the
+     commercial Aspose package name. If `canonical_import` is empty, STOP and run
+     `/repo-scout {family} {platform}` first. This governs the **import package** only — a
+     separate fact from the install-instruction identity above; do not conflate them. **Never
+     use `canonical_import` (or any `model.yaml` field) to construct or infer the rendered install
+     command itself** — that must always come from the shortcode above, never from this field.
    - All class names and method names must match what you read from reference content — no invented API
 
-6. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+6. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+7. **Create directory and write** the file to `content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
    - The slug is a directory name, not just a filename — create `{slug}/index.md`
+
+7b. **Backlink injection**: After writing, inject the reciprocal aspose.com backlink as a
+    `## Related Resources` section (idempotent — skips if already present):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain blog.aspose.org --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-57 --status completed
+> ```
 
 ## Knowledge Post-conditions
 
 After generating the post:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to write the YAML `evidence:` frontmatter block
+1. **Attach evidence**: Run `python scripts/pipeline/commands/healing/attach_evidence.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/blog.aspose.org/{family}/{platform}/{slug}/index.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. **Pre-write gate**: Run `python scripts/pre_write.py {output-file}` before committing
-   - Exit 0 (PASS/WARN): proceed
-   - Exit 1 (FAIL): do NOT commit — report findings to user and offer to fix
+4. **Run audit**: `python scripts/pipeline/commands/content/audit.py --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md`
+   — must exit with 0 FAIL before committing.
+5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/blog.aspose.org/{family}/{platform}/{slug}/index.md --strict`
+   — must exit 0 (no FAIL findings) before committing. WARN findings are acceptable but must be reviewed.
 
 7. **Confirm** with the output path.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

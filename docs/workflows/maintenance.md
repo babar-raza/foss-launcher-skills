@@ -1,32 +1,40 @@
-<!-- Adapted from aspose.org docs/workflows/ for standalone use -->
-
 # Maintenance Workflow
 
-> **Updated:** Use `/refresh-product` as the canonical path.
-> The manual 5-step chain below is **deprecated** -- see the skill chains document
-> (Maintenance chain) for the operative chain. The skill chains document is authoritative.
-> This document is preserved for reference only.
+> Source: AGENTS.md §9
+> Status: Current (restored from archive 2026-06-24)
+> Override token: 20260624-113217-docs-workflows-mental-model-refresh-md
 
-**Trigger**: upstream FOSS repo has changed since last knowledge extraction
-(i.e., `knowledge/{family}/{platform}/merged/model.yaml stale_since` is not null,
-or `refresh_knowledge.py --check-only` reports STALE).
+**Trigger**: upstream FOSS repo has changed since last knowledge extraction — i.e.,
+`stale_since` in `knowledge/{family}/{platform}/merged/model.yaml` is not null.
 
-**Canonical path -- use this**:
-```
+## Canonical Path — Use This
+
+```bash
 /refresh-product {family} {platform}
 ```
-The refresh-product skill orchestrates the complete 14-step chain (detect -> knowledge-update ->
-delta-site-plan -> page-update -> delta-dispatch -> page-retire -> reference-regen -> family-sync ->
-content-check -> link-validate -> translate -> verify -> commit). See the skill chains document
-(Maintenance chain) for the full step sequence with progress tracking.
 
-<details>
-<summary>Deprecated manual chain (do not follow)</summary>
+S-84 orchestrates the complete chain:
+1. S-12 (knowledge-diff) — detect + fetch upstream
+2. S-14 (knowledge-update) — re-scout + enrich + promote
+3. S-82 (delta-site-plan) — plan page adds/removes/updates
+4. S-20 (page-update) — update stale pages
+5. S-62 (batch-reference) — regenerate modified reference pages
+6. S-48 (family-sync) — update family landing pages
+7. S-23 (content-check) — audit all changed files
+8. S-65 (link-validate) — verify no broken cross-subdomain links
+9. S-76 (commit) — commit with audit trail
 
-1. Knowledge-diff -- identify which files changed
-2. Stale-detect -- which content pages are affected
-3. For each affected page: knowledge-update -> page-update -> eval-page
-4. Embed-knowledge -- sync vector store if used
-5. Commit: `knowledge/` changes + `content/` changes together
+**Exit early**: If S-12 reports SHAs match (no upstream change), the chain exits cleanly.
 
-</details>
+## Detect-Only (No Changes)
+
+```bash
+/knowledge-diff {family} {platform}
+```
+
+Reports impact level (HIGH/MEDIUM/LOW) and sets `stale_since` if HIGH/MEDIUM.
+
+## Archive
+
+Pre-refactor version:
+[docs/_archive/pre-refactor/workflows/maintenance.md](../_archive/pre-refactor/workflows/maintenance.md)

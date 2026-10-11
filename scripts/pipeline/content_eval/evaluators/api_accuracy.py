@@ -1,4 +1,20 @@
-"""API accuracy evaluator — wraps audit.py's token verification."""
+"""API accuracy evaluator — wraps audit.py's token verification.
+
+Architectural boundary (Phase 7 / Option A)
+-------------------------------------------
+This module is the **explicit bridge** between the two evaluation systems:
+
+- ``audit/`` (verification layer): fast CI gate, emits ``token_ops.Finding``
+- ``content_eval/`` (quality layer): rubric-driven scoring, emits ``models.Finding``
+
+This evaluator calls ``extract_tokens`` + ``verify_tokens`` from the audit layer
+and converts the results into ``content_eval`` Finding objects so they appear in
+the quality report alongside all other rubric dimensions.
+
+Remediation: ``remediate.py`` acts on ``content_eval`` findings, including those
+produced here.  Audit-layer findings that bypass this bridge are **not**
+remediated — they are CI-blocking gates only.
+"""
 
 from __future__ import annotations
 
@@ -10,11 +26,16 @@ from ..models import Finding, Page
 from . import BaseEvaluator
 
 # Import audit.py machinery
+# sibling-import guard: content_eval sub-package needs the pipeline root for knowledge_core/token_ops imports
 _HERE = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
-from knowledge_core import Knowledge, verify_evidence  # noqa: E402
-from token_ops import extract_tokens, verify_tokens  # noqa: E402
+from knowledge_core import Knowledge  # noqa: E402
+from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
+from token_ops import extract_tokens, verify_tokens, verify_signature  # noqa: E402
 
 
 class ApiAccuracyEvaluator(BaseEvaluator):
@@ -22,13 +43,24 @@ class ApiAccuracyEvaluator(BaseEvaluator):
 
     Delegates to audit.py's extract_tokens + verify_tokens for deterministic
     API accuracy checking. Also validates evidence frontmatter via verify_evidence.
+    Includes signature verification (SG category) via verify_signature.
     """
 
     name = "api_accuracy"
 
     def evaluate(self, page: Page, knowledge: Any) -> list[Finding]:
         if not isinstance(knowledge, Knowledge) or not knowledge.available:
-            return []
+            return [Finding(
+                level="WARN",
+                category="AA",
+                filepath=str(page.filepath),
+                line_no=0,
+                message=(
+                    f"UNVERIFIED: knowledge artifacts not available for "
+                    f"{page.family}/{page.platform}. Claims cannot be validated."
+                ),
+                evaluator=self.name,
+            )]
 
         findings: list[Finding] = []
 
@@ -39,7 +71,10 @@ class ApiAccuracyEvaluator(BaseEvaluator):
         # Verify evidence frontmatter
         audit_findings.extend(verify_evidence(page.frontmatter, knowledge, page.filepath))
 
-        # Convert audit.Finding → content_eval.Finding
+        # Signature verification (TC-P3-02): argument count + return type checks
+        sig_findings = verify_signature(page.filepath, page.platform, knowledge)
+
+        # Convert audit.Finding → content_eval.Finding (AA category)
         for af in audit_findings:
             findings.append(Finding(
                 level=af.level,
@@ -48,6 +83,18 @@ class ApiAccuracyEvaluator(BaseEvaluator):
                 line_no=af.line_no,
                 message=af.message,
                 suggestion=af.suggestion,
+                evaluator=self.name,
+            ))
+
+        # Convert signature findings → content_eval.Finding (SG category)
+        for sf in sig_findings:
+            findings.append(Finding(
+                level=sf.level,
+                category="SG",
+                filepath=str(sf.filepath),
+                line_no=sf.line_no,
+                message=sf.message,
+                suggestion=sf.suggestion,
                 evaluator=self.name,
             ))
 

@@ -1,0 +1,90 @@
+[
+  {
+    "task_id": "TC-16",
+    "status": "TODO",
+    "title": "Shell-family (bash/sh/shell/powershell/bat/cmd) tier-1 syntax checking -- currently 0 coverage, permanently bucketed SHELL-NOT-CHECKED",
+    "dependencies": [],
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/syntax.py",
+      "scripts/pipeline/lib/example_verification/registry.py",
+      "scripts/pipeline/tests/test_example_verification_syntax.py"
+    ]
+  },
+  {
+    "task_id": "TC-17",
+    "status": "TODO",
+    "title": "cpp tier-3 (execute) feasibility investigation -- currently capped at max_tier=2, compile-only",
+    "dependencies": [],
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/cpp.py",
+      "scripts/pipeline/tests/test_example_verification_cpp.py",
+      "scripts/pipeline/lib/example_verification/registry.py"
+    ]
+  },
+  {
+    "task_id": "TC-18",
+    "status": "TODO",
+    "title": "products.aspose.org frontmatter-embedded code block coverage -- 60 pages, 0 checked (CommonMark tokenizer cannot see indented YAML frontmatter text)",
+    "dependencies": [],
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/",
+      "scripts/pipeline/commands/governance/example_verification_sweep.py",
+      "scripts/pipeline/tests/"
+    ]
+  },
+  {
+    "task_id": "TC-19",
+    "status": "TODO",
+    "title": "ST-211: categorize + fix ~2,290 locale files / 7,322 blocks with real SYNTAX-ERROR code (incl. systemic Aspose.3D.Converter mistranslation)",
+    "dependencies": [],
+    "allowed_paths": [
+      "content/",
+      "backlog/inbox.md"
+    ]
+  },
+  {
+    "task_id": "TC-20",
+    "status": "TODO",
+    "title": "ST-212: fix sweep classifier blind spot (swallowed-fence blank-info-string blocks silently miscategorized as GRAMMAR-UNAVAILABLE); reconcile 44/2290 counts after the fix",
+    "dependencies": [],
+    "allowed_paths": [
+      "scripts/pipeline/commands/governance/example_verification_sweep.py",
+      "scripts/pipeline/content_eval/evaluators/code_syntax_check.py",
+      "scripts/pipeline/lib/example_verification/syntax.py",
+      "scripts/pipeline/tests/"
+    ]
+  },
+  {
+    "task_id": "TC-21",
+    "status": "TODO",
+    "title": "ST-215: categorize 12,513 locale content-drift findings by root cause (stale-English vs corrupted-locale vs fence-info-loss) before any fix; check overlap with ST-211/ST-212",
+    "dependencies": [
+      "TC-20"
+    ],
+    "allowed_paths": [
+      "content/",
+      "backlog/inbox.md",
+      "scripts/pipeline/commands/governance/locale_code_block_equivalence.py"
+    ]
+  },
+  {
+    "task_id": "TC-22",
+    "status": "TODO",
+    "title": "ST-213: reproduce + root-cause the grading-pipeline section-evidence recompute regression (5 of 7 tracked sections dropped on an unrelated 2-line fix)",
+    "dependencies": [],
+    "allowed_paths": [
+      "scripts/pipeline/content_eval/",
+      "backlog/inbox.md"
+    ]
+  },
+  {
+    "task_id": "TC-23",
+    "status": "TODO",
+    "title": "ST-214: investigate + fix install_recipe IR_PUBLISH_CLAIM FAIL on one Arabic locale page (check English canonical page for the same defect)",
+    "dependencies": [],
+    "allowed_paths": [
+      "content/",
+      "backlog/inbox.md"
+    ]
+  }
+]

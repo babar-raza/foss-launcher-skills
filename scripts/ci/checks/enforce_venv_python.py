@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """
 enforce_venv_python.py — Check or fix bare python/pip invocations in skill bash blocks,
 GitHub Actions workflow run: blocks, and Claude Code settings allow lists.
@@ -30,21 +29,40 @@ Skips:
 from __future__ import annotations
 
 import argparse
-import os
 import json
 import re
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).parent.parent.parent.parent))
+_DEFAULT_REPO_ROOT = Path(__file__).parent.parent.parent.parent
+REPO_ROOT = _DEFAULT_REPO_ROOT
 
-# Skill markdown directories — fully auto-fixable
-SCAN_DIRS = [
-    REPO_ROOT / "skills",               # canonical source — primary target
-    REPO_ROOT / ".agents" / "skills",
-    REPO_ROOT / ".kilocode" / "skills",
-    REPO_ROOT / ".claude" / "commands",
-]
+
+def _default_scan_dirs(repo_root: Path) -> list[Path]:
+    # Skill markdown directories — fully auto-fixable
+    return [
+        repo_root / "skills",               # canonical source — primary target
+        repo_root / ".agents" / "skills",
+        repo_root / ".kilocode" / "skills",
+        repo_root / ".claude" / "commands",
+    ]
+
+
+SCAN_DIRS = _default_scan_dirs(REPO_ROOT)
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Override REPO_ROOT (and recompute SCAN_DIRS from it) for testing.
+
+    Call without arguments to reset to the real repo root. This is the seam
+    tests must use instead of monkeypatch.setattr on REPO_ROOT/SCAN_DIRS
+    directly (monkeypatch-lint T1/T2 — see AGENTS.md §16 / docs/development/
+    testing-seams.md for the tiered policy this repo enforces).
+    """
+    global REPO_ROOT, SCAN_DIRS
+    REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    SCAN_DIRS = _default_scan_dirs(REPO_ROOT)
+
 
 SKIP_PATTERNS = [
     "getting-started",
@@ -109,9 +127,27 @@ DENY_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"PYTHONPATH.*\$USER_SITE"), "PYTHONPATH=$USER_SITE bypasses .venv"),
 ]
 
-# Matches fenced code blocks: ```bash, ```sh, or untagged ```
-# (skill files use all three for shell commands)
-FENCE_RE = re.compile(r"(```(?:bash|sh)?\n)(.*?)(```)", re.DOTALL)
+# Matches ANY fenced code block, capturing its language tag separately from its
+# content. Deliberately matches every tag (not just bash/sh/untagged) so every ```
+# in the document is recognized as a real fence delimiter -- the previous version
+# only special-cased bash/sh/empty as valid OPENERS, so a ```yaml (or ```python,
+# ```json, etc.) fence's opening backticks were silently skipped by the regex
+# engine, and its CLOSING backticks were then mismatched as a spurious opener for
+# an unlabeled fence that swallowed everything up to the next real ```bash/```sh
+# fence -- including any prose in between, no matter how far away. Found live
+# (2026-08-07) against skills/new-blog-post.md: a ```yaml fence at line 75 caused
+# its own closing ``` (line 100) to be paired with a ```bash fence's opening ```
+# at line 192, so 91 lines of pure prose -- including the instructional sentence
+# "never write `pip install`/`dotnet add package`/`npm install`" -- were scanned
+# as if they were shell commands and flagged as bare-python violations. Whether to
+# actually SCAN a given fence's content is now a separate decision (see
+# _SCANNABLE_TAGS below), not conflated with whether the fence is recognized at all.
+FENCE_RE = re.compile(r"(```([a-zA-Z0-9_+-]*)\n)(.*?)(```)", re.DOTALL)
+
+# Only these fence languages contain shell commands worth scanning for bare
+# python/pip. ```yaml, ```python, ```json, etc. are structured/source content in
+# a different language and must never be scanned by shell-invocation RULES.
+_SCANNABLE_TAGS = frozenset({"", "bash", "sh"})
 
 
 def _fix_fence(fence_content: str) -> tuple[str, list[str], list[str]]:
@@ -149,7 +185,9 @@ def process_file(path: Path, fix: bool) -> tuple[list[str], list[str]]:
     all_deny: list[str] = []
 
     def replace_fence(m: re.Match[str]) -> str:
-        open_tag, content, close_tag = m.group(1), m.group(2), m.group(3)
+        open_tag, lang, content, close_tag = m.group(1), m.group(2), m.group(3), m.group(4)
+        if lang not in _SCANNABLE_TAGS:
+            return m.group(0)  # e.g. ```yaml, ```python, ```json — not a shell fence
         new_content, viols, deny = _fix_fence(content)
         all_violations.extend(viols)
         all_deny.extend(deny)
@@ -172,8 +210,33 @@ def should_skip(path: Path) -> bool:
     return False
 
 
-def collect_files() -> list[Path]:
-    files: list[Path] = []
+def collect_files(explicit: "list[str] | None" = None) -> list[Path]:
+    """Return skill markdown files to scan.
+
+    With explicit=None (default), scans every file under SCAN_DIRS (repo-wide).
+    With explicit given (a list of repo-relative paths, e.g. from
+    `git diff --cached --name-only`), scans only those paths that exist, are
+    under a recognized SCAN_DIRS root, and aren't skip-listed -- this is what
+    lets pre-commit-audit.sh's Step 7b actually check "staged skill files" as
+    its own comment claims, instead of the whole repo (found live 2026-08-07:
+    the unscoped call let a pre-existing violation in one unrelated skill file
+    block every commit that happened to also touch any skill file, regardless
+    of whether that commit's own changes were clean).
+    """
+    if explicit is not None:
+        files: list[Path] = []
+        scan_roots = [d.resolve() for d in SCAN_DIRS]
+        for rel in explicit:
+            p = (REPO_ROOT / rel).resolve()
+            if not p.is_file() or p.suffix != ".md":
+                continue
+            if not any(root in p.parents for root in scan_roots):
+                continue
+            if not should_skip(p):
+                files.append(p)
+        return sorted(files)
+
+    files = []
     for scan_dir in SCAN_DIRS:
         if not scan_dir.exists():
             continue
@@ -277,6 +340,23 @@ def collect_workflow_files() -> list[Path]:
 _BASH_ENTRY_RE = re.compile(r"^Bash\((.+)\)$")
 
 
+def _inside_quotes(line: str, pos: int) -> bool:
+    """Return True if ``pos`` falls inside a double-quoted string literal.
+
+    Counts unescaped ``"`` characters before ``pos``; an odd count means the
+    position is inside an open quote. Used to exempt descriptive text (e.g. a
+    step-name label like ``_pc_step_start "python version pin"``) from the
+    bare-invocation RULES, which only care about actual command tokens.
+    """
+    count = 0
+    i = 0
+    while i < pos:
+        if line[i] == '"' and (i == 0 or line[i - 1] != "\\"):
+            count += 1
+        i += 1
+    return count % 2 == 1
+
+
 def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
     """Scan a shell script for bare python/pip invocations.
 
@@ -289,6 +369,8 @@ def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
     - Lines where the invocation is via ``"$PYTHON"`` or ``$PYTHON`` (already
       resolved to the venv path by the script's own variable setup)
     - Comment lines (starting with #, after stripping whitespace)
+    - Occurrences inside a double-quoted string literal (descriptive text,
+      not a command invocation)
     """
     text = path.read_text(encoding="utf-8")
     violations: list[str] = []
@@ -311,9 +393,12 @@ def scan_shell_file(path: Path) -> tuple[list[str], list[str]]:
         if WORKFLOW_EXEMPT_RE.search(line):
             continue
 
-        # Check bare python/pip rules
+        # Check bare python/pip rules — skip matches inside a quoted string
+        # literal (e.g. a step-name label like _pc_step_start "python version
+        # pin"), which are descriptive text, not command invocations.
         for pattern, _replacement in RULES:
-            if pattern.search(line):
+            match = pattern.search(line)
+            if match and not _inside_quotes(line, match.start()):
                 violations.append(f"line {lineno}: {line}")
                 break
 
@@ -389,9 +474,21 @@ def main() -> None:
             "audit the enforcement chain itself."
         ),
     )
+    parser.add_argument(
+        "--files",
+        nargs="*",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Scope the skill-markdown scan (SCAN_DIRS) to these repo-relative paths only "
+            "(e.g. output of `git diff --cached --name-only`). Workflow/settings/shell-hook "
+            "scans remain repo-wide always -- those are governance-critical safety nets, not "
+            "staged-file checks. Default: scan all skill markdown repo-wide."
+        ),
+    )
     args = parser.parse_args()
 
-    files = collect_files()
+    files = collect_files(explicit=args.files)
     total_violations = 0
     total_deny = 0
     total_files_changed = 0

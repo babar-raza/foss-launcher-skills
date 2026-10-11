@@ -1,0 +1,1 @@
+def test_linebreaker_accepts_discretionary_without_crash(self) -> None:

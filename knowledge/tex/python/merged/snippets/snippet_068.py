@@ -1,0 +1,1 @@
+def test_values_are_ints(self):

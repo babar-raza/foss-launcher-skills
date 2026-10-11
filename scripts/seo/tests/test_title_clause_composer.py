@@ -1,0 +1,911 @@
+"""SEO-TITLE-CLAUSE-COMPOSER (v10/v13, Finding #57): LLM-composed,
+grounding-verified natural-language title clauses for the three lower
+grounding tiers (formats_json, claims_json, curated_keywords).
+
+Acceptance checks mirrored here (per the governing plan's worked taskcard):
+  - golden-set-regression-unaffected (via resolve_title_with_composition)
+  - fabrication-caught
+  - over-length-retries-then-falls-back
+  - api-failure-falls-back-cleanly
+  - naturalness-gate-catches-awkward-but-grounded
+  - cache-prevents-recomposition-on-unchanged-source
+Plus both negative controls.
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+_SCRIPTS = Path(__file__).resolve().parents[2]
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+
+import seo.pipeline.title_clause_composer as tcc  # noqa: E402
+import seo.pipeline.title_templates as tt  # noqa: E402
+from seo.pipeline.title_clause_composer import (  # noqa: E402
+    TIERS_REQUIRING_COMPOSITION,
+    check_enumeration_membership,
+    check_grounding_preservation,
+    compose_natural_clause,
+    normalize_casing,
+)
+
+
+def _clause_response(clause: str) -> str:
+    return json.dumps({"clause": clause})
+
+
+@pytest.fixture(autouse=True)
+def _reset(tmp_path):
+    tcc.configure()
+    yield
+    tcc.configure()
+
+
+# ---------------------------------------------------------------------------
+# Scope: which tiers invoke composition at all
+# ---------------------------------------------------------------------------
+
+
+class TestTierScope:
+    def test_gsc_query_tier_never_invokes_llm(self, tmp_path):
+        def _fail(prompt):
+            raise AssertionError("gsc_query must never reach the LLM")
+
+        result = compose_natural_clause(
+            "convert pdf to word python", "gsc_query", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=_fail,
+        )
+        assert result == "convert pdf to word python"
+
+    def test_description_tier_never_invokes_llm(self, tmp_path):
+        def _fail(prompt):
+            raise AssertionError("description must never reach the LLM")
+
+        result = compose_natural_clause(
+            "A real, already-verified description.", "description", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=_fail,
+        )
+        assert result == "A real, already-verified description."
+
+    def test_all_three_lower_tiers_are_in_scope(self):
+        assert TIERS_REQUIRING_COMPOSITION == {"formats_json", "claims_json", "curated_keywords"}
+
+    def test_no_raw_source_text_returns_none(self, tmp_path):
+        result = compose_natural_clause(
+            None, "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=lambda p: (_ for _ in ()).throw(AssertionError()),
+        )
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Success path
+# ---------------------------------------------------------------------------
+
+
+class TestSuccessPath:
+    def test_grounded_llm_response_is_composed_and_normalized(self, tmp_path):
+        result = compose_natural_clause(
+            "Supports Pdf, Docx, Xlsx export formats", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json",
+            llm_call=lambda p: _clause_response("pdf and docx conversion support"),
+        )
+        assert result == "Pdf And Docx Conversion Support"
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: fabrication-caught
+# ---------------------------------------------------------------------------
+
+
+class TestFabricationCaught:
+    def test_off_topic_response_rejected_by_grounding_preservation(self, tmp_path):
+        """A mocked, fabricated/off-topic Gemini response is rejected by the
+        grounding-preservation (token-overlap) check, not silently accepted."""
+        result = compose_natural_clause(
+            "supports pdf and docx export", "claims_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json",
+            llm_call=lambda p: _clause_response("Free Online Video Converter Tool"),
+        )
+        assert result is None
+
+    def test_check_grounding_preservation_unit(self):
+        assert check_grounding_preservation("Pdf Docx Conversion", "supports pdf and docx export")
+        assert not check_grounding_preservation("Totally Unrelated Words", "supports pdf and docx export")
+
+    def test_short_raw_source_uses_scaled_down_bar(self):
+        """A single-token raw source (e.g. one format name) cannot clear a
+        literal 2-token bar through no fault of a faithful composition --
+        the bar scales to min(2, len(raw_tokens))."""
+        assert check_grounding_preservation("Glb Format Support", "glb")
+        assert not check_grounding_preservation("Totally Different Word", "glb")
+
+
+# ---------------------------------------------------------------------------
+# SEO-CHECK-GROUNDING-PRESERVATION-ENTITY-COVERAGE-RESOLVER-1: per-entity
+# enumeration membership (safety-critical -- discovered live, real
+# fabricated "SVG" export format riding along with 6 real ones)
+# ---------------------------------------------------------------------------
+
+
+class TestCheckEnumerationMembership:
+    _REAL_FORMATS = {"ppt", "pdf", "xps", "pptx", "ppsx", "tiff", "odp", "html"}
+
+    def test_reproduces_the_real_svg_fabrication_and_rejects_it(self):
+        """Exact real candidate that passed check_grounding_preservation for
+        SaveFormat.md (it-0055) -- 6 real formats + 1 fabricated ("SVG",
+        confirmed absent from claims.json and formats.json) closed with a
+        generic "and other formats" wrap-up. Must now be rejected."""
+        composed = (
+            "Explore the SaveFormat enum in Aspose.Slides FOSS for .NET, "
+            "enabling export of presentations to PPT, PDF, XPS, PPTX, HTML, "
+            "SVG and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_all_real_enumeration_passes(self):
+        composed = "Exports to PPT, PDF, XPS, PPTX, HTML and other formats."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_oxford_comma_all_real_enumeration_passes(self):
+        composed = "Exports to PPT, PDF, and XPS for archival."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_fabricated_last_item_before_and_is_caught(self):
+        composed = "Exports to PPT, PDF, and FAKE for archival."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_single_fabricated_item_with_no_enumeration_syntax_is_still_caught(self):
+        """A single ALL-CAPS candidate token is checked unconditionally --
+        no comma/and-or list is needed to trigger the check at all, since
+        detection is position-independent, not run-based."""
+        composed = "Exports to FAKE for archival purposes."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_two_item_list_is_still_checked(self):
+        """Unlike the reworked-away syntactic run-detector, a 2-item list
+        is fully checked too -- detection no longer depends on run length
+        at all, only on the ALL-CAPS shape of each candidate."""
+        composed = "Exports to PPT, FAKE for testing."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_ordinary_prose_with_no_unusual_tokens_never_flagged(self):
+        """Plain prose built entirely from common words (plus the
+        universally-exempt "Aspose"/"enum") never trips the check, however
+        many short candidate-shaped tokens it contains."""
+        composed = "Learn about the SaveFormat enum in Aspose for the library today."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_common_wrap_up_words_never_flagged(self):
+        """"other"/"useful"/"formats"/"today" are ordinary common English
+        words (or, for "formats", simply too long to match the candidate
+        regex) -- never flagged regardless of casing or position."""
+        composed = "Exports to PPT, PDF, XPS and other useful formats today."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_empty_vocabulary_fails_any_all_caps_candidate_closed(self):
+        composed = "Exports to PPT for archival."
+        assert not check_enumeration_membership(composed, set())
+
+    def test_no_all_caps_tokens_passes_regardless_of_vocabulary(self):
+        assert check_enumeration_membership("A short natural clause.", set())
+
+    def test_lowercase_and_pascal_case_format_mentions_are_checked_too(self):
+        """Rework 2 (round-2 review fix): detection is case-insensitive --
+        a fabricated format written in lowercase or PascalCase (matching
+        formats.json's own convention) is checked exactly like an ALL-CAPS
+        one, not silently exempted by casing alone."""
+        assert check_enumeration_membership("Exports to ppt, pdf and xps for archival.", self._REAL_FORMATS)
+        assert check_enumeration_membership("Exports to Ppt, Pdf and Xps for archival.", self._REAL_FORMATS)
+        assert not check_enumeration_membership("Exports to ppt, pdf and fake for archival.", self._REAL_FORMATS)
+        assert not check_enumeration_membership("Exports to Ppt, Pdf and Fake for archival.", self._REAL_FORMATS)
+
+    def test_universal_exempt_acronym_never_checked(self):
+        composed = "Built on the Aspose FOSS SDK API for real projects."
+        assert check_enumeration_membership(composed, set())
+
+    def test_caller_supplied_exempt_token_never_checked(self):
+        composed = "Available for the CPP platform today."
+        assert not check_enumeration_membership(composed, set())  # CPP not exempt by default
+        assert check_enumeration_membership(composed, set(), exempt={"cpp"})
+
+    def test_net_is_no_longer_globally_exempt(self):
+        """Round-2 review finding: "NET" used to sit on the STATIC
+        universal exempt list, exempting it on every page regardless of
+        that page's actual platform. It must now only be exempt when the
+        caller explicitly supplies it (e.g. description_composer.py passing
+        the current page's own platform)."""
+        composed = "Available for the NET platform today."
+        assert not check_enumeration_membership(composed, set())
+        assert check_enumeration_membership(composed, set(), exempt={"net"})
+
+    def test_digit_leading_fabricated_token_is_still_checked(self):
+        """Round-1 review secondary finding: the original leading-letter-
+        required regex mis-tokenized "3DS", accidentally evading detection
+        entirely. The reworked candidate regex has no such requirement."""
+        composed = "Exports to PPT, PDF, XPS and 3DS for archival."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_digit_leading_real_token_passes_when_in_vocabulary(self):
+        composed = "Exports to PPT and 3DS for archival."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS | {"3ds"})
+
+
+# ---------------------------------------------------------------------------
+# Round-1 independent review REJECT (agentId a4a1df659bd8597df): 3 real,
+# live-reproduced bypasses of the original syntax-based run-detector, all
+# plausible natural LLM phrasings. Locked in as permanent regression tests.
+# ---------------------------------------------------------------------------
+
+
+class TestEnumerationMembershipRound1BypassesFixed:
+    _REAL_FORMATS = {"ppt", "pdf", "xps", "pptx", "html"}
+
+    def test_bypass_1_terminator_then_non_comma_joined_trailing_fabrication(self):
+        """"...and other formats like SVG." -- SVG previously evaded
+        detection entirely because it was never comma/and-or-joined to
+        anything after the terminator "other" closed the run."""
+        composed = "Exports to PPT, PDF, XPS and other formats like SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_1_variant_including_phrasing(self):
+        composed = "Exports to PPT, PDF, XPS and other formats, including SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_2_enumeration_split_across_a_sentence_boundary(self):
+        """"PPT and PDF. Also supports XPS and SVG." -- "Also" was itself a
+        terminator, splitting one real+fabricated set into two sub-3
+        fragments neither of which reached the old run-length-3 threshold."""
+        composed = "Supports PPT and PDF. Also supports XPS and SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_3_vocabulary_never_contaminated_by_grounding_text(self):
+        """check_enumeration_membership itself takes real_vocabulary as an
+        explicit parameter -- this proves the FUNCTION treats whatever
+        vocabulary it is given as authoritative (expected: real_vocabulary
+        is the caller's sole responsibility, this function has no opinion
+        on where it came from). The actual fix for bypass 3 is that
+        description_composer.py's call site sources real_vocabulary only
+        from formats.json (rework 3: not even claims text -- round-3 review
+        found that also unsound), never from grounded_keyword_signal or
+        current_description -- see
+        test_description_composer.py::TestEnumerationMembershipEndToEnd::
+        test_bypass_3_keyword_signal_mentioning_the_fabrication_does_not_
+        ground_it for the real, end-to-end, non-contamination proof
+        (round-2 review finding: this proof was missing from rework 1)."""
+        composed = "Exports to PPT, PDF, XPS and SVG for archival."
+        # A vocabulary that (incorrectly, hypothetically) included "svg"
+        # would of course pass -- the real fix is description_composer.py
+        # never building such a vocabulary from untrusted grounding text.
+        assert check_enumeration_membership(composed, self._REAL_FORMATS | {"svg"})
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+
+class TestEnumerationMembershipRound3FormatCollisionWordsFixed:
+    """Round-3 independent review (agentId ab143c9e5f0654f34) REJECT:
+    _ENUM_COMMON_WORDS used to blanket-exempt words that are ALSO real,
+    functional format members for at least one real family (confirmed
+    live: "doc" is a real SaveFormat member for words/python). The
+    exemption was family-blind, so a fabricated claim of one of these
+    words on an UNRELATED family was never checked. Removed from the
+    common-word list; now checked normally against each page's own real,
+    family-scoped vocabulary like any other candidate."""
+
+    def test_previously_exempt_collision_word_is_now_checked_normally(self):
+        # "doc" is no longer blanket-exempt -- with no real vocabulary
+        # containing it, a bare mention now correctly fails closed.
+        assert not check_enumeration_membership("Exports to DOC for archival.", set())
+        assert not check_enumeration_membership("Exports to TEXT for archival.", set())
+
+    def test_collision_word_still_passes_when_genuinely_real_for_this_family(self):
+        # On the one real family where "doc" genuinely is a member, it
+        # still passes -- the fix routes it through the normal, correct,
+        # family-scoped real_vocabulary check instead of a blanket global
+        # exemption, it does not turn "doc" into something always rejected.
+        assert check_enumeration_membership("Exports to DOC for archival.", {"doc"})
+
+    def test_collision_word_fabricated_on_an_unrelated_family_is_caught(self):
+        """The exact class of live bypass round 3 found: "DOC" fabricated
+        on a family whose own real vocabulary has no such member. Round-4
+        review found the original version of this test was tautological
+        (its own "3D" token also independently failed, unrelated to the
+        actual doc-collision fix under test, since "3d" was never in
+        vocabulary or exempt) -- exempt={"3d"} here mirrors how
+        description_composer.py's real call site passes the page's own
+        family as an exemption, making this a clean, non-tautological
+        proof of the doc-collision fix specifically."""
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert 3D models exporting to OBJ, FBX, STL, glTF, DOC and other formats today."
+        assert not check_enumeration_membership(composed, real_3d_formats, exempt={"3d"})
+
+
+class TestEnumerationMembershipRound4LongCandidatesFixed:
+    """Round-4 independent review (agentId a48cf84e1790ab29e) REJECT: the
+    original single-tier candidate regex capped detection at 6 characters,
+    reasoning real format names are short abbreviations -- proven false by
+    a real portfolio scan (formats.json values up to 27 characters, e.g.
+    "FlatOpcTemplateMacroEnabled"). A 7+ character fabricated format name
+    ("WordPerfect", "PostScript") was completely invisible to the check.
+    Fixed with a length-tiered design: short (2-6 char) candidates stay
+    case-insensitive; long (7-30 char) candidates must be capitalized."""
+
+    def test_long_fabricated_format_name_is_now_caught(self):
+        real_words_formats = {"doc", "docx", "rtf", "odt"}
+        composed = "Exports documents to DOC, DOCX, RTF, ODT and WordPerfect formats today."
+        assert not check_enumeration_membership(composed, real_words_formats)
+
+    def test_long_fabricated_format_name_all_caps_is_also_caught(self):
+        real_pdf_formats = {"ps", "pdfxml", "xslfo"}
+        composed = "Converts to PS, PDFXML, XSLFO and POSTSCRIPT formats today."
+        assert not check_enumeration_membership(composed, real_pdf_formats)
+
+    def test_long_genuinely_real_format_name_passes(self):
+        real_formats = {"flatopctemplatemacroenabled", "docx"}
+        composed = "Exports using DOCX or FlatOpcTemplateMacroEnabled formats today."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_long_lowercase_fabrication_is_now_caught(self):
+        """Superseded by rework 8: this test used to document a disclosed
+        residual limitation (a long lowercase fabrication evading the old
+        long tier's capitalization requirement) -- round 8 proved that
+        premise itself false (real long lowercase formats like "markdown"
+        exist) and merged the tiers into one case-insensitive design with
+        no length cap, so this exact shape is now correctly caught."""
+        assert not check_enumeration_membership(
+            "Exports documents to doc, docx, rtf, odt and wordperfect formats today.",
+            {"doc", "docx", "rtf", "odt"},
+        )
+
+    def test_ordinary_long_capitalized_sentence_initial_words_never_flagged(self):
+        assert check_enumeration_membership(
+            "Convert documents easily. Explore export options. Discover reliable results today.",
+            set(),
+        )
+
+
+class TestEnumerationMembershipRound5UnderscoreTokensFixed:
+    """Round-5 independent review (agentId a93883f7ded3e9031) REJECT: "_"
+    is a \\w character for Python regex's own \\b purposes, so a word-
+    boundary anchor could never fire on either side of it -- any
+    underscore-joined token (real or fabricated) was entirely invisible to
+    both candidate regexes, not merely split at the underscore. Real,
+    live-confirmed shape: 3d/python and font/python use exactly this
+    underscore-joined ALL-CAPS convention for real format values
+    (GLTF_BINARY, MAYA_ASCII, MAYA_BINARY, FBX7700_BINARY), and this
+    pipeline's own real generated content already writes these verbatim."""
+
+    _REAL_3D_FORMATS = {"gltf", "gltf_binary", "maya_ascii", "maya_binary", "stl_binary", "obj"}
+
+    def test_fabricated_underscore_joined_token_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY, "
+            "MAYA_TEXT and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_genuine_underscore_joined_real_formats_pass(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to GLTF_BINARY, MAYA_ASCII and MAYA_BINARY "
+            "formats today."
+        )
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_fabrication_is_caught_with_and_without_the_underscore(self):
+        """Confirms the underscore itself was the exploit mechanism, not
+        some other unrelated difference between the fake and real tokens."""
+        with_underscore = "Exports to GLTF_BINARY, MAYA_ASCII and MAYA_TEXT formats."
+        without_underscore = "Exports to GLTFBINARY, MAYAASCII and MAYATEXT formats."
+        assert not check_enumeration_membership(with_underscore, self._REAL_3D_FORMATS)
+        assert not check_enumeration_membership(without_underscore, self._REAL_3D_FORMATS)
+
+
+class TestEnumerationMembershipRound6LowercaseUnderscoreTokensFixed:
+    """Round-6 independent review (agentId a556e2632b85f7236) REJECT:
+    rework 5's fix added "_" to both character classes, closing the
+    ALL-CAPS underscore case (GLTF_BINARY) -- but the long tier still
+    requires an uppercase FIRST character, so a fully LOWERCASE
+    underscore compound (e.g. "maya_text") is too long for the short tier
+    and fails the long tier's casing check, remaining invisible to both,
+    exactly like round 5's bug just for the other casing. Real, live-
+    confirmed shape: this pipeline's own real generated content already
+    writes these exact identifiers in lowercase natural prose ("Gets the
+    gltf binary."). Fixed with a dedicated, casing-independent underscore
+    tier -- underscores essentially never appear in ordinary English
+    prose, so their presence alone is a safe signal needing no casing
+    requirement."""
+
+    _REAL_3D_FORMATS = {"gltf", "gltf_binary", "maya_ascii", "maya_binary", "stl_binary", "obj"}
+
+    def test_lowercase_fabricated_underscore_token_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to gltf_binary, maya_ascii, maya_binary, "
+            "maya_text and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_lowercase_genuine_underscore_formats_pass(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to gltf_binary, maya_ascii and maya_binary "
+            "formats today."
+        )
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_mixed_case_underscore_fabrication_is_also_caught(self):
+        composed = "Exports to Gltf_Binary, Maya_Ascii and Maya_Text formats."
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS)
+
+    def test_ordinary_lowercase_prose_with_no_underscores_still_unaffected(self):
+        """The new tier requires an underscore to fire at all -- ordinary
+        long lowercase prose words remain governed by the long tier's own
+        casing requirement, unaffected by this fix."""
+        assert check_enumeration_membership(
+            "Convert documents easily using reliable comprehensive tools today.", set(),
+        )
+
+
+class TestEnumerationMembershipRound7UnboundedUnderscoreLengthFixed:
+    """Round-7 independent review (agentId a8415fbf915158f66) REJECT: the
+    underscore tier's own {2,30} upper bound was reused from the long
+    tier's cap without re-deriving it for underscore-joined
+    RECOMBINATIONS. Because "_" is a \\w character, no tier can match any
+    fragment of a too-long underscore-connected run (no interior \\b
+    exists) -- a 31+ char underscore-joined fabrication was entirely
+    invisible to all three tiers simultaneously, the same failure shape
+    as rounds 4-6 recurring at this tier's own untested upper boundary.
+    Real, live-confirmed shape: a natural recombination of the real
+    3d/python member "MICROSOFT_3MF" with the real, frequently-repeated
+    "_BINARY" suffix convention plus one qualifier word. Fixed by
+    removing the underscore tier's upper bound entirely -- the same
+    reasoning that removed its casing requirement (underscores never
+    appear in ordinary prose, so there is no length past which an
+    underscore-joined token becomes a plausible ordinary phrase needing
+    exemption)."""
+
+    _REAL_3D_FORMATS = {
+        "gltf", "gltf_binary", "maya_ascii", "maya_binary", "microsoft_3mf", "fbx7700_binary",
+    }
+
+    def test_31_char_underscore_fabrication_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY and "
+            "MICROSOFT_3MF_COMPRESSED_BINARY today."
+        )
+        assert len("MICROSOFT_3MF_COMPRESSED_BINARY") == 31
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_arbitrarily_long_genuine_underscore_format_still_passes(self):
+        long_real = "a_very_long_but_entirely_real_underscore_joined_format_name"
+        composed = f"Exports to GLTF_BINARY and {long_real.upper()} formats today."
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS | {long_real})
+
+    def test_arbitrarily_long_fabrication_is_still_caught(self):
+        composed = "Exports to GLTF_BINARY and A_VERY_LONG_ENTIRELY_FABRICATED_FORMAT_NAME formats today."
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS)
+
+
+class TestEnumerationMembershipRound8LongLowercaseTokensFixed:
+    """Round-8 independent review (agentId ab561aefdad8ec886) REJECT: the
+    long tier's uppercase-first-letter requirement -- rework 4's own
+    false-positive control, justified in-code as "genuinely unnatural LLM
+    phrasing for a long compound identifier to be lowercase" -- was
+    empirically disproven: 16 real lowercase, non-underscore, 7+ char
+    format values exist across 6 real family/platform combos (markdown,
+    unicode, bilevel, shading, scratch, percent, reference, absolute).
+    Live-reproduced: fabricated "wordperfect" (all lowercase) passed
+    compose_description() undetected alongside the real "markdown" export
+    member on cells/python; a second isolated repro used real "unicode" +
+    fabricated "postscript" on pdf/python. Fixed by merging the short and
+    long tiers into a single case-insensitive, unbounded-length tier --
+    the real, sole, load-bearing false-positive control across this
+    entire 8-round cycle has always been the curated common-word exempt
+    list, never casing or length."""
+
+    def test_long_lowercase_fabrication_alongside_real_long_lowercase_word_is_caught(self):
+        real_cells_formats = {"markdown", "xlsx", "csv"}
+        composed = "Exports documents to XLSX, CSV, Markdown and wordperfect formats today."
+        assert not check_enumeration_membership(composed, real_cells_formats)
+
+    def test_long_lowercase_fabrication_all_caps_is_also_caught(self):
+        real_pdf_formats = {"unicode", "pdf"}
+        composed = "Full Unicode and POSTSCRIPT support for text rendering."
+        assert not check_enumeration_membership(composed, real_pdf_formats, exempt={"pdf"})
+
+    def test_genuine_long_lowercase_format_name_passes(self):
+        real_formats = {"markdown", "xlsx"}
+        composed = "Exports using XLSX or Markdown formats today."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_genuine_long_lowercase_format_name_passes_even_when_lowercase_in_prose(self):
+        real_formats = {"markdown", "xlsx"}
+        composed = "Exports using xlsx or markdown formats today."
+        assert check_enumeration_membership(composed, real_formats)
+
+
+class TestEnumerationMembershipRound9RealWorldFormatWordsFixed:
+    """Round-9 independent review (agentId a7c391fe0d84b562f) REJECT:
+    rework 8 made `_ENUM_COMMON_WORDS` the sole false-positive control at
+    every token length. Two pre-existing entries -- "one" (Microsoft
+    OneNote's real .one extension) and "step" (the real STEP/.stp CAD
+    interchange format) -- are ordinary English words but ALSO real,
+    well-known, industry-standard format identifiers not yet present in
+    this portfolio's own formats.json, making them realistic fabrication
+    targets. Live-reproduced: fabricated "STEP" alongside real 3d/java
+    formats, fabricated "ONE" alongside real note/python OneNote formats.
+    Fixed by removing both from `_ENUM_COMMON_WORDS`."""
+
+    def test_step_fabrication_alongside_real_3d_formats_is_caught(self):
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert between OBJ, FBX, STL, glTF, and STEP formats easily."
+        assert not check_enumeration_membership(composed, real_3d_formats)
+
+    def test_one_fabrication_alongside_real_onenote_formats_is_caught(self):
+        real_note_formats = {"onenote2007", "onenote2010", "onenoteonline", "pdf"}
+        composed = "Convert OneNote2007, OneNote2010, OneNoteOnline, PDF, and ONE files easily."
+        assert not check_enumeration_membership(composed, real_note_formats)
+
+    def test_step_is_still_caught_lowercase(self):
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert between obj, fbx, stl, gltf, and step formats easily."
+        assert not check_enumeration_membership(composed, real_3d_formats)
+
+    def test_genuine_step_format_passes_once_real(self):
+        real_3d_formats = {"obj", "step"}
+        composed = "Convert between OBJ and STEP formats easily."
+        assert check_enumeration_membership(composed, real_3d_formats)
+
+
+class TestEnumerationMembershipRound10MoreRealWorldFormatWordsFixed:
+    """Round-10 independent review (agentId a2c9f7db41e6805b3f) REJECT:
+    round 9 fixed only the 2 specific words a reviewer happened to think
+    of, not the underlying gap. A systematic pass over the full exempt
+    sets found 10 more real-world-named-format collisions spanning BOTH
+    _ENUM_COMMON_WORDS and _ENUM_UNIVERSAL_EXEMPT: "pages" (Apple Pages),
+    "key" (Apple Keynote), "class" (Java .class bytecode), "sql" (.sql
+    dump, from the universal set), "app" (.app bundle), "lib" (.lib
+    static library), "workflow" (Automator .workflow), "asset" (Unity
+    .asset), "config" (.config), "log" (.log). Fixed by removing all 10."""
+
+    _REAL_WORDS_FORMATS = {"doc", "docx", "rtf"}
+
+    def test_pages_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Pages files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_key_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Key files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_class_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Class files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_sql_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and SQL files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_app_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and App files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_lib_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Lib files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_workflow_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Workflow files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_asset_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Asset files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_config_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Config files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_log_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Log files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_genuine_pages_format_passes_once_real(self):
+        real_formats = {"doc", "pages"}
+        composed = "Convert between DOC and Pages formats easily."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_plural_and_adjacent_forms_stay_exempt(self):
+        """"apps", "libs", "logs", "assets" are NOT themselves recognized
+        format extensions (unlike their singular counterparts) and were
+        deliberately left in _ENUM_COMMON_WORDS."""
+        composed = "Manage apps, libs, logs and assets easily today."
+        assert check_enumeration_membership(composed, set())
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: over-length-retries-then-falls-back
+# ---------------------------------------------------------------------------
+
+
+class TestOverLengthRetry:
+    def test_over_length_retries_once_then_falls_back(self, tmp_path):
+        calls = {"n": 0}
+
+        def _always_too_long(prompt):
+            calls["n"] += 1
+            return _clause_response("This Is Way Too Many Words For A Title Clause Honestly")
+
+        result = compose_natural_clause(
+            "supports many formats for conversion", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=_always_too_long,
+        )
+        assert result is None
+        assert calls["n"] == 2, "exactly one retry (2 total calls), never more"
+
+    def test_over_length_then_correct_on_retry_succeeds(self, tmp_path):
+        calls = {"n": 0}
+
+        def _second_call_ok(prompt):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return _clause_response("This Is Way Too Many Words For A Title Clause Honestly")
+            return _clause_response("pdf docx conversion support")
+
+        result = compose_natural_clause(
+            "supports pdf and docx conversion", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=_second_call_ok,
+        )
+        assert result == "Pdf Docx Conversion Support"
+        assert calls["n"] == 2
+
+    def test_never_truncates_mid_phrase(self, tmp_path):
+        """A fallback (None) must never be a truncated version of the
+        over-length response -- only the caller's own fallback_skeleton
+        path handles this, never a mid-phrase cut here."""
+        result = compose_natural_clause(
+            "supports many formats", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json",
+            llm_call=lambda p: _clause_response("One Two Three Four Five Six Seven Eight"),
+        )
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: api-failure-falls-back-cleanly
+# ---------------------------------------------------------------------------
+
+
+class TestApiFailureFallback:
+    def test_exception_falls_back_cleanly_never_raises(self, tmp_path):
+        def _raise(prompt):
+            raise RuntimeError("429 quota exceeded")
+
+        result = compose_natural_clause(
+            "supports pdf export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=_raise,
+        )
+        assert result is None
+
+    def test_none_response_falls_back(self, tmp_path):
+        result = compose_natural_clause(
+            "supports pdf export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=lambda p: None,
+        )
+        assert result is None
+
+    def test_non_json_non_empty_response_is_tolerated_as_bare_string(self, tmp_path):
+        """Some models ignore the 'respond with JSON' instruction for a
+        one-key response -- a bare string reply must still work, not crash."""
+        result = compose_natural_clause(
+            "supports pdf export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=lambda p: "pdf export support",
+        )
+        assert result == "Pdf Export Support"
+
+    def test_markdown_fenced_json_response_is_stripped_and_parsed(self, tmp_path):
+        """Regression pin (found live, it-0026 real evidence run): Gemini
+        commonly wraps its JSON reply in a ```json ... ``` fence -- an
+        un-stripped fence made json.loads() fail every real call, silently
+        falling through to the bare-string branch and treating the whole
+        fenced blob (markers included) as the clause -- never valid."""
+        fenced = '```json\n{\n  "clause": "Supports CDR CGM Encryption HTML Markdown"\n}\n```'
+        result = compose_natural_clause(
+            "Supports Cdr, Cgm, Encryption, Html, Markdown, Ofd formats",
+            "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=lambda p: fenced,
+        )
+        assert result == "Supports CDR CGM Encryption HTML Markdown"
+
+    def test_bare_fence_without_json_language_tag_is_also_stripped(self, tmp_path):
+        fenced = '```\n{"clause": "pdf export support"}\n```'
+        result = compose_natural_clause(
+            "supports pdf export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json", llm_call=lambda p: fenced,
+        )
+        assert result == "Pdf Export Support"
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: naturalness-gate-catches-awkward-but-grounded
+# ---------------------------------------------------------------------------
+
+
+class TestNaturalnessGate:
+    def test_keyword_list_shaped_clause_is_caught_despite_passing_grounding(self, tmp_path):
+        """A synthetic clause that passes grounding-preservation but reads
+        as a keyword list is caught by Contract D's naturalness evaluator
+        and falls back -- a real adversarial test, not a passing-case-only
+        demonstration."""
+        result = compose_natural_clause(
+            "pdf docx xlsx conversion tool", "curated_keywords", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json",
+            llm_call=lambda p: _clause_response("Pdf, Docx, Xlsx, Free Tool"),
+        )
+        assert result is None
+
+    def test_all_lowercase_response_is_fixed_by_casing_normalization_not_naturalness(self, tmp_path):
+        """normalize_casing runs before the naturalness check -- a plain
+        all-lowercase response is a normalization case, not a naturalness
+        failure, and should succeed once cased."""
+        result = compose_natural_clause(
+            "export pdf files quickly and reliably", "curated_keywords", "pdf", "python", "docs_devguide_index",
+            cache_path=tmp_path / "cache.json",
+            llm_call=lambda p: _clause_response("export pdf files quickly"),
+        )
+        assert result == "Export Pdf Files Quickly"
+
+
+class TestNormalizeCasing:
+    def test_title_cases_normal_words(self):
+        assert normalize_casing("pdf export support") == "Pdf Export Support"
+
+    def test_preserves_existing_acronyms(self):
+        assert normalize_casing("PDF and API support") == "PDF And API Support"
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: cache-prevents-recomposition-on-unchanged-source
+# ---------------------------------------------------------------------------
+
+
+class TestCaching:
+    def test_second_call_with_unchanged_source_is_a_cache_hit(self, tmp_path):
+        calls = {"n": 0}
+
+        def _judge(prompt):
+            calls["n"] += 1
+            return _clause_response("pdf and docx conversion support")
+
+        cache_path = tmp_path / "cache.json"
+        first = compose_natural_clause(
+            "supports pdf and docx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_judge,
+        )
+        second = compose_natural_clause(
+            "supports pdf and docx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_judge,
+        )
+        assert first == second
+        assert calls["n"] == 1, "second call with unchanged source must be a cache hit, zero new LLM calls"
+
+    def test_changed_source_text_is_not_a_cache_hit(self, tmp_path):
+        calls = {"n": 0}
+
+        def _judge(prompt):
+            calls["n"] += 1
+            return _clause_response("pdf and docx conversion support")
+
+        cache_path = tmp_path / "cache.json"
+        compose_natural_clause(
+            "supports pdf and docx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_judge,
+        )
+        compose_natural_clause(
+            "supports pdf and xlsx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_judge,
+        )
+        assert calls["n"] == 2
+
+    def test_a_fallen_back_composition_is_never_cached(self, tmp_path):
+        """Only approved compositions are cached -- a transient API failure
+        must not be memorized as a permanent failure; a later run with the
+        same source should try again, not silently reuse a None forever."""
+        cache_path = tmp_path / "cache.json"
+        calls = {"n": 0}
+
+        def _fail_then_succeed(prompt):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise RuntimeError("transient failure")
+            return _clause_response("pdf and docx conversion support")
+
+        first = compose_natural_clause(
+            "supports pdf and docx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_fail_then_succeed,
+        )
+        assert first is None
+        second = compose_natural_clause(
+            "supports pdf and docx export", "formats_json", "pdf", "python", "docs_devguide_index",
+            cache_path=cache_path, llm_call=_fail_then_succeed,
+        )
+        assert second == "Pdf And Docx Conversion Support"
+        assert calls["n"] == 2
+
+
+# ---------------------------------------------------------------------------
+# Acceptance check: golden-set-regression-unaffected (title_templates.py integration)
+# ---------------------------------------------------------------------------
+
+
+class TestResolveTitleWithCompositionIntegration:
+    def _registry(self):
+        return {
+            "max_content_clause_words": 6,
+            "page_types": {
+                "docs_devguide_index": {
+                    "rigid": False,
+                    "skeleton": "Aspose.{Family} FOSS for {Platform} — {ContentClause}",
+                    "fallback_skeleton": "Aspose.{Family} FOSS for {Platform} — Developer Guide",
+                },
+                "kb_faq": {
+                    "rigid": True,
+                    "fallback_skeleton": "Aspose.{Family} FOSS — Frequently Asked Questions",
+                },
+            },
+        }
+
+    def test_golden_set_regression_no_raw_source_text_is_byte_identical_to_resolve_title(self):
+        """The 2 already-shipped devguide titles resolved via gsc_query/
+        description with no composition step at all in the old code path --
+        a caller that doesn't pass raw_source_text/source_tier must render
+        byte-identical to plain resolve_title()."""
+        registry = self._registry()
+        old = tt.resolve_title(
+            "docs_devguide_index", family="PDF", platform="Python",
+            content_clause="Convert PDF To Word", registry=registry,
+        )
+        new = tt.resolve_title_with_composition(
+            "docs_devguide_index", family="PDF", platform="Python",
+            raw_source_text="Convert PDF To Word", source_tier=None, registry=registry,
+        )
+        assert old == new
+
+    def test_rigid_page_type_never_calls_compose_fn(self):
+        def _fail(*a, **kw):
+            raise AssertionError("rigid page types must never compose")
+
+        result = tt.resolve_title_with_composition(
+            "kb_faq", family="PDF", raw_source_text="something",
+            source_tier="curated_keywords", registry=self._registry(), compose_fn=_fail,
+        )
+        assert result == "Aspose.PDF FOSS — Frequently Asked Questions"
+
+    def test_lower_tier_routes_through_compose_fn(self):
+        captured = {}
+
+        def _fake_compose(raw_source_text, source_tier, family, platform, page_type, *, max_words):
+            captured["args"] = (raw_source_text, source_tier, family, platform, page_type, max_words)
+            return "Composed Clause"
+
+        result = tt.resolve_title_with_composition(
+            "docs_devguide_index", family="PDF", platform="Python",
+            raw_source_text="raw text", source_tier="formats_json",
+            registry=self._registry(), compose_fn=_fake_compose,
+        )
+        assert result == "Aspose.PDF FOSS for Python — Composed Clause"
+        assert captured["args"] == ("raw text", "formats_json", "PDF", "Python", "docs_devguide_index", 6)
+
+    def test_compose_fn_returning_none_falls_back_to_skeleton_only(self):
+        result = tt.resolve_title_with_composition(
+            "docs_devguide_index", family="PDF", platform="Python",
+            raw_source_text="raw text", source_tier="formats_json",
+            registry=self._registry(), compose_fn=lambda *a, **kw: None,
+        )
+        assert result == "Aspose.PDF FOSS for Python — Developer Guide"

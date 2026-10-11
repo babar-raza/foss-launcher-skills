@@ -1,0 +1,26 @@
+family: pdf
+platform: typescript
+product_name: '@asposefoss/pdf'
+version: 0.1.0
+license: MIT
+repo_sha: 155bfc7a33f0ba23fb4252b6ba201828b02a5b9d
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git
+extracted_at: '2026-09-24T14:21:36.202204+00:00'
+source: scout
+package_root: src
+package_name: '@asposefoss/pdf'
+canonical_import: import { ... } from "@asposefoss/pdf";
+install_command: npm install @asposefoss/pdf@0.1.0
+runtime_requirement: '>=22'
+stats:
+  class_count: 1385
+  classes:
+    total_declared: 1385
+    public_documented: 1312
+    raw_entries_including_non_class: 4578
+  method_count: 1022
+  property_count: 5108
+  enum_count: 3
+  format_count: 36
+  snippet_count: 100
+  limitation_count: 0

@@ -1,0 +1,106 @@
+[
+  {
+    "format": "TTF",
+    "enum": "FontType",
+    "value": "\"TTF\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "OTF",
+    "enum": "FontType",
+    "value": "\"OTF\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "CFF",
+    "enum": "FontType",
+    "value": "\"CFF\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "TYPE1",
+    "enum": "FontType",
+    "value": "\"TYPE1\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "TYPE1_PFA",
+    "enum": "FontType",
+    "value": "\"TYPE1_PFA\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "WOFF",
+    "enum": "FontType",
+    "value": "\"WOFF\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "WOFF2",
+    "enum": "FontType",
+    "value": "\"WOFF2\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "EOT",
+    "enum": "FontType",
+    "value": "\"EOT\"",
+    "file": "src/aspose_font/_font_base.py",
+    "line": 15,
+    "direction": "detect"
+  },
+  {
+    "format": "Ttf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_font/serializer.py",
+    "line": 28,
+    "direction": "export"
+  },
+  {
+    "format": "Cff",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_font/serializer.py",
+    "line": 138,
+    "direction": "export"
+  },
+  {
+    "format": "Type1",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_font/serializer.py",
+    "line": 380,
+    "direction": "export"
+  },
+  {
+    "format": "Eot",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_font/serializer.py",
+    "line": 501,
+    "direction": "export"
+  },
+  {
+    "format": "Text",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_font/text.py",
+    "line": 71,
+    "direction": "export"
+  }
+]

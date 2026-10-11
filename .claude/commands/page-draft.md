@@ -1,87 +1,165 @@
-# S-19: Page Draft — Initial Content Generation
+<!-- CONTRACT: agent-executed
+     purpose: draft page content from a page plan with evidence-grounded prose and code
+     preconditions: page plan from S-18 exists; knowledge artifacts loaded
+     postcondition: page file written with frontmatter, evidence block, and knowledge-grounded content
+     idempotent: no — LLM-generated content varies between invocations
+     verified: 2026-04-11
+     depends_on: [S-18, S-54]
+-->
+# S-19: Page Draft — Draft Page Content from a Page Plan
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} {site-type} {slug}`
-
-> **Configuration**: Output paths are defaults for the aspose.org repo. See `config.yaml` for your project's path configuration.
+Expected format: `{family} {platform} {section} {slug}` — e.g. `3d python developer-guide rendering`
 
 ## Purpose
-Draft the initial page content following the structure plan from S-18 (page-plan). This skill delegates to the appropriate site-type-specific template for the actual content generation.
+Draft page content by consuming the output of S-18 (page-plan). Generates content following section-specific templates. All code must reference the verified API surface — no fabricated API names or snippets.
 
 ## Pre-conditions
-1. S-18 structure plan should exist: `reports/plans/{family}-{platform}-{slug}-structure.yaml`
-2. Knowledge model must exist and not be stale
-3. Target file must not already exist (checked by S-10)
-
-## Golden Corpus Pre-conditions
-
-1. **Load corpus profile**: Read `knowledge/{family}/{platform}/_corpus/{site-type}_profile.json`
-   - If not found → WARN and suggest running `/corpus-scan {family} {platform} {site-type}`; proceed with default template
-
-2. **Load golden index**: Read `golden/_index.json`
-   - If not found → WARN and suggest running `python scripts/golden_index.py`; proceed with default template
-
-3. **Determine variant**: Read `selected_variant` from the corpus profile (e.g., "standard", "minimal", "steps")
-   - If `richness_tier: C` → use "minimal" variant
-   - If `richness_tier: A` or `B` → use "standard" variant
-   - Pass the selected variant to the delegate skill (new-docs-page, new-kb-howto, etc.)
-
-4. **Select golden page**: From `golden/_index.json`, find the page matching the target page_role and variant
-   - Page role is determined by site-type: docs→`workflow_page`, blog→`feature_blog`, kb→`howto_article`, reference→`api_reference`
-
-5. **Read the golden file**: Read the actual golden `.md` file at the `source_path` from the index entry
-   - Pass golden structural contracts and style rubric context to the delegate skill
+1. S-18 (page-plan) has been run for this page — a plan exists (either in prior conversation context or as a saved artifact)
+2. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → halt (see printed message)
+   - `REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff to review what changed before generating content, then re-run this command."
+   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` → continue
+3. `knowledge/{family}/{platform}/merged/` must have `claims.json`, `api_surface.json` after bootstrap
+4. `knowledge/{family}/{platform}/snippets/` contains the snippets referenced in the plan
 
 ## Steps
 
-1. **Read structure plan** from `reports/plans/{family}-{platform}-{slug}-structure.yaml`
-   - If not found → WARN and proceed using default template (less targeted but functional)
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-19 --scope "*"
+> ```
 
-2. **Load knowledge artifacts**: `index.json`, `claims.json`, `api_surface.json`, `formats.json`, `snippets/`
 
-3. **Delegate to site-type template**: Based on `{site-type}`, invoke the corresponding content generation skill:
-   - `docs` → Follow the **new-docs-page** skill template
-     - Pass: `{family} {platform} {section} {slug}` (section from structure plan or default to `getting-started`)
-   - `blog` → Follow the **new-blog-post** skill template
-     - Pass: `{family} {platform} {slug}`
-   - `kb` → Follow the **new-kb-howto** skill template (or **new-kb-faq** if slug is "faq")
-     - Pass: `{family} {platform} {slug}`
-   - `reference` → Follow the **new-reference-page** skill template
-     - Pass: `{family} {platform} {slug}`
+1. **Parse arguments**: Extract `{family}`, `{platform}`, `{section}`, and `{slug}` from $ARGUMENTS.
 
-4. **Apply structure plan overrides**: If the structure plan specifies:
-   - Specific claims per section → ensure those claims are covered
-   - Specific snippets → use those code examples
-   - Specific FAQ items → include those questions
-   - Internal links → add to "See Also" or "Next Steps" sections
+2. **Load the plan**: Retrieve the S-18 plan output for this page (from conversation context or `reports/plans/{family}/{platform}/{slug}.yaml`).
 
-5. **Write draft** to the target content path (determined by site-type)
+3. **Load knowledge artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json` for claim text
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json` for API verification
+   - Read referenced snippets from `knowledge/{family}/{platform}/snippets/`
+   - Read `knowledge/{family}/{platform}/merged/install.md` for install instructions (if getting-started page).
+     **For `platform: java`, never copy a literal `<groupId>`/coordinate out of `install.md` into
+     the page.** Write `{{< maven-coord "{family}" "java" >}}` on its own line (blank line
+     before/after) for the install block, and `{{< maven-gav "{family}" "java" >}}` (no
+     surrounding backticks — it already renders its own `<code>`) for any inline mention. These
+     shortcodes render the live-verified `org.aspose:...` coordinate from
+     `data/foss_packages.json` at build time — see Mission MT008 in `plans/master-plan.md`. This
+     applies regardless of what `install.md` itself says, since `install.md` can be stale
+     relative to the live-published coordinate (see Finding F-03 in the mission doc).
 
-6. **Update plan status** to `drafted` in `reports/plans/{family}-{platform}-{slug}.yaml`
+4. **Generate frontmatter** appropriate to the page type:
 
-## Output
+   **Docs page**:
+   ```yaml
+   title: "{title}"
+   description: "{description from plan}"
+   type: docs
+   weight: {N}
+   lastmod: '{today}'
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
+   ```
 
-```
-PAGE DRAFT — {family}/{platform}/{slug}
-Site type: {site-type}
-Template:  {template skill used}
-Target:    {output file path}
-Claims referenced: {count}
-Code blocks: {count}
-Status: DRAFTED
+   **KB article**:
+   ```yaml
+   title: "{title}"
+   description: "{description}"
+   type: topic
+   date: '{today}'
+   lastmod: '{today}'
+   keywords: [kw1, kw2, kw3, kw4, kw5]
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
+   ```
 
-Next steps in chain:
-  1. /faq-generate {content-file-path}  (S-22, if applicable)
-  2. /ground-check {content-file-path}  (S-23)
-  3. /evidence-cite {content-file-path}  (S-24)
-  4. /path-guard {content-file-path}     (S-01)
-```
+   **Blog post**:
+   ```yaml
+   title: "{title}"
+   description: "{description}"
+   author: Aspose
+   date: '{today}'
+   lastmod: '{today}'
+   categories: ["{family}"]
+   tags: ["{platform}", ...]
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
+   ```
 
-## Error handling
-- If structure plan missing → proceed with default template (warn user)
-- If knowledge is stale → abort
-- If target file exists → abort with "Use /page-update (S-20) instead"
-- If site-type not recognized → list valid options and abort
+5. **Draft content section by section** following the plan's `structure` array:
+   - For each section, write prose grounded in the listed claims
+   - Insert code blocks from the referenced snippets — copy verbatim, do not modify
+   - All code blocks must have a language identifier (```python, ```csharp, etc.)
+   - Use hedging language for claims with confidence < 0.7 (e.g., "typically", "in most cases")
+   - Do NOT fabricate method names, class names, or parameter names — only use what appears in `api_surface.json`
+   - Include limitations from the plan where relevant
 
-## Relationship to new-* skills
-The `new-blog-post`, `new-docs-page`, `new-kb-howto`, `new-kb-faq`, and `new-reference-page` skills are the site-type-specific templates that this skill delegates to. They can also be invoked directly as shortcuts when S-10/S-18/S-19 chain is not needed.
+6. **Add evidence frontmatter** (placeholder — S-24 will finalize):
+   ```yaml
+   evidence:
+     model_sha: "{repo_sha from model.yaml}"
+     model_version: "{version}"
+     claims: [CLM-xxx, CLM-yyy, ...]
+     apis: [Class.method, ...]
+     formats: []
+   ```
+
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: as specified in the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`)
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+8. **Write the draft** to the target path from the plan (e.g., `content/docs.aspose.org/en/{family}/{platform}/{section}/{slug}.md`).
+
+9. **Run ground-check**: Execute `.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {target_path}` to verify API accuracy.
+
+10. **Report**: Print summary of draft — word count, sections, claims used, API tokens verified.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-19 --status completed
+> ```
+
+## Post-conditions
+- Draft file is written to the correct content path
+- All code blocks come from snippets (not fabricated)
+- All API names in code are verified against `api_surface.json`
+- Evidence frontmatter is present with claim IDs
+- Ground-check (audit.py) returns PASS or lists specific issues to fix
+- KB how-to pages include `{{% steps %}}` / `{{% /steps %}}` shortcodes
+
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Plan not found` | S-18 page-plan was not run | Run `/page-plan {family} {platform} {topic}` first |
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| `{TODO: snippet needed}` in output | Referenced snippet missing from knowledge | Generate snippet via `/knowledge-enrich {family} {platform} --mode member-doc` |
+| `audit.py FAIL: unknown token {name}` | API token in code block not in api_surface.json | Correct the token to match `api_surface.json`, or re-run `/repo-scout` if api_surface is stale |
+| `change_guard BLOCK` | Path or content violates change guard | Check the blocking reason; may need human override token |
+| Grade D or F after draft | Content failed critical evaluators | Run `/heal-page {path}` to auto-repair |
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

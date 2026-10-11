@@ -1,0 +1,1 @@
+def test_handlers_are_zero_arg_callables(self) -> None:

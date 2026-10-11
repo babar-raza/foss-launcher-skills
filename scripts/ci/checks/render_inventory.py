@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """render_inventory.py — Validate registry.yaml and generate INVENTORY.md.
 
 Usage:
@@ -14,11 +13,10 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parents[3]))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 REGISTRY_PATH = REPO_ROOT / "scripts" / "pipeline" / "config" / "registry.yaml"
 INVENTORY_PATH = REPO_ROOT / "scripts" / "pipeline" / "INVENTORY.md"
 

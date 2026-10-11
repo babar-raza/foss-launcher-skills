@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_commit_skill_provenance.py — CI check for skill provenance in content commits.
 
 Validates that commits touching content files include a valid "Skills invoked:"
@@ -25,11 +24,10 @@ import argparse
 import json
 import re
 import subprocess
-import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _REGISTRY = _REPO_ROOT / "skills" / "registry.json"
 _SKILL_ID_RE = re.compile(r"S-\d+")
 _SKILLS_INVOKED_RE = re.compile(r"[Ss]kills?\s*[Ii]nvoked", re.IGNORECASE)
@@ -49,7 +47,7 @@ def _get_commits(commit_range: str) -> list[str]:
     """Get commit SHAs in a range."""
     result = subprocess.run(
         ["git", "log", "--format=%H", commit_range],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     if result.returncode != 0:
         return []
@@ -60,13 +58,12 @@ def _commit_touches_content(sha: str) -> bool:
     """Check if a commit touches content files."""
     result = subprocess.run(
         ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", sha],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     if result.returncode != 0:
         return False
     return any(
-        any(line.startswith(prefix.strip()) for prefix in _CONTENT_PREFIXES)
-        and line.endswith(".md")
+        line.startswith("content/") and line.endswith(".md")
         for line in result.stdout.strip().split("\n")
     )
 
@@ -74,7 +71,7 @@ def _commit_touches_content(sha: str) -> bool:
 def _get_commit_message(sha: str) -> str:
     result = subprocess.run(
         ["git", "log", "-1", "--format=%B", sha],
-        capture_output=True, text=True, cwd=_REPO_ROOT,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=_REPO_ROOT,
     )
     return result.stdout if result.returncode == 0 else ""
 

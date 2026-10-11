@@ -1,0 +1,173 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "c0004a",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0004b",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0004c",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0004d",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "excluded_reason: not real code (a bare console-output listing / an isolated code fence with no imports that is fully covered by the framing prose around the Save formats bullet), nothing to independently merge",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/BasePortionFormat.java"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Table.java"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Connector.java"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/ImageCollection.java"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Comment.java"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  }
+]

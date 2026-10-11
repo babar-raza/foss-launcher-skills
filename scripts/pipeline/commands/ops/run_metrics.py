@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """RunMetrics: context-manager for aggregating per-call MetricsEvents into a MetricsRow.
 
 Wraps MetricsEventLedger (persistence) and metrics_payload_builder (aggregation)

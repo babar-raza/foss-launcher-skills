@@ -1,0 +1,14 @@
+[
+  {
+    "task_id": "TC-24",
+    "status": "TODO",
+    "title": "Commit this mission's own governance trail (plan file + taskcards.jsonl + mission_authority.yaml) -- currently local-only, invisible to a fresh clone",
+    "dependencies": [],
+    "allowed_paths": [
+      "plans/from_backlog/2026-09-23-example-verification-productionization.md",
+      "reports/plan_state/MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/taskcards.jsonl",
+      "reports/plan_state/MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/mission_authority.yaml",
+      "scripts/pipeline/config/git_tracking_policy.yaml"
+    ]
+  }
+]

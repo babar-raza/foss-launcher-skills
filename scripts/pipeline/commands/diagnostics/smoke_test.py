@@ -1,10 +1,33 @@
-#!/usr/bin/env python3
-"""Compile-check fenced code blocks in Markdown files.
+"""smoke_test.py — Code block syntax and type checking for content pages.
 
-The checker never executes examples. Python blocks are syntax-checked with
-``py_compile`` and optionally type-checked with mypy. Other supported language
-tags are accepted through tree-sitter when the parser packages are installed;
-otherwise they are treated as unchecked PASS for compatibility.
+Extracts fenced code blocks from Markdown content files and validates their
+syntax. Python blocks are checked with py_compile (syntax) and optionally mypy
+(type hints). Non-Python blocks (Java, C#, TypeScript, C++) are checked with
+tree-sitter for syntax errors.
+
+Never EXECUTES code — compile/type-check only.
+
+Exit codes:
+  0 — all blocks PASS
+  1 — at least one block WARN (Python type errors only, no syntax errors)
+  2 — at least one block FAIL (syntax error)
+
+Usage:
+  python scripts/pipeline/commands/diagnostics/smoke_test.py {family} {platform}
+  python scripts/pipeline/commands/diagnostics/smoke_test.py --files path/to/file.md [path2.md ...]
+  python scripts/pipeline/commands/diagnostics/smoke_test.py --files path/to/file.md --lang java
+
+Supported languages:
+  python     — py_compile syntax + optional mypy type check
+  java       — tree-sitter syntax check
+  csharp/cs  — tree-sitter syntax check
+  typescript — tree-sitter syntax check
+  cpp        — tree-sitter syntax check
+
+Limitation: multi-block code examples (variables defined in block 1 used in
+block 2) are checked independently. This may produce false-positive
+NameError/type complaints. Each block is annotated with its source file + line
+number for traceability.
 """
 from __future__ import annotations
 
@@ -18,54 +41,125 @@ import textwrap
 from pathlib import Path
 from typing import Any, NamedTuple
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
-SCRIPTS_ROOT = REPO_ROOT / "scripts"
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-if str(SCRIPTS_ROOT) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_ROOT))
+_LIB_DIR = Path(__file__).resolve().parents[2] / "lib"
+if str(_LIB_DIR) not in sys.path:
+    sys.path.insert(0, str(_LIB_DIR))
 
-from scripts.content_repo_adapter import resolve_content_root  # noqa: E402
+from example_verification import registry as _ev_registry  # noqa: E402
+from example_verification import syntax as _ev_syntax  # noqa: E402
+from example_verification.api import verify_page as _real_verify_page  # noqa: E402
+from example_verification.policy import Policy as _EvPolicy  # noqa: E402
 
+# --- Test seam (configure() pattern; see content_eval/evaluators/
+# module_compilability.py and example_execution.py for the same
+# convention) -- _check_file_tier3() calls _cfg_verify_page(...), never
+# the bare imported `verify_page` name directly, so a test can swap it via
+# configure(verify_page_fn=...) instead of monkeypatch.setattr'ing an
+# internal module reference (T2, banned by AGENTS.md §16 -- confirmed live
+# by pre-commit Step 18 monkeypatch-lint on this exact function). ---
+_cfg_verify_page = _real_verify_page
+
+
+def configure(*, verify_page_fn=None) -> None:
+    """Test seam: override the real api.verify_page() dispatch used by
+    tier-3 checks. Call with no args (or verify_page_fn=None) to restore
+    the real function."""
+    global _cfg_verify_page
+    _cfg_verify_page = verify_page_fn if verify_page_fn is not None else _real_verify_page
+
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 KNOWLEDGE_BASE = REPO_ROOT / "knowledge"
-_CODE_FENCE_ANY_RE = re.compile(r"```([\w+\-#]*)\n(.*?)```", re.DOTALL)
+CONTENT_BASE = REPO_ROOT / "content"
 
-_PLATFORM_LANGS: dict[str, frozenset[str]] = {
-    "python": frozenset({"python"}),
-    "java": frozenset({"java"}),
-    "net": frozenset({"csharp", "cs", "c#"}),
-    "typescript": frozenset({"typescript", "ts"}),
-    "cpp": frozenset({"cpp", "c++"}),
-}
+# Matches any fenced code block: captures (lang_tag, code)
+_CODE_FENCE_ANY_RE = re.compile(
+    r"```([\w+\-#]*)\n(.*?)```",
+    re.DOTALL,
+)
+
+# C4 (RC20 fix): both dicts below used to be independent, hand-maintained
+# copies that silently lacked "go" -- a Go product's blocks fell through
+# `_PLATFORM_LANGS.get(platform, frozenset({"python"}))`'s default and were
+# checked as if they were Python. Both are now derived from the shared
+# `lib/example_verification/registry.py` (the same source
+# platform_capabilities.yaml's `example_verification` site mirrors), so a
+# new platform/tag only needs to be declared once. Confirmed byte-identical
+# to the old hardcoded dicts for every pre-existing key (see
+# test_smoke_test.py's existing per-platform assertions), plus "go" is
+# picked up automatically since registry.py already declares it.
+
+# Non-Python language tags handled by tree-sitter.
+# Maps content-file tag → canonical tree-sitter parser key.
 _TS_LANG_MAP: dict[str, str] = {
-    "java": "java",
-    "csharp": "csharp",
-    "cs": "csharp",
-    "c#": "csharp",
-    "typescript": "typescript",
-    "ts": "typescript",
-    "cpp": "cpp",
-    "c++": "cpp",
+    tag: canon
+    for _contract in _ev_registry.PLATFORM_CONTRACT.values()
+    for tag in _contract.fence_tags
+    if (canon := _ev_syntax.canonical_for(tag)) is not None
 }
-_LANG_DISPLAY: dict[str, str] = {
-    "csharp": "C#",
-    "cs": "C#",
-    "c#": "C#",
-    "typescript": "TypeScript",
-    "ts": "TypeScript",
-    "cpp": "C++",
-    "c++": "C++",
-    "java": "Java",
+
+# Platform name → frozenset of language tags to extract. A platform's fence
+# tags that have no real tree-sitter grammar (e.g. python's own "bash"/"sh"/
+# "shell", which are runnable via S-120 but never syntax-checkable here) are
+# excluded -- this is a "can smoke_test check it" set, not "can this
+# platform's example-verification runner execute it" (registry.py's own
+# concept, a superset).
+_PLATFORM_LANGS: dict[str, frozenset[str]] = {
+    platform: checkable
+    for platform, _contract in _ev_registry.PLATFORM_CONTRACT.items()
+    if (checkable := frozenset(
+        tag for tag in _contract.fence_tags if _ev_syntax.canonical_for(tag) is not None
+    ))
 }
-_TS_PARSER_CACHE: dict[str, Any] = {}
-_TS_LOADED = False
+
+# ---------------------------------------------------------------------------
+# Tree-sitter parser cache
+# ---------------------------------------------------------------------------
+#
+# RC17/Phase-0-item-9: this used to be an independent copy of the same
+# loader content_eval/evaluators/code_syntax_check.py also carried, and the
+# two disagreed on which languages got a tree_sitter_language_pack fallback
+# when the standalone wheel was absent (confirmed live: code_syntax_check's
+# copy resolved only rust that way, this one resolved java/csharp/
+# typescript/cpp/rust) -- a Java page could get a real parse in one
+# subsystem and a silent skip in the other. Both now delegate to the same
+# lib/example_verification/syntax.py loader.
+
+
+def _ts_parser_for(lang_tag: str) -> Any | None:
+    """Return a cached tree-sitter Parser for lang_tag, or None if unavailable."""
+    return _ev_syntax.parser_for(lang_tag)
+
+
+def _first_error_node(node: Any) -> Any | None:
+    """Return the first ERROR node in the tree (BFS), or None.
+
+    MISSING nodes represent parser-inserted tokens that occur normally in
+    partial code snippets — they are NOT treated as errors.
+    """
+    queue = [node]
+    while queue:
+        n = queue.pop(0)
+        if n.type == "ERROR":
+            return n
+        queue.extend(n.children)
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Data types
+# ---------------------------------------------------------------------------
 
 
 class BlockResult(NamedTuple):
     file: str
     block_index: int
     start_line: int
-    status: str
+    status: str        # PASS | WARN | FAIL
     message: str
 
 
@@ -78,55 +172,50 @@ class SmokeResult(NamedTuple):
     results: list[BlockResult]
 
 
-def _load_ts_parsers() -> None:
-    global _TS_LOADED
-    if _TS_LOADED:
-        return
-    _TS_LOADED = True
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _get_canonical_import(family: str, platform: str) -> str:
+    """Read canonical_import from knowledge/{family}/{platform}/scout/model.yaml."""
+    model_path = (KNOWLEDGE_BASE / family / platform / "scout" / "model.yaml")
+    if not model_path.exists():
+        return ""
     try:
-        import tree_sitter_language_pack as language_pack  # type: ignore
+        import yaml  # type: ignore[import]
+        with open(model_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return data.get("canonical_import", "") or ""
     except Exception:
-        return
-    for tag, parser_name in _TS_LANG_MAP.items():
-        try:
-            parser = language_pack.get_parser(parser_name)
-        except Exception:
-            parser = None
-        if parser is not None:
-            _TS_PARSER_CACHE[tag] = parser
+        return ""
 
 
-def _ts_parser_for(lang_tag: str) -> Any | None:
-    _load_ts_parsers()
-    return _TS_PARSER_CACHE.get(lang_tag)
-
-
-def _first_error_node(node: Any) -> Any | None:
-    queue = [node]
-    while queue:
-        current = queue.pop(0)
-        if getattr(current, "type", None) == "ERROR":
-            return current
-        queue.extend(getattr(current, "children", []))
-    return None
-
-
-def _extract_blocks(md_path: Path, langs: frozenset[str]) -> list[tuple[int, str, str]]:
+def _extract_blocks(
+    md_path: Path,
+    langs: frozenset[str],
+) -> list[tuple[int, str, str]]:
+    """Return list of (start_line, lang, code) tuples for code blocks in langs."""
     text = md_path.read_text(encoding="utf-8", errors="replace")
-    blocks: list[tuple[int, str, str]] = []
-    for match in _CODE_FENCE_ANY_RE.finditer(text):
-        lang = match.group(1).lower()
+    blocks = []
+    for m in _CODE_FENCE_ANY_RE.finditer(text):
+        lang = m.group(1).lower()
         if lang not in langs:
             continue
-        start_line = text[: match.start()].count("\n") + 1
-        blocks.append((start_line, lang, textwrap.dedent(match.group(2))))
+        code = textwrap.dedent(m.group(2))
+        # Compute 1-based line number of the opening ``` fence
+        start_line = text[:m.start()].count("\n") + 1
+        blocks.append((start_line, lang, code))
     return blocks
 
 
 def _run_py_compile(code: str) -> tuple[bool, str]:
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as handle:
-        handle.write(code)
-        tmp_path = handle.name
+    """Compile-check the code. Returns (ok, message)."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(code)
+        tmp_path = f.name
     try:
         result = subprocess.run(
             [sys.executable, "-m", "py_compile", tmp_path],
@@ -135,8 +224,13 @@ def _run_py_compile(code: str) -> tuple[bool, str]:
             timeout=15,
         )
         if result.returncode != 0:
-            return False, (result.stderr or result.stdout).strip().replace(tmp_path, "<code_block>")
+            msg = (result.stderr or result.stdout).strip()
+            # Replace temp path with <code_block> for clean output
+            msg = msg.replace(tmp_path, "<code_block>")
+            return False, msg
         return True, ""
+    except subprocess.TimeoutExpired:
+        return False, "py_compile timed out"
     finally:
         try:
             os.unlink(tmp_path)
@@ -145,22 +239,37 @@ def _run_py_compile(code: str) -> tuple[bool, str]:
 
 
 def _run_mypy(code: str) -> tuple[bool, str]:
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as handle:
-        handle.write(code)
-        tmp_path = handle.name
+    """Type-check the code with mypy. Returns (clean, message)."""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(code)
+        tmp_path = f.name
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "mypy", "--ignore-missing-imports", "--no-error-summary", tmp_path],
+            [
+                sys.executable, "-m", "mypy",
+                tmp_path,
+                "--ignore-missing-imports",
+                "--no-error-summary",
+                "--no-pretty",
+            ],
             capture_output=True,
             text=True,
             timeout=30,
         )
-        output = (result.stdout or result.stderr).strip().replace(tmp_path, "<code_block>")
-        if result.returncode != 0 and "No module named mypy" not in output:
-            return False, output
+        output = (result.stdout + result.stderr).strip()
+        output = output.replace(tmp_path, "<code_block>")
+        # If mypy is not installed, python -m mypy exits non-zero with "No module named mypy"
+        if "No module named mypy" in output or "No module named 'mypy'" in output:
+            return True, ""
+        # mypy returns 0 when no errors
+        if result.returncode == 0:
+            return True, ""
+        return False, output
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        # mypy not installed or timed out — skip type check
         return True, ""
-    except (subprocess.TimeoutExpired, OSError) as exc:
-        return False, str(exc)
     finally:
         try:
             os.unlink(tmp_path)
@@ -169,148 +278,499 @@ def _run_mypy(code: str) -> tuple[bool, str]:
 
 
 def _run_ts_parse(code: str, parser: Any) -> tuple[bool, str]:
-    try:
-        tree = parser.parse(code.encode("utf-8"))
-    except Exception as exc:
-        return False, str(exc)
-    error = _first_error_node(tree.root_node)
-    if error is None:
-        return True, ""
-    return False, f"SyntaxError near byte {error.start_byte}"
+    """Syntax-check code via tree-sitter. Returns (ok, message).
 
-
-def _get_canonical_import(family: str, platform: str) -> str:
-    path = KNOWLEDGE_BASE / family / platform / "scout" / "model.yaml"
-    if not path.exists():
-        return ""
+    FAIL only on genuine ERROR nodes. MISSING nodes (parser-inserted tokens
+    to complete a partial parse) are normal in code snippets and are NOT
+    treated as errors.
+    """
     try:
-        import yaml  # type: ignore
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        tree = parser.parse(code.encode("utf-8", errors="replace"))
     except Exception:
-        return ""
-    return data.get("canonical_import", "") or ""
+        return True, ""  # never let a parser crash block the evaluator
+
+    if not tree.root_node.has_error:
+        return True, ""
+
+    error_node = _first_error_node(tree.root_node)
+    if error_node is None:
+        return True, ""  # only MISSING nodes — not a real error in a snippet
+
+    line_no = error_node.start_point[0] + 1
+    return False, f"syntax error at line {line_no} (tree-sitter)"
+
+
+# ---------------------------------------------------------------------------
+# Core check
+# ---------------------------------------------------------------------------
+
+
+_LANG_DISPLAY: dict[str, str] = {
+    "csharp": "C#", "cs": "C#", "c#": "C#",
+    "typescript": "TypeScript", "ts": "TypeScript",
+    "cpp": "C++", "c++": "C++",
+    "java": "Java",
+    "rust": "Rust", "rs": "Rust",
+}
+
+
+def _check_file_tier3(md_path: Path, platform: str, *, family: str) -> SmokeResult:
+    """Real tier-3 dispatch through the shared example_verification
+    package (TC-03). Calls api.verify_page() once for the whole file and
+    adapts VerificationReport.to_smoke() into this module's own
+    SmokeResult/BlockResult shape, so every existing consumer
+    (print_report/print_json_report, S-84's `--json` scoped command)
+    sees the identical dict shape regardless of which tier ran.
+
+    Disclosed, deliberate scope limit: `allow_acquire=True` is passed
+    with an EMPTY factpack -- this module does not call
+    lib/publication_probe.py to learn whether the product is really
+    published (the way S-120/launch_gate do), so python/typescript
+    always take the unpublished/clone-cache acquire path here. For a
+    genuinely-unpublished product with no local clone cache, this
+    honestly reports ACQUIRE-FAILED rather than crashing or silently
+    downgrading to PASS -- real publication-aware acquisition is
+    S-120/launch_gate's own already-built job (S-49/S-84 taskcards),
+    not duplicated here.
+
+    block_index is assigned by ENUMERATING to_smoke()'s own result
+    order (1-based), never by adjusting `identity.index` directly.
+    Independent-review finding: `identity.index` means two different
+    things depending on which dispatch path produced it -- for go/net/
+    java/rust/cpp (BaseRunner), it's 0-based WITHIN the already
+    same-language-filtered block list (matching tier<=2's own
+    per-language numbering once shifted by one); for python/typescript
+    (the whole-candidate functions), it's the 0-based index over EVERY
+    fence in the WHOLE file, any language -- so a page with a `bash`
+    install block before a `python` block reported that python block as
+    "block 1" at tier 2 but "block 2" at tier 3 under the old `+1`
+    scheme, reproduced live. Enumerating to_smoke()'s already-ordered
+    result list instead gives a clean, tier-independent 1..N sequence
+    every time, regardless of which numbering the underlying tier used
+    internally.
+
+    A real, unexpected failure from the dispatch itself (acquire crash,
+    timeout escaping its own runner, or any other exception the
+    verifier didn't turn into a normal BlockResult) is caught here and
+    reported as ONE WARN block, never left to propagate -- independent-
+    review finding: every tier<=2 helper (_run_py_compile/_run_mypy/
+    _run_ts_parse) already catches its own subprocess exceptions with a
+    safe fallback, so tier<=2's check_file() effectively never raises;
+    tier 3 replaces those with a single call into real subprocess
+    acquire/build/execute, a categorically riskier operation this
+    module never exercised before, and an uncaught exception here would
+    kill an entire multi-file check_product() scan over one bad page.
+    WARN (not FAIL) because a dispatch-level crash is inconclusive, not
+    proof of a real code defect the way a genuine BLOCKED-WITH-REASON
+    result is."""
+    try:
+        policy = _EvPolicy.for_platform(platform, max_tier=3, allow_acquire=True)
+        report = _cfg_verify_page(md_path, family=family, platform=platform, policy=policy)
+        smoke_dict = report.to_smoke()
+    except Exception as exc:  # noqa: BLE001 -- isolate one file's crash from the whole scan
+        return SmokeResult(
+            file=str(md_path), blocks_checked=1, pass_count=0, warn_count=1, fail_count=0,
+            results=[BlockResult(
+                file=str(md_path), block_index=1, start_line=0, status="WARN",
+                message=f"VERIFICATION-ERROR: tier-3 dispatch raised {type(exc).__name__}: {exc}",
+            )],
+        )
+
+    results = [
+        BlockResult(
+            file=str(md_path), block_index=idx,
+            start_line=b["start_line"], status=b["status"], message=b["message"],
+        )
+        for idx, b in enumerate(smoke_dict["results"], start=1)
+    ]
+    return SmokeResult(
+        file=str(md_path), blocks_checked=smoke_dict["blocks_checked"],
+        pass_count=smoke_dict["pass_count"], warn_count=smoke_dict["warn_count"],
+        fail_count=smoke_dict["fail_count"], results=results,
+    )
 
 
 def check_file(
     md_path: Path,
     canonical_import: str = "",
     langs: frozenset[str] | None = None,
+    *,
+    max_tier: int = 2,
+    family: str = "",
+    platform: str = "",
 ) -> SmokeResult:
+    """Check code blocks in a Markdown file.
+
+    langs: set of language tags to extract (default: frozenset({"python"})).
+    Python blocks: py_compile syntax + (max_tier>=2 only) optional mypy type
+    check. Non-Python blocks (java/csharp/typescript/cpp/go/rust): tree-sitter
+    syntax only, at every tier (there is no separate compile step for these
+    today; max_tier only changes Python's own behavior).
+
+    max_tier: 1 = syntax-only (skip mypy even for Python); 2 (default,
+    unchanged from this module's original behavior) = syntax + Python mypy
+    type-check. C4's own promotion gate requires max_tier=2 (the default)
+    to remain byte-identical to this module's pre-C4 behavior -- confirmed
+    by every existing test in test_smoke_test.py passing unchanged.
+
+    3 = real execution via the shared lib/example_verification package
+    (TC-03, MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION) --
+    requires both `family` and `platform` (real product context: clone
+    cache / published-package lookup). This is a SEPARATE dispatch path
+    (_check_file_tier3 below), not a modification of the tier<=2 logic
+    above -- that logic is deliberately left byte-identical to avoid
+    risking regression in proven, already-tested behavior. Falls back to
+    tier 2 (with a stderr warning) if family/platform aren't both given;
+    main() enforces this so a bare `--files` invocation with no platform
+    never silently no-ops on tier 3.
+    """
     if langs is None:
         langs = frozenset({"python"})
+
+    if max_tier >= 3 and family and platform:
+        return _check_file_tier3(md_path, platform, family=family)
 
     blocks = _extract_blocks(md_path, langs)
     results: list[BlockResult] = []
     pass_count = warn_count = fail_count = 0
 
-    for index, (start_line, lang, raw_code) in enumerate(blocks, start=1):
+    for idx, (start_line, lang, raw_code) in enumerate(blocks, start=1):
         if lang == "python":
-            code = raw_code
+            # Prepend canonical import if provided and not already present
             if canonical_import and canonical_import not in raw_code:
                 code = f"# auto-prepended by smoke_test\n{canonical_import}\n\n{raw_code}"
-            syntax_ok, syntax_message = _run_py_compile(code)
+            else:
+                code = raw_code
+
+            # Step 1: syntax check
+            syntax_ok, syntax_msg = _run_py_compile(code)
             if not syntax_ok:
-                results.append(BlockResult(str(md_path), index, start_line, "FAIL", f"SyntaxError: {syntax_message}"))
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="FAIL",
+                    message=f"SyntaxError: {syntax_msg}",
+                ))
                 fail_count += 1
                 continue
-            type_ok, type_message = _run_mypy(code)
+
+            if max_tier < 2:
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="PASS",
+                    message="",
+                ))
+                pass_count += 1
+                continue
+
+            # Step 2: type check (WARN only — never FAIL)
+            type_ok, type_msg = _run_mypy(code)
             if not type_ok:
-                results.append(BlockResult(str(md_path), index, start_line, "WARN", f"TypeWarning: {type_message}"))
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="WARN",
+                    message=f"TypeWarning: {type_msg}",
+                ))
+                warn_count += 1
+            else:
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="PASS",
+                    message="",
+                ))
+                pass_count += 1
+
+        else:
+            # Non-Python: tree-sitter syntax check (PASS/FAIL, or a loud WARN
+            # when no grammar is available -- Round 3 A / Phase 0 item 9: a
+            # missing grammar and a genuinely clean parse must never look
+            # the same to a caller deciding whether a block has real proof
+            # behind it. This used to silently report PASS here.
+            parser = _ts_parser_for(lang)
+            if parser is None:
+                lang_display = _LANG_DISPLAY.get(lang, lang.title())
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="WARN",
+                    message=f"GRAMMAR-UNAVAILABLE: no tree-sitter grammar available for {lang_display}",
+                ))
                 warn_count += 1
                 continue
-            results.append(BlockResult(str(md_path), index, start_line, "PASS", ""))
-            pass_count += 1
-            continue
 
-        parser = _ts_parser_for(lang)
-        if parser is None:
-            results.append(BlockResult(str(md_path), index, start_line, "PASS", ""))
-            pass_count += 1
-            continue
-        syntax_ok, syntax_message = _run_ts_parse(raw_code, parser)
-        if syntax_ok:
-            results.append(BlockResult(str(md_path), index, start_line, "PASS", ""))
-            pass_count += 1
-        else:
-            display = _LANG_DISPLAY.get(lang, lang.title())
-            results.append(BlockResult(str(md_path), index, start_line, "FAIL", f"{display} {syntax_message}"))
-            fail_count += 1
+            syntax_ok, syntax_msg = _run_ts_parse(raw_code, parser)
+            if not syntax_ok:
+                lang_display = _LANG_DISPLAY.get(lang, lang.title())
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="FAIL",
+                    message=f"{lang_display} {syntax_msg}",
+                ))
+                fail_count += 1
+            else:
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="PASS",
+                    message="",
+                ))
+                pass_count += 1
 
-    return SmokeResult(str(md_path), len(blocks), pass_count, warn_count, fail_count, results)
+    return SmokeResult(
+        file=str(md_path),
+        blocks_checked=len(blocks),
+        pass_count=pass_count,
+        warn_count=warn_count,
+        fail_count=fail_count,
+        results=results,
+    )
 
 
-def check_product(
-    family: str,
-    platform: str,
-    *,
-    content_root: Path | None = None,
-) -> list[SmokeResult]:
-    if content_root is None:
-        content_root = resolve_content_root({"content_root": "content"} if (REPO_ROOT / "content").exists() else None)
+# ---------------------------------------------------------------------------
+# Product-wide scan
+# ---------------------------------------------------------------------------
+
+
+def check_product(family: str, platform: str, *, max_tier: int = 2) -> list[SmokeResult]:
+    """Check code blocks across all content files for a product.
+
+    Language tags are auto-detected from platform using _PLATFORM_LANGS.
+    """
     langs = _PLATFORM_LANGS.get(platform, frozenset({"python"}))
-    canonical_import = _get_canonical_import(family, platform) if "python" in langs else ""
+    canonical_import = ""
+    if "python" in langs:
+        canonical_import = _get_canonical_import(family, platform)
+        if not canonical_import:
+            print(
+                f"WARNING: canonical_import not found for {family}/{platform}. "
+                "Blocks will be checked without import prefix.",
+                file=sys.stderr,
+            )
 
-    roots = [
-        content_root / "docs.aspose.org" / "en" / family / platform,
-        content_root / "blog.aspose.org" / family / platform,
-        content_root / "kb.aspose.org" / "en" / family / platform,
-        content_root / "reference.aspose.org" / "en" / family / platform,
-    ]
-    results: list[SmokeResult] = []
-    for root in roots:
-        if not root.exists():
-            continue
-        for path in sorted(root.rglob("*.md")):
-            result = check_file(path, canonical_import, langs)
-            if result.blocks_checked:
-                results.append(result)
+    # Collect all content files for this product
+    paths: list[Path] = []
+    for site in ["docs.aspose.org", "blog.aspose.org", "kb.aspose.org",
+                 "reference.aspose.org"]:
+        base = CONTENT_BASE / site
+        # docs/kb/reference use /en/ prefix
+        if site in ("docs.aspose.org", "kb.aspose.org", "reference.aspose.org"):
+            product_dir = base / "en" / family / platform
+        else:
+            product_dir = base / family / platform
+
+        if product_dir.exists():
+            paths.extend(product_dir.rglob("*.md"))
+
+    results = []
+    for path in sorted(paths):
+        result = check_file(path, canonical_import, langs, max_tier=max_tier, family=family, platform=platform)
+        if result.blocks_checked > 0:
+            results.append(result)
+
     return results
 
 
+# ---------------------------------------------------------------------------
+# Reporting
+# ---------------------------------------------------------------------------
+
+
+def _exit_code_for(total_fail: int, total_warn: int) -> int:
+    """The one, shared 0/1/2 exit-code rule -- both print_report() and
+    print_json_report() must return the exact same code for the same
+    results (C4's promotion gate: exit codes 0/1/2 preserved)."""
+    if total_fail > 0:
+        return 2
+    if total_warn > 0:
+        return 1
+    return 0
+
+
 def print_report(all_results: list[SmokeResult]) -> int:
-    total_blocks = sum(result.blocks_checked for result in all_results)
-    total_pass = sum(result.pass_count for result in all_results)
-    total_warn = sum(result.warn_count for result in all_results)
-    total_fail = sum(result.fail_count for result in all_results)
+    """Print smoke test report. Returns exit code (0/1/2)."""
+    total_blocks = sum(r.blocks_checked for r in all_results)
+    total_pass = sum(r.pass_count for r in all_results)
+    total_warn = sum(r.warn_count for r in all_results)
+    total_fail = sum(r.fail_count for r in all_results)
 
     print("=" * 60)
-    print("SMOKE TEST REPORT")
+    print(f"SMOKE TEST REPORT")
     print(f"Files checked:  {len(all_results)}")
     print(f"Blocks checked: {total_blocks}")
     print(f"  PASS: {total_pass}")
     print(f"  WARN: {total_warn}")
     print(f"  FAIL: {total_fail}")
     print("=" * 60)
+
     for smoke in all_results:
         if smoke.warn_count == 0 and smoke.fail_count == 0:
-            continue
+            continue  # Only print files with issues
         print(f"\n{smoke.file}")
-        for block in smoke.results:
-            if block.status != "PASS":
-                print(f"  [{block.status}] block {block.block_index} (line {block.start_line}): {block.message}")
-    if total_fail:
-        print(f"\nRESULT: FAIL - {total_fail} block(s) have syntax errors")
-        return 2
-    if total_warn:
-        print(f"\nRESULT: WARN - {total_warn} block(s) have type warnings")
-        return 1
-    print(f"\nRESULT: PASS - all {total_blocks} block(s) are clean")
-    return 0
+        for br in smoke.results:
+            if br.status == "PASS":
+                continue
+            print(f"  [{br.status}] block {br.block_index} (line {br.start_line}): {br.message}")
+
+    exit_code = _exit_code_for(total_fail, total_warn)
+    if exit_code == 2:
+        print(f"\nRESULT: FAIL — {total_fail} block(s) have syntax errors")
+    elif exit_code == 1:
+        print(f"\nRESULT: WARN — {total_warn} block(s) have type warnings")
+    else:
+        print(f"\nRESULT: PASS — all {total_blocks} block(s) are clean")
+    return exit_code
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Smoke-test code blocks in Markdown files.")
-    parser.add_argument("family_or_files", nargs="?")
-    parser.add_argument("platform", nargs="?")
-    parser.add_argument("--files", nargs="+", metavar="FILE")
-    parser.add_argument("--lang", metavar="LANG")
-    parser.add_argument("--content-root", metavar="PATH")
-    args = parser.parse_args(argv)
+def print_json_report(all_results: list[SmokeResult]) -> int:
+    """Same data as print_report(), as machine-readable JSON on stdout.
+    Returns the identical exit code print_report() would for the same
+    results (see _exit_code_for)."""
+    import json as _json
 
+    total_blocks = sum(r.blocks_checked for r in all_results)
+    total_pass = sum(r.pass_count for r in all_results)
+    total_warn = sum(r.warn_count for r in all_results)
+    total_fail = sum(r.fail_count for r in all_results)
+
+    report = {
+        "files_checked": len(all_results),
+        "blocks_checked": total_blocks,
+        "pass_count": total_pass,
+        "warn_count": total_warn,
+        "fail_count": total_fail,
+        "files": [
+            {
+                "file": smoke.file,
+                "blocks_checked": smoke.blocks_checked,
+                "pass_count": smoke.pass_count,
+                "warn_count": smoke.warn_count,
+                "fail_count": smoke.fail_count,
+                "results": [
+                    {
+                        "block_index": br.block_index,
+                        "start_line": br.start_line,
+                        "status": br.status,
+                        "message": br.message,
+                    }
+                    for br in smoke.results
+                ],
+            }
+            for smoke in all_results
+        ],
+    }
+    print(_json.dumps(report, indent=2, sort_keys=True))
+    return _exit_code_for(total_fail, total_warn)
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+# C4: every language this module knows how to syntax-check at all --
+# derived the same way _PLATFORM_LANGS/_TS_LANG_MAP are (registry.py +
+# syntax.py), used only to scope auto-detection for a bare `--files`
+# invocation (never changes _PLATFORM_LANGS/_TS_LANG_MAP themselves).
+_ALL_KNOWN_LANGS: frozenset[str] = frozenset({"python"}) | frozenset(_TS_LANG_MAP.keys())
+
+
+def _detect_langs_in_files(paths: "list[Path]") -> frozenset[str]:
+    """RC22 fix: eval-page.md's step 2b documents this CLI as checking
+    "all platforms — Python, Java, C#, TypeScript, C++, Rust", but its own
+    invocation is a bare `--files {path}` with no `--lang`/platform --
+    which this module's own prior default silently resolved to
+    `frozenset({"python"})` only, regardless of the file's real content
+    (confirmed live: the doc's claim and the code's actual default
+    disagreed). Scans each file's own fence tags and returns the subset
+    this module can syntax-check; falls back to `{"python"}` only when a
+    file has no fenced code at all (or none in a known language), so a
+    plain python-only page's smoke-test still behaves exactly as before."""
+    present: set[str] = set()
+    for path in paths:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        present.update(m.group(1).lower() for m in _CODE_FENCE_ANY_RE.finditer(text))
+    detected = frozenset(present) & _ALL_KNOWN_LANGS
+    return detected or frozenset({"python"})
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Smoke-test code blocks in Markdown content files."
+    )
+    parser.add_argument(
+        "family_or_files", nargs="?",
+        help="Family name (e.g. 3d) or omit if using --files",
+    )
+    parser.add_argument(
+        "platform", nargs="?",
+        help="Platform name (e.g. python, java, net, typescript, cpp)",
+    )
+    parser.add_argument(
+        "--files", nargs="+", metavar="FILE",
+        help=(
+            "Specific Markdown files to check. If combining with the family/platform "
+            "positionals (needed for --max-tier 3), put them BEFORE --files: "
+            "`smoke_test.py {family} {platform} --files f1 f2` -- --files greedily "
+            "consumes any tokens after it, so `--files f1 f2 {family} {platform}` "
+            "silently swallows family/platform as extra file paths instead."
+        ),
+    )
+    parser.add_argument(
+        "--lang", metavar="LANG",
+        help=(
+            "Language tag(s) to check, comma-separated "
+            "(e.g. java,csharp,typescript,cpp,python). "
+            "Default: auto-detected from platform, or from each file's own "
+            "fence tags for --files without a platform."
+        ),
+    )
+    parser.add_argument(
+        "--max-tier", choices=("1", "2", "3"), default="2",
+        help=(
+            "1 = syntax-only (no Python mypy type-check); "
+            "2 (default) = current behavior (syntax + Python mypy type-check); "
+            "3 = real execution via lib/example_verification (TC-03) -- "
+            "requires both a family and platform argument (positional, or "
+            "--files with both also given); falls back to 2 with a warning "
+            "otherwise, since tier 3 needs real product context."
+        ),
+    )
+    parser.add_argument(
+        "--json", action="store_true",
+        help="Emit a machine-readable JSON report instead of the human-readable one.",
+    )
+    args = parser.parse_args()
+    max_tier = int(args.max_tier)
+    family = args.family_or_files if args.platform else ""
+    platform = args.platform or ""
+
+    if max_tier >= 3 and not (family and platform):
+        print(
+            "WARNING: --max-tier 3 requires both a family and platform (real product "
+            "context is needed to acquire a real environment) -- falling back to tier 2.",
+            file=sys.stderr,
+        )
+        max_tier = 2
+
+    # Resolve language set
     if args.lang:
-        langs = frozenset(item.strip().lower() for item in args.lang.split(",") if item.strip())
+        langs: frozenset[str] = frozenset(t.strip().lower() for t in args.lang.split(","))
     elif args.files and not (args.family_or_files and args.platform):
-        langs = frozenset({"python"})
+        langs = _detect_langs_in_files([Path(f) for f in args.files])
     elif args.family_or_files and args.platform:
         langs = _PLATFORM_LANGS.get(args.platform, frozenset({"python"}))
     else:
@@ -320,15 +780,20 @@ def main(argv: list[str] | None = None) -> int:
         canonical_import = ""
         if "python" in langs and args.family_or_files and args.platform:
             canonical_import = _get_canonical_import(args.family_or_files, args.platform)
-        results = [check_file(Path(file), canonical_import, langs) for file in args.files]
+        results = [
+            check_file(Path(f), canonical_import, langs, max_tier=max_tier, family=family, platform=platform)
+            for f in args.files
+        ]
     elif args.family_or_files and args.platform:
-        content_root = Path(args.content_root).resolve() if args.content_root else None
-        results = check_product(args.family_or_files, args.platform, content_root=content_root)
+        results = check_product(args.family_or_files, args.platform, max_tier=max_tier)
     else:
         parser.print_help()
         return 1
+
+    if args.json:
+        return print_json_report(results)
     return print_report(results)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

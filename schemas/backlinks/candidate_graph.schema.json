@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Candidate Graph",
+  "description": "Layer 2: Scored backlink candidates per source page",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "candidates"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "family": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "platform": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subdomain": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_key",
+          "target_path",
+          "stage1_score",
+          "final_score",
+          "decision"
+        ],
+        "properties": {
+          "source_key": {
+            "type": "string"
+          },
+          "source_path": {
+            "type": "string"
+          },
+          "source_type": {
+            "type": "string"
+          },
+          "target_path": {
+            "type": "string"
+          },
+          "target_type": {
+            "type": "string"
+          },
+          "target_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "family": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "stage1_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "stage2_score": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ai_boost": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.05
+          },
+          "ai_boost_applied": {
+            "type": "boolean"
+          },
+          "ai_signals": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "final_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "AUTO_APPROVE_EXACT",
+              "REVIEW_REQUIRED",
+              "BLOCKED",
+              "FALLBACK_TO_V1"
+            ]
+          },
+          "match_method": {
+            "type": "string"
+          },
+          "tie_margin": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "conflicts": {
+            "type": "array"
+          }
+        }
+      }
+    }
+  }
+}

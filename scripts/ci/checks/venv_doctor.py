@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """venv_doctor.py — Unified .venv diagnostic command.
 
 Reports 7 data points about the repo's .venv state and recommends a repair
@@ -67,6 +66,7 @@ def run() -> dict:
         result = subprocess.run(
             [sys.executable, "-m", "pip", "--version"],
             capture_output=True, text=True, timeout=10,
+            encoding="utf-8", errors="replace",
         )
         if result.returncode == 0:
             pip_available = True

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """scout.py — Tree-sitter extraction engine for FOSS repositories.
 
@@ -68,54 +67,21 @@ from extraction.tree_helpers import (       # noqa: E402, F401
     _extract_enum_members,
     _extract_python_enum_members,
 )
-
-# Optional extraction sub-modules -- gracefully degrade if not yet ported
-try:
-    from extraction.package_root import detect_package_root      # noqa: E402, F401
-except ImportError:
-    detect_package_root = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.package_manifest import parse_manifest       # noqa: E402, F401
-except ImportError:
-    parse_manifest = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.formats import detect_formats                # noqa: E402, F401
-except ImportError:
-    detect_formats = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.claims import build_identity_claims          # noqa: E402, F401
-except ImportError:
-    build_identity_claims = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.snippets import extract_snippets             # noqa: E402, F401
-except ImportError:
-    extract_snippets = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.api_surface import (                         # noqa: E402, F401
-        extract_api_surface,
-        _extract_method_params,
-        _extract_return_type,
-        _extract_doc_comment,
-        _first_sentence,
-        _JAVA_OBJECT_METHODS,
-    )
-except ImportError:
-    extract_api_surface = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.outputs import write_outputs                 # noqa: E402, F401
-except ImportError:
-    write_outputs = None  # type: ignore[assignment,misc]
-
-try:
-    from extraction.scout import Scout                           # noqa: E402, F401
-except ImportError:
-    Scout = None  # type: ignore[assignment,misc]
+from extraction.package_root import detect_package_root      # noqa: E402, F401
+from extraction.package_manifest import parse_manifest       # noqa: E402, F401
+from extraction.formats import detect_formats                # noqa: E402, F401
+from extraction.claims import build_identity_claims          # noqa: E402, F401
+from extraction.snippets import extract_snippets             # noqa: E402, F401
+from extraction.api_surface import (                         # noqa: E402, F401
+    extract_api_surface,
+    _extract_method_params,
+    _extract_return_type,
+    _extract_doc_comment,
+    _first_sentence,
+    _JAVA_OBJECT_METHODS,
+)
+from extraction.outputs import write_outputs                 # noqa: E402, F401
+from extraction.scout import Scout                           # noqa: E402, F401
 
 MAX_SNIPPETS = 100
 LOG = logging.getLogger("scout")
@@ -194,11 +160,14 @@ def main():
     # Deferred import avoids circular-import at module load time.
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # -> pipeline/
     from core.manifest import write_step_manifest
+    from lib.class_stats import compute_class_stats
     state_path = args.output_dir.parent / ".pipeline_state.json"
+    # MT067-2026-09-10 TC-02: was len(s.classes) -- included kind=="function" entries too,
+    # the loosest of the (formerly 4+) disagreeing class_count formulas in this pipeline.
     write_step_manifest(state_path, "scout", {
         "repo_path": str(args.repo_path),
         "output_dir": str(args.output_dir),
-        "class_count": len(s.classes) if hasattr(s, "classes") else 0,
+        "class_count": compute_class_stats(s.classes)["total_declared"] if hasattr(s, "classes") else 0,
         "claim_count": len(s.claims) if hasattr(s, "claims") else 0,
     })
 

@@ -1,0 +1,46 @@
+feat(example-verification): C3 -- faithful TypeScript runner port, taskcard complete
+
+Completes taskcard C3 (checkpointed 3 times already: 21c1281ead
+toolchain.py, dae315b99b acquire.py, 270edb6740 runners/python.py). Adds
+runners/typescript.py: a faithful, behavior-preserving port of S-120's
+real TypeScript verification runner (readme_refresh_run.py:5144-5426 --
+acquire_typescript_environment, self_link_typescript_package,
+typescript_block_starts_chain, classify_typescript_failure,
+run_single_typescript_block, typescript_verification_runner). Node/npm/npx
+resolution now goes through the shared toolchain.find() instead of a
+second private copy of the WinError-2 shutil.which fix.
+
+20 tests: direct behavior tests mirroring S-120's own test names/shapes,
+plus 8 direct parity checks against the real, unmodified S-120 functions.
+
+Real, full end-to-end pilots run this iteration (beyond the stage's own
+minimum "pdf/python" pilot scope) prove parity for BOTH runners against
+real products, not just unit fixtures:
+- pdf/python: real venv + real `pip install -e` from the actual local
+  clone cache + real execution of a real Aspose.PDF FOSS example --
+  COMPILED+RAN CLEAN, byte-identical between the old S-120 function and
+  this package's port.
+- pdf/typescript: real `npm install` against the actual local clone cache
+  + real `tsc --noEmit` + real `tsx` execution -- both correctly report
+  FIXTURE-UNAVAILABLE for a real missing input.pdf, byte-identical after
+  normalizing away the inherently-different tempfile.TemporaryDirectory
+  name each separate process invocation mints (confirmed by explicit
+  string substitution + re-comparison, not just asserted).
+Full pilot scripts/results preserved in this run's evidence directory.
+
+Also ran the full, unmodified test_readme_refresh_run.py suite this
+iteration: 216/216 passed -- readme_refresh_run.py itself remains
+completely untouched across this entire taskcard, so "keep both old and
+new runners" (the rollback trigger) is trivially satisfied.
+
+Deliberately NOT built: runners/base.py (the LanguageRunner protocol +
+BaseRunner tier-ladder abstraction) -- guessing a shared base class from
+exactly 2 concrete runners, before any real consumer (C7's dispatch
+wiring) exercises either one, risks the wrong shape; better designed once
+C5/C11-C14 exist too. Full reasoning in this run's
+C3_promotion_gate_decision.md.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

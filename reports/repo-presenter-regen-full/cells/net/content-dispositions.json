@@ -1,0 +1,3385 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Cells FOSS for .NET is a free, open-source, MIT-licensed .NET library for creating, loading, editing, and saving Excel `.xlsx` workbooks, with no dependency on Microsoft Excel or any other native Office library. It exposes an Aspose.Cells-compatible API surface built around `Workbook`, `Worksheet`, `Cells`, and `Cell`. The library is pure managed code, multi-targeting `netstandard2.0` and `net8.0`, so the same package runs on Windows, Linux, and macOS, including containerized and serverless environments.",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `netstandard2.0`, `net8.0`, `MIT` found in src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj."
+    },
+    "salient_tokens": [
+      ".xlsx",
+      "Workbook",
+      "Worksheet",
+      "Cells",
+      "Cell",
+      "netstandard2.0",
+      "net8.0",
+      "FOSS",
+      "NET",
+      "MIT",
+      "API",
+      "macOS"
+    ],
+    "literal_tokens": [
+      ".xlsx",
+      "Workbook",
+      "Worksheet",
+      "Cells",
+      "Cell",
+      "netstandard2.0",
+      "net8.0",
+      "FOSS",
+      "NET",
+      "MIT",
+      "API",
+      "macOS"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "literal_tokens": [
+      "#at-a-glance"
+    ],
+    "descriptive_tokens": [
+      "At a Glance"
+    ]
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "literal_tokens": [
+      "#key-capabilities"
+    ],
+    "descriptive_tokens": [
+      "Key Capabilities"
+    ]
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "literal_tokens": [
+      "#installation"
+    ],
+    "descriptive_tokens": [
+      "Installation"
+    ]
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "literal_tokens": [
+      "#quick-start"
+    ],
+    "descriptive_tokens": [
+      "Quick Start"
+    ]
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "literal_tokens": [
+      "#additional-examples"
+    ],
+    "descriptive_tokens": [
+      "Additional Examples"
+    ]
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "literal_tokens": [
+      "API",
+      "#api-reference"
+    ],
+    "descriptive_tokens": [
+      "API Reference"
+    ]
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "literal_tokens": [
+      "#documentation--resources"
+    ],
+    "descriptive_tokens": [
+      "Documentation & Resources"
+    ]
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "literal_tokens": [
+      "#scope-and-limitations"
+    ],
+    "descriptive_tokens": [
+      "Scope and Limitations"
+    ]
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "literal_tokens": [
+      "#development-and-testing"
+    ],
+    "descriptive_tokens": [
+      "Development and Testing"
+    ]
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "literal_tokens": [
+      "#license"
+    ],
+    "descriptive_tokens": [
+      "License"
+    ]
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- Create a new workbook or load an existing `.xlsx` file with `Workbook()` / `Workbook(fileName)` / `Workbook(stream)`, then save to `.xlsx` or `.pdf` through `Save(...)`; navigate sheets through `Workbook.Worksheets`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `.pdf`, `fileName` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      ".xlsx",
+      "Workbook()",
+      "Workbook(fileName)",
+      "Workbook(stream)",
+      ".pdf",
+      "Save(...)",
+      "Workbook.Worksheets",
+      "fileName"
+    ],
+    "literal_tokens": [
+      ".xlsx",
+      "Workbook()",
+      "Workbook(fileName)",
+      "Workbook(stream)",
+      ".pdf",
+      "Save(...)",
+      "Workbook.Worksheets",
+      "fileName"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Recover from malformed input instead of failing outright: `LoadOptions.TryRepairPackage`, `TryRepairXml`, and `StrictMode` control repair behavior, and `LoadDiagnostics` reports repair and data-loss-risk diagnostics through `HasRepairs` and `HasDataLossRisk`, plus warning callbacks delivered through `IWarningCallback`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `LoadOptions.TryRepairPackage`, `TryRepairXml`, `StrictMode`, `LoadDiagnostics`, `HasRepairs` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "LoadOptions.TryRepairPackage",
+      "TryRepairXml",
+      "StrictMode",
+      "LoadDiagnostics",
+      "HasRepairs",
+      "HasDataLossRisk",
+      "IWarningCallback",
+      "LoadOptions",
+      "TryRepairPackage"
+    ],
+    "literal_tokens": [
+      "LoadOptions.TryRepairPackage",
+      "TryRepairXml",
+      "StrictMode",
+      "LoadDiagnostics",
+      "HasRepairs",
+      "HasDataLossRisk",
+      "IWarningCallback",
+      "LoadOptions",
+      "TryRepairPackage"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Configure worksheet-level display and print settings including zoom, gridlines, right-to-left layout, visibility, and page layout through `Worksheet.PageSetup`, plus workbook and document metadata via `WorkbookProperties` and `CoreDocumentProperties`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Worksheet.PageSetup`, `WorkbookProperties`, `CoreDocumentProperties`, `PageSetup` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "Worksheet.PageSetup",
+      "WorkbookProperties",
+      "CoreDocumentProperties",
+      "PageSetup"
+    ],
+    "literal_tokens": [
+      "Worksheet.PageSetup",
+      "WorkbookProperties",
+      "CoreDocumentProperties",
+      "PageSetup"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Read and write cell values of multiple types (`string`, `int`, `bool`, `decimal`, `DateTime`) with `Cell.PutValue(value)`, and read them back with `Cell.StringValue` / `Cell.Value`; store formulas as strings via `Cell.Formula`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `decimal`, `DateTime`, `Cell.PutValue(value)`, `Cell.StringValue`, `Cell.Value` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "string",
+      "int",
+      "bool",
+      "decimal",
+      "DateTime",
+      "Cell.PutValue(value)",
+      "Cell.StringValue",
+      "Cell.Value",
+      "Cell.Formula",
+      "PutValue",
+      "StringValue"
+    ],
+    "literal_tokens": [
+      "string",
+      "int",
+      "bool",
+      "decimal",
+      "DateTime",
+      "Cell.PutValue(value)",
+      "Cell.StringValue",
+      "Cell.Value",
+      "Cell.Formula",
+      "PutValue",
+      "StringValue"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Apply fonts, fills, borders, alignment, and number formats through `Cell.GetStyle()` / `SetStyle()` and the `Style`, `Font`, `Borders`, and `FillPattern` types, with `StyleFlag` controlling which formatting properties a style application touches.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Cell.GetStyle()`, `SetStyle()`, `Borders`, `StyleFlag`, `GetStyle` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "salient_tokens": [
+      "Cell.GetStyle()",
+      "SetStyle()",
+      "Style",
+      "Font",
+      "Borders",
+      "FillPattern",
+      "StyleFlag",
+      "GetStyle",
+      "SetStyle"
+    ],
+    "literal_tokens": [
+      "Cell.GetStyle()",
+      "SetStyle()",
+      "Style",
+      "Font",
+      "Borders",
+      "FillPattern",
+      "StyleFlag",
+      "GetStyle",
+      "SetStyle"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Add whole-number, decimal, list, and date validation rules with `ValidationCollection.Add()`, `ValidationType`, and `OperatorType`; highlight data with conditional formatting via `Worksheet.ConditionalFormattings`; filter columns with `AutoFilter` / `FilterColumn`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ValidationCollection.Add()`, `ValidationType`, `OperatorType`, `Worksheet.ConditionalFormattings`, `AutoFilter` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "ValidationCollection.Add()",
+      "ValidationType",
+      "OperatorType",
+      "Worksheet.ConditionalFormattings",
+      "AutoFilter",
+      "FilterColumn",
+      "ValidationCollection",
+      "ConditionalFormattings"
+    ],
+    "literal_tokens": [
+      "ValidationCollection.Add()",
+      "ValidationType",
+      "OperatorType",
+      "Worksheet.ConditionalFormattings",
+      "AutoFilter",
+      "FilterColumn",
+      "ValidationCollection",
+      "ConditionalFormattings"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Add hyperlinks through `HyperlinkCollection.Add()`; create workbook-level and sheet-scoped defined names with `DefinedNameCollection.Add()`; protect workbook structure with `WorkbookProtection` or individual sheets with `Worksheet.Protect()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `HyperlinkCollection.Add()`, `DefinedNameCollection.Add()`, `WorkbookProtection`, `Worksheet.Protect()`, `HyperlinkCollection` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "HyperlinkCollection.Add()",
+      "DefinedNameCollection.Add()",
+      "WorkbookProtection",
+      "Worksheet.Protect()",
+      "HyperlinkCollection",
+      "DefinedNameCollection"
+    ],
+    "literal_tokens": [
+      "HyperlinkCollection.Add()",
+      "DefinedNameCollection.Add()",
+      "WorkbookProtection",
+      "Worksheet.Protect()",
+      "HyperlinkCollection",
+      "DefinedNameCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Build structured Excel tables through `Worksheet.ListObjects`, including built-in table styles (`TableStyleType`) and totals-row aggregation (`TotalsCalculation`); anchor pictures (`PictureCollection`) and drawing shapes (`ShapeCollection`, `AutoShapeType`) to a worksheet.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/index.json",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Worksheet.ListObjects`, `TableStyleType`, `TotalsCalculation`, `PictureCollection`, `ShapeCollection` found in documentation/_site/index.json."
+    },
+    "salient_tokens": [
+      "Worksheet.ListObjects",
+      "TableStyleType",
+      "TotalsCalculation",
+      "PictureCollection",
+      "ShapeCollection",
+      "AutoShapeType",
+      "ListObjects"
+    ],
+    "literal_tokens": [
+      "Worksheet.ListObjects",
+      "TableStyleType",
+      "TotalsCalculation",
+      "PictureCollection",
+      "ShapeCollection",
+      "AutoShapeType",
+      "ListObjects"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Create and configure charts through `ChartCollection.Add()` and `Chart` / `ChartType`; attach legacy cell comments with `CommentCollection.Add()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ChartCollection.Add()`, `Chart`, `ChartType`, `CommentCollection.Add()`, `ChartCollection` found in documentation/_site/xrefmap.yml."
+    },
+    "salient_tokens": [
+      "ChartCollection.Add()",
+      "Chart",
+      "ChartType",
+      "CommentCollection.Add()",
+      "ChartCollection",
+      "CommentCollection"
+    ],
+    "literal_tokens": [
+      "ChartCollection.Add()",
+      "Chart",
+      "ChartType",
+      "CommentCollection.Add()",
+      "ChartCollection",
+      "CommentCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- Export worksheets to PDF with `SaveFormat.Pdf` or `PdfSaveOptions`, with worksheet page geometry driven by `Worksheet.PageSetup`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `SaveFormat.Pdf`, `PdfSaveOptions`, `Worksheet.PageSetup`, `PDF`, `SaveFormat` found in src/Aspose.Cells_FOSS/PdfSaveOptions.cs."
+    },
+    "salient_tokens": [
+      "SaveFormat.Pdf",
+      "PdfSaveOptions",
+      "Worksheet.PageSetup",
+      "PDF",
+      "SaveFormat",
+      "PageSetup"
+    ],
+    "literal_tokens": [
+      "SaveFormat.Pdf",
+      "PdfSaveOptions",
+      "Worksheet.PageSetup",
+      "PDF",
+      "SaveFormat",
+      "PageSetup"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "The library multi-targets `netstandard2.0` and `net8.0`. Because it targets `netstandard2.0`, it can also be consumed by other compatible runtimes, including .NET Framework 4.6.1 and later. The public namespace is `Aspose.Cells_FOSS` (with an underscore), which is distinct from the NuGet package id `Aspose.Cells.FOSS` (with dots).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "netstandard2.0",
+      "net8.0",
+      "Aspose.Cells_FOSS",
+      "Aspose.Cells.FOSS",
+      "NET",
+      "NuGet",
+      "FOSS",
+      "4.6.1"
+    ],
+    "literal_tokens": [
+      "netstandard2.0",
+      "net8.0",
+      "Aspose.Cells_FOSS",
+      "Aspose.Cells.FOSS",
+      "NET",
+      "NuGet",
+      "FOSS",
+      "4.6.1"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "Create a workbook, write and format cells, and save it:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Load a workbook with recovery diagnostics:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Export a worksheet to PDF:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "PDF"
+    ],
+    "literal_tokens": [
+      "PDF"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "More runnable snippets adapted from the sample projects under [`samples/`](samples/README.md) are collected below.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "samples/",
+      "README",
+      "`samples/`",
+      "samples/README.md"
+    ],
+    "literal_tokens": [
+      "samples/",
+      "README",
+      "samples/README.md"
+    ],
+    "descriptive_tokens": [
+      "`samples/`"
+    ]
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "The public API is exposed under the `Aspose.Cells_FOSS` namespace, with `Workbook` as the root object and `Worksheet`, `Cells`, and `Cell` as the types most developers interact with day to day. The table below summarizes the supported public surface present in this checkout.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS`, `Workbook`, `Worksheet`, `Cells`, `Cell` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS",
+      "Workbook",
+      "Worksheet",
+      "Cells",
+      "Cell",
+      "API"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS",
+      "Workbook",
+      "Worksheet",
+      "Cells",
+      "Cell",
+      "API"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `API` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "salient_tokens": [
+      "API"
+    ],
+    "literal_tokens": [
+      "API"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AutoFilter` | Represents auto filter. |\n| `AutoFilterColorFilter` | Represents auto filter color filter. |\n| `AutoFilterCustomFilter` | Represents auto filter custom filter. |\n| `AutoFilterCustomFilterCollection` | Represents a collection of auto filter custom filter objects. |\n| `AutoFilterDynamicFilter` | Represents auto filter dynamic filter. |\n| `AutoFilterSortCondition` | Represents auto filter sort condition. |\n| `AutoFilterSortConditionCollection` | Represents a collection of auto filter sort condition objects. |\n| `AutoFilterSortState` | Represents auto filter sort state. |\n| `AutoFilterTop10` | Represents auto filter top10. |\n| `Border` | Represents border. |\n| `Borders` | Represents borders. |\n| `CalculationProperties` | Represents calculation properties. |\n| `Cell` | Represents a single worksheet cell and exposes value, formula, and style operations. |\n| `Cells` | Provides access to worksheet cells, rows, columns, and merged ranges. |\n| `CellsException` | Represents an error that occurs during cells. |\n| `Chart` | Charts provide visual representation of data and can be created programmatically or loaded from existing XLSX files. |\n| `ChartCollection` | Represents collection of charts on a worksheet. |\n| `Column` | Represents column. |\n| `ColumnCollection` | Represents a collection of column objects. |\n| `Comment` | Represents a worksheet comment (legacy note) anchored to a single cell. |\n| `CommentCollection` | Represents the collection of comments (legacy notes) on a worksheet. |\n| `ConditionalFormattingCollection` | Represents a collection of conditional formatting objects. |\n| `CoreDocumentProperties` | Represents core document properties. |\n| `DefinedName` | Represents defined name. |\n| `DefinedNameCollection` | Represents a collection of defined name objects. |\n| `DocumentProperties` | Represents document properties. |\n| `ExtendedDocumentProperties` | Represents extended document properties. |\n| `FilterColumn` | Represents filter column. |\n| `FilterColumnCollection` | Represents a collection of filter column objects. |\n| `FilterValueCollection` | Represents a collection of filter value objects. |\n| `Font` | Represents font. |\n| `FormatCondition` | Represents format condition. |\n| `FormatConditionCollection` | Represents a collection of format condition objects. |\n| `FormulaException` | Represents an error that occurs during formula. |\n| `Hyperlink` | Represents hyperlink. |\n| `HyperlinkCollection` | Encapsulates the hyperlinks defined for a worksheet. |\n| `InvalidFileFormatException` | Represents an error that occurs during invalid file format. |\n| `ListColumn` | Represents a single column in an Excel table. |\n| `ListColumnCollection` | Represents the ordered collection of columns in an Excel table. |\n| `ListObject` | Represents an Excel table (structured reference / ListObject). |\n| `ListObjectCollection` | Represents the collection of Excel tables on a worksheet. |\n| `LoadDiagnostics` | Represents load diagnostics. |\n| `LoadIssue` | Represents load issue. |\n| `LoadOptions` | Specifies how a workbook should be loaded. |\n| `NumberFormat` | Provides number format operations. |\n| `PageSetup` | Represents worksheet print and page-layout settings. |\n| `PdfSaveOptions` | Specifies options controlling XLSX-to-PDF export. |\n| `Picture` | Represents a picture (image) anchored to a worksheet. |\n| `PictureCollection` | Represents collection of pictures anchored to a worksheet. |\n| `Row` | Represents row. |\n| `RowCollection` | Represents a collection of row objects. |\n| `SaveOptions` | Specifies how a workbook should be saved. |\n| `Shape` | Represents a drawing object (auto shape) anchored to a worksheet. |\n| `ShapeCollection` | Represents collection of drawing objects (shapes) on a worksheet. |\n| `Style` | Represents a mutable cell style facade that can be applied to one or more cells. |\n| `StyleException` | Represents an error that occurs during style. |\n| `StyleFlag` | Represents flags which indicate applied formatting properties. |\n| `UnsupportedFeatureException` | Represents an error that occurs during unsupported feature. |\n| `Validation` | Represents validation. |\n| `ValidationCollection` | Represents a collection of validation objects. |\n| `WarningInfo` | Represents warning info. |\n| `Workbook` | Represents the root spreadsheet object used to create, load, modify, and save an XLSX workbook. |\n| `WorkbookLoadException` | Represents an error that occurs during workbook load. |\n| `WorkbookProperties` | Represents workbook properties. |\n| `WorkbookProtection` | Represents workbook protection. |\n| `WorkbookSaveException` | Represents an error that occurs during workbook save. |\n| `WorkbookSettings` | Represents workbook-level settings that affect date handling and display formatting. |\n| `WorkbookView` | Represents workbook view. |\n| `Worksheet` | Encapsulates a single worksheet and its supported features. |\n| `WorksheetCollection` | Encapsulates the workbook's worksheets and active-sheet state. |\n| `WorksheetProtection` | Represents worksheet protection. |",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/index.json",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `AutoFilter`, `AutoFilterColorFilter`, `AutoFilterCustomFilter`, `AutoFilterCustomFilterCollection`, `AutoFilterDynamicFilter` found in documentation/_site/index.json."
+    },
+    "salient_tokens": [
+      "AutoFilter",
+      "AutoFilterColorFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterDynamicFilter",
+      "AutoFilterSortCondition",
+      "AutoFilterSortConditionCollection",
+      "AutoFilterSortState",
+      "AutoFilterTop10",
+      "Border",
+      "Borders",
+      "CalculationProperties",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Chart",
+      "ChartCollection",
+      "Column",
+      "ColumnCollection",
+      "Comment",
+      "CommentCollection",
+      "ConditionalFormattingCollection",
+      "CoreDocumentProperties",
+      "DefinedName",
+      "DefinedNameCollection",
+      "DocumentProperties",
+      "ExtendedDocumentProperties",
+      "FilterColumn",
+      "FilterColumnCollection",
+      "FilterValueCollection",
+      "Font",
+      "FormatCondition",
+      "FormatConditionCollection",
+      "FormulaException",
+      "Hyperlink",
+      "HyperlinkCollection",
+      "InvalidFileFormatException",
+      "ListColumn",
+      "ListColumnCollection",
+      "ListObject",
+      "ListObjectCollection",
+      "LoadDiagnostics",
+      "LoadIssue",
+      "LoadOptions",
+      "NumberFormat",
+      "PageSetup",
+      "PdfSaveOptions",
+      "Picture",
+      "PictureCollection",
+      "Row",
+      "RowCollection",
+      "SaveOptions",
+      "Shape",
+      "ShapeCollection",
+      "Style",
+      "StyleException",
+      "StyleFlag",
+      "UnsupportedFeatureException",
+      "Validation",
+      "ValidationCollection",
+      "WarningInfo",
+      "Workbook",
+      "WorkbookLoadException",
+      "WorkbookProperties",
+      "WorkbookProtection",
+      "WorkbookSaveException",
+      "WorkbookSettings",
+      "WorkbookView",
+      "Worksheet",
+      "WorksheetCollection",
+      "WorksheetProtection",
+      "XLSX",
+      "PDF"
+    ],
+    "literal_tokens": [
+      "AutoFilter",
+      "AutoFilterColorFilter",
+      "AutoFilterCustomFilter",
+      "AutoFilterCustomFilterCollection",
+      "AutoFilterDynamicFilter",
+      "AutoFilterSortCondition",
+      "AutoFilterSortConditionCollection",
+      "AutoFilterSortState",
+      "AutoFilterTop10",
+      "Border",
+      "Borders",
+      "CalculationProperties",
+      "Cell",
+      "Cells",
+      "CellsException",
+      "Chart",
+      "ChartCollection",
+      "Column",
+      "ColumnCollection",
+      "Comment",
+      "CommentCollection",
+      "ConditionalFormattingCollection",
+      "CoreDocumentProperties",
+      "DefinedName",
+      "DefinedNameCollection",
+      "DocumentProperties",
+      "ExtendedDocumentProperties",
+      "FilterColumn",
+      "FilterColumnCollection",
+      "FilterValueCollection",
+      "Font",
+      "FormatCondition",
+      "FormatConditionCollection",
+      "FormulaException",
+      "Hyperlink",
+      "HyperlinkCollection",
+      "InvalidFileFormatException",
+      "ListColumn",
+      "ListColumnCollection",
+      "ListObject",
+      "ListObjectCollection",
+      "LoadDiagnostics",
+      "LoadIssue",
+      "LoadOptions",
+      "NumberFormat",
+      "PageSetup",
+      "PdfSaveOptions",
+      "Picture",
+      "PictureCollection",
+      "Row",
+      "RowCollection",
+      "SaveOptions",
+      "Shape",
+      "ShapeCollection",
+      "Style",
+      "StyleException",
+      "StyleFlag",
+      "UnsupportedFeatureException",
+      "Validation",
+      "ValidationCollection",
+      "WarningInfo",
+      "Workbook",
+      "WorkbookLoadException",
+      "WorkbookProperties",
+      "WorkbookProtection",
+      "WorkbookSaveException",
+      "WorkbookSettings",
+      "WorkbookView",
+      "Worksheet",
+      "WorksheetCollection",
+      "WorksheetProtection",
+      "XLSX",
+      "PDF"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IWarningCallback` | Defines a callback that receives load warnings. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `IWarningCallback` found in src/Aspose.Cells_FOSS/LoadOptions.cs."
+    },
+    "salient_tokens": [
+      "IWarningCallback"
+    ],
+    "literal_tokens": [
+      "IWarningCallback"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `CellArea` | Represents cell area. |\n| `Color` | Represents color. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `CellArea` found in src/Aspose.Cells_FOSS/FormatConditionCollection.cs."
+    },
+    "salient_tokens": [
+      "CellArea",
+      "Color"
+    ],
+    "literal_tokens": [
+      "CellArea",
+      "Color"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AutoShapeType` | Specifies the type of an auto shape (preset geometry). |\n| `BorderStyleType` | Specifies border style type. |\n| `CellValueType` | Specifies cell value type. |\n| `ChartType` | Specifies the chart type. |\n| `DiagnosticSeverity` | Specifies diagnostic severity. |\n| `FillPattern` | Specifies fill pattern. |\n| `FilterOperatorType` | Specifies filter operator type. |\n| `FontUnderlineType` | Enumerates font underline types. |\n| `FormatConditionType` | Specifies format condition type. |\n| `HorizontalAlignmentType` | Specifies horizontal alignment type. |\n| `ImageType` | Represents the format of an image stored in a worksheet. |\n| `LoadFormat` | Specifies load format. |\n| `OperatorType` | Specifies operator type. |\n| `PageOrientationType` | Specifies page orientation type. |\n| `PaperSizeType` | Specifies paper size type. |\n| `SaveFormat` | Specifies save format. |\n| `TableStyleType` | Represents the built-in Excel table style types. |\n| `TargetModeType` | Specifies target mode type. |\n| `TotalsCalculation` | Represents the aggregation function shown in a table totals row cell. |\n| `ValidationAlertType` | Specifies validation alert type. |\n| `ValidationType` | Specifies validation type. |\n| `VerticalAlignmentType` | Specifies vertical alignment type. |\n| `VisibilityType` | Specifies visibility type. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/index.json",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `AutoShapeType`, `BorderStyleType`, `CellValueType`, `ChartType`, `DiagnosticSeverity` found in documentation/_site/index.json."
+    },
+    "salient_tokens": [
+      "AutoShapeType",
+      "BorderStyleType",
+      "CellValueType",
+      "ChartType",
+      "DiagnosticSeverity",
+      "FillPattern",
+      "FilterOperatorType",
+      "FontUnderlineType",
+      "FormatConditionType",
+      "HorizontalAlignmentType",
+      "ImageType",
+      "LoadFormat",
+      "OperatorType",
+      "PageOrientationType",
+      "PaperSizeType",
+      "SaveFormat",
+      "TableStyleType",
+      "TargetModeType",
+      "TotalsCalculation",
+      "ValidationAlertType",
+      "ValidationType",
+      "VerticalAlignmentType",
+      "VisibilityType"
+    ],
+    "literal_tokens": [
+      "AutoShapeType",
+      "BorderStyleType",
+      "CellValueType",
+      "ChartType",
+      "DiagnosticSeverity",
+      "FillPattern",
+      "FilterOperatorType",
+      "FontUnderlineType",
+      "FormatConditionType",
+      "HorizontalAlignmentType",
+      "ImageType",
+      "LoadFormat",
+      "OperatorType",
+      "PageOrientationType",
+      "PaperSizeType",
+      "SaveFormat",
+      "TableStyleType",
+      "TargetModeType",
+      "TotalsCalculation",
+      "ValidationAlertType",
+      "ValidationType",
+      "VerticalAlignmentType",
+      "VisibilityType"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `Workbook`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Workbook` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "Workbook"
+    ],
+    "literal_tokens": [
+      "Workbook"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- Constructors: `Workbook()`, `Workbook(fileName)`, `Workbook(stream)`, `Workbook(fileName, options)`, `Workbook(stream, options)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `fileName` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "Workbook()",
+      "Workbook(fileName)",
+      "Workbook(stream)",
+      "Workbook(fileName, options)",
+      "Workbook(stream, options)",
+      "fileName"
+    ],
+    "literal_tokens": [
+      "Workbook()",
+      "Workbook(fileName)",
+      "Workbook(stream)",
+      "Workbook(fileName, options)",
+      "Workbook(stream, options)",
+      "fileName"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `Save(fileName)`, `Save(fileName, format)`, `Save(fileName, options)`, `Save(stream, format)`, `Save(stream, options)`, `Dispose()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Dispose()`, `fileName` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "Save(fileName)",
+      "Save(fileName, format)",
+      "Save(fileName, options)",
+      "Save(stream, format)",
+      "Save(stream, options)",
+      "Dispose()",
+      "fileName"
+    ],
+    "literal_tokens": [
+      "Save(fileName)",
+      "Save(fileName, format)",
+      "Save(fileName, options)",
+      "Save(stream, format)",
+      "Save(stream, options)",
+      "Dispose()",
+      "fileName"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- Properties: `Worksheets: WorksheetCollection`, `Settings: WorkbookSettings`, `Properties: WorkbookProperties`, `DocumentProperties: DocumentProperties`, `DefinedNames: DefinedNameCollection`, `LoadDiagnostics: LoadDiagnostics`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Settings: WorkbookSettings`, `DocumentProperties: DocumentProperties`, `DefinedNames: DefinedNameCollection`, `LoadDiagnostics: LoadDiagnostics`, `WorksheetCollection` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "Worksheets: WorksheetCollection",
+      "Settings: WorkbookSettings",
+      "Properties: WorkbookProperties",
+      "DocumentProperties: DocumentProperties",
+      "DefinedNames: DefinedNameCollection",
+      "LoadDiagnostics: LoadDiagnostics",
+      "WorksheetCollection",
+      "WorkbookSettings",
+      "WorkbookProperties",
+      "DocumentProperties",
+      "DefinedNames",
+      "DefinedNameCollection",
+      "LoadDiagnostics"
+    ],
+    "literal_tokens": [
+      "Worksheets: WorksheetCollection",
+      "Settings: WorkbookSettings",
+      "Properties: WorkbookProperties",
+      "DocumentProperties: DocumentProperties",
+      "DefinedNames: DefinedNameCollection",
+      "LoadDiagnostics: LoadDiagnostics",
+      "WorksheetCollection",
+      "WorkbookSettings",
+      "WorkbookProperties",
+      "DocumentProperties",
+      "DefinedNames",
+      "DefinedNameCollection",
+      "LoadDiagnostics"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `Worksheet`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Worksheet` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "Worksheet"
+    ],
+    "literal_tokens": [
+      "Worksheet"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- `Protect()`, `Unprotect()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Protect()`, `Unprotect()` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "Protect()",
+      "Unprotect()"
+    ],
+    "literal_tokens": [
+      "Protect()",
+      "Unprotect()"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- Properties: `Name: string`, `VisibilityType: VisibilityType`, `ShowGridlines: bool`, `RightToLeft: bool`, `Zoom: int`, `Cells: Cells`, `Hyperlinks: HyperlinkCollection`, `Validations: ValidationCollection`, `ConditionalFormattings: ConditionalFormattingCollection`, `PageSetup: PageSetup`, `Protection: WorksheetProtection`, `AutoFilter: AutoFilter`, `ListObjects: ListObjectCollection`, `Pictures: PictureCollection`, `Shapes: ShapeCollection`, `Charts: ChartCollection`, `Comments: CommentCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `VisibilityType: VisibilityType`, `Hyperlinks: HyperlinkCollection`, `Validations: ValidationCollection`, `ConditionalFormattings: ConditionalFormattingCollection`, `PageSetup: PageSetup` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "Name: string",
+      "VisibilityType: VisibilityType",
+      "ShowGridlines: bool",
+      "RightToLeft: bool",
+      "Zoom: int",
+      "Cells: Cells",
+      "Hyperlinks: HyperlinkCollection",
+      "Validations: ValidationCollection",
+      "ConditionalFormattings: ConditionalFormattingCollection",
+      "PageSetup: PageSetup",
+      "Protection: WorksheetProtection",
+      "AutoFilter: AutoFilter",
+      "ListObjects: ListObjectCollection",
+      "Pictures: PictureCollection",
+      "Shapes: ShapeCollection",
+      "Charts: ChartCollection",
+      "Comments: CommentCollection",
+      "VisibilityType",
+      "ShowGridlines",
+      "RightToLeft",
+      "HyperlinkCollection",
+      "ValidationCollection",
+      "ConditionalFormattings",
+      "ConditionalFormattingCollection",
+      "PageSetup",
+      "WorksheetProtection",
+      "AutoFilter",
+      "ListObjects",
+      "ListObjectCollection",
+      "PictureCollection",
+      "ShapeCollection",
+      "ChartCollection",
+      "CommentCollection"
+    ],
+    "literal_tokens": [
+      "Name: string",
+      "VisibilityType: VisibilityType",
+      "ShowGridlines: bool",
+      "RightToLeft: bool",
+      "Zoom: int",
+      "Cells: Cells",
+      "Hyperlinks: HyperlinkCollection",
+      "Validations: ValidationCollection",
+      "ConditionalFormattings: ConditionalFormattingCollection",
+      "PageSetup: PageSetup",
+      "Protection: WorksheetProtection",
+      "AutoFilter: AutoFilter",
+      "ListObjects: ListObjectCollection",
+      "Pictures: PictureCollection",
+      "Shapes: ShapeCollection",
+      "Charts: ChartCollection",
+      "Comments: CommentCollection",
+      "VisibilityType",
+      "ShowGridlines",
+      "RightToLeft",
+      "HyperlinkCollection",
+      "ValidationCollection",
+      "ConditionalFormattings",
+      "ConditionalFormattingCollection",
+      "PageSetup",
+      "WorksheetProtection",
+      "AutoFilter",
+      "ListObjects",
+      "ListObjectCollection",
+      "PictureCollection",
+      "ShapeCollection",
+      "ChartCollection",
+      "CommentCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `LoadOptions` / `LoadDiagnostics`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `LoadOptions`, `LoadDiagnostics` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "LoadOptions",
+      "LoadDiagnostics"
+    ],
+    "literal_tokens": [
+      "LoadOptions",
+      "LoadDiagnostics"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- Properties: `StrictMode: bool`, `TryRepairPackage: bool`, `TryRepairXml: bool`, `WarningCallback: IWarningCallback`, `Issues: IReadOnlyList<LoadIssue>`, `HasRepairs: bool`, `HasDataLossRisk: bool`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "documentation/_site/index.json",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `WarningCallback: IWarningCallback`, `StrictMode`, `TryRepairPackage`, `TryRepairXml`, `WarningCallback` found in documentation/_site/index.json."
+    },
+    "salient_tokens": [
+      "StrictMode: bool",
+      "TryRepairPackage: bool",
+      "TryRepairXml: bool",
+      "WarningCallback: IWarningCallback",
+      "Issues: IReadOnlyList<LoadIssue>",
+      "HasRepairs: bool",
+      "HasDataLossRisk: bool",
+      "StrictMode",
+      "TryRepairPackage",
+      "TryRepairXml",
+      "WarningCallback",
+      "IWarningCallback",
+      "IReadOnlyList",
+      "LoadIssue",
+      "HasRepairs",
+      "HasDataLossRisk"
+    ],
+    "literal_tokens": [
+      "StrictMode: bool",
+      "TryRepairPackage: bool",
+      "TryRepairXml: bool",
+      "WarningCallback: IWarningCallback",
+      "Issues: IReadOnlyList<LoadIssue>",
+      "HasRepairs: bool",
+      "HasDataLossRisk: bool",
+      "StrictMode",
+      "TryRepairPackage",
+      "TryRepairXml",
+      "WarningCallback",
+      "IWarningCallback",
+      "IReadOnlyList",
+      "LoadIssue",
+      "HasRepairs",
+      "HasDataLossRisk"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `Cell`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Cell` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "salient_tokens": [
+      "Cell"
+    ],
+    "literal_tokens": [
+      "Cell"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `PutValue(value)`, `PutValue(value, isConverted)`, `PutValue(value, isConverted, setStyle)`, `GetStyle()`, `GetStyle(checkBorders)`, `SetStyle(style)`, `SetStyle(style, explicitFlag)`, `SetStyle(style, flag)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `PutValue(value)`, `PutValue(value, isConverted)`, `PutValue(value, isConverted, setStyle)`, `GetStyle()`, `GetStyle(checkBorders)` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "salient_tokens": [
+      "PutValue(value)",
+      "PutValue(value, isConverted)",
+      "PutValue(value, isConverted, setStyle)",
+      "GetStyle()",
+      "GetStyle(checkBorders)",
+      "SetStyle(style)",
+      "SetStyle(style, explicitFlag)",
+      "SetStyle(style, flag)",
+      "PutValue",
+      "isConverted",
+      "setStyle",
+      "GetStyle",
+      "checkBorders",
+      "explicitFlag"
+    ],
+    "literal_tokens": [
+      "PutValue(value)",
+      "PutValue(value, isConverted)",
+      "PutValue(value, isConverted, setStyle)",
+      "GetStyle()",
+      "GetStyle(checkBorders)",
+      "SetStyle(style)",
+      "SetStyle(style, explicitFlag)",
+      "SetStyle(style, flag)",
+      "PutValue",
+      "isConverted",
+      "setStyle",
+      "GetStyle",
+      "checkBorders",
+      "explicitFlag"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- Properties: `Value: object`, `StringValue: string`, `DisplayStringValue: string`, `Formula: string`, `Type: CellValueType`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `StringValue`, `DisplayStringValue`, `CellValueType` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "salient_tokens": [
+      "Value: object",
+      "StringValue: string",
+      "DisplayStringValue: string",
+      "Formula: string",
+      "Type: CellValueType",
+      "StringValue",
+      "DisplayStringValue",
+      "CellValueType"
+    ],
+    "literal_tokens": [
+      "Value: object",
+      "StringValue: string",
+      "DisplayStringValue: string",
+      "Formula: string",
+      "Type: CellValueType",
+      "StringValue",
+      "DisplayStringValue",
+      "CellValueType"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `Cells`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Cells` found in src/Aspose.Cells_FOSS/Cells.cs."
+    },
+    "salient_tokens": [
+      "Cells"
+    ],
+    "literal_tokens": [
+      "Cells"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `Merge(firstRow, firstColumn, totalRows, totalColumns)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Merge(firstRow, firstColumn, totalRows, totalColumns)`, `firstRow`, `firstColumn`, `totalRows`, `totalColumns` found in src/Aspose.Cells_FOSS/Cells.cs."
+    },
+    "salient_tokens": [
+      "Merge(firstRow, firstColumn, totalRows, totalColumns)",
+      "firstRow",
+      "firstColumn",
+      "totalRows",
+      "totalColumns"
+    ],
+    "literal_tokens": [
+      "Merge(firstRow, firstColumn, totalRows, totalColumns)",
+      "firstRow",
+      "firstColumn",
+      "totalRows",
+      "totalColumns"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- Properties: `Rows: RowCollection`, `Style: Style`, `Columns: ColumnCollection`, `MergedCells: IReadOnlyList<CellArea>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RowCollection`, `ColumnCollection`, `MergedCells`, `IReadOnlyList`, `CellArea` found in src/Aspose.Cells_FOSS/Cells.cs."
+    },
+    "salient_tokens": [
+      "Rows: RowCollection",
+      "Style: Style",
+      "Columns: ColumnCollection",
+      "MergedCells: IReadOnlyList<CellArea>",
+      "RowCollection",
+      "ColumnCollection",
+      "MergedCells",
+      "IReadOnlyList",
+      "CellArea"
+    ],
+    "literal_tokens": [
+      "Rows: RowCollection",
+      "Style: Style",
+      "Columns: ColumnCollection",
+      "MergedCells: IReadOnlyList<CellArea>",
+      "RowCollection",
+      "ColumnCollection",
+      "MergedCells",
+      "IReadOnlyList",
+      "CellArea"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `Style`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Style` found in src/Aspose.Cells_FOSS/Style.cs."
+    },
+    "salient_tokens": [
+      "Style"
+    ],
+    "literal_tokens": [
+      "Style"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Copy(source)`, `Equals(obj)`, `GetHashCode()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Font.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Copy(source)` found in src/Aspose.Cells_FOSS/Font.cs."
+    },
+    "salient_tokens": [
+      "Copy(source)",
+      "Equals(obj)",
+      "GetHashCode()",
+      "GetHashCode"
+    ],
+    "literal_tokens": [
+      "Copy(source)",
+      "Equals(obj)",
+      "GetHashCode()",
+      "GetHashCode"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- Properties: `Font: Font`, `Borders: Borders`, `Pattern: FillPattern`, `ForegroundColor: Color`, `BackgroundColor: Color`, `NumberFormat: string`, `HorizontalAlignment: HorizontalAlignmentType`, `VerticalAlignment: VerticalAlignmentType`, `WrapText: bool`, `IsLocked: bool`, `IsHidden: bool`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Borders: Borders`, `Pattern: FillPattern`, `HorizontalAlignment: HorizontalAlignmentType`, `VerticalAlignment: VerticalAlignmentType`, `FillPattern` found in src/Aspose.Cells_FOSS/Style.cs."
+    },
+    "salient_tokens": [
+      "Font: Font",
+      "Borders: Borders",
+      "Pattern: FillPattern",
+      "ForegroundColor: Color",
+      "BackgroundColor: Color",
+      "NumberFormat: string",
+      "HorizontalAlignment: HorizontalAlignmentType",
+      "VerticalAlignment: VerticalAlignmentType",
+      "WrapText: bool",
+      "IsLocked: bool",
+      "IsHidden: bool",
+      "FillPattern",
+      "ForegroundColor",
+      "BackgroundColor",
+      "NumberFormat",
+      "HorizontalAlignment",
+      "HorizontalAlignmentType",
+      "VerticalAlignment",
+      "VerticalAlignmentType",
+      "WrapText",
+      "IsLocked",
+      "IsHidden"
+    ],
+    "literal_tokens": [
+      "Font: Font",
+      "Borders: Borders",
+      "Pattern: FillPattern",
+      "ForegroundColor: Color",
+      "BackgroundColor: Color",
+      "NumberFormat: string",
+      "HorizontalAlignment: HorizontalAlignmentType",
+      "VerticalAlignment: VerticalAlignmentType",
+      "WrapText: bool",
+      "IsLocked: bool",
+      "IsHidden: bool",
+      "FillPattern",
+      "ForegroundColor",
+      "BackgroundColor",
+      "NumberFormat",
+      "HorizontalAlignment",
+      "HorizontalAlignmentType",
+      "VerticalAlignment",
+      "VerticalAlignmentType",
+      "WrapText",
+      "IsLocked",
+      "IsHidden"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `SaveOptions` / `PdfSaveOptions`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `SaveOptions`, `PdfSaveOptions` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "SaveOptions",
+      "PdfSaveOptions"
+    ],
+    "literal_tokens": [
+      "SaveOptions",
+      "PdfSaveOptions"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- Properties: `SaveFormat: SaveFormat`, `OnePagePerSheet: bool`, `AllColumnsInOnePagePerSheet: bool`, `DefaultFont: string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `SaveFormat: SaveFormat`, `SaveFormat`, `OnePagePerSheet`, `AllColumnsInOnePagePerSheet`, `DefaultFont` found in src/Aspose.Cells_FOSS/PdfSaveOptions.cs."
+    },
+    "salient_tokens": [
+      "SaveFormat: SaveFormat",
+      "OnePagePerSheet: bool",
+      "AllColumnsInOnePagePerSheet: bool",
+      "DefaultFont: string",
+      "SaveFormat",
+      "OnePagePerSheet",
+      "AllColumnsInOnePagePerSheet",
+      "DefaultFont"
+    ],
+    "literal_tokens": [
+      "SaveFormat: SaveFormat",
+      "OnePagePerSheet: bool",
+      "AllColumnsInOnePagePerSheet: bool",
+      "DefaultFont: string",
+      "SaveFormat",
+      "OnePagePerSheet",
+      "AllColumnsInOnePagePerSheet",
+      "DefaultFont"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `ValidationCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Validation.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ValidationCollection` found in src/Aspose.Cells_FOSS/Validation.cs."
+    },
+    "salient_tokens": [
+      "ValidationCollection"
+    ],
+    "literal_tokens": [
+      "ValidationCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `Add(area)`, `GetValidationInCell(row, column)`, `RemoveACell(row, column)`, `RemoveArea(cellArea)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ValidationCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `GetValidationInCell(row, column)`, `RemoveACell(row, column)`, `RemoveArea(cellArea)`, `GetValidationInCell`, `RemoveACell` found in src/Aspose.Cells_FOSS/ValidationCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(area)",
+      "GetValidationInCell(row, column)",
+      "RemoveACell(row, column)",
+      "RemoveArea(cellArea)",
+      "GetValidationInCell",
+      "RemoveACell",
+      "RemoveArea",
+      "cellArea"
+    ],
+    "literal_tokens": [
+      "Add(area)",
+      "GetValidationInCell(row, column)",
+      "RemoveACell(row, column)",
+      "RemoveArea(cellArea)",
+      "GetValidationInCell",
+      "RemoveACell",
+      "RemoveArea",
+      "cellArea"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `Validation`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Validation` found in src/Aspose.Cells_FOSS/Cells.cs."
+    },
+    "salient_tokens": [
+      "Validation"
+    ],
+    "literal_tokens": [
+      "Validation"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `AddArea(area)`, `RemoveArea(area)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Validation.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `AddArea(area)`, `RemoveArea(area)`, `AddArea`, `RemoveArea` found in src/Aspose.Cells_FOSS/Validation.cs."
+    },
+    "salient_tokens": [
+      "AddArea(area)",
+      "RemoveArea(area)",
+      "AddArea",
+      "RemoveArea"
+    ],
+    "literal_tokens": [
+      "AddArea(area)",
+      "RemoveArea(area)",
+      "AddArea",
+      "RemoveArea"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- Properties: `Areas: IReadOnlyList<CellArea>`, `Type: ValidationType`, `Operator: OperatorType`, `Formula1: string`, `Formula2: string`, `AlertStyle: ValidationAlertType`, `InCellDropDown: bool`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Validation.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Operator: OperatorType`, `AlertStyle: ValidationAlertType`, `IReadOnlyList`, `CellArea`, `ValidationType` found in src/Aspose.Cells_FOSS/Validation.cs."
+    },
+    "salient_tokens": [
+      "Areas: IReadOnlyList<CellArea>",
+      "Type: ValidationType",
+      "Operator: OperatorType",
+      "Formula1: string",
+      "Formula2: string",
+      "AlertStyle: ValidationAlertType",
+      "InCellDropDown: bool",
+      "IReadOnlyList",
+      "CellArea",
+      "ValidationType",
+      "OperatorType",
+      "AlertStyle",
+      "ValidationAlertType",
+      "InCellDropDown"
+    ],
+    "literal_tokens": [
+      "Areas: IReadOnlyList<CellArea>",
+      "Type: ValidationType",
+      "Operator: OperatorType",
+      "Formula1: string",
+      "Formula2: string",
+      "AlertStyle: ValidationAlertType",
+      "InCellDropDown: bool",
+      "IReadOnlyList",
+      "CellArea",
+      "ValidationType",
+      "OperatorType",
+      "AlertStyle",
+      "ValidationAlertType",
+      "InCellDropDown"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `ConditionalFormattingCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ConditionalFormattingCollection` found in src/Aspose.Cells_FOSS/FormatConditionCollection.cs."
+    },
+    "salient_tokens": [
+      "ConditionalFormattingCollection"
+    ],
+    "literal_tokens": [
+      "ConditionalFormattingCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `Add()`, `RemoveAt(index)`, `RemoveArea(startRow, startColumn, totalRows, totalColumns)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RemoveAt(index)`, `RemoveArea(startRow, startColumn, totalRows, totalColumns)`, `RemoveAt`, `RemoveArea`, `startRow` found in src/Aspose.Cells_FOSS/FormatConditionCollection.cs."
+    },
+    "salient_tokens": [
+      "Add()",
+      "RemoveAt(index)",
+      "RemoveArea(startRow, startColumn, totalRows, totalColumns)",
+      "RemoveAt",
+      "RemoveArea",
+      "startRow",
+      "startColumn",
+      "totalRows",
+      "totalColumns"
+    ],
+    "literal_tokens": [
+      "Add()",
+      "RemoveAt(index)",
+      "RemoveArea(startRow, startColumn, totalRows, totalColumns)",
+      "RemoveAt",
+      "RemoveArea",
+      "startRow",
+      "startColumn",
+      "totalRows",
+      "totalColumns"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObjectCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/ListObjectCollection.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `FormatConditionCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatCondition.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `FormatConditionCollection` found in src/Aspose.Cells_FOSS/FormatCondition.cs."
+    },
+    "salient_tokens": [
+      "FormatConditionCollection"
+    ],
+    "literal_tokens": [
+      "FormatConditionCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `Add(area, type, operatorType, formula1, formula2)`, `AddCondition(type)`, `AddCondition(type, operatorType, formula1, formula2)`, `AddArea(area)`, `GetCellArea(index)`, `RemoveArea(index)`, `RemoveCondition(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `AddCondition(type)`, `AddCondition(type, operatorType, formula1, formula2)`, `AddArea(area)`, `GetCellArea(index)`, `RemoveArea(index)` found in src/Aspose.Cells_FOSS/FormatConditionCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(area, type, operatorType, formula1, formula2)",
+      "AddCondition(type)",
+      "AddCondition(type, operatorType, formula1, formula2)",
+      "AddArea(area)",
+      "GetCellArea(index)",
+      "RemoveArea(index)",
+      "RemoveCondition(index)",
+      "operatorType",
+      "AddCondition",
+      "AddArea",
+      "GetCellArea",
+      "RemoveArea",
+      "RemoveCondition"
+    ],
+    "literal_tokens": [
+      "Add(area, type, operatorType, formula1, formula2)",
+      "AddCondition(type)",
+      "AddCondition(type, operatorType, formula1, formula2)",
+      "AddArea(area)",
+      "GetCellArea(index)",
+      "RemoveArea(index)",
+      "RemoveCondition(index)",
+      "operatorType",
+      "AddCondition",
+      "AddArea",
+      "GetCellArea",
+      "RemoveArea",
+      "RemoveCondition"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- Properties: `Count: int`, `RangeCount: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RangeCount` found in src/Aspose.Cells_FOSS/FormatConditionCollection.cs."
+    },
+    "salient_tokens": [
+      "Count: int",
+      "RangeCount: int",
+      "RangeCount"
+    ],
+    "literal_tokens": [
+      "Count: int",
+      "RangeCount: int",
+      "RangeCount"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `ListObjectCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ListObjectCollection` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "ListObjectCollection"
+    ],
+    "literal_tokens": [
+      "ListObjectCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `Add(startRow, startColumn, endRow, endColumn, hasHeaders)`, `Add(startCellName, endCellName, hasHeaders)`, `RemoveAt(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObjectCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RemoveAt(index)`, `startRow`, `startColumn`, `endRow`, `endColumn` found in src/Aspose.Cells_FOSS/ListObjectCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(startRow, startColumn, endRow, endColumn, hasHeaders)",
+      "Add(startCellName, endCellName, hasHeaders)",
+      "RemoveAt(index)",
+      "startRow",
+      "startColumn",
+      "endRow",
+      "endColumn",
+      "hasHeaders",
+      "startCellName",
+      "endCellName",
+      "RemoveAt"
+    ],
+    "literal_tokens": [
+      "Add(startRow, startColumn, endRow, endColumn, hasHeaders)",
+      "Add(startCellName, endCellName, hasHeaders)",
+      "RemoveAt(index)",
+      "startRow",
+      "startColumn",
+      "endRow",
+      "endColumn",
+      "hasHeaders",
+      "startCellName",
+      "endCellName",
+      "RemoveAt"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/HyperlinkCollection.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `ListObject`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ListObject` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "ListObject"
+    ],
+    "literal_tokens": [
+      "ListObject"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `Resize(startRow, startColumn, endRow, endColumn, hasHeaders)`, `ShowAutoFilter()`, `RemoveAutoFilter()`, `ConvertToRange()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObject.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Resize(startRow, startColumn, endRow, endColumn, hasHeaders)`, `ShowAutoFilter()`, `RemoveAutoFilter()`, `ConvertToRange()`, `startRow` found in src/Aspose.Cells_FOSS/ListObject.cs."
+    },
+    "salient_tokens": [
+      "Resize(startRow, startColumn, endRow, endColumn, hasHeaders)",
+      "ShowAutoFilter()",
+      "RemoveAutoFilter()",
+      "ConvertToRange()",
+      "startRow",
+      "startColumn",
+      "endRow",
+      "endColumn",
+      "hasHeaders",
+      "ShowAutoFilter",
+      "RemoveAutoFilter",
+      "ConvertToRange"
+    ],
+    "literal_tokens": [
+      "Resize(startRow, startColumn, endRow, endColumn, hasHeaders)",
+      "ShowAutoFilter()",
+      "RemoveAutoFilter()",
+      "ConvertToRange()",
+      "startRow",
+      "startColumn",
+      "endRow",
+      "endColumn",
+      "hasHeaders",
+      "ShowAutoFilter",
+      "RemoveAutoFilter",
+      "ConvertToRange"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- Properties: `DisplayName: string`, `TableStyleType: TableStyleType`, `ShowTotals: bool`, `ListColumns: ListColumnCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObject.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `TableStyleType: TableStyleType`, `ListColumns: ListColumnCollection`, `DisplayName`, `TableStyleType`, `ShowTotals` found in src/Aspose.Cells_FOSS/ListObject.cs."
+    },
+    "salient_tokens": [
+      "DisplayName: string",
+      "TableStyleType: TableStyleType",
+      "ShowTotals: bool",
+      "ListColumns: ListColumnCollection",
+      "DisplayName",
+      "TableStyleType",
+      "ShowTotals",
+      "ListColumns",
+      "ListColumnCollection"
+    ],
+    "literal_tokens": [
+      "DisplayName: string",
+      "TableStyleType: TableStyleType",
+      "ShowTotals: bool",
+      "ListColumns: ListColumnCollection",
+      "DisplayName",
+      "TableStyleType",
+      "ShowTotals",
+      "ListColumns",
+      "ListColumnCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `HyperlinkCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `HyperlinkCollection` found in src/Aspose.Cells_FOSS/Worksheet.cs."
+    },
+    "salient_tokens": [
+      "HyperlinkCollection"
+    ],
+    "literal_tokens": [
+      "HyperlinkCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `Add(cellName, totalRows, totalColumns, address)`, `Add(firstRow, firstColumn, totalRows, totalColumns, address)`, `Add(startCellName, endCellName, address, textToDisplay, screenTip)`, `RemoveAt(index)`, `Clear()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RemoveAt(index)`, `cellName`, `totalRows`, `totalColumns`, `firstRow` found in src/Aspose.Cells_FOSS/HyperlinkCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(cellName, totalRows, totalColumns, address)",
+      "Add(firstRow, firstColumn, totalRows, totalColumns, address)",
+      "Add(startCellName, endCellName, address, textToDisplay, screenTip)",
+      "RemoveAt(index)",
+      "Clear()",
+      "cellName",
+      "totalRows",
+      "totalColumns",
+      "firstRow",
+      "firstColumn",
+      "startCellName",
+      "endCellName",
+      "textToDisplay",
+      "screenTip",
+      "RemoveAt"
+    ],
+    "literal_tokens": [
+      "Add(cellName, totalRows, totalColumns, address)",
+      "Add(firstRow, firstColumn, totalRows, totalColumns, address)",
+      "Add(startCellName, endCellName, address, textToDisplay, screenTip)",
+      "RemoveAt(index)",
+      "Clear()",
+      "cellName",
+      "totalRows",
+      "totalColumns",
+      "firstRow",
+      "firstColumn",
+      "startCellName",
+      "endCellName",
+      "textToDisplay",
+      "screenTip",
+      "RemoveAt"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/ChartCollection.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `DefinedNameCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `DefinedNameCollection` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "DefinedNameCollection"
+    ],
+    "literal_tokens": [
+      "DefinedNameCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `Add(name, formula)`, `Add(name, formula, localSheetIndex)`, `RemoveAt(index)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/DefinedNameCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `RemoveAt(index)`, `localSheetIndex`, `RemoveAt` found in src/Aspose.Cells_FOSS/DefinedNameCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(name, formula)",
+      "Add(name, formula, localSheetIndex)",
+      "RemoveAt(index)",
+      "localSheetIndex",
+      "RemoveAt"
+    ],
+    "literal_tokens": [
+      "Add(name, formula)",
+      "Add(name, formula, localSheetIndex)",
+      "RemoveAt(index)",
+      "localSheetIndex",
+      "RemoveAt"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Chart.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/Chart.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `ChartCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Chart.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ChartCollection` found in src/Aspose.Cells_FOSS/Chart.cs."
+    },
+    "salient_tokens": [
+      "ChartCollection"
+    ],
+    "literal_tokens": [
+      "ChartCollection"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `Add(type, dataRange, upperLeftRow, upperLeftColumn, lowerRightRow, lowerRightColumn)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `dataRange`, `upperLeftRow`, `upperLeftColumn`, `lowerRightRow`, `lowerRightColumn` found in src/Aspose.Cells_FOSS/ChartCollection.cs."
+    },
+    "salient_tokens": [
+      "Add(type, dataRange, upperLeftRow, upperLeftColumn, lowerRightRow, lowerRightColumn)",
+      "dataRange",
+      "upperLeftRow",
+      "upperLeftColumn",
+      "lowerRightRow",
+      "lowerRightColumn"
+    ],
+    "literal_tokens": [
+      "Add(type, dataRange, upperLeftRow, upperLeftColumn, lowerRightRow, lowerRightColumn)",
+      "dataRange",
+      "upperLeftRow",
+      "upperLeftColumn",
+      "lowerRightRow",
+      "lowerRightColumn"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- Properties: `Count: int`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Row.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Count: int` found in src/Aspose.Cells_FOSS/Row.cs."
+    },
+    "salient_tokens": [
+      "Count: int"
+    ],
+    "literal_tokens": [
+      "Count: int"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `Chart`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Chart.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Chart` found in src/Aspose.Cells_FOSS/Chart.cs."
+    },
+    "salient_tokens": [
+      "Chart"
+    ],
+    "literal_tokens": [
+      "Chart"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- Properties: `Name: string`, `ChartType: ChartType`, `UpperLeftRow: int`, `UpperLeftColumn: int`, `LowerRightRow: int`, `LowerRightColumn: int`, `ExtentCx: long`, `ExtentCy: long`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Chart.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `ChartType: ChartType`, `ExtentCx: long`, `ExtentCy: long`, `ChartType`, `UpperLeftRow` found in src/Aspose.Cells_FOSS/Chart.cs."
+    },
+    "salient_tokens": [
+      "Name: string",
+      "ChartType: ChartType",
+      "UpperLeftRow: int",
+      "UpperLeftColumn: int",
+      "LowerRightRow: int",
+      "LowerRightColumn: int",
+      "ExtentCx: long",
+      "ExtentCy: long",
+      "ChartType",
+      "UpperLeftRow",
+      "UpperLeftColumn",
+      "LowerRightRow",
+      "LowerRightColumn",
+      "ExtentCx",
+      "ExtentCy"
+    ],
+    "literal_tokens": [
+      "Name: string",
+      "ChartType: ChartType",
+      "UpperLeftRow: int",
+      "UpperLeftColumn: int",
+      "LowerRightRow: int",
+      "LowerRightColumn: int",
+      "ExtentCx: long",
+      "ExtentCy: long",
+      "ChartType",
+      "UpperLeftRow",
+      "UpperLeftColumn",
+      "LowerRightRow",
+      "LowerRightColumn",
+      "ExtentCx",
+      "ExtentCy"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- `CellsException` - base type for the library's exceptions",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "CellsException"
+    ],
+    "literal_tokens": [
+      "CellsException"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `WorkbookLoadException` / `WorkbookSaveException` - raised for a failed load or save",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "WorkbookLoadException",
+      "WorkbookSaveException"
+    ],
+    "literal_tokens": [
+      "WorkbookLoadException",
+      "WorkbookSaveException"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `InvalidFileFormatException` - the input is not a recognized XLSX package",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "InvalidFileFormatException",
+      "XLSX"
+    ],
+    "literal_tokens": [
+      "InvalidFileFormatException",
+      "XLSX"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `StyleException` / `FormulaException` / `UnsupportedFeatureException`",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "StyleException",
+      "FormulaException",
+      "UnsupportedFeatureException"
+    ],
+    "literal_tokens": [
+      "StyleException",
+      "FormulaException",
+      "UnsupportedFeatureException"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/net/)** - installation, walkthroughs, and feature guides.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Getting started guide",
+      "https://docs.aspose.org/cells/net/"
+    ],
+    "literal_tokens": [
+      "https://docs.aspose.org/cells/net/"
+    ],
+    "descriptive_tokens": [
+      "Getting started guide"
+    ]
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/net/)** - task-focused answers for common spreadsheet questions.",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "FAQ",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/cells/net/"
+    ],
+    "literal_tokens": [
+      "FAQ",
+      "https://kb.aspose.org/cells/net/"
+    ],
+    "descriptive_tokens": [
+      "How-to guides & FAQ"
+    ]
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/net/)** - the complete browsable reference for all public types.",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "https://reference.aspose.org/cells/net/"
+    ],
+    "literal_tokens": [
+      "API",
+      "https://reference.aspose.org/cells/net/"
+    ],
+    "descriptive_tokens": [
+      "Full API reference"
+    ]
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- **[Contributor guide](agents.md)** - repository layout, build commands, verification notes, and conventions for this checkout.",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Contributor guide",
+      "agents.md"
+    ],
+    "literal_tokens": [
+      "agents.md"
+    ],
+    "descriptive_tokens": [
+      "Contributor guide"
+    ]
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues) on GitHub.",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `GitHub` found in src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj."
+    },
+    "salient_tokens": [
+      "FOSS",
+      "NET",
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues"
+    ],
+    "literal_tokens": [
+      "FOSS",
+      "NET",
+      "GitHub",
+      "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET/issues"
+    ],
+    "descriptive_tokens": [
+      "Open an issue"
+    ]
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- **Load format scope.** Load support is limited to XLSX (`LoadFormat.Auto` and `LoadFormat.Xlsx`). Legacy XLS, ODS, CSV, and other spreadsheet formats are not loaded.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadFormat.cs",
+      "evidence_note": "Regenerated 2026-09-19: LoadFormat declares exactly two members, Auto and Xlsx."
+    },
+    "salient_tokens": [
+      "LoadFormat.Auto",
+      "LoadFormat.Xlsx",
+      "XLSX",
+      "LoadFormat",
+      "XLS",
+      "ODS",
+      "CSV"
+    ],
+    "literal_tokens": [
+      "LoadFormat.Auto",
+      "LoadFormat.Xlsx",
+      "XLSX",
+      "LoadFormat",
+      "XLS",
+      "ODS",
+      "CSV"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- **Save format scope.** Save support currently covers XLSX and PDF (`SaveFormat.Xlsx` and `SaveFormat.Pdf`).",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/SaveFormat.cs",
+      "evidence_note": "Regenerated 2026-09-19: SaveFormat declares exactly two members, Xlsx and Pdf."
+    },
+    "salient_tokens": [
+      "SaveFormat.Xlsx",
+      "SaveFormat.Pdf",
+      "XLSX",
+      "PDF",
+      "SaveFormat"
+    ],
+    "literal_tokens": [
+      "SaveFormat.Xlsx",
+      "SaveFormat.Pdf",
+      "XLSX",
+      "PDF",
+      "SaveFormat"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "- **No formula calculation engine.** `Cell.Formula` stores the formula as a string; the library does not parse, evaluate, or recalculate formulas.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Cell.Formula"
+    ],
+    "literal_tokens": [
+      "Cell.Formula"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- **No image or HTML export.** PDF export is supported, but there is no image or HTML rendering output in this checkout.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/SaveFormat.cs",
+      "evidence_note": "Regenerated 2026-09-19: SaveFormat has only Xlsx and Pdf, so PDF is the sole non-XLSX output; no image or HTML output member exists."
+    },
+    "salient_tokens": [
+      "HTML",
+      "PDF"
+    ],
+    "literal_tokens": [
+      "HTML",
+      "PDF"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "- **No print execution.** `Worksheet.PageSetup` configures how a spreadsheet application would print the file, but the library itself does not send workbooks to a printer.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Worksheet.PageSetup",
+      "PageSetup"
+    ],
+    "literal_tokens": [
+      "Worksheet.PageSetup",
+      "PageSetup"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- **No macros or VBA.** The public API has no VBA-project or macro-related types, so macro-enabled workbooks round-trip only their non-macro content.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "VBA",
+      "API"
+    ],
+    "literal_tokens": [
+      "VBA",
+      "API"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- **No pivot tables.** Structured tables (`ListObject`) and charts (`Chart`) are supported; pivot tables are not part of the public API surface.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "ListObject",
+      "Chart",
+      "API"
+    ],
+    "literal_tokens": [
+      "ListObject",
+      "Chart",
+      "API"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "For workflows that need broader spreadsheet functionality, such as more file formats, a formula calculation engine, pivot tables, or richer rendering/export features, see [Aspose.Cells for .NET - Enterprise Edition](https://products.aspose.com/cells/net/), the commercial product this FOSS edition is derived from.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "NET",
+      "FOSS",
+      "Aspose.Cells for .NET - Enterprise Edition",
+      "https://products.aspose.com/cells/net/"
+    ],
+    "literal_tokens": [
+      "NET",
+      "FOSS",
+      "https://products.aspose.com/cells/net/"
+    ],
+    "descriptive_tokens": [
+      "Aspose.Cells for .NET - Enterprise Edition"
+    ]
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "Build the library from the repository root:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Basic/Aspose.Cells_FOSS.Samples.Basic.csproj"
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "Run a sample from the repository root, for example:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Loading/Aspose.Cells_FOSS.Samples.Loading.csproj"
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "PDF export sample:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `PDF` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "salient_tokens": [
+      "PDF"
+    ],
+    "literal_tokens": [
+      "PDF"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "<details>\n<summary>View All Sample Projects</summary>",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.WorksheetSettings/Aspose.Cells_FOSS.Samples.WorksheetSettings.csproj"
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "The [`samples/`](samples/README.md) directory contains runnable console projects for:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `samples/`, `README`, `samples/README.md` found in agents.md."
+    },
+    "salient_tokens": [
+      "samples/",
+      "README",
+      "`samples/`",
+      "samples/README.md"
+    ],
+    "literal_tokens": [
+      "samples/",
+      "README",
+      "samples/README.md"
+    ],
+    "descriptive_tokens": [
+      "`samples/`"
+    ]
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Basic`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Basic` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Basic"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Basic"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Loading`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Loading` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Loading"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Loading"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Styles`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Styles` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Styles"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Styles"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0110",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.WorksheetSettings`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.WorksheetSettings`, `WorksheetSettings` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.WorksheetSettings",
+      "WorksheetSettings"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.WorksheetSettings",
+      "WorksheetSettings"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0111",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Validations`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Validations` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Validations"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Validations"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0112",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.ConditionalFormatting`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.ConditionalFormatting`, `ConditionalFormatting` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.ConditionalFormatting",
+      "ConditionalFormatting"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.ConditionalFormatting",
+      "ConditionalFormatting"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0113",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.HyperlinksAndNames`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.HyperlinksAndNames`, `HyperlinksAndNames` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.HyperlinksAndNames",
+      "HyperlinksAndNames"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.HyperlinksAndNames",
+      "HyperlinksAndNames"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0114",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.PageSetup`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.PageSetup`, `PageSetup` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.PageSetup",
+      "PageSetup"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.PageSetup",
+      "PageSetup"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0115",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Shapes`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Shapes` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Shapes"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Shapes"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0116",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Charts`",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Charts"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Charts"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0117",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Comments`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "agents.md",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Comments` found in agents.md."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Comments"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Comments"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0118",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.DocumentProperties`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.DocumentProperties/Aspose.Cells_FOSS.Samples.DocumentProperties.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.DocumentProperties`, `DocumentProperties` found in samples/Aspose.Cells_FOSS.Samples.DocumentProperties/Aspose.Cells_FOSS.Samples.DocumentProperties.csproj."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.DocumentProperties",
+      "DocumentProperties"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.DocumentProperties",
+      "DocumentProperties"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0119",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.ListObjects`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.ListObjects/Aspose.Cells_FOSS.Samples.ListObjects.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.ListObjects`, `ListObjects` found in samples/Aspose.Cells_FOSS.Samples.ListObjects/Aspose.Cells_FOSS.Samples.ListObjects.csproj."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.ListObjects",
+      "ListObjects"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.ListObjects",
+      "ListObjects"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0120",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.Pictures`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Pictures/Aspose.Cells_FOSS.Samples.Pictures.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.Pictures` found in samples/Aspose.Cells_FOSS.Samples.Pictures/Aspose.Cells_FOSS.Samples.Pictures.csproj."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.Pictures"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.Pictures"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0121",
+    "excerpt": "- `Aspose.Cells_FOSS.Samples.PdfConversion`",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.PdfConversion/Aspose.Cells_FOSS.Samples.PdfConversion.csproj",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `Aspose.Cells_FOSS.Samples.PdfConversion`, `PdfConversion` found in samples/Aspose.Cells_FOSS.Samples.PdfConversion/Aspose.Cells_FOSS.Samples.PdfConversion.csproj."
+    },
+    "salient_tokens": [
+      "Aspose.Cells_FOSS.Samples.PdfConversion",
+      "PdfConversion"
+    ],
+    "literal_tokens": [
+      "Aspose.Cells_FOSS.Samples.PdfConversion",
+      "PdfConversion"
+    ],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0122",
+    "excerpt": "</details>",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "salient_tokens": [],
+    "literal_tokens": [],
+    "descriptive_tokens": []
+  },
+  {
+    "unit_id": "u0123",
+    "excerpt": "This project is licensed under the [MIT License](License/LICENSE.txt). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "License/LICENSE.txt",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: literal token(s) `MIT`, `LICENSE` found in License/LICENSE.txt."
+    },
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License",
+      "License/LICENSE.txt"
+    ],
+    "literal_tokens": [
+      "MIT",
+      "LICENSE",
+      "License/LICENSE.txt"
+    ],
+    "descriptive_tokens": [
+      "MIT License"
+    ]
+  }
+]

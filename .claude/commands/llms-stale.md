@@ -1,45 +1,66 @@
-# S-120: LLMs Stale -- Detect Stale/Missing LLMs Outputs
+# S-LG-05: llms-stale — Detect Stale LLMs Outputs
 
-**Arguments**: $ARGUMENTS
+## Description
 
-## Purpose
-Compare source `.md` sha256 hashes against a provenance manifest to catch
-outputs that are stale (source changed since last generation) or missing
-(output `.txt` deleted) without a full regenerate-and-diff.
+Compares source .md sha256 hashes against the provenance manifest to detect
+outputs that are stale (source changed since last generation), missing (output
+deleted), or newly appeared since manifest was built. Exit 1 if any issues found.
 
-## Manifest
-`{reports_path}/llms-manifest.json` (default `reports/llms-manifest.json`)
--- reuses `config.yaml`'s existing `reports_path`, no new config key.
+## Contract
+
+**Backing script**: `scripts/generator/detect_stale_llms.py`
+**Manifest**: `reports/agent-consumption/provenance-manifest.json` (local only, auto-managed)
+**Output**: `reports/agent-consumption/stale-report.json` (local only)
 
 ## Steps
 
-### Check only (for a CI-style gate)
+### Option A: Check only (for CI gate)
+
 ```bash
-.venv/bin/python scripts/llms_stale.py --output llms-output --check-only
+.venv/Scripts/python scripts/generator/detect_stale_llms.py --check-only
 ```
+
 Exit 0 = clean. Exit 1 = stale or missing outputs detected.
 
-### Update the manifest after regeneration
+### Option B: Update manifest after regeneration
+
 ```bash
-.venv/bin/python scripts/llms_stale.py --output llms-output --update-manifest
+.venv/Scripts/python scripts/generator/detect_stale_llms.py \
+  --llms-output llms-output \
+  --content content \
+  --update-manifest
 ```
 
-### Both in one pass
-```bash
-.venv/bin/python scripts/llms_stale.py --output llms-output --update-manifest --check-only
-```
-Reports what was stale **this run** (against the manifest as it stood
-before the update), then refreshes the manifest for next time -- it does
-not compare the manifest against itself after updating it, which would
-trivially always report clean.
+### Option C: Update + check in one pass
 
-## Workflow sequence
-1. Source `.md` changes -> `STALE` detected by this skill
-2. Run `/llms-generate` -> outputs regenerated
-3. Run this skill with `--update-manifest` -> manifest refreshed
-4. Run `--check-only` -> exit 0 confirmed
+```bash
+.venv/Scripts/python scripts/generator/detect_stale_llms.py \
+  --llms-output llms-output \
+  --content content \
+  --update-manifest --check-only
+```
+
+## Interpreting Results
+
+| Status | Meaning | Fix |
+|--------|---------|-----|
+| STALE | Source .md hash changed since manifest | Run `/llms-generate` |
+| MISSING | Output .txt was deleted | Run `/llms-generate` for that domain |
+
+## Workflow Sequence
+
+After content changes:
+1. Source .md changes → STALE detected by this skill
+2. Run `/llms-generate` → outputs regenerated
+3. Run this skill with `--update-manifest` → manifest updated
+4. Run `--check-only` → exit 0 confirmed
 
 ## Related Skills
-- `/llms-generate` -- regenerate to fix stale outputs
-- `/llms-coverage` -- structural presence
-- `/llms-fidelity` -- content quality
+
+- `/llms-generate` — regenerate to fix stale outputs
+- `/llms-coverage` — check structural presence of outputs
+- `/llms-fidelity` — check content quality of outputs
+
+## Metrics Obligation
+
+This skill does not invoke LLM endpoints directly. No metrics obligation applies (METRICS-PLAN-001). It performs hash comparison against existing outputs only.

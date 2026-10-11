@@ -1,0 +1,2 @@
+# Maintenance utilities: migrate_model_yaml.py, rebuild_snippet_index.py
+pyyaml>=6.0

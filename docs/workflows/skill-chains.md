@@ -1,254 +1,166 @@
-<!-- Adapted from aspose.org docs/workflows/ for standalone use -->
-
 # Skill Chains by Task
 
-Skills are the **only sanctioned execution mechanism** for the task types listed below. When your requirement matches a listed task type, you must follow the corresponding chain -- invoking each skill in order, passing outputs forward, and not substituting manual reasoning for any step that has a registered skill. If your requirement does not match any listed task type, follow the gap escalation protocol before doing anything else.
+> Source: AGENTS.md §6
+> Status: Current (restored from archive 2026-06-24)
+> Override token: 20260624-113217-docs-workflows-mental-model-refresh-md
 
-### Initial generation (new page)
+Skills are the **only sanctioned execution mechanism** for the task types listed below. When
+your requirement matches a listed task type, follow the corresponding chain — invoking each skill
+in order, passing outputs forward, and not substituting manual reasoning for any step that has a
+registered skill. If your requirement does not match any listed task type, follow the protocol in
+`docs/workflows/gap-escalation.md` before doing anything else.
 
-```
-page-plan -> page-draft -> faq-generate
--> content-check / audit -> truth-audit (deep) -> evidence-cite -> path-guard -> write
-```
-
-### Knowledge bootstrap
-
-```
-repo-scout -> knowledge-enrich -> truth-merge -> truth-index
-```
-
-### Full-product launch (multi-subdomain)
+## Initial Generation (New Page)
 
 ```
-knowledge-bootstrap -> site-plan -> launch-product (stages 1-8)
+S-10 (project-phase-store) → S-18 (page-plan) → S-19 (page-draft) → S-22 (faq-generate)
+→ S-23 (content-check / audit.py) → S-38 (truth-audit) → S-01 (path-guard) → write
 ```
 
-Every launch MUST run site-plan after knowledge bootstrap and BEFORE any content generation.
+## Knowledge Bootstrap
+
+```
+S-34 (repo-scout) → S-37 (knowledge-enrich) → S-35 (truth-merge) → S-31 (truth-index)
+```
+
+## Full-Product Launch (5-Subdomain)
+
+```
+S-54 (knowledge-bootstrap) → S-47 (site-plan) → S-49 (launch-product stages 1–8)
+```
+
+Every launch MUST run `/site-plan` after knowledge bootstrap and BEFORE any content generation.
 The site plan output (`reports/plans/{family}/{platform}/site_plan.yaml`) is the authoritative
-slug manifest for blog posts, developer-guide pages, and how-to articles. Stages that skip
-site-plan and hardcode or re-derive slugs are in violation of this chain.
+slug manifest. Stages that skip site-plan are in violation of this chain.
 
-### Maintenance (repo changed)
+## Maintenance (Repo Changed)
 
-Use refresh-product to run the full maintenance cycle in one command:
+Use S-84 (refresh-product) to run the full maintenance cycle:
+
 ```
 /refresh-product {family} {platform}
 ```
 
-The refresh-product skill orchestrates the 14-step chain internally:
+S-84 orchestrates internally:
 ```
-knowledge-diff (detect + fetch)       [exits early if no SHA change]
--> knowledge-update (refresh + write knowledge_delta.json)
--> delta-site-plan (site_planner --mode update)
--> page-update (update stale pages from knowledge_delta.json)
--> delta-dispatch (generate pages_to_add by type)
--> page-retire (retire pages_to_remove; dry-run first)
--> batch-reference --update (regenerate modified_apis reference pages)
--> family-sync
--> content-check (on all changed files)
--> link-validate
--> translate-batch (content_hash-changed pages only)
--> post_refresh_verify --step (progress tracking after each step)
--> post_refresh_verify --verify (verification gate; must exit 0 before commit)
--> commit
+S-12 (knowledge-diff) → S-14 (knowledge-update) → S-82 (delta-site-plan)
+→ S-20 (page-update) → S-62 (batch-reference) → S-48 (family-sync)
+→ S-23 (content-check) → S-65 (link-validate) → S-76 (commit)
 ```
 
-Progress is tracked at `reports/refresh_state/{family}/{platform}/progress.json`.
+**Optional — vector regeneration**: after a knowledge update, S-15 (embed-knowledge)'s
+`gap-index` mode may be re-run for the affected product to keep S-43 (gap-eval) Tier 2 vectors
+current — skip if already current (see `docs/pipeline/vector-regeneration-procedure.md`'s
+coverage-report command). This is non-blocking: content generation and the maintenance chain
+above do not require it.
 
-> **Refresh is complete only when** the coverage report
-> shows all subdomains with `assessed > 0` and `post_refresh_verify --verify` exits 0.
-> "Evidence refreshed" alone is not sufficient -- body accuracy requires per-page scoring.
+## Reusable Propagation Chain (Release or Upstream Drift, Any Family/Platform)
 
-### Audit-driven healing (content wrong but upstream SHA unchanged)
-
-Use when refresh exits early ("no SHA change") but content is known or suspected to be wrong.
-System-heal is the canonical path -- do not run gap-eval manually and then patch files:
-
-```
-/system-heal {family} {platform} [--scope all|docs|products|kb|blog|reference]
-```
-
-System-heal orchestrates the 8-phase chain internally:
-```
-gap-eval --no-llm (deterministic baseline)          [halts if > 50 findings]
--> gap-eval (extended baseline: LLM + tier3_cache)
--> origin_map.py (classify CONTENT / PIPELINE / UPSTREAM / AMBIGUOUS)
--> Phase 4: CONTENT findings -> broken-link | wrong-pkg/wapi | wrong-claim/missing
--> pipeline-evidence.md (PIPELINE + HOLD bucket -- human action required)
--> gap-eval (re-verify healed files; regression guard)
--> commit [only if fixed > 0 and regressions == 0]
--> final-report.md
--> backlog harvest (automatic on final-report -- extracts unresolved items to backlog)
-```
-
-AMBIGUOUS findings and findings with `tier3_non_determinism_flag: true` are never auto-repaired.
-If finding count > 50, system-heal halts and directs to gap-plan + gap-apply.
-
-### Post-launch content enrichment (cross-subdomain gap fill)
+> Added by mission MT074. One parameterised chain; no per-product code. Use it whenever a product
+> has a new release or API-touching upstream change whose features are not yet on the five sites.
 
 ```
-knowledge-bootstrap -> site-plan -> content-enrichment audit -> plan -> execute
--> downstream skill invocation (via handoff manifest) -> content-check -> commit
+release / drift detected
+→ S-94 (change-sweep: fleet_drift.py step, then L2-L4 analysis for candidates)
+→ S-95 (discovery-triage: keyed FLEET-PROPAGATE-{family}-{platform}-{sha8} row)
+→ S-84 (refresh-product --mode upstream: knowledge, capability ledger, reference rebuild, existing-page refresh)
+→ S-126 (example-write: verified examples for units that need code)
+→ surface skills by disposition
+     docs: S-56 (new-docs-page) / S-20 (page-update)   kb: S-58 (new-kb-howto)
+     blog: S-57 (new-blog-post) + S-124 (blog-release-check)   products: S-73 (manual-edit)
+→ S-23 (content-check) and S-90 (publish-readiness-review): author-side gates
+→ S-127 (independent-content-review: calibrated, author-separated panel; page-by-page clearance)
+→ capability_surface_gate.py (the close step of S-84; sole writer of content_propagated_*)
+→ S-76 (commit) / git_plumb_commit.py --no-push, one commit per class of change
+→ publication-readiness dossier
+→ user-gated push
 ```
 
-Content enrichment operates in three modes:
-- `audit`: read-only coverage matrix across all content subdomains
-- `plan` / `dry-run`: candidate generation with denominator invariant; no content writes
-- `execute`: conservative handoff manifest for downstream skill invocation; requires `--allow-local-content-write`
+How the links work:
 
-Blog candidates are quality-gated (deferred to backlog unless score >= generate threshold).
-Denominator invariant enforced: `total = generate_now + update_existing + deferred + rejected + blocked`.
+- **Detection.** The weekly monitor workflow, the 6-hourly registry watch (its release-trigger step) or an on-demand `fleet_drift.py` run puts a product in `DRIFTED` (or a new release) in `data/content_propagation_state.json`. A product with no record is `UNRECORDED`, which is drift by definition. Detection compares upstream with the last *content-propagated* SHA, never with the knowledge-accepted baseline, so a knowledge-only refresh cannot hide drift.
+- **Triage.** S-95 files one keyed, duplicate-safe backlog row. It never starts the refresh.
+- **Refresh.** S-84 builds the capability ledger: every new capability unit gets a disposition (`create | update | mention | none`) on each of reference, docs, kb, blog and products. Plan-stage Check 13 proves the ledger complete.
+- **Examples.** S-126 selects code mechanically from harvested snippets and docs fences, verifies it against the product artifact, and hands the content skills a table. Unverified code never reaches a page.
+- **Surfaces.** One skill per disposition; every content edit runs under an S-73 context. The skills record their decision with `capability_ledger.py set-disposition`.
+- **Verification.** S-90 is the author's gate. S-127 is the independent one: fresh read-only reviewers, a calibrated panel, hash-bound verdicts. An edit after review invalidates the verdict.
+- **Close.** `capability_surface_gate.py` recomputes satisfaction from the files and, only on PASS, records the propagation (`PROPAGATED_LOCAL` while content is committed but not pushed). A product whose gate has not passed is still drifted.
+- **Push.** Content is never pushed by a skill. A state commit containing `PROPAGATED_LOCAL` is never pushed. Capability `availability` flips from `unreleased` to `released` automatically once the published release contains the symbols, which removes the availability qualifier on the next run.
 
-### Enhancement (below rubric quality)
+If a step finds a defect in the machinery rather than in one product's content, open a hardening card
+(`/pipeline-harden`, S-99; `/workflow-harden`, S-115 for deployed-workflow templates) with a failing test
+first, then replay the fix against products already processed.
 
-```
-rubric-align -> page-enhance -> content-check -> path-guard -> write
-```
-
-### Healing (grade D or below)
-
-```
-eval-page -> heal-page -> content-check -> eval-page -> path-guard -> write (or escalate)
-```
-
-#### Healing/Enhancement dispatch -- grade-to-skill mapping
-
-| Grade | Required skill | Rationale |
-|-------|---------------|-----------|
-| **A or B** | None (or page-enhance for optional polish) | Meets quality bar |
-| **C** | page-enhance only | No false claims; improve depth and structure |
-| **D** | heal-page -> check grade -> if now C, optionally page-enhance | False claims present; must heal before enhancing |
-| **F** | heal-page -> if no improvement after 2 passes -> human escalation | Critical violations |
-
-**Rule:** heal-page must precede page-enhance when grade is D or below. page-enhance alone is correct only for grade C. page-enhance applied to a grade-D page without prior healing may suppress false claims that should be removed.
-
-### Heal-Enabled Policy Table
-
-The healing automation system uses a policy table to route triaged findings to
-the correct healing strategy. See [heal-policy.md](heal-policy.md) for the full
-binding between evaluation findings and healing actions.
-
-### Gap remediation (clone-cache verification + wave-ordered fixes)
+## Healing / Fix
 
 ```
-gap-eval -> gap-plan -> gap-apply -> content-check -> path-guard -> write
+S-73 (manual-edit) → S-23 (content-check) → S-90 (system-heal if multi-page)
 ```
 
-Wave 4 items are escalated to human review. Address each item via manual-edit with the operator-specified fix -- do not apply ad hoc fixes outside the skill chain.
-
-### Evidence gap recovery (validator-blocked commits)
-
-Triggered when frontmatter validation or evidence audit blocks a commit.
+## Translation (Single Page)
 
 ```
-evidence-repair -> content-check -> path-guard -> write
+/ht-translate {src_path} {site} {locales}
+  -> hugo-translator CLI (--site explicit, --validation-mode normal, --force-accept)
+  -> dry-run pass
+  -> live translation to OUTPUT_TMP
+  -> manual review of output
+  -> copy step to content/{site}/{lang}/
+  -> /commit (S-76)
 ```
 
-Evidence-repair runs `attach_evidence.py --force` first (Stage 1). If claims or apis remain empty, it performs a knowledge-grounded reasoning pass (Stage 2). If evidence cannot be confidently populated, it applies the `manual-remediation` escape and writes an escalation entry to `reports/evidence-repair/needs-human-{date}.md`.
+The `{site}` argument is mandatory. No site profile = no translation.
+Valid site profiles: `docs.aspose.org`, `kb.aspose.org`, `products.aspose.org`,
+`reference.aspose.org`, `blog.aspose.org`, `www.aspose.org`.
 
-### Operator-directed targeted edit (specific change specified by operator)
-
-```
-manual-edit -> path-guard -> evidence-cite -> write
-```
-
-Use when the operator knows exactly what to change (a specific sentence, frontmatter field, code block, or section) and can specify it. Do not use when the agent should decide what to fix -- use heal-page, page-enhance, or page-update instead.
-
-### Grade semantics and publication readiness
-
-**Grade A means automated checks passed -- it does NOT mean publication-ready.**
-
-The evaluator suite covers approximately 60% of known defect classes. A grade of A or B confirms that no automated evaluator detected a violation. It does not confirm that a human reviewer would accept the page for publication.
-
-| Grade | Automated check result | Publication implication |
-|-------|----------------------|-------------------------|
-| A | All default evaluators passed | Eligible for automated-pass status; still requires human review for Tier 1 content |
-| B | No FAIL; some WARN (capped categories) | Eligible for spot-check review |
-| C | Category ceiling applied | Must resolve WARN findings before promotion |
-| D | One or more WARN -> FAIL escalation | Requires heal-page before publishing |
-| F | Critical finding or grade ceiling forced | Blocked from publication; must heal and re-evaluate |
-
-**Manual-edit decision rule**: When content appears wrong, apply this decision tree before editing:
-
-1. Is the knowledge artifact (api_surface.json, formats.json, claims.json) wrong?
-   -> Fix upstream: re-run repo-scout or knowledge-update, then regenerate.
-2. Is the content page wrong but the knowledge is correct?
-   -> Use manual-edit for targeted fixes.
-3. Is the page below quality bar (grade C or below) but factually correct?
-   -> Use page-enhance for grade C, heal-page for grade D/F.
-4. Do not patch content manually for quality issues that should be fixed in the generator --
-   file a skill gap report and let the system generate correctly next time.
-
-### Batch reference page generation
+## Translation (Batch)
 
 ```
-batch-reference -> truth-audit (spot-check) -> evidence-cite -> path-guard -> write
+/ht-translate-batch {family} {platform} {site} {locales}
+  -> scope estimation (warn if >500 jobs)
+  -> hugo-translator CLI (--site explicit, --validation-mode normal, --force-accept)
+  -> dry-run pass
+  -> live batch translation to OUTPUT_TMP
+  -> spot-check 3-5 output files
+  -> copy step to content/{site}/{lang}/
+  -> /commit (S-76)
 ```
 
-Platform scope rules enforced by batch-reference:
-- **cpp / python (typed languages)**: concrete classes only (skip abstract types and known C++ base classes); enums included
-- **java / net**: interfaces, concrete classes, structs, and enums all included
-- **Idempotency**: existing pages are never overwritten; re-runs skip already-present slugs
+www.aspose.org requires `--force-retranslate --force-restart`.
+blog.aspose.org must use m2m100_418m model only (not m2m100_1.2b -- OOM).
 
-**Known limitation -- Grade C floor for FOSS reference pages without XML docstrings**: FOSS
-libraries that do not contain XML documentation comments will have empty `doc` fields.
-The description completeness evaluator fires DC FAIL when >70% of description cells in a method
-table are empty, which floors the grade at C.
+## Locale Patch (Targeted Fix)
 
-**Grade C is the accepted publish floor for reference pages from FOSS libraries with no
-docstrings, provided the method/property tables are structurally complete.** Do not attempt
-to heal these pages by fabricating descriptions -- the empty descriptions are correct and
-reflect the source truth. Do not gate publication on Grade B for this class of page.
-
-### Provenance contract for creation-path skills
-
-> **MANDATORY -- do not remove this requirement from any creation-path skill.**
-
-Every skill that creates a new English content page MUST write a `provenance:` block in the
-page's frontmatter template as part of the same write call that creates the page.
-
-**For content-generating skills**:
-
-```yaml
-provenance:
-  content_origin: skill-generated
-  last_mechanism: skill
-  auto_updatable: true
-  content_created_at: '{today as YYYY-MM-DD}'
+```
+S-75 (locale-patch) -> patch discovery -> apply -> validate_frontmatter.py
 ```
 
-**For structural-scaffold skills**:
+## Post-Body-Refresh Re-Translation
 
-```yaml
-provenance:
-  content_origin: unknown
-  last_mechanism: skill
-  auto_updatable: false
-  provenance_recovery_note: structural-page
-  content_created_at: '{today as YYYY-MM-DD}'
+```
+S-105 (body-refresh) -> S-107 (locale-refresh-handoff)
+  -> < 3 sentences changed: S-75 (locale-patch)
+  -> >= 3 sentences changed: S-56 (new-docs-page) for full re-translation
 ```
 
-**`content_created_at` is required**: frontmatter validation enforces this field on any page
-whose `graded_at` falls within the last 7 days. All creation-path skills MUST include it.
+## Production Localization Incident
 
-**Why this matters:** Without a concurrent provenance write at creation time, every new page
-enters the corpus as `content_origin: unknown`. Post-hoc classification produces only
-`pipeline_signal_only` status -- it cannot produce `verified_at_creation`. Only a concurrent
-write achieves `verified_at_creation`.
+```
+S-109 (production-localization-incident)
+  -> containment + forensics
+  -> rectification via S-HT-01 / S-HT-02 (hugo-translator, explicit --site)
+  -> hardening via S-99 (pipeline-harden)
+```
 
-**Launch gate enforcement:** The launch gate blocks launch for any English page missing
-`content_origin` in its provenance block.
+## Retired Translation Paths (DO NOT USE)
 
-### Plan execution gate
+The following are permanently retired and must not be recreated:
+- `/translate` -> was dispatcher to S-52/S-53; now tombstone
+- `S-52 translate-page` -> deleted; internal `python -m translator` package deleted
+- `S-53 translate-batch` -> deleted; internal `python -m translator` package deleted
+- `scripts/translator/` -> deleted; no fallback
 
-Before executing any plan that meets one or more of the following conditions, run
-`/plan-normalize {plan-file}` first:
+## Archive
 
-- Inherited from another agent or session
-- Contains archive, postmortem, sprint, or completed-work sections
-- Last modified more than 7 days ago
-- Contains capability claims without explicit maturity labels
-- Not immediately executed after the planning skill produced it
-
-If plan-normalize returns `execution-ready-as-is: no`, do not proceed until the blocking
-conditions are resolved.
+Pre-refactor version:
+[docs/_archive/pre-refactor/workflows/skill-chains.md](../_archive/pre-refactor/workflows/skill-chains.md)

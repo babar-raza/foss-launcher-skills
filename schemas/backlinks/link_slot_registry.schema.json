@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Link Slot Registry",
+  "description": "Defines valid backlink slot types, eligible page types, and insertion sections",
+  "type": "object",
+  "required": ["schema_version", "slots", "global"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "slots": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "insertion_section", "max_per_page", "eligible_page_types", "eligible_target_types", "enabled"],
+        "properties": {
+          "description": {"type": "string"},
+          "insertion_section": {"type": "string"},
+          "max_per_page": {"type": "integer", "minimum": 1},
+          "eligible_page_types": {"type": "array", "items": {"type": "string"}},
+          "eligible_target_types": {"type": "array", "items": {"type": "string"}},
+          "fallback_slot": {"type": ["string", "null"]},
+          "enabled": {"type": "boolean"}
+        }
+      }
+    },
+    "global": {
+      "type": "object",
+      "required": ["max_enterprise_links_per_page", "insertion_sections", "blocked_page_types"],
+      "properties": {
+        "max_enterprise_links_per_page": {"type": "integer", "minimum": 1},
+        "insertion_sections": {"type": "array", "items": {"type": "string"}},
+        "blocked_page_types": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

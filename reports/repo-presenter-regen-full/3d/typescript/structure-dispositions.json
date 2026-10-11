@@ -1,0 +1,56 @@
+[
+  {
+    "unit_id": "s0001",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "superseded by a new, corrected 'At a Glance' diagram in the candidate; the old diagram's own binary-glTF-export-broken caveat is independently re-verified still true this session and re-incorporated (GLB removed from the new diagram's Outputs; also documented in Scope and Limitations).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfExporter.ts"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "PBR material assignment is a real, current capability (PbrMaterial, confirmed in source) documented in Key Capabilities and the API Reference Materials table; no standalone worked example was retained for it specifically after Additional Examples was compacted.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/shading/PbrMaterial.ts"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/entities/PolygonModifier.ts"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "COLLADA export and Phong material assignment are both real, current capabilities documented in Key Capabilities and the API Reference COLLADA Format / Materials tables; no standalone worked example was retained for this specific combination after compaction.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/collada/ColladaExporter.ts"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "importing a glTF scene and inspecting an attached PbrMaterial's channels is a real, current capability (GltfImporter + PbrMaterial, both documented in the API Reference table); no standalone worked example was retained for this specific combination after compaction.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/threed/formats/gltf/GltfImporter.ts"
+    }
+  }
+]

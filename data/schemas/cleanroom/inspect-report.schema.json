@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InspectReport",
+  "description": "Output of cleanroom_regen inspect mode.",
+  "type": "object",
+  "required": ["run_id", "family", "platform", "subdomains", "ready", "blockers", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "family": { "type": "string" },
+    "platform": { "type": ["string", "null"] },
+    "subdomains": { "type": "array", "items": { "type": "string" } },
+    "ready": { "type": "boolean" },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "git_branch": { "type": ["string", "null"] },
+    "git_sha": { "type": ["string", "null"] },
+    "content_clean": { "type": ["boolean", "null"] },
+    "knowledge_available": { "type": ["boolean", "null"] },
+    "generated_at": { "type": "string" }
+  }
+}

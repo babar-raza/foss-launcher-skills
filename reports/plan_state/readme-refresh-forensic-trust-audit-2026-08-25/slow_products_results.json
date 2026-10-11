@@ -1,0 +1,74 @@
+{
+  "3d/python": {
+    "returncode": 0,
+    "elapsed_s": 229.9,
+    "parsed": {
+      "products": [
+        {
+          "family": "3d",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    }
+  },
+  "html/python": {
+    "returncode": 0,
+    "elapsed_s": 208.6,
+    "parsed": {
+      "products": [
+        {
+          "family": "html",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    }
+  },
+  "slides/python": {
+    "returncode": 0,
+    "elapsed_s": 382.2,
+    "parsed": {
+      "products": [
+        {
+          "family": "slides",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    }
+  }
+}

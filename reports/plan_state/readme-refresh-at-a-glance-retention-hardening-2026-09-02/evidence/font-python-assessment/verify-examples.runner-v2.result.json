@@ -1,0 +1,229 @@
+{
+  "runner": "python_verification_runner_v2",
+  "blocks_found": 37,
+  "block_statuses": [
+    {
+      "index": 0,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 1,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 2,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 3,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 4,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 5,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 6,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 7,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 8,
+      "status": "COMPILED+RAN CLEAN",
+      "commands_run": 1
+    },
+    {
+      "index": 9,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 10,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 11,
+      "status": "COMPILED+RAN CLEAN",
+      "commands_run": 1
+    },
+    {
+      "index": 12,
+      "status": "COMPILED+RAN CLEAN",
+      "continues_example": true
+    },
+    {
+      "index": 13,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 14,
+      "status": "COMPILED+RAN CLEAN",
+      "continues_example": true
+    },
+    {
+      "index": 15,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 16,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 17,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 18,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 19,
+      "status": "COMPILED+RAN CLEAN",
+      "continues_example": true
+    },
+    {
+      "index": 20,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 21,
+      "status": "COMPILED+RAN CLEAN",
+      "commands_run": 2
+    },
+    {
+      "index": 22,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 23,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "TOOLCHAIN-UNAVAILABLE"
+    },
+    {
+      "index": 24,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 25,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 26,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 27,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 28,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 29,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 30,
+      "status": "COMPILED+RAN CLEAN"
+    },
+    {
+      "index": 31,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "FIXTURE-UNAVAILABLE",
+      "detail": "aspose-font info Roboto.ttf\nError: [Errno 2] No such file or directory: 'Roboto.ttf'",
+      "failed_line": "aspose-font info Roboto.ttf"
+    },
+    {
+      "index": 32,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 33,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 34,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 35,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    },
+    {
+      "index": 36,
+      "status": "BLOCKED-WITH-REASON",
+      "reason": "NOT-A-PRODUCT-COMMAND",
+      "detail": "no line in this block invokes one of the product's own console scripts"
+    }
+  ],
+  "fixtures": {
+    "staged": {
+      "Roboto-VariableFont_wdth,wght.ttf": "testdata/Roboto-VariableFont_wdth,wght.ttf",
+      "Roboto-Regular.ttf": "testdata/Fonts/Roboto-Regular.ttf",
+      "roboto-axis-grid.png": "website/generated/roboto-axis-grid.png",
+      "roboto-family-review-board.png": "website/generated/roboto-family-review-board.png"
+    },
+    "unresolved": [
+      "2.0",
+      "Aspose.Font",
+      "Font-FOSS-for-Python.git",
+      "Roboto-clean.ttf",
+      "Roboto.ttf",
+      "Roboto.woff2",
+      "acme-bold.ttf",
+      "acme-display.ttf",
+      "aspose_font.mcp",
+      "beta-bold.ttf",
+      "bold-condensed.ttf",
+      "bold-stat.ttf",
+      "compare.png",
+      "compat-report.json",
+      "condensed-bold.ttf",
+      "delta-text-compare.png",
+      "family-review-board.png",
+      "font-qa-report.html",
+      "grid-sheet.png",
+      "matrix.png",
+      "menu-safe-bold.ttf",
+      "naming-preview.json",
+      "preview.png",
+      "preview.svg",
+      "qa-bold.ttf",
+      "qa-report.html",
+      "qa-report.json",
+      "ribbi-safe-bold.ttf",
+      "roboto-beta-bold.ttf",
+      "roboto-sweep-wdth.png",
+      "roboto.woff2",
+      "sweep.png",
+      "variable-presentation.json",
+      "waterfall.png"
+    ]
+  },
+  "all_named": true
+}

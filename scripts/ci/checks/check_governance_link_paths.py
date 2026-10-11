@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
 """Verify markdown links in governance child docs resolve to existing files.
 
@@ -7,11 +6,10 @@ FAIL if any target path does not exist.
 """
 from __future__ import annotations
 import re
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 CHILD_DIRS = [
     REPO_ROOT / 'docs' / 'governance',
     REPO_ROOT / 'docs' / 'workflows',

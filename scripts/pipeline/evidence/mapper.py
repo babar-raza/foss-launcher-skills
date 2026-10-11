@@ -1,0 +1,630 @@
+"""mapper.py — Token-to-evidence mapping and format detection.
+
+Extracted from attach_evidence.py (Phase 5). Maps API tokens to claim_ids
+and api_refs, detects format references in content, and builds per-section
+evidence breakdowns.
+
+TC-EVID-001: Added _semantic_match_claims() for TF-IDF cosine-based
+evidence attachment (supplements keyword matching).
+"""
+from __future__ import annotations
+
+import json
+import math
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+
+# sibling-import guard: sub-packages must add the pipeline root so they can
+# import sibling top-level modules (knowledge_core, token_ops, core.*).
+# This is not the antipattern -- Python adds the sub-package dir to sys.path,
+# not the pipeline root. This guard is the correct workaround for the flat layout.
+_HERE = Path(__file__).resolve().parent.parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from content_discovery import KNOWLEDGE_ROOT as _DEFAULT_KNOWLEDGE_ROOT  # noqa: E402  (R-4: was knowledge_core)
+from token_ops import (  # noqa: E402
+    PLATFORM_SDK_CLASSES,
+    PROPERTY_CHAIN_CLASSES,
+    extract_tokens,
+)
+from evidence.sections import _parse_sections  # noqa: E402
+
+# Module-level knowledge root, overridable via configure() for testing
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(knowledge_root=None) -> None:
+    """Override module-level singletons for testing.
+
+    Call configure() in test setUp/teardown to inject fake dependencies
+    without patching guarded path constants directly (T1 compliance).
+
+    Args:
+        knowledge_root: Override for KNOWLEDGE_ROOT. Pass None to reset to default.
+    """
+    global KNOWLEDGE_ROOT  # noqa: PLW0603
+    KNOWLEDGE_ROOT = knowledge_root if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
+
+
+# Internal implementation class names extracted by scout that are not user-facing formats.
+# These appear in formats.json as exporter base/registry/factory classes and must be excluded.
+_INTERNAL_FORMAT_NAMES = frozenset({"base", "registry", "factory", "pptxfactory"})
+
+# CV2-003b: Format names that appear in formats.json but are not real file extensions.
+# These are internal class/concept names (CFB structure elements, spreadsheet concepts,
+# enum constants for non-I/O purposes) that the format extractor picks up from source code.
+_FALSE_POSITIVE_EXTS = frozenset({
+    # Spreadsheet structural concepts (cells/python)
+    "col", "row", "main", "elem",
+    # OPC/package concepts (slides/cpp)
+    "package",
+    # CFB/MSG structure elements (email/python)
+    "storage", "value", "address", "flags", "reserved", "clsid", "difat",
+    # Slide rendering internals (slides/python)
+    "double", "black", "el",
+    # Font library internals (font/python)
+    "font", "binary", "bit", "slice", "pos", "format",
+    # 3D scene internals (3d/python)
+    "geometry", "mesh", "material", "rotation", "matrix",
+    # Generic false positives
+    "argb", "remove", "parts", "i",
+})
+
+# CV2-003c: Format names that collide with common English words.
+# These require stronger contextual evidence (file extension pattern, enum
+# reference, or format-table context) to avoid false positives from prose.
+_AMBIGUOUS_FORMAT_EXTS = frozenset({
+    "text",   # words/python plain-text format — "text" appears constantly in prose
+})
+
+# Maximum length for a plausible file extension (e.g. "docx"=4, "pptx"=4, "html"=4, "jpeg"=4)
+_MAX_EXT_LEN = 8
+
+
+def _has_format_context(ext: str, text_lower: str) -> bool:
+    """Check if an ambiguous format name appears in a format-indicating context.
+
+    For format names that collide with common English words (e.g. "text"),
+    the bare word match produces too many false positives.  This function
+    requires stronger evidence before accepting the match.
+    """
+    e = re.escape(ext)
+    # 1. File extension usage: .text (dot-prefixed)
+    if re.search(rf'\.{e}\b', text_lower):
+        return True
+    # 2. Enum reference: SaveFormat.Text, LoadFormat.Text
+    if re.search(rf'(?:save|load|export|import)format\.{e}\b', text_lower):
+        return True
+    # 3. Save/load method with ext: save_to_text, export_to_text, to_text()
+    if re.search(rf'(?:save|export|convert|load|import|to)[-_]{e}\b', text_lower):
+        return True
+    # 4. Code pattern: save("...text") / save('...text')
+    if re.search(rf'''save\s*\([^)]*\.{e}''', text_lower):
+        return True
+    return False
+
+
+def _load_known_formats(knowledge) -> list:
+    """Load and normalise known formats from formats.json.
+
+    FIX-06: Only include formats with direction: export or import.
+    Formats with direction: detect are enum-only entries (SaveFormat
+    constant exists but no backing I/O class) and must not appear in
+    evidence as supported formats.
+    """
+    formats_path = (KNOWLEDGE_ROOT / knowledge.family / knowledge.platform
+                    / "merged" / "formats.json")
+    if not formats_path.exists():
+        return []
+
+    known_formats = json.loads(formats_path.read_text(encoding="utf-8"))
+    if not isinstance(known_formats, list):
+        return []
+
+    # First pass: collect direction per ext, merging import+export → both.
+    ext_directions: dict[str, str] = {}
+    for entry in known_formats:
+        if not isinstance(entry, dict):
+            continue
+        ext = entry.get("extension", entry.get("ext", entry.get("format", ""))).lower().lstrip(".")
+        if not ext or ext in _INTERNAL_FORMAT_NAMES or ext in _FALSE_POSITIVE_EXTS or len(ext) > _MAX_EXT_LEN:
+            continue
+        support = entry.get("support", entry.get("direction", ""))
+        # FIX-06: skip detect-only formats — they have no backing I/O class
+        if support in ("detect", "enum_only"):
+            continue
+        # FIX-13: skip formats marked as non-functional (enum exists but
+        # I/O implementation throws or is absent)
+        if entry.get("functional") is False:
+            continue
+        existing = ext_directions.get(ext)
+        if existing is None:
+            ext_directions[ext] = support
+        elif existing != support:
+            # Merge import + export → both
+            if {existing, support} <= {"import", "export"}:
+                ext_directions[ext] = "both"
+            elif "both" in (existing, support):
+                ext_directions[ext] = "both"
+
+    result = [{"ext": ext, "support": sup} for ext, sup in ext_directions.items()]
+    return result
+
+
+def _detect_formats(filepath, knowledge) -> list:
+    """Scan page body for format extension mentions; cross-ref against formats.json."""
+    known = _load_known_formats(knowledge)
+    if not known:
+        return []
+
+    text = filepath.read_text(encoding="utf-8").lower()
+    result = []
+    seen_exts = set()
+    for entry in known:
+        ext = entry["ext"]
+        if ext in seen_exts:
+            continue
+        # CV2-003c: ambiguous format names need contextual evidence
+        if ext in _AMBIGUOUS_FORMAT_EXTS:
+            if _has_format_context(ext, text):
+                result.append(entry)
+                seen_exts.add(ext)
+            continue
+        if re.search(rf'\.{re.escape(ext)}\b|(?<![a-z]){re.escape(ext)}(?![a-z])', text):
+            result.append(entry)
+            seen_exts.add(ext)
+    return result
+
+
+def _detect_formats_in_text(text, knowledge) -> list:
+    """Detect format references within a text string (for per-section detection)."""
+    known = _load_known_formats(knowledge)
+    if not known:
+        return []
+
+    text_lower = text.lower()
+    result = []
+    seen_exts = set()
+    for entry in known:
+        ext = entry["ext"]
+        if ext in seen_exts:
+            continue
+        # CV2-003c: ambiguous format names need contextual evidence
+        if ext in _AMBIGUOUS_FORMAT_EXTS:
+            if _has_format_context(ext, text_lower):
+                result.append(entry)
+                seen_exts.add(ext)
+            continue
+        if re.search(rf'\.{re.escape(ext)}\b|(?<![a-z]){re.escape(ext)}(?![a-z])', text_lower):
+            result.append(entry)
+            seen_exts.add(ext)
+    return result
+
+
+def _map_tokens_to_evidence(tokens, knowledge) -> tuple[list, list]:
+    """Map a list of tokens to claim_ids and api_refs.
+
+    Returns (claim_ids: list[str], api_refs: list[str]).
+    """
+    claim_ids = []
+    api_refs = []
+    seen_refs = set()
+
+    for tok in tokens:
+        if tok.kind in ("import", "table_member"):
+            continue
+        cls = tok.class_name
+        if not cls or cls not in knowledge.classes:
+            continue
+        if cls in PLATFORM_SDK_CLASSES or cls in PROPERTY_CHAIN_CLASSES:
+            continue
+        member = tok.member_name if tok.member_name and tok.member_name != "__init__" else None
+        if member and not knowledge.has_method(cls, member) \
+                and not knowledge.has_property(cls, member) \
+                and not knowledge.has_enum_member(cls, member):
+            member = None
+
+        ref = f"{cls}.{member}" if member else cls
+        if ref in seen_refs:
+            continue
+        seen_refs.add(ref)
+
+        # Use ClassName.method for method calls; fall back to ClassName-only for
+        # constructors (__init__) so ERC- class-level claim keys can be resolved.
+        raw_member = tok.member_name
+        if raw_member and raw_member != "__init__":
+            api_key = f"{cls}.{raw_member}"
+        else:
+            api_key = cls
+        cid = knowledge.api_to_claim.get(api_key)
+        if not cid and raw_member and raw_member != "__init__":
+            # Also try class-only fallback for ERC- resolution when method key misses
+            cid = knowledge.api_to_claim.get(cls)
+        if cid:
+            claim_ids.append(cid)
+        if member:
+            api_refs.append(f"{cls}.{member}")
+        elif tok.kind == "constructor":
+            # Constructor usage → add bare class name as api_ref so blog
+            # posts that import+construct (without calling methods) still
+            # get evidence.apis populated.
+            api_refs.append(cls)
+
+    return claim_ids, api_refs
+
+
+def _load_delta_modified_apis(knowledge) -> set:
+    """Load the set of modified API names from knowledge_delta.json.
+
+    Returns an empty set if the delta file does not exist or has no modified_apis.
+    """
+    delta_path = (KNOWLEDGE_ROOT / knowledge.family / knowledge.platform
+                  / "merged" / "knowledge_delta.json")
+    if not delta_path.exists():
+        return set()
+    try:
+        delta = json.loads(delta_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return set()
+    return set(delta.get("modified_apis", []))
+
+
+def _api_name_fallback_match(filepath, knowledge, already_matched: set) -> tuple[list, list]:
+    """Fallback: scan page body prose for modified API names not captured by token extraction.
+
+    Reads knowledge_delta.json for modified_apis and searches the page body text (outside
+    code blocks) for word-boundary occurrences of those API names. Only adds matches for
+    APIs that (a) exist in the current knowledge model, (b) are in the modified_apis list,
+    and (c) were not already captured by code-block token extraction.
+
+    Args:
+        filepath: Path to the content file.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings (e.g. "ClassName" or "ClassName.member")
+            already captured by _map_tokens_to_evidence — avoids double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]).
+    """
+    modified_apis = _load_delta_modified_apis(knowledge)
+    if not modified_apis:
+        return [], []
+
+    # Read page content; strip YAML frontmatter before scanning
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return [], []
+
+    if text.startswith("---"):
+        end_fm = text.find("\n---", 3)
+        if end_fm != -1:
+            text = text[end_fm + 4:]
+
+    # Remove fenced code blocks to limit matches to prose text only.
+    # This prevents re-matching APIs already captured by token extraction.
+    text_prose = re.sub(r"```[\s\S]*?```", " ", text)
+
+    claim_ids = []
+    api_refs = []
+    seen = set()
+
+    for api_name in sorted(modified_apis):  # sorted for determinism
+        if api_name in seen:
+            continue
+        if api_name not in knowledge.classes:
+            continue
+        if api_name in already_matched:
+            continue
+        if not re.search(rf"\b{re.escape(api_name)}\b", text_prose):
+            continue
+        cid = knowledge.api_to_claim.get(api_name)
+        if not cid:
+            continue
+        seen.add(api_name)
+        claim_ids.append(cid)
+        api_refs.append(api_name)
+
+    return claim_ids, api_refs
+
+
+# EVID-PROSE-001: backtick-quoted `ClassName` or `ClassName.member` tokens in prose.
+# Requires an uppercase-leading class name (this corpus's own C#/Java/Python API
+# naming convention) so common lowercase English words in backticks never match.
+_BACKTICK_TOKEN_RE = re.compile(
+    r"`([A-Z][A-Za-z0-9_]*)(?:\.([A-Za-z_][A-Za-z0-9_]*))?(?:\(\))?`"
+)
+
+
+def _scan_backtick_tokens(text_prose: str, knowledge, already_matched: set) -> tuple[list, list]:
+    """Core scan: backtick-quoted API tokens in already-prose-only text.
+
+    Shared by _prose_backtick_fallback_match (page-level, reads+strips a whole
+    file) and _build_sections_evidence (section-level, passes an already-sliced,
+    already-code-stripped section text) so both levels apply identical matching
+    logic. See _prose_backtick_fallback_match's docstring for the full rationale.
+
+    Args:
+        text_prose: Body text with frontmatter and fenced code blocks already
+            removed by the caller.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings already captured elsewhere — avoids
+            double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]), both deduplicated and
+    sorted for deterministic output.
+    """
+    claim_ids: list[str] = []
+    api_refs: list[str] = []
+    seen_refs: set[str] = set()
+
+    for m in _BACKTICK_TOKEN_RE.finditer(text_prose):
+        cls, member = m.group(1), m.group(2)
+        if cls not in knowledge.classes:
+            continue
+
+        if member:
+            member_valid = (
+                knowledge.has_method(cls, member)
+                or knowledge.has_property(cls, member)
+                or knowledge.has_enum_member(cls, member)
+            )
+            if not member_valid:
+                # Qualified reference doesn't resolve — skip entirely rather than
+                # silently crediting the bare class (never mask a potentially-wrong
+                # qualified reference as partial evidence).
+                continue
+            ref = f"{cls}.{member}"
+        else:
+            ref = cls
+
+        if ref in seen_refs or ref in already_matched:
+            continue
+        seen_refs.add(ref)
+
+        cid = knowledge.api_to_claim.get(ref)
+        if not cid and member:
+            # Method/property-level claim key missed — fall back to the
+            # class-level claim (ERC- style), same pattern as the code-block path.
+            cid = knowledge.api_to_claim.get(cls)
+        if cid:
+            claim_ids.append(cid)
+        api_refs.append(ref)
+
+    return sorted(set(claim_ids)), sorted(set(api_refs))
+
+
+def _prose_backtick_fallback_match(filepath, knowledge, already_matched: set) -> tuple[list, list]:
+    """Fallback: scan page body prose for backtick-quoted API tokens not captured
+    by code-block token extraction.
+
+    EVID-PROSE-001: generalizes the CLAIM-EXTRACT-001 modified_apis-only fallback
+    (_api_name_fallback_match) to the general case — most content pages in this repo
+    are prose-only (no fenced code blocks) because verified code snippets are scarce
+    or, for some products, cover only a narrow slice of the API surface (see G-26 in
+    backlog/BACKLOG.md). Every class/method mentioned in prose is written as a
+    backtick-quoted identifier by this repo's own authoring convention (enforced by
+    every content-generation skill), so a backtick-quoted, uppercase-leading token that
+    resolves to a real class (optionally qualified by a real method/property/enum
+    member on that class) is a high-precision, low-false-positive signal — the same
+    exact-match confidence tier as code-block token extraction, just fed from prose.
+
+    Conservative by design: bare method/property/enum-member mentions without a class
+    qualifier (e.g. `` `Update()` `` on its own) are NOT resolved, since a bare member
+    name cannot be attributed to one specific class without ambiguity — this avoids
+    the false-positive class seen in this repo's other bare-backtick-token consumers
+    (change_guard.py flagging bare enum members as unresolved API lookups).
+
+    Args:
+        filepath: Path to the content file.
+        knowledge: Knowledge model instance.
+        already_matched: Set of ref strings (e.g. "ClassName" or "ClassName.member")
+            already captured by _map_tokens_to_evidence — avoids double-counting.
+
+    Returns (claim_ids: list[str], api_refs: list[str]), both deduplicated and
+    sorted for deterministic output.
+    """
+    try:
+        text = filepath.read_text(encoding="utf-8")
+    except OSError:
+        return [], []
+
+    if text.startswith("---"):
+        end_fm = text.find("\n---", 3)
+        if end_fm != -1:
+            text = text[end_fm + 4:]
+
+    # Remove fenced code blocks to limit matches to prose text only — avoids
+    # re-matching tokens already captured by code-block token extraction.
+    text_prose = re.sub(r"```[\s\S]*?```", " ", text)
+
+    return _scan_backtick_tokens(text_prose, knowledge, already_matched)
+
+
+def _extract_section_tokens(filepath, section, platform) -> list:
+    """Extract API tokens from a single section's code blocks."""
+    all_tokens = extract_tokens(filepath, platform)
+
+    code_ranges = section["code_ranges"]
+    if not code_ranges:
+        return []
+
+    section_tokens = []
+    for tok in all_tokens:
+        for start, end in code_ranges:
+            if start <= tok.line_no <= end:
+                section_tokens.append(tok)
+                break
+
+    return section_tokens
+
+
+def _section_has_code_blocks(section) -> bool:
+    """Return True if section contains at least one code block."""
+    return len(section["code_ranges"]) > 0
+
+
+def _build_sections_evidence(filepath, knowledge) -> list:
+    """Build the sections array for paragraph-level evidence.
+
+    Returns a list of section evidence dicts (only sections with evidence).
+    """
+    sections = _parse_sections(filepath)
+    platform = knowledge.platform
+    result = []
+
+    # FIX-06: headings that indicate limitation context — format mentions
+    # under these headings should not be treated as supported-format evidence.
+    _LIMITATION_HEADINGS = frozenset({
+        "limitations", "known limitations", "not supported",
+        "unsupported", "unsupported formats", "known issues",
+        "restrictions", "format limitations",
+    })
+
+    for section in sections:
+        section_tokens = _extract_section_tokens(filepath, section, platform)
+        claim_ids, api_refs = _map_tokens_to_evidence(section_tokens, knowledge)
+
+        section_text = "\n".join(text for _, text in section["body_lines"])
+
+        # EVID-PROSE-001: backtick-quoted API tokens in this section's prose,
+        # excluding lines inside this section's own code fences (code_ranges) so
+        # code-block usage isn't double-counted against the token-extraction path
+        # above. See _prose_backtick_fallback_match for the full rationale.
+        code_ranges = section["code_ranges"]
+        prose_lines = [
+            text for line_no, text in section["body_lines"]
+            if not any(start <= line_no <= end for start, end in code_ranges)
+        ]
+        section_prose = "\n".join(prose_lines)
+        already_in_section = set(api_refs) | {r.split(".")[0] for r in api_refs}
+        pb_claims, pb_refs = _scan_backtick_tokens(section_prose, knowledge, already_in_section)
+        for cid in pb_claims:
+            if cid not in claim_ids:
+                claim_ids.append(cid)
+        for ref in pb_refs:
+            if ref not in api_refs:
+                api_refs.append(ref)
+
+        formats = _detect_formats_in_text(section_text, knowledge)
+
+        # FIX-06: if the section heading is a limitations context, strip
+        # format entries — mentioning a format in limitations doesn't mean
+        # the product supports it.
+        heading_lower = section.get("heading", "").lower().strip()
+        if heading_lower in _LIMITATION_HEADINGS:
+            formats = []
+
+        # Skip sections with no evidence
+        if not claim_ids and not api_refs and not formats:
+            continue
+
+        entry = {
+            "heading": section["heading"],
+            "line": section["line"],
+            "claims": sorted(set(claim_ids)),
+            "apis": sorted(set(api_refs)),
+        }
+        if formats:
+            entry["formats"] = formats
+
+        result.append(entry)
+
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Semantic evidence matching (TC-EVID-001)
+# ---------------------------------------------------------------------------
+
+_SEMANTIC_STOPWORDS = frozenset(
+    "a about above after again against all am an and any are as at be because "
+    "been before being below between both but by can could did do does doing "
+    "down during each few for from further get got had has have having he her "
+    "here hers herself him himself his how i if in into is it its itself just "
+    "let like me might more most my myself no nor not now of off on once only "
+    "or other our ours ourselves out over own re same shall she should so some "
+    "such than that the their theirs them themselves then there these they this "
+    "those through to too under until up us very was we were what when where "
+    "which while who whom why will with you your yours yourself yourselves".split()
+)
+
+_SEMANTIC_MATCH_THRESHOLD = 0.85  # cosine above this → match
+
+
+def _sem_tokenize(text: str) -> list[str]:
+    words = re.findall(r"[a-z0-9_]+", text.lower())
+    return [w for w in words if len(w) > 2 and w not in _SEMANTIC_STOPWORDS]
+
+
+def _sem_cosine(vec1: dict[str, float], vec2: dict[str, float]) -> float:
+    keys = set(vec1) & set(vec2)
+    if not keys:
+        return 0.0
+    dot = sum(vec1[k] * vec2[k] for k in keys)
+    mag1 = math.sqrt(sum(v * v for v in vec1.values()))
+    mag2 = math.sqrt(sum(v * v for v in vec2.values()))
+    if mag1 == 0 or mag2 == 0:
+        return 0.0
+    return dot / (mag1 * mag2)
+
+
+def _semantic_match_claims(
+    prose_text: str,
+    claims: list[dict],
+    *,
+    threshold: float = _SEMANTIC_MATCH_THRESHOLD,
+) -> list[str]:
+    """Match prose text against claims using TF-IDF cosine similarity.
+
+    Returns list of claim_ids that match above threshold.
+    This supplements keyword matching — union the results with
+    token-based claim_ids for broader evidence coverage.
+
+    Args:
+        prose_text: Prose text from a page section (not code blocks).
+        claims: List of claim dicts with at least 'claim_id' and 'text' keys.
+        threshold: Cosine similarity threshold for a match.
+    """
+    if not prose_text.strip() or not claims:
+        return []
+
+    prose_tokens = _sem_tokenize(prose_text)
+    if len(prose_tokens) < 3:
+        return []
+
+    claim_tokens_list = [_sem_tokenize(c.get("text", "")) for c in claims]
+
+    # Build IDF over all documents (prose + claims)
+    all_docs = [prose_tokens] + claim_tokens_list
+    n = len(all_docs)
+    df: dict[str, int] = {}
+    for doc in all_docs:
+        for term in set(doc):
+            df[term] = df.get(term, 0) + 1
+    idf = {term: math.log(1 + n / count) for term, count in df.items()}
+
+    def to_vec(tokens: list[str]) -> dict[str, float]:
+        tf = Counter(tokens)
+        total = len(tokens) or 1
+        return {t: (c / total) * idf.get(t, 0.0) for t, c in tf.items()}
+
+    prose_vec = to_vec(prose_tokens)
+    matched_ids: list[str] = []
+
+    for claim, ctokens in zip(claims, claim_tokens_list):
+        if len(ctokens) < 2:
+            continue
+        claim_vec = to_vec(ctokens)
+        sim = _sem_cosine(prose_vec, claim_vec)
+        if sim >= threshold:
+            cid = claim.get("claim_id", "")
+            if cid:
+                matched_ids.append(cid)
+
+    return matched_ids

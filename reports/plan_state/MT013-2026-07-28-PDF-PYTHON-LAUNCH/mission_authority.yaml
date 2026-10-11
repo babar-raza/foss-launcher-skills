@@ -1,0 +1,69 @@
+mission_authority:
+  mission_id: MT013-2026-07-28-PDF-PYTHON-LAUNCH
+  mission_summary: 'Launch pdf/python (Aspose.PDF FOSS for Python) across all 5 aspose.org
+    subdomains. No dedicated Track A'' hardening expected -- Python is the most exercised
+    extractor in this pipeline with no known language-specific gaps, and live inspection
+    of the real repo (pyproject.toml, README) confirms pdf/python is a full native
+    Python reimplementation, not a pybind11/cffi/ctypes binding over the pdf/cpp core
+    (dependencies are pure Python: cryptography, asn1crypto). Third and final of three
+    sequential launches (cells/go -> pdf/cpp -> pdf/python) queued by the discover-more-products-to-launch
+    mission (2026-07-28, commit 68336dd63f), continued per MT011 (cells/go, CLOSED)
+    and MT012 (pdf/cpp, CLOSED, including its Phase 7 cells/cpp blog_done correction).
+    Each mission gets its own MISSION_AUTHORITY.yaml contract when it starts (this
+    file governs Mission 3 only).'
+  governing_plan_path: plans/master-plan.md#Mission:-MT013-2026-07-28-PDF-PYTHON-LAUNCH
+  current_phase: CLOSED
+  closure_summary: 'pdf/python launched across all 5 subdomains (247 pages: 1 products,
+    15 docs, 12 kb, 4 blog, 215 reference). Real pipeline bug found and fixed before
+    content generation: batch_reference.py''s same-name namespace disambiguation silently
+    re-collided Python''s flatter module paths (canonical_namespace was never populated
+    for Python classes; the last-dot-segment truncation then re-collided leaf-name
+    matches like aspose_pdf.document vs aspose_pdf.generated.document) -- root-caused
+    across 3 files (api_surface.py, package_manifest.py, batch_reference.py) with
+    regression tests, preserving the existing .NET-style short-suffix contract via
+    a new adaptive fallback helper. truth-audit: 0 FAIL. content_eval: 46 FAIL, all
+    triaged to 2 known formats.json extraction gaps (PDF mismarked enum_only/functional:false;
+    PNG entry missing) plus 6 isolated reference-page member-doc coverage gaps --
+    0 fabricated or false claims. S-90 verdict: PUBLISH. Readiness scorecard: READY
+    TO SHIP, all H01-H05 PASS. 7 governed commits pushed (pipeline, products, docs,
+    kb, blog, reference, websites.aspose.org sync). Full pipeline regression suite:
+    7865 passed / 45 failed, all pre-existing/environment-dependent, 0 regressions
+    from this mission. This closes the 3-mission plan (cells/go -> pdf/cpp -> pdf/python)
+    in full. Follow-ups filed to backlog: PDFPY-FORMATSGAP-001, PDFPY-GENSHADOW-001,
+    PDFPY-CNSRISK-001, PDFPY-MEMBERDOC-001, PIPETEST-PREEXIST-001.'
+  in_scope_outcomes:
+  - 'Binding-vs-full-port verification with live evidence (completed pre-contract:
+    confirmed full native Python port via pyproject.toml/README inspection) -- no
+    further Track A'' work needed on this question'
+  - pdf/python registered (already active in data/products.json), knowledge-bootstrapped,
+    size-gated (SS7d), site-planned, generated across docs/kb/reference/blog/products,
+    quality-gated (truth-audit, S-90), and committed+pushed
+  - If any genuine Python-specific extraction gap is found live during knowledge bootstrap
+    (contrary to the no-gap expectation), it is investigated and fixed following the
+    same real-evidence-first discipline as Missions 1 and 2 -- not assumed away
+  out_of_scope_items:
+  - cells/go, pdf/go, pdf/cpp, cells/cpp (Missions 1 and 2 -- both CLOSED 2026-07-28)
+  - Any change to already-landed generic pipeline hardening verified EXISTS-AND-WIRED
+    in prior missions (advisory_lock.py, session_ledger.py, llm_output_cache.py, pre-commit-audit.sh
+    gates, site_planner.py step-scaling, knowledge/index.py live stats, the C++-specific
+    Track A' fixes from MT012)
+  - Re-litigating PDFCPP-CLUSTER-001 or PDFCPP-SNIPPET-PREMISE-001 (filed in backlog/BACKLOG.md
+    during MT012, out of scope for this mission)
+  mandatory_acceptance_criteria:
+  - pdf/python's SS7d gate (class_count>=5, total_claims>=20, snippet_count>=3, enrichment_status
+    not error/absent) passes on real thresholds, not an override
+  - truth-audit hard-stops on FAIL for pdf/python; 0 FAIL required before commit
+  - S-90 publish-readiness-review verdict is PUBLISH (or an explicitly justified equivalent)
+    before commit
+  - pdf/python launch commits pushed to origin/main via the documented GH_TOKEN URL,
+    verified with git show --stat / git diff --stat matching intent
+  - Readiness scorecard reports READY TO SHIP with all H01-H05 PASS before the final
+    commit
+  - Full scripts/pipeline/tests/ suite remains green (no regression) after this mission's
+    changes, including a sync_domain_products.py check for the websites.aspose.org
+    products listing (a real gap found and fixed twice already in MT011 and MT012
+    for this exact omission)
+  conflicts_found: []
+  mission_locked: true
+  _archive_status: closed
+  _archived_at: '2026-07-29T14:06:56Z'

@@ -1,0 +1,6 @@
+{
+  "baseline_commit": "70933ab13eb0e313d9b160c55845011d366b1599",
+  "reason": "content-dispositions.json/structure-dispositions.json/code-example-dispositions.json were built against this commit (verified: u0001's stored excerpt matches this commit's README.md word-for-word). Live HEAD (042a1e5) is a later, real, human-authored/approved PR (#3, merged 2026-08-19T13:56:07Z by babar-raza, gh pr view confirmed) that republished our own prior candidate upstream -- comparing the ledger against live HEAD produces pure false-positive drift (46 excerpt mismatches vs. 0 against this pinned commit).",
+  "recorded_at": "2026-09-01T04:16:01.003915Z",
+  "recorded_by": "1b8927dd-48c8-4f8c-bb41-24dfbd5a4509"
+}

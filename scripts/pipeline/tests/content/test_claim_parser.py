@@ -1,0 +1,208 @@
+"""
+Tests for scripts/pipeline/commands/content/claim_parser.py.
+
+Min required: 8 tests. This file has 9.
+"""
+
+import json
+import pytest
+from pathlib import Path
+
+import commands.content.claim_parser as cp
+
+
+# ── Fixtures ──────────────────────────────────────────────────────────────
+
+@pytest.fixture(autouse=True)
+def reset_config():
+    yield
+    cp.configure(content_root="content")
+
+
+def _make_page(tmp_path: Path, filename: str, content: str) -> Path:
+    p = tmp_path / filename
+    p.write_text(content, encoding="utf-8")
+    return p
+
+
+# ── Tests ─────────────────────────────────────────────────────────────────
+
+def test_api_name_detection_in_code_blocks():
+    """Backtick-wrapped CamelCase.Method patterns are detected as API_REFERENCE."""
+    text = "Use `Document.Save` to write the output file."
+    symbols = cp._extract_api_symbols(text)
+    assert "Document.Save" in symbols
+
+
+def test_api_name_detection_in_prose():
+    """CamelCase class names in prose are detected when no backtick symbols exist."""
+    text = "The TextFragment class represents a piece of text."
+    symbols = cp._extract_api_symbols(text)
+    assert any("TextFragment" in s for s in symbols)
+
+
+def test_section_segmentation_correctness(tmp_path):
+    """Body with H2 headings is split into correct sections."""
+    content = """---
+title: Test
+---
+
+## Installation
+
+Install the package.
+
+## Usage
+
+Use the API.
+"""
+    p = _make_page(tmp_path, "test.md", content)
+    claim_map = cp.parse_page(str(p))
+    section_ids = [s["section_id"] for s in claim_map["sections"]]
+    assert "installation" in section_ids
+    assert "usage" in section_ids
+    assert len(claim_map["sections"]) == 2
+
+
+def test_format_name_detection():
+    """PDF, DOCX, SVG etc. are detected as FORMAT_CLAIM."""
+    text = "Convert documents from PDF to DOCX or SVG."
+    formats = cp._extract_format_claims(text)
+    assert "PDF" in formats
+    assert "DOCX" in formats
+    assert "SVG" in formats
+
+
+def test_discovery_includes_products_surface(tmp_path):
+    page = (
+        tmp_path
+        / "products.aspose.org/en/pdf/net/index.md"
+    )
+    page.parent.mkdir(parents=True)
+    page.write_text("---\ntitle: PDF\n---\n", encoding="utf-8")
+    cp.configure(content_root=str(tmp_path))
+    assert page in {Path(item) for item in cp._discover_pages("pdf", "net")}
+
+
+def test_discovery_returns_forward_slash_paths_for_zero_depth_index_pages(tmp_path):
+    """A page sitting directly under the platform dir (no subdirectory matched
+    by the recursive glob) must still come back forward-slash-only.
+
+    On Windows, glob.glob(..., recursive=True) joins the "**"-matched segment
+    with os.sep, producing mixed-separator strings like ".../go\\_index.md"
+    for zero-depth matches. Downstream consumers (body_impact.py, and every
+    other page_path in the pipeline: scope.json, page_impact.json,
+    page_decisions.jsonl) key/compare by exact forward-slash string, so a
+    mixed-separator page_path silently drops the page from body-impact
+    processing even though it is correctly present in the discovered set.
+    """
+    page = tmp_path / "docs.aspose.org/en/pdf/go/_index.md"
+    page.parent.mkdir(parents=True)
+    page.write_text("---\ntitle: PDF\n---\n", encoding="utf-8")
+    cp.configure(content_root=str(tmp_path))
+    discovered = cp._discover_pages("pdf", "go")
+    assert any(item.endswith("docs.aspose.org/en/pdf/go/_index.md") for item in discovered)
+    assert not any("\\" in item for item in discovered)
+
+
+def test_feature_claim_extraction():
+    """Feature keywords (supports, converts, exports) are captured."""
+    text = "Aspose.PDF supports PDF export and converts files."
+    features = cp._extract_feature_claims(text)
+    assert any("support" in f for f in features)
+    assert any("convert" in f or "export" in f for f in features)
+
+
+def test_version_claim_extraction():
+    """Version strings like .NET 6, v26.5.0 are detected."""
+    text = "Requires .NET 6 or higher. Compatible with v26.5.0 release."
+    versions = cp._extract_version_claims(text)
+    assert any(".NET" in v for v in versions)
+    assert any("26.5.0" in v for v in versions)
+
+
+def test_idempotency_same_input_same_output(tmp_path):
+    """Parsing the same file twice produces identical output."""
+    content = """---
+title: Test
+---
+
+## Overview
+
+Use `PdfDocument` to load a PDF file and convert to PDF format.
+"""
+    p = _make_page(tmp_path, "idempotent.md", content)
+    result1 = cp.parse_page(str(p))
+    result2 = cp.parse_page(str(p))
+    assert result1 == result2
+
+
+def test_empty_section_handling(tmp_path):
+    """Section with no claim-bearing lines produces empty claims list."""
+    content = """---
+title: Test
+---
+
+## Empty Section
+
+this section has no api names, no formats, no verbs, no versions here at all.
+just a few lowercase words that match nothing in the extractors.
+"""
+    p = _make_page(tmp_path, "empty_section.md", content)
+    result = cp.parse_page(str(p))
+    assert len(result["sections"]) == 1
+    # The plain text lines have no detectable claims
+    assert result["sections"][0]["claims"] == []
+
+
+def test_claim_map_written_to_output_dir(tmp_path):
+    """run_file() writes a valid JSON claim_map to the output directory."""
+    content = """---
+title: Test
+---
+
+## Install
+
+Install `Aspose.PDF` using NuGet for .NET 6.
+"""
+    p = _make_page(tmp_path, "install.md", content)
+    out_dir = str(tmp_path / "claim_maps")
+    cp.run_file(str(p), out_dir)
+    files = list(Path(out_dir).glob("*.claim_map.json"))
+    assert len(files) == 1
+    loaded = json.loads(files[0].read_text(encoding="utf-8"))
+    assert "page_path" in loaded
+    assert "sections" in loaded
+    total = sum(len(s["claims"]) for s in loaded["sections"])
+    assert total >= 1
+
+
+def test_claim_map_filename_is_truncated_and_hash_suffixed(tmp_path):
+    """Found live 2026-08-28, cells/typescript: a long content page path
+    under a deeply-nested run output directory pushed the full claim_map
+    file path over Windows' 260-char MAX_PATH, crashing open() with a
+    FileNotFoundError that looked like a missing-directory bug (mkdir had
+    already succeeded). The slug must be truncated (mirrors refresh_oracle.py's
+    _emit_verdict) regardless of how long the input page_path is, with a
+    hash suffix so two truncated-to-the-same-prefix pages still get distinct
+    filenames."""
+    # Flat (not nested) so the real fixture path itself stays well under
+    # Windows' 260-char MAX_PATH on any machine/CI runner -- only the
+    # page_path STRING passed to run_file (and thus fed into slug
+    # generation) needs to exceed 80 chars to exercise the truncation path.
+    long_name = "a-very-long-descriptive-page-slug-that-exceeds-eighty-characters-on-its-own"
+    p = tmp_path / f"{long_name}.md"
+    p.write_text("---\ntitle: Test\n---\n\nBody.\n", encoding="utf-8")
+    assert len(str(p)) > 80
+    out_dir = str(tmp_path / "claim_maps")
+    cp.run_file(str(p), out_dir)
+    files = list(Path(out_dir).glob("*.claim_map.json"))
+    assert len(files) == 1
+    # slug_base (before "_{10-char digest}.claim_map.json") must be capped
+    # at 80 chars regardless of how long the source page_path string is --
+    # the fixed-size digest+suffix means the total filename length is then
+    # bounded too (80 + 1 + 10 + len(".claim_map.json") = 107), unlike the
+    # unbounded-by-construction original.
+    slug = files[0].name.removesuffix(".claim_map.json")
+    slug_base, _, digest = slug.rpartition("_")
+    assert len(slug_base) <= 80
+    assert len(digest) == 10

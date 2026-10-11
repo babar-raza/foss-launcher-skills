@@ -1,0 +1,37 @@
+family: tex
+platform: python
+product_name: aspose-tex
+version: '26.5'
+license: MIT
+repo_url: https://github.com/aspose-tex-foss/Aspose.TeX-FOSS-for-Python.git
+repo_sha: 2f4bfab3863e66ef32868f5464685eb4c2d36911
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-09-10T11:07:32.601378+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: d80d7cb8-33b9-43f5-9c0e-65d616a2b397
+bundle_generated_at: '2026-09-10T11:07:32.466084+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: e24f998c0d721fd3
+  scout_claims_sha: 6fc7d74bf5c0ece33411a437cfe63753c9f4287c8a14e81fc460998ed5aeb252
+  scout_api_surface_sha: 482309743936e061736db640f75c1692b1e209678d24f4aa7236eb13a774ad43
+  enriched_claims_sha: f0394d0e1fc7ce8888ebc44f2b4e09581637dc7a5af5c70ae4563cfae22b0c2d
+  products_json_entry_sha: 7d9a8c643f5c3296cb320057a4b114c8cefa5c5e35b46c0f976e4c5cc78cbdb7
+stats:
+  scout_claims: 523
+  enriched_claims: 93
+  supplemental_claims: 0
+  total_claims: 613
+  class_count: 83
+  classes:
+    total_declared: 83
+    public_documented: 83
+    raw_entries_including_non_class: 138
+  forbidden_count: 4
+  snippet_count: 100

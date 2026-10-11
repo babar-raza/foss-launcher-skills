@@ -17,17 +17,9 @@ import yaml
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
-try:
-    import sys as _sys
-    from pathlib import Path as _Path
-    _scripts = _Path(__file__).resolve().parent.parent.parent.parent
-    if str(_scripts) not in _sys.path:
-        _sys.path.insert(0, str(_scripts))
-    from config_loader import resolve_knowledge_root as _rkr
-    KNOWLEDGE_ROOT = _rkr()
-except Exception:
-    KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = Path("knowledge")
 
 # ---------------------------------------------------------------------------
 # Version detection regex — matches runtime version mentions in prose
@@ -57,9 +49,10 @@ _CMAKE_VERSION_RE = re.compile(
     re.IGNORECASE,
 )
 
-# Negation context — skip lines that say "does not require" etc.
+# Negation/upgrade context — skip lines about old/unsupported versions.
 _NEGATION_RE = re.compile(
-    r"\b(?:not|no\s+longer|without|don'?t|doesn'?t|removed|deprecated)\b",
+    r"\b(?:not|no\s+longer|without|don'?t|doesn'?t|removed|deprecated"
+    r"|upgrade|earlier|older|previous|prior|minimum)\b",
     re.IGNORECASE,
 )
 
@@ -67,9 +60,9 @@ _NEGATION_RE = re.compile(
 _SEVERITY: dict[str, str] = {
     "reference": "FAIL",
     "products": "FAIL",
-    "kb": "WARN",
-    "blog": "WARN",
-    "docs": "WARN",
+    "kb": "FAIL",    # upgraded: wrong runtime version breaks user installations
+    "blog": "WARN",  # keep WARN: blog is editorial commentary, not instructional
+    "docs": "FAIL",  # upgraded: installation/getting-started guides must be correct
 }
 
 
@@ -88,12 +81,50 @@ def _load_runtime_requirement(family: str, platform: str) -> str:
     return ""
 
 
-def _extract_major_version(version_str: str) -> float | None:
-    """Extract the major (or major.minor) version number from a string."""
-    m = re.search(r"(\d+(?:\.\d+)?)", version_str)
+def _extract_major_version(version_str: str) -> tuple[int, int] | None:
+    """Extract version as (major, minor) tuple from a string.
+
+    Uses tuple comparison to avoid float truncation (e.g. 3.10 != 3.1).
+    """
+    m = re.search(r"(\d+)(?:\.(\d+))?", version_str)
     if m:
-        return float(m.group(1))
+        major = int(m.group(1))
+        minor = int(m.group(2)) if m.group(2) else 0
+        return (major, minor)
     return None
+
+
+def _is_compatible(
+    claimed: tuple[int, int],
+    required: tuple[int, int],
+    platform: str,
+    runtime_req_raw: str,
+) -> bool:
+    """Return True if the claimed version is compatible with the requirement.
+
+    Handles forward-compatibility: newer runtimes run older-targeted libraries.
+    Also handles netstandard2.x → .NET 6.0+ compatibility.
+    """
+    if platform in ("net", "dotnet"):
+        # netstandard2.x (required <= 2.1) is compatible with .NET 6.0+
+        if required <= (2, 1) and claimed >= (6, 0):
+            return True
+        # Forward compat: netN.0 target works on .NET (N+x).0 runtime
+        if claimed >= required:
+            return True
+    elif platform == "python":
+        # Python forward compat: >=3.X is satisfied by any 3.Y where Y >= X
+        if claimed >= required:
+            return True
+    elif platform in ("java", "kotlin"):
+        # Java forward compat: JDK N+ works on JDK N+x
+        if claimed >= required:
+            return True
+    elif platform == "cpp":
+        # CMake forward compat
+        if claimed >= required:
+            return True
+    return False
 
 
 def _platform_regex(platform: str) -> re.Pattern | None:
@@ -159,10 +190,40 @@ def _extract_scannable_lines(page: Page) -> list[tuple[int, str]]:
                     if isinstance(val, str) and val:
                         text_fields.append(val)
 
-    # Split frontmatter text into lines (use line_no=0 for frontmatter)
+    # faq.list[].question and faq.list[].answer — products page FAQ section
+    faq_section = fm.get("faq")
+    if isinstance(faq_section, dict):
+        faq_list = faq_section.get("list", [])
+        if isinstance(faq_list, list):
+            for item in faq_list:
+                if isinstance(item, dict):
+                    for field_name in ("question", "answer"):
+                        val = item.get(field_name)
+                        if isinstance(val, str) and val.strip():
+                            text_fields.append(val)
+
+    # features.list[].content / .title / .description
+    features = fm.get("features")
+    if isinstance(features, dict):
+        for item in (features.get("list", []) or []):
+            if isinstance(item, dict):
+                for field_name in ("title", "content", "description"):
+                    val = item.get(field_name)
+                    if isinstance(val, str) and val.strip():
+                        text_fields.append(val)
+
+    # Split frontmatter text into lines with code-fence filtering (line_no=0 for frontmatter).
+    # Frontmatter text fields (e.g. single.block[].content) can contain fenced code blocks;
+    # skip lines inside those fences so evaluators remain prose-only (design intent).
     for text in text_fields:
+        in_code_block = False
         for raw_line in text.splitlines():
             stripped = raw_line.strip()
+            if stripped.startswith("```"):
+                in_code_block = not in_code_block
+                continue
+            if in_code_block:
+                continue
             if stripped and not stripped.startswith("#"):
                 lines.append((0, stripped))
 
@@ -192,6 +253,12 @@ class VersionClaimCheckEvaluator(BaseEvaluator):
         findings: list[Finding] = []
 
         for line_no, text in _extract_scannable_lines(page):
+            # Properties/Methods table rows are generated verbatim from
+            # api_surface.json's per-member `doc` field and may mention a
+            # version-like number in an unrelated technical sense. Mirrors
+            # the identical guard in capability_claim_check.py/format_truth.py.
+            if is_markdown_table_row(text):
+                continue
             # Skip negation context
             if _NEGATION_RE.search(text):
                 continue
@@ -202,8 +269,8 @@ class VersionClaimCheckEvaluator(BaseEvaluator):
                 if claimed_version is None:
                     continue
 
-                # Flag if claimed version differs from actual requirement
-                if claimed_version != req_version:
+                # Flag if claimed version is incompatible with requirement
+                if not _is_compatible(claimed_version, req_version, page.platform, runtime_req):
                     findings.append(Finding(
                         level=level,
                         category="VC",

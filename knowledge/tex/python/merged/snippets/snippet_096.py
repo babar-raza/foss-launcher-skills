@@ -1,0 +1,1 @@
+def test_chardef_define_and_use(self) -> None:

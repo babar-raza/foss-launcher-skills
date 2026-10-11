@@ -8,11 +8,18 @@ from pathlib import Path
 
 from .models import Page
 
-# Reuse audit.py discovery machinery
+# Import discovery machinery directly from knowledge_core (shorter dependency
+# chain than going through audit.py).  The sys.path guard is kept here because
+# this module may be imported via `python -m scripts.pipeline.content_eval`,
+# which adds the repo root (not scripts/pipeline/) to sys.path.
 _HERE = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_HERE))
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+_LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
-from audit import (  # noqa: E402
+from content_discovery import (  # noqa: E402  (R-1b/R-4: was knowledge_core)
     LOCALE_RE,
     PLATFORM_MAP,
     PLATFORM_RMAP,

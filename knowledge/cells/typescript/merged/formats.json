@@ -1,0 +1,150 @@
+[
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlExporter.ts",
+    "line": 9,
+    "direction": "export"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlReader.ts",
+    "line": 3,
+    "direction": "import"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlWriter.ts",
+    "line": 5,
+    "direction": "export"
+  },
+  {
+    "format": "Html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlTable.ts",
+    "line": 15,
+    "direction": "export"
+  },
+  {
+    "format": "XLSX",
+    "enum": "SaveFormat",
+    "value": "\"xlsx\"",
+    "file": "aspose_cells/types.ts",
+    "line": 177,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "CSV",
+    "enum": "SaveFormat",
+    "value": "\"csv\"",
+    "file": "aspose_cells/types.ts",
+    "line": 177,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "JSON",
+    "enum": "SaveFormat",
+    "value": "\"json\"",
+    "file": "aspose_cells/types.ts",
+    "line": 177,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "MARKDOWN",
+    "enum": "SaveFormat",
+    "value": "\"markdown\"",
+    "file": "aspose_cells/types.ts",
+    "line": 177,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "HTML",
+    "enum": "SaveFormat",
+    "value": "\"html\"",
+    "file": "aspose_cells/types.ts",
+    "line": 177,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 52,
+    "direction": "import"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlExporter.ts",
+    "line": 8,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/html/htmlReader.ts",
+    "line": 2,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "zip",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/util.ts",
+    "line": 73,
+    "direction": "import",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "csv",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1329,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "json",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1360,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 1375,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose_cells/workbook.ts",
+    "line": 390,
+    "direction": "export",
+    "evidence_kind": "ts_io_identifier"
+  }
+]

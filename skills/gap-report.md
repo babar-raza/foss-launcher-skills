@@ -1,26 +1,12 @@
----
-name: gap-report
-id: S-64
-description: >
-  Synthesize gap-eval findings across all products into a MASTER-SYNTHESIS update.
-  Uses vector-based clustering and LLM pattern naming to identify systemic error
-  patterns and root causes.
-args: "[--products all|{family/platform},...] [--k {cluster_count}] [--dry-run]"
----
-
-# S-64: Gap Report — Cross-Product Synthesis
+# S-45: Gap Report — Cross-Product Synthesis
 
 **Arguments**: $ARGUMENTS
 Expected format: `[--products all|{family/platform},{family/platform},...] [--k {cluster_count}] [--dry-run]`
 
 ## Purpose
-
-Synthesize findings across all products into a MASTER-SYNTHESIS update. Uses vector-based
-clustering and LLM pattern naming to identify systemic error patterns and root causes.
-Fully automated — no manual pattern identification required.
+Synthesize findings across all products into a MASTER-SYNTHESIS update. Uses vector-based clustering and LLM pattern naming to identify systemic error patterns and root causes. Fully automated — no manual pattern identification required.
 
 ## Pre-conditions
-
 1. At least 2 `reports/gap-analysis/{family}-{platform}.json` files must exist
    - Run `/gap-eval {family} {platform}` for each product first
 2. `LLM_API_KEY` env var recommended for pattern naming and root cause analysis
@@ -28,23 +14,115 @@ Fully automated — no manual pattern identification required.
 
 ## Steps
 
-1. **Run the cross-product synthesis** with `/gap-report`, using existing `reports/gap-analysis/*.json` inputs.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-45 --scope "*"
+> ```
 
-2. **Output**: `reports/gap-analysis/MASTER-SYNTHESIS.md`
 
-3. **Interpret the synthesis**:
-   - **Systemic patterns**: Error patterns appearing across multiple products
-   - **Root causes**: Pipeline defects that produce recurring findings
-   - **Cluster names**: LLM-generated names for finding clusters
-   - **Fix priority**: Clusters sorted by frequency × severity
+### Step 1: Build findings index (optional, for dense vectors)
 
-4. **Action on systemic patterns**:
-   - Pipeline defects → investigate `scripts/pipeline/` and fix at source
-   - Knowledge model gaps → identify missing knowledge extraction steps
-   - Template defects → update generation skill templates
+```bash
+.venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py findings-index
+```
+
+Embeds all findings for high-quality clustering. Skip if running in offline mode (TF-IDF fallback).
+
+### Step 2: Run synthesis
+
+For all products:
+```bash
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products all
+```
+
+For specific products:
+```bash
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products slides/java,slides/python,slides/net
+```
+
+Dry run (no file writes, prints synthesis update):
+```bash
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --products all --dry-run
+```
+
+Override cluster count:
+```bash
+.venv/Scripts/python scripts/gap-eval/src/synthesize.py --k 8
+```
+
+### Step 3: Review output
+
+- **Synthesis result JSON**: `reports/gap-analysis/synthesis_result.json`
+- **MASTER-SYNTHESIS.md**: Updated with a new `## Synthesis Update — {date}` section
+- **Finding vectors**: `knowledge/_vectors/_synthesis/findings.vectors.json`
+
+### Step 4: Review pattern names
+
+LLM-generated pattern names are in `synthesis_result.json`. If pattern descriptions are unclear:
+1. Re-run with different k: `--k {smaller_or_larger}`
+2. Or edit `MASTER-SYNTHESIS.md` pattern names manually (the update section is clearly delimited)
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-45 --status completed
+> ```
+
+## Output Format
+
+The synthesis update appended to MASTER-SYNTHESIS.md follows this structure:
+
+```markdown
+## Synthesis Update — {date}
+
+**Total open findings**: N across M repos
+
+### Identified Patterns
+
+#### Pattern A: {LLM-named pattern}
+- **Findings in cluster**: N
+- **Repos affected**: slides-java, cells-python, ...
+- **Description**: LLM-generated 2-sentence description
+- **Root cause**: LLM-generated root cause
+- **Prevention**: LLM-generated prevention strategy
+
+### Systemic Root Causes
+#### {Root cause name}
+...
+
+### Publish Sequence
+**Tier 1 — PUBLICATION READY**: slides-python, email-python, ...
+**Tier 2 — CONDITIONAL**: 3d-java, cells-python, ...
+**Tier 3 — NOT PUBLISHABLE**: (none)
+```
 
 ## Post-conditions
+- `reports/gap-analysis/synthesis_result.json` written with clusters, patterns, root causes
+- `reports/gap-analysis/MASTER-SYNTHESIS.md` updated with new synthesis section
+- `knowledge/_vectors/_synthesis/findings.vectors.json` written if embedding succeeded
+- Publish sequence derived deterministically from state files (no LLM for ordering)
 
-- `reports/gap-analysis/MASTER-SYNTHESIS.md` updated with cross-product pattern analysis
-- Systemic patterns identified with root cause classification
-- Fix priorities established for pipeline-level corrections
+## Clustering Parameters
+
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| k | Auto (silhouette heuristic, range 3-10) | Override with `--k` |
+| Embedding | Professionalize → Ollama → TF-IDF | Tier chain |
+| Similarity metric | Cosine | Standard for text vectors |
+| Threshold | 0.70 (Tier 2 match) | Below = escalate to Tier 3 |
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

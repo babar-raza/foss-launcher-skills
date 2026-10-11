@@ -1,0 +1,16 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "claimed_paths": [],
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java",
+      "evidence_note": "REPLACES a stale entry: the prior structure-dispositions.json (authored 2026-08-13) described a directory-tree unit under heading 'Project Layout' targeting 'Project Structure' -- that no longer matches the live old-README extraction at all. extract_old_readme_structural_units() against the real, current runs/.clone_cache/aspose_cells_java/README.md returns exactly ONE structural unit: a `kind: generic_structural_block` mermaid flowchart under the '## At a Glance' heading (a capability-overview diagram: StartingPoints -> Aspose.Cells FOSS for Java -> Core Capabilities -> Outputs, listing 15 real capability labels matching Workbook/Worksheet/Cell/Style/Row/Column/merged cells/data validation/conditional formatting/auto filters/page setup/comments/pictures/charts/shapes/ListObjects, all independently verified real via the Key Capabilities content-unit checks above). The candidate's own '## At a Glance' section carries this exact mermaid block byte-for-byte (confirmed via diff), so disposition is merged_verbatim into 'At a Glance', not a reframe. The directory-tree ASCII art the old entry was describing is a real thing in this README, but it lives in '## Project Structure' as a CODE unit (c0007), not a structural unit -- correctly tracked in code-example-dispositions.json instead, per extract_old_readme_code_units()'s own real output."
+    }
+  }
+]

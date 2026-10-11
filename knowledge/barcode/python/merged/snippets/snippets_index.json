@@ -1,0 +1,1696 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/api/test_api_entrypoints.py",
+    "source_function": "test_generate_delegates_to_the_default_service",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f7734e5dd65674a3eeb8d80c4873b515179d9c8a4fbd0de75f42f4f1a3ab73b3",
+      "norm": "f7734e5dd65674a3eeb8d80c4873b515179d9c8a4fbd0de75f42f4f1a3ab73b3"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/api/test_api_entrypoints.py",
+    "source_function": "test_symbology_helpers_delegate_with_canonical_ids",
+    "source_line": 69,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e228bd9ac4dde3ed2a71c062cf83ae662c7340bf163c0c54226b874e54cdd608",
+      "norm": "e228bd9ac4dde3ed2a71c062cf83ae662c7340bf163c0c54226b874e54cdd608"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_rejects_blank_and_non_string_symbologies",
+    "source_line": 186,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [
+      "BarcodeService.generate"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "24177a5be4383da17f5547ba6d27243ee79795edd97f552b7c4713cfed4ef2c1",
+      "norm": "24177a5be4383da17f5547ba6d27243ee79795edd97f552b7c4713cfed4ef2c1"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_runs_parse_before_encode_and_forwards_encode_options",
+    "source_line": 199,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "00263545f43f9f9468c5881f6465d7a7620f9a7e3d8455a44c8f656dcd4d17da",
+      "norm": "00263545f43f9f9468c5881f6465d7a7620f9a7e3d8455a44c8f656dcd4d17da"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_returns_barcode_with_normalized_render_options",
+    "source_line": 216,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce7968e2ee4360fd4a1b28fa2d991b1df269ee35b9849128cee922dee7c371bb",
+      "norm": "ce7968e2ee4360fd4a1b28fa2d991b1df269ee35b9849128cee922dee7c371bb"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_default_barcode_service_generates_and_renders_ean_upc_symbols",
+    "source_line": 249,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d58dc353bc2e543e26c106b8553497fad025213e317308c1cd9d00a2d5dcf46d",
+      "norm": "d58dc353bc2e543e26c106b8553497fad025213e317308c1cd9d00a2d5dcf46d"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_rejects_invalid_render_options_before_running_pipeline",
+    "source_line": 269,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3264e4ed6926bad20d5144dab27d756cbb229b3d79f9a992c28fe20286e6f1d9",
+      "norm": "3264e4ed6926bad20d5144dab27d756cbb229b3d79f9a992c28fe20286e6f1d9"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_wraps_parser_not_implemented_errors",
+    "source_line": 281,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ea83219806c090c6830156eeb7bf85d025201f099fd12bace43b10cbc0fe2cbc",
+      "norm": "ea83219806c090c6830156eeb7bf85d025201f099fd12bace43b10cbc0fe2cbc"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_wraps_encoder_not_implemented_errors",
+    "source_line": 300,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "181e7877b3bd716a6accb9f44926dd2f4968245fae134c94b64e7c1355939085",
+      "norm": "181e7877b3bd716a6accb9f44926dd2f4968245fae134c94b64e7c1355939085"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/api/test_barcode_service.py",
+    "source_function": "test_barcode_service_propagates_typed_domain_errors",
+    "source_line": 330,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dca4ee204e7e0165d90bd10967fbf4c8f34a2e340139b63438433cdcd878e284",
+      "norm": "dca4ee204e7e0165d90bd10967fbf4c8f34a2e340139b63438433cdcd878e284"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_generate_returns_a_public_code128_barcode",
+    "source_line": 13,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd5703d3426971c87b54afc549acf3d5431d9e9db450406b47690ddb840889d7",
+      "norm": "fd5703d3426971c87b54afc549acf3d5431d9e9db450406b47690ddb840889d7"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_code128_helper_returns_a_public_code128_barcode",
+    "source_line": 22,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef005f70561a1ea00fdb4df01972844572af560475df24722d69f3c53a35b976",
+      "norm": "ef005f70561a1ea00fdb4df01972844572af560475df24722d69f3c53a35b976"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/api/test_code128_api_success.py",
+    "source_function": "test_code128_public_result_renders_to_svg",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "svg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "04bc0fb8c98fb83cc571369383fb57e6ab896cd6d2032989e421052e1ac0d40b",
+      "norm": "04bc0fb8c98fb83cc571369383fb57e6ab896cd6d2032989e421052e1ac0d40b"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_returns_definitions_for_canonical_names",
+    "source_line": 108,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition",
+      "SymbologyRegistry.get_encoder",
+      "SymbologyRegistry.get_parser",
+      "SymbologyRegistry.get_profile",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "026e039655595601bdfb31014c9430f8b688a550bbc026c09f38ef06174809ae",
+      "norm": "026e039655595601bdfb31014c9430f8b688a550bbc026c09f38ef06174809ae"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_returns_definitions_for_aliases",
+    "source_line": 124,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9560cebee9e18c341bcd33312fc19c6fbf778e9eab6a9cc0c425d7653733cfe3",
+      "norm": "9560cebee9e18c341bcd33312fc19c6fbf778e9eab6a9cc0c425d7653733cfe3"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_raises_for_unknown_names",
+    "source_line": 138,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_definition"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a4dfb4ba198ce75adffb09259cce4e68de9f14aba8732490436e7bed3cdd5e4",
+      "norm": "7a4dfb4ba198ce75adffb09259cce4e68de9f14aba8732490436e7bed3cdd5e4"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_rejects_duplicate_canonical_names",
+    "source_line": 146,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a90cace27cec72cd430aeb8ad8ab5de9b23cace74432734a97463fa13f89500",
+      "norm": "0a90cace27cec72cd430aeb8ad8ab5de9b23cace74432734a97463fa13f89500"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_rejects_duplicate_aliases",
+    "source_line": 155,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5271245a55bd3b0d3c24420dc288417ee3b65819ed5e5a1291b2690f6ff07223",
+      "norm": "5271245a55bd3b0d3c24420dc288417ee3b65819ed5e5a1291b2690f6ff07223"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_registry_derives_text_policy_from_the_profile",
+    "source_line": 164,
+    "classes_used": [],
+    "methods_used": [
+      "SymbologyRegistry.get_profile",
+      "SymbologyRegistry.get_text_policy",
+      "SymbologyRegistry.register"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1a2ca383a28edf640d690226b6c3aa56800fd3117fd09693336a7a566f82db9d",
+      "norm": "1a2ca383a28edf640d690226b6c3aa56800fd3117fd09693336a7a566f82db9d"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_default_registry_bootstrap_registers_canonical_names_and_aliases",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "504aa5d83c3be9d7a5c472b914fab2965a11c013283d5babf291fa7462a3e3c5",
+      "norm": "504aa5d83c3be9d7a5c472b914fab2965a11c013283d5babf291fa7462a3e3c5"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/api/test_symbology_registry.py",
+    "source_function": "test_default_service_bootstrap_wires_registry_and_options_resolver",
+    "source_line": 209,
+    "classes_used": [
+      "Barcode"
+    ],
+    "methods_used": [
+      "SymbologyRegistry.get_definition"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "63fc8a70eae5904510c3a5603773aea0437a239bdb60a74a1b8bb3f9e1e83eb0",
+      "norm": "63fc8a70eae5904510c3a5603773aea0437a239bdb60a74a1b8bb3f9e1e83eb0"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_golden_modules",
+    "source_line": 53,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "320852c8db14498ded226a45fe8eba1a2a9cec18a78e4a79eb8933efc92db781",
+      "norm": "320852c8db14498ded226a45fe8eba1a2a9cec18a78e4a79eb8933efc92db781"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_additional_code_set_b_golden_modules",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "62f80f13c58f234551283f2df690f246f51ac5a7d843403898e4e0d57f01fac2",
+      "norm": "62f80f13c58f234551283f2df690f246f51ac5a7d843403898e4e0d57f01fac2"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_reference_behavior_vectors",
+    "source_line": 84,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6000925f73765f5cfcca10330d3332d810b74d7a088d3e78b22d7f0413af042",
+      "norm": "f6000925f73765f5cfcca10330d3332d810b74d7a088d3e78b22d7f0413af042"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_auto_encodes_single_space_via_code_set_b",
+    "source_line": 91,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29d187f479b8b6739825ec8a91e490041cc1903d4ac9a8268e3ec9627324d0ed",
+      "norm": "29d187f479b8b6739825ec8a91e490041cc1903d4ac9a8268e3ec9627324d0ed"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_supports_code_set_b_compatible_modes",
+    "source_line": 120,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "617dd83ffd8746e216e21f1e6400493a8020ac32fd089d192e6c1a5d1d6666b1",
+      "norm": "617dd83ffd8746e216e21f1e6400493a8020ac32fd089d192e6c1a5d1d6666b1"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_invalid_payload_contract",
+    "source_line": 167,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "95dad15bbc390978e8336e59875892e90204f7640344f690cf02dd25b10560f6",
+      "norm": "95dad15bbc390978e8336e59875892e90204f7640344f690cf02dd25b10560f6"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_unsupported_text_characters",
+    "source_line": 180,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4a30a6ef27f4cbd90e984b6cfe43e39b1eb082d0b4e2e295b2546a739f4b0db8",
+      "norm": "4a30a6ef27f4cbd90e984b6cfe43e39b1eb082d0b4e2e295b2546a739f4b0db8"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_reference_invalid_text_cases",
+    "source_line": 193,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1b79aa89dbe96293efc5336928b52240d4fd9f9452fc239c192e107cdba9aa65",
+      "norm": "1b79aa89dbe96293efc5336928b52240d4fd9f9452fc239c192e107cdba9aa65"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_c_non_digit_input",
+    "source_line": 201,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c6d72165b8def588602d4097d0c2dd9cb93f234a350c204917ce54eded655bd",
+      "norm": "4c6d72165b8def588602d4097d0c2dd9cb93f234a350c204917ce54eded655bd"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_code_set_c_golden_vectors",
+    "source_line": 213,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "53fa6cff78bbaf3773b07f8601abc93a3eab7d277300b915a637670b84c8b134",
+      "norm": "53fa6cff78bbaf3773b07f8601abc93a3eab7d277300b915a637670b84c8b134"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_code_set_a_golden_vectors",
+    "source_line": 226,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "861c5dc7b82d51a7d4543ef438d830c2d7c92e0eafaf9a2c10f0a6918f17028e",
+      "norm": "861c5dc7b82d51a7d4543ef438d830c2d7c92e0eafaf9a2c10f0a6918f17028e"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_fnc_golden_vectors",
+    "source_line": 247,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c351b8ff9d40f26a24645eafebbf6eacfb7c3350bb0a523d6e9f0fb2b7f62a19",
+      "norm": "c351b8ff9d40f26a24645eafebbf6eacfb7c3350bb0a523d6e9f0fb2b7f62a19"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_matches_auto_switching_golden_vectors",
+    "source_line": 265,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "48bdb365085d88736765053305565559f8107ddee028888c3aefecec42e0f301",
+      "norm": "48bdb365085d88736765053305565559f8107ddee028888c3aefecec42e0f301"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_c_odd_length_input",
+    "source_line": 273,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5305853d621aaac17d829bdc0b3fdd0669339c5a37050be3a542ac84614eb763",
+      "norm": "5305853d621aaac17d829bdc0b3fdd0669339c5a37050be3a542ac84614eb763"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_code_a_lowercase",
+    "source_line": 279,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15ab91b1fea60c7747ac8c28bace39244ae976b2ddfae65480e970b626373c3b",
+      "norm": "15ab91b1fea60c7747ac8c28bace39244ae976b2ddfae65480e970b626373c3b"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/encoding/test_code128_golden_vectors.py",
+    "source_function": "test_code128_encoder_rejects_auto_del_character",
+    "source_line": 285,
+    "classes_used": [],
+    "methods_used": [
+      "Code128Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d9a768157e75e6b1b420511275948c4b4944b4bdbf955b5ae8b4600a449f27cc",
+      "norm": "d9a768157e75e6b1b420511275948c4b4944b4bdbf955b5ae8b4600a449f27cc"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_accepts_supported_text_and_option_forms",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "19d8d41f5ce093164c71fc637045daed201915e51a64f41bf159e35b85be0e91",
+      "norm": "19d8d41f5ce093164c71fc637045daed201915e51a64f41bf159e35b85be0e91"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_bytes_input",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f67d13a8bebceedea508dd7d9ce089cb461574062a811eb783c6d1341e10697e",
+      "norm": "f67d13a8bebceedea508dd7d9ce089cb461574062a811eb783c6d1341e10697e"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_preserves_supported_whitespace_verbatim",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "288c593b900c795b2707424bdcb271dc46e16766d76dc4906aed18fd2ed9574e",
+      "norm": "288c593b900c795b2707424bdcb271dc46e16766d76dc4906aed18fd2ed9574e"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_preserves_supported_typed_encode_modes",
+    "source_line": 66,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "03aa4c153f468a2c4a02bb39549640b90bb673913a45b9faf4e31a2cda83235a",
+      "norm": "03aa4c153f468a2c4a02bb39549640b90bb673913a45b9faf4e31a2cda83235a"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_unsupported_capabilities",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8973c42e2e5fc4e0d91c077177afbc0aee47d415629f77e89a8b30724fc570ab",
+      "norm": "8973c42e2e5fc4e0d91c077177afbc0aee47d415629f77e89a8b30724fc570ab"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_empty_text",
+    "source_line": 92,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd49222490074e297544fa3a72b36ac76a573e5cc3438dfcd25fb4800f9d642e",
+      "norm": "fd49222490074e297544fa3a72b36ac76a573e5cc3438dfcd25fb4800f9d642e"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_text_that_conflicts_with_the_requested_mode",
+    "source_line": 107,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3162c589317ebeb2f05129cb96d03786c52d604f4bb04d4756bc5bf88af48a3",
+      "norm": "c3162c589317ebeb2f05129cb96d03786c52d604f4bb04d4756bc5bf88af48a3"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_accepts_control_characters_in_auto_mode",
+    "source_line": 117,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bc968d3666b7c65f610ffd5b56c92d62bdbab0087faf8208bd981cde9b43d6cc",
+      "norm": "bc968d3666b7c65f610ffd5b56c92d62bdbab0087faf8208bd981cde9b43d6cc"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_non_enum_encode_modes",
+    "source_line": 137,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9fc2c5e9023cd2adf08974168508311b11104313458fa3b42a25dfd2239ae2ff",
+      "norm": "9fc2c5e9023cd2adf08974168508311b11104313458fa3b42a25dfd2239ae2ff"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/encoding/test_code128_parser.py",
+    "source_function": "test_code128_parser_rejects_unsupported_option_containers",
+    "source_line": 144,
+    "classes_used": [],
+    "methods_used": [
+      "Code128InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8315a21b6a24700566707ea604d4511d20ee4ae872bb244d8cb256e1bcce7349",
+      "norm": "8eca5b3b19003bc33ffe8b2991793b455728309e79fc778d2b602f7f13622505"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/encoding/test_code39_golden_vectors.py",
+    "source_function": "test_code39_encoder_matches_golden_modules",
+    "source_line": 39,
+    "classes_used": [],
+    "methods_used": [
+      "Code39Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cca49b2b4c342a86cfda2be0f23c7146b4a7f3abdb1272abebe7125879fc8d2c",
+      "norm": "cca49b2b4c342a86cfda2be0f23c7146b4a7f3abdb1272abebe7125879fc8d2c"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/encoding/test_code39_golden_vectors.py",
+    "source_function": "test_code39_encoder_renders_display_text",
+    "source_line": 48,
+    "classes_used": [],
+    "methods_used": [
+      "Code39Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a4473a58535163d501e1f5e7d5d88e62dd7c111819d1e6ed9365add1908705cf",
+      "norm": "a4473a58535163d501e1f5e7d5d88e62dd7c111819d1e6ed9365add1908705cf"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_base_text_with_full_payload_equality",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "98f900622e0232c0ba1076be320ece364d5210a156ed4d4561206f49e2db9883",
+      "norm": "98f900622e0232c0ba1076be320ece364d5210a156ed4d4561206f49e2db9883"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_every_base_sub_group",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9dc4dd068a7fa766a2da960ea7593126b4a88fc6a2b00e76088035bdd6359150",
+      "norm": "9dc4dd068a7fa766a2da960ea7593126b4a88fc6a2b00e76088035bdd6359150"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_uses_definition_full_ascii_default",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c312d3c913b0ae15058ca94139bc4042ecc42f0dedbf802c80e19b580cf7139f",
+      "norm": "c312d3c913b0ae15058ca94139bc4042ecc42f0dedbf802c80e19b580cf7139f"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_option_override_enables_full_ascii_on_base_definition",
+    "source_line": 58,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7047ce1036fd9bcce13d93c96bc06bc75edb3260f19ad08811043b45ce515a71",
+      "norm": "7047ce1036fd9bcce13d93c96bc06bc75edb3260f19ad08811043b45ce515a71"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_option_override_disables_full_ascii_on_ext_definition",
+    "source_line": 65,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "20290294d46d9acb3ad5a4bfaca62695680c274008a65b9f182dae1c510a43be",
+      "norm": "20290294d46d9acb3ad5a4bfaca62695680c274008a65b9f182dae1c510a43be"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_carries_check_digit_request",
+    "source_line": 72,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "818d0274e258f7887af1a6bc4dc43293df0f382d21764e1e90ee7fadd56276ba",
+      "norm": "818d0274e258f7887af1a6bc4dc43293df0f382d21764e1e90ee7fadd56276ba"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_defaults_check_digit_to_false",
+    "source_line": 79,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5733cef09557e51647e05cf815493b893304b31ef90c3be94681e8a1ef1acc5c",
+      "norm": "5733cef09557e51647e05cf815493b893304b31ef90c3be94681e8a1ef1acc5c"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_plain_encode_options_container",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ee7055990d5a8e1c4612d026518f30925656b0a3830037888982e8aea6687bf5",
+      "norm": "ee7055990d5a8e1c4612d026518f30925656b0a3830037888982e8aea6687bf5"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_bytes_input",
+    "source_line": 94,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce9e6db6b946aa535cb8d87797ad716587521d1aec20f2906a3fba468062c2ae",
+      "norm": "ce9e6db6b946aa535cb8d87797ad716587521d1aec20f2906a3fba468062c2ae"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_empty_text",
+    "source_line": 100,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c42aa77a5db525d9405420d2fa4298610ed296aa95ebf0390a95d5943bc1d1c",
+      "norm": "4c42aa77a5db525d9405420d2fa4298610ed296aa95ebf0390a95d5943bc1d1c"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_unsupported_capabilities",
+    "source_line": 113,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "861376ed7b0f571c231d2cae083e3a61d5e7f56021a399afb1f61ea0fedd54e0",
+      "norm": "861376ed7b0f571c231d2cae083e3a61d5e7f56021a399afb1f61ea0fedd54e0"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_base_out_of_set_characters",
+    "source_line": 130,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6fe6baa034227932e9c80b2f65288a50db73da78c0f6b0c6b75760ff3914775b",
+      "norm": "6fe6baa034227932e9c80b2f65288a50db73da78c0f6b0c6b75760ff3914775b"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_non_ascii_in_full_ascii_mode",
+    "source_line": 136,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "47159ba5db74d04e992ed0318068b0ce0947cf354f23dcef19740b6778930c96",
+      "norm": "47159ba5db74d04e992ed0318068b0ce0947cf354f23dcef19740b6778930c96"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_accepts_star_in_full_ascii_mode",
+    "source_line": 142,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bd43f9f997072397532ee0333d095eb292220dbc34a8ae686b7df90f6d1134f9",
+      "norm": "bd43f9f997072397532ee0333d095eb292220dbc34a8ae686b7df90f6d1134f9"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_preserves_whitespace_verbatim",
+    "source_line": 150,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "09ffd8f4fe26339d4e1912b346623d7ee1975583e856b2c40aac3f590d662c71",
+      "norm": "09ffd8f4fe26339d4e1912b346623d7ee1975583e856b2c40aac3f590d662c71"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/encoding/test_code39_parser.py",
+    "source_function": "test_code39_parser_rejects_unsupported_option_containers",
+    "source_line": 160,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9263c08b6f36e636c299748b21b29fdf37d3525637c499a1600cbf6117c19452",
+      "norm": "98e98c4700c06b3951cc54753012ac875b074ed5e03b1faadf28ee6fcb482f7f"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row0_matches_golden_module_string",
+    "source_line": 28,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75802a14685ff96197f098e2c1bb8fd228cb269528ed671bf33b6fe6c8159b7d",
+      "norm": "75802a14685ff96197f098e2c1bb8fd228cb269528ed671bf33b6fe6c8159b7d"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_matrix_dimensions",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25ebb4e4b27214f5fd2aaf1aa326b110df9f1e8adead3b6b7041abc853be100f",
+      "norm": "25ebb4e4b27214f5fd2aaf1aa326b110df9f1e8adead3b6b7041abc853be100f"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row_heights_match_iso_constants",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "315ba000d72c72199d569fc22beeaa4f46e662c694d6fb55090251d2da644518",
+      "norm": "315ba000d72c72199d569fc22beeaa4f46e662c694d6fb55090251d2da644518"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_row1_guard_extension_mask",
+    "source_line": 54,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cb43bc1b18852770f7450d7079aeaf7f00fac8c74e5eaf05420855eef761b0bd",
+      "norm": "cb43bc1b18852770f7450d7079aeaf7f00fac8c74e5eaf05420855eef761b0bd"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/encoding/test_ean13_golden_vectors.py",
+    "source_function": "test_ean13_metadata_fields",
+    "source_line": 64,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "690c1be9b4e87f73f03b374a71484d31f928bad2126159800b81729b22773450",
+      "norm": "690c1be9b4e87f73f03b374a71484d31f928bad2126159800b81729b22773450"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_computes_check_digit_from_12_digit_input",
+    "source_line": 13,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9dc91a744afc68200df4d13ceb9fa49935149a4f2e298272176bcd6554a434ed",
+      "norm": "9dc91a744afc68200df4d13ceb9fa49935149a4f2e298272176bcd6554a434ed"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_second_known_12_digit_value",
+    "source_line": 20,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b03269286c8d2fa782f8d3903bd482003d2db0b458f4e40edc4ad3768d3024ab",
+      "norm": "b03269286c8d2fa782f8d3903bd482003d2db0b458f4e40edc4ad3768d3024ab"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_13_digit_input_when_flag_is_set",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "89b7b5c0f42f19b6067bc4508bf55e6050c8f3d9b74a44745436db6178d28096",
+      "norm": "89b7b5c0f42f19b6067bc4508bf55e6050c8f3d9b74a44745436db6178d28096"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_accepts_encode_options_base_type",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "18d0a168b5a36b13bb8342fde188377a53a7c01325731911d9a9762aca57584b",
+      "norm": "18d0a168b5a36b13bb8342fde188377a53a7c01325731911d9a9762aca57584b"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_bytes_input",
+    "source_line": 44,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3979b9049c02e5c0aff247e00e6f816fcd65c1c5a8ec8dbcad984f90ce3f8b82",
+      "norm": "e608faadfa3802ee7670c418219a4ed39630cd1fade77b0e8298d9f0d3b4e7ea"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_string_input",
+    "source_line": 50,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d777514bc03286cb9a5e43ab9daa10ab92dbe64f7f735feb8491efb10794a8d0",
+      "norm": "d56de689527e689db7beab28f26779362ea31ddc7ac1c0be3ef9cabd77a4728b"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_empty_string",
+    "source_line": 56,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a225329eb443035a197fc51f7cd4d5e420a54c7272821da3b5958f4d39823899",
+      "norm": "a225329eb443035a197fc51f7cd4d5e420a54c7272821da3b5958f4d39823899"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_whitespace_only_string",
+    "source_line": 62,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce08ceda4b9af1c74c993298bc649b4553f783af39ba1f751c75527a2d8de788",
+      "norm": "ce08ceda4b9af1c74c993298bc649b4553f783af39ba1f751c75527a2d8de788"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_digit_characters_and_reports_position",
+    "source_line": 68,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3bad543961eec53c4fe704365ff8437db7e59d558dd505d084babaf324f7afbf",
+      "norm": "3bad543961eec53c4fe704365ff8437db7e59d558dd505d084babaf324f7afbf"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_digit_characters_at_first_position",
+    "source_line": 74,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ca661a6ef749a63c649376eeb44d5864a7fedd110bc0f447c9f01a5150d0b36",
+      "norm": "7ca661a6ef749a63c649376eeb44d5864a7fedd110bc0f447c9f01a5150d0b36"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_non_ascii_digits",
+    "source_line": 80,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce3357352214796241cc545456ed187bb90608322c94625c30e1fd591a9349f5",
+      "norm": "ce3357352214796241cc545456ed187bb90608322c94625c30e1fd591a9349f5"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_wrong_length",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b318cde5cd38ade6c8e75695db0a332b8b2bbd7aae7ad6b5c29463efe0c3731a",
+      "norm": "b318cde5cd38ade6c8e75695db0a332b8b2bbd7aae7ad6b5c29463efe0c3731a"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_various_wrong_lengths",
+    "source_line": 93,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae3eeff9b6939295812677f4d52b540921da414359cc941b69d9b593cffc9b90",
+      "norm": "ae3eeff9b6939295812677f4d52b540921da414359cc941b69d9b593cffc9b90"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_13_digit_input_without_flag",
+    "source_line": 100,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7273485322fcdcea95a0430f3ad14af01d335ec4f1525f94b5477d4d7b29e30a",
+      "norm": "7273485322fcdcea95a0430f3ad14af01d335ec4f1525f94b5477d4d7b29e30a"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_wrong_check_digit_when_flag_is_set",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a5636eebb8815f0f7b88f6be078e848dbbe9dfc37867e95ffbc27bba57b7043b",
+      "norm": "a5636eebb8815f0f7b88f6be078e848dbbe9dfc37867e95ffbc27bba57b7043b"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_unsupported_capabilities",
+    "source_line": 122,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "36c1a9ad01a676af104d04dd7a74739f3bb405ebeaea0036cb7fbbf699f84db6",
+      "norm": "36c1a9ad01a676af104d04dd7a74739f3bb405ebeaea0036cb7fbbf699f84db6"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/encoding/test_ean13_parser.py",
+    "source_function": "test_ean13_parser_rejects_unsupported_option_containers",
+    "source_line": 132,
+    "classes_used": [],
+    "methods_used": [
+      "Ean13InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dcf24e86bb6a7f323609a9ff851083999b335637bd606508a811a72b40d72417",
+      "norm": "ea3cf1aadb32038472cf45bc6bbc39c9ff02a76d46ce24a3e6ab6ab216c25fdb"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row0_matches_golden_module_string",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d791ad2486267ed4fa966b9aaef32eed5efe89e0945f0c5131d1f7de9de352e6",
+      "norm": "d791ad2486267ed4fa966b9aaef32eed5efe89e0945f0c5131d1f7de9de352e6"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_matrix_dimensions",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bca88bc7c7b8f3dd5b4fef127feddb3451453053105888f052bf8d8a9a48f4b5",
+      "norm": "bca88bc7c7b8f3dd5b4fef127feddb3451453053105888f052bf8d8a9a48f4b5"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row_heights_match_iso_constants",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2a3b7b6fe443d380efb95c71892e99bd760cb83d6c4f4132c34eb6fa3ab12e68",
+      "norm": "2a3b7b6fe443d380efb95c71892e99bd760cb83d6c4f4132c34eb6fa3ab12e68"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_row1_guard_extension_mask",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "52c977b1337d21e7dae443f48f3713b1fe0dccf39a29df3911f5096e7582d688",
+      "norm": "52c977b1337d21e7dae443f48f3713b1fe0dccf39a29df3911f5096e7582d688"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/encoding/test_ean8_golden_vectors.py",
+    "source_function": "test_ean8_metadata_fields",
+    "source_line": 54,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8Encoder.encode"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "994b8a346e23e677dd4697c3db8ddb2511276a962524e5bfec82c1b2d2236578",
+      "norm": "994b8a346e23e677dd4697c3db8ddb2511276a962524e5bfec82c1b2d2236578"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_computes_check_digit_from_7_digit_input",
+    "source_line": 13,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b773020d57c03729d4351a13f8deb6cbd8e72b3626b116f84930df71826e52c",
+      "norm": "5b773020d57c03729d4351a13f8deb6cbd8e72b3626b116f84930df71826e52c"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_computes_check_digit_for_second_value",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "81f3c1e3502a1d1c022fff47fa9e96b1bf79da1c0a8e5e8f2c11441778bb73f9",
+      "norm": "81f3c1e3502a1d1c022fff47fa9e96b1bf79da1c0a8e5e8f2c11441778bb73f9"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_accepts_8_digit_input_when_flag_is_set",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f456eda428ff3eca4bf131b36498f0d490e22a4e499413f6b1fe05f2fa6d6f2d",
+      "norm": "f456eda428ff3eca4bf131b36498f0d490e22a4e499413f6b1fe05f2fa6d6f2d"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_accepts_encode_options_base_type",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "734ab91d3e44247bb3f89e2c418de9eacbfe07b68516f125c49de0e5d0f08bad",
+      "norm": "734ab91d3e44247bb3f89e2c418de9eacbfe07b68516f125c49de0e5d0f08bad"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_bytes_input",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a085d5cb04b72e006202d481169b8f564c26b31a3c5cbdabfadb98779a6059f7",
+      "norm": "8681ed649f2946ec8e7ab26b4fe510a413b18faba8721465a04f3520ae608804"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_non_string_input",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8219880e9e83463758024301c51a59d8132b8fc5d1c538739ac013ea223031d5",
+      "norm": "88ef002dee28f77fdaa9d9231aba92a734621570bc53bb321204ba0a45cf8183"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_empty_string",
+    "source_line": 49,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5326d0455edba0ccb6173300b8afbc756fcb667fc6e8231b5a5740342abff103",
+      "norm": "5326d0455edba0ccb6173300b8afbc756fcb667fc6e8231b5a5740342abff103"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/encoding/test_ean8_parser.py",
+    "source_function": "test_ean8_parser_rejects_whitespace_only_string",
+    "source_line": 55,
+    "classes_used": [],
+    "methods_used": [
+      "Ean8InputParser.parse",
+      "InputParser.parse"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c856f8d8166b050ac338d693d728fa72b1c557b0e4945589438822e02e47f29",
+      "norm": "4c856f8d8166b050ac338d693d728fa72b1c557b0e4945589438822e02e47f29"
+    }
+  }
+]

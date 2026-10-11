@@ -1,0 +1,54 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "language_version",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod",
+      "evidence_note": "Byte-identical raw_markdown between old and new README (re-confirmed 2026-08-20, TC-PC-CELLS-GO) -- go.mod's real 'go 1.24.5' directive matches the badge's '>=1.24' claim."
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "license",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE",
+      "evidence_note": "Byte-identical raw_markdown between old and new README (re-confirmed 2026-08-20, TC-PC-CELLS-GO) -- real MIT LICENSE file confirmed present in the clone cache."
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "language_package_reference",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "candidate badge row (byte-identical raw_markdown to the old README's Go Reference badge, re-confirmed 2026-08-20, TC-PC-CELLS-GO)",
+      "evidence_note": "pkg.go.dev badge linking the real module path github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26, matching go.mod's real module declaration."
+    }
+  },
+  {
+    "unit_id": "b0004",
+    "action": "preserved",
+    "new_badge_unit_id": "b0004",
+    "category": "contributor_count",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "candidate badge row (byte-identical raw_markdown to the old README's Contributors badge, re-confirmed 2026-08-20, TC-PC-CELLS-GO)",
+      "evidence_note": "GitHub contributors-graph badge, category confirmed via checks.classify_badge() -- matched_signal 'contributors?' on alt_text, not guessed."
+    }
+  }
+]

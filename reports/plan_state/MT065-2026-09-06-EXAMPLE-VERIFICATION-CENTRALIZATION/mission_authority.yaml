@@ -1,0 +1,26 @@
+mission_authority:
+  mission_id: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+  mission_summary: 'Centralize example verification (currently a per-language stub/real
+    split inside readme-refresh, absent from launch-product and refresh-product) into
+    one shared lib/example_verification/ package used uniformly by S-63, S-120, S-49
+    Stage 7, S-84 verify_run, pre-commit, and knowledge promotion.
+
+    '
+  governing_plan_path: <local-plan-cache>/do-another-round-of-indexed-graham.md
+  in_scope_outcomes:
+  - Rounds 1-4 root causes (stub runners silently reachable, non-enforcing gate, lexical-only
+    hard gate, doc/code drift, rerun non-determinism, no shared module across launch/refresh/readme-refresh)
+    are closed per this plan's C1-C14.
+  out_of_scope_items:
+  - ST-190/ST-187 clone-cache and target_section staleness (referenced only, per Decision
+    3)
+  - Portfolio-wide 'verification' field rename (documented only, per Decision 2)
+  mandatory_acceptance_criteria:
+  - Every C1-C14 taskcard CLOSED with INDEPENDENTLY_REVIEWED evidence
+  - No dirty-set regression on any product outside each stage's own pilot scope
+  mission_locked: false
+  registered_by_session: 7dea1a8c-44c8-4a1e-a08c-8a8de0875004
+  registration_mode: archive_path_GOV-02 (root projection held by MT058; not overwritten)
+  _archive_status: closed
+  _archived_at: '2026-09-06T04:38:41Z'
+  _closed_at: '2026-09-06T15:17:22Z'

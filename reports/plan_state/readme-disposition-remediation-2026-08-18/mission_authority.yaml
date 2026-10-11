@@ -1,0 +1,51 @@
+mission_authority:
+  mission_id: readme-disposition-remediation-2026-08-18
+  mission_summary: 'Redesign and register TC-MICRO-02 (portfolio disposition-drift
+    remediation), which previously existed only as prose in docs/readme-refresh/*.md,
+    never in the real taskcard store. A scratch control/treatment pilot (reports/_scratch/tc-micro-02-eval-20260818/)
+    tested TC-MICRO-02''s own stated root cause -- positional unit_id drift, fixable
+    by a content-based excerpt remap -- against 2 independently sampled products (barcode/python,
+    cells/python) and found 0/48 disposition entries matched anything in the live
+    extraction: both old READMEs roughly doubled in content-unit count since dispositions
+    were last authored, so a remap has no valid targets. Real remediation is per-product
+    compose-stage re-authoring (verify each new claim against source), not a bookkeeping
+    script. This mission registers as fully standalone: root MISSION_AUTHORITY.yaml
+    currently holds concurrent-toasting-biscuit''s live, unarchived contract (current_phase:
+    Phase 0 bootstrap, about to open) -- overwriting it would destroy that in-progress
+    work, so this mission''s archived mission_authority.yaml snapshot is written directly
+    to its own reports/plan_state/ directory without ever touching the root file.
+    taskcard_store.py has zero dependency on MISSION_AUTHORITY.yaml, so this is safe
+    (6+ missions already coexist in reports/plan_state/ independent of the root projection''s
+    current occupant).'
+  governing_plan_path: <local-plan-cache>/iterative-humming-goose.md
+  in_scope_outcomes:
+  - 'TC-RDR-00: bootstrap + corrected root-cause finding recorded with evidence'
+  - 'TC-RDR-01: portfolio classification probe (TRUE_DRIFT / SUBSTANTIAL_GROWTH /
+    OUT_OF_FAMILY) run against all ~21 remaining non-clean/non-published products'
+  - 'TC-RDR-02: remap-track sub-cards for any TRUE_DRIFT products found (may be zero)'
+  - 'TC-RDR-03+: compose-track sub-cards created (TODO, not executed this mission)
+    for every SUBSTANTIAL_GROWTH product, each with an inline micro-step checklist'
+  - 'TC-RDR-OUTOFSCOPE: bookkeeping record of which baseline findings are NOT in the
+    disposition-coverage family and where they actually belong'
+  - docs/readme-refresh/current-operational-reference.md and plan-system-forensic-reconciliation.md
+    updated to reflect the corrected root cause and point at this real mission instead
+    of the old unverified prose
+  out_of_scope_items:
+  - Executing any TC-RDR-03+ product composition (created TODO only -- real compose-stage
+    work is per-product, human-reviewed, future turns)
+  - Resolving the ungrounded MT035-MT056 mission-number problem found during this
+    redesign (flagged in TC-RDR-00's evidence, not fixed here -- separate, larger
+    problem)
+  - Any change to scripts/pipeline/commands/foss/readme_refresh_run.py or readme_refresh_checks.py
+  - Touching MISSION_AUTHORITY.yaml, reports/repo-presenter-regen-full/, content/,
+    or data/readme_candidate_store.json
+  - Any push, PR, approve, or merge
+  mandatory_acceptance_criteria:
+  - Every taskcard row written this session validates against schema_validators.validate_taskcard_record
+    with zero errors
+  - MISSION_AUTHORITY.yaml (root) is byte-identical before and after this mission
+  - TC-RDR-01's probe is deterministic (re-run twice, identical classification output)
+    before its results are used to plan TC-RDR-02/03
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-18T18:21:21Z'

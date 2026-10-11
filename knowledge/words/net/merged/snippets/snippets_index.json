@@ -1,0 +1,2684 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "Aspose.Words.Tests/Defects/TestDefects.cs",
+    "source_function": "SetUp",
+    "source_line": 21,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "Aspose.Words.Tests/Defects/TestDefects.cs",
+    "source_function": "TestCloningChartTitle",
+    "source_line": 32,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartTitle",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "Body.Clone",
+      "Document.Clone",
+      "Section.Clone",
+      "Shape.Clone"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "obj"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4456f636d5d2d608fccd4d51d7000740106e90522727bf2f0ca17b253a401d72",
+      "norm": "4456f636d5d2d608fccd4d51d7000740106e90522727bf2f0ca17b253a401d72"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "Aspose.Words.Tests/Defects/TestDefects.cs",
+    "source_function": "CheckCLRVersion",
+    "source_line": 42,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b113b2a168f5a0d16ae20ad2390d1184ac135b4a93ea8b9cb7501f15041ecccc",
+      "norm": "b113b2a168f5a0d16ae20ad2390d1184ac135b4a93ea8b9cb7501f15041ecccc"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestAxisBound.cs",
+    "source_function": "TestCreation",
+    "source_line": 16,
+    "classes_used": [
+      "AxisBound"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1842ea85704e10301385bb0ce12c478fa70fc7941274d5ee1fb176c30669343d",
+      "norm": "1842ea85704e10301385bb0ce12c478fa70fc7941274d5ee1fb176c30669343d"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestAxisBound.cs",
+    "source_function": "TestEquals",
+    "source_line": 33,
+    "classes_used": [
+      "AxisBound"
+    ],
+    "methods_used": [
+      "AxisBound.Equals"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b4a2fac03ec9980384d332354f0459bb142be2009b11c687bb3ab2c089beb622",
+      "norm": "b4a2fac03ec9980384d332354f0459bb142be2009b11c687bb3ab2c089beb622"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestAxisBound.cs",
+    "source_function": "TestCreationWithWrongDate",
+    "source_line": 57,
+    "classes_used": [
+      "AxisBound",
+      "Range"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d96338a9c131fac2be92864bcdfda6e29031f7f5aa68b6eff7ceb0d5678ebda8",
+      "norm": "d96338a9c131fac2be92864bcdfda6e29031f7f5aa68b6eff7ceb0d5678ebda8"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestAxisBound.cs",
+    "source_function": "TestOverflowAsDate",
+    "source_line": 64,
+    "classes_used": [
+      "AxisBound"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8cad3e9487726b4cc899e53ec81b27a41273f5d9274d47958e867799478952b3",
+      "norm": "8cad3e9487726b4cc899e53ec81b27a41273f5d9274d47958e867799478952b3"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "SetUp",
+    "source_line": 20,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestSetUp",
+    "source_line": 26,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12d7e99e0d986b1b5513e75c8bb5be56e6a8a95fbd7ab99e7d24e5ddde6e6f50",
+      "norm": "12d7e99e0d986b1b5513e75c8bb5be56e6a8a95fbd7ab99e7d24e5ddde6e6f50"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestTimeCategoryAxis",
+    "source_line": 37,
+    "classes_used": [
+      "Chart",
+      "ChartAxis",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f439684a7b88fc633e42e174398d9c186d389e4dd582385e9fab6106f764bd51",
+      "norm": "f439684a7b88fc633e42e174398d9c186d389e4dd582385e9fab6106f764bd51"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestGridLines",
+    "source_line": 67,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b349b2b61c5d0c3fb87f62227769666765969de30bfc8af866afe301ef6831bc",
+      "norm": "b349b2b61c5d0c3fb87f62227769666765969de30bfc8af866afe301ef6831bc"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestGridLinesInWord2016Chart",
+    "source_line": 80,
+    "classes_used": [
+      "Chart",
+      "Document"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "30382b6ad1b4a555824249cdd6ac372bd6c148ba284374a28a3af931c6362e62",
+      "norm": "30382b6ad1b4a555824249cdd6ac372bd6c148ba284374a28a3af931c6362e62"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "Test24673",
+    "source_line": 91,
+    "classes_used": [
+      "AxisBound",
+      "Chart",
+      "ChartSeries",
+      "ChartSeriesCollection",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "LegendPosition",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.Clear",
+      "ChartSeriesCollection.Add",
+      "ChartSeriesCollection.Clear",
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f9856ac1ed9d088abb709bc7e2bfc587382c4a88f6e8b539cc0ffe38b20768b4",
+      "norm": "f9856ac1ed9d088abb709bc7e2bfc587382c4a88f6e8b539cc0ffe38b20768b4"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestNewChartAxisTitle",
+    "source_line": 120,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartAxis",
+      "ChartAxisTitle",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c54f025c89be1fbeba5fce8ad1ebd5564528b4707c041f57ce5a0dcd86c7f0ac",
+      "norm": "c54f025c89be1fbeba5fce8ad1ebd5564528b4707c041f57ce5a0dcd86c7f0ac"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestExistingAxisTitle",
+    "source_line": 166,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartAxis",
+      "ChartAxisTitle",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "db60dc6e6181fe0ec309159d012a3c778ce47956ade0853651317e4e2de79cc4",
+      "norm": "db60dc6e6181fe0ec309159d012a3c778ce47956ade0853651317e4e2de79cc4"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestShowingAxisTitle",
+    "source_line": 215,
+    "classes_used": [
+      "Chart",
+      "ChartAxis",
+      "ChartAxisTitle",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "62f3f7f070e3e23462ff4072eec1e01ff40d5eaf5859bc01e31ceaefd45c7323",
+      "norm": "62f3f7f070e3e23462ff4072eec1e01ff40d5eaf5859bc01e31ceaefd45c7323"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestTickLabelsFont",
+    "source_line": 238,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "Document",
+      "Font",
+      "LoadFormat",
+      "Paragraph",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "Body.AppendChild",
+      "Body.Clone",
+      "Document.AppendChild",
+      "Document.Clone",
+      "Font.ClearFormatting",
+      "Paragraph.AppendChild",
+      "Paragraph.Clone",
+      "Run.Clone",
+      "Section.AppendChild",
+      "Section.Clone",
+      "Shape.AppendChild",
+      "Shape.Clone"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "dot",
+      "ott"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "38d8e6c2b9dcd1008e95be79cdaed46ff12e06ad97e11ac96fa6fe6530cd3bc9",
+      "norm": "38d8e6c2b9dcd1008e95be79cdaed46ff12e06ad97e11ac96fa6fe6530cd3bc9"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestTickLabelsFontInNewChart",
+    "source_line": 356,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Run",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "06248581ca942d0b582295a2105f09023dde246dd6e248c447ce5993fc81aea2",
+      "norm": "06248581ca942d0b582295a2105f09023dde246dd6e248c447ce5993fc81aea2"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestTickLabelsOrientationInNewChart",
+    "source_line": 398,
+    "classes_used": [
+      "AxisTickLabels",
+      "Body",
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Orientation",
+      "Section",
+      "Shape",
+      "ShapeTextOrientation",
+      "TextOrientation"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3489f79af6d2e11efd64c9f28742d6006538b94467a9c48dea4a34fd9ff7f943",
+      "norm": "3489f79af6d2e11efd64c9f28742d6006538b94467a9c48dea4a34fd9ff7f943"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "TestTickLabelsOrientationInExistingChart",
+    "source_line": 443,
+    "classes_used": [
+      "AxisTickLabels",
+      "Body",
+      "Chart",
+      "Document",
+      "Orientation",
+      "Section",
+      "Shape",
+      "ShapeTextOrientation",
+      "TextOrientation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae8a93672c2d6b5acf436206fa367818bb1545efa481987bf7673e3691bf0870",
+      "norm": "ae8a93672c2d6b5acf436206fa367818bb1545efa481987bf7673e3691bf0870"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "CheckOrientation",
+    "source_line": 492,
+    "classes_used": [
+      "AxisTickLabels",
+      "Orientation",
+      "Shape",
+      "ShapeTextOrientation",
+      "TextOrientation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "27c91b3d6b3017eb64b20173612cfbb8582265d46714457291f5fba9b1d236fc",
+      "norm": "27c91b3d6b3017eb64b20173612cfbb8582265d46714457291f5fba9b1d236fc"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "CheckFont",
+    "source_line": 502,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "80f1eff06fba63a0b415f97723d9ab2b119fb2b73dcea3cf4075df907863e7fe",
+      "norm": "80f1eff06fba63a0b415f97723d9ab2b119fb2b73dcea3cf4075df907863e7fe"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "ChangeFont",
+    "source_line": 517,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e",
+      "norm": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "CheckGridlines",
+    "source_line": 529,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartAxis",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2d99ec5f85b4fc2d20aed38984177e2985bfa2afb925e5224601cba95c277032",
+      "norm": "2d99ec5f85b4fc2d20aed38984177e2985bfa2afb925e5224601cba95c277032"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartAxis.cs",
+    "source_function": "CheckTitle",
+    "source_line": 554,
+    "classes_used": [
+      "Chart",
+      "ChartAxis",
+      "ChartAxisTitle"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a38d294278aef836a3567fdae2f507325877261f2dedbff4fdd3c6b2752288a5",
+      "norm": "a38d294278aef836a3567fdae2f507325877261f2dedbff4fdd3c6b2752288a5"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "SetUp",
+    "source_line": 22,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "Init",
+    "source_line": 28,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6f3738271ca809e4ae12c924546329da783c33471035f852fab07205b917099a",
+      "norm": "6f3738271ca809e4ae12c924546329da783c33471035f852fab07205b917099a"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelCountWithOutsideLabel",
+    "source_line": 39,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartSeries",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fda5d1412431ca974079db92c1f722bc81d1d57d4f7de994d7c659d731d6f3fc",
+      "norm": "fda5d1412431ca974079db92c1f722bc81d1d57d4f7de994d7c659d731d6f3fc"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestShowDataLabelsRangeOfLabel",
+    "source_line": 63,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "Document",
+      "Range",
+      "Section",
+      "Shape",
+      "Source"
+    ],
+    "methods_used": [
+      "ChartSeries.Add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "source",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5a16a8c7619feb9c000c4e7bc602c283c61f12cf94678a7b9a9b35efb063dc17",
+      "norm": "5a16a8c7619feb9c000c4e7bc602c283c61f12cf94678a7b9a9b35efb063dc17"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestShowDataLabelsRangeOfCollection",
+    "source_line": 105,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "Document",
+      "Range",
+      "Section",
+      "Shape",
+      "Source"
+    ],
+    "methods_used": [
+      "ChartSeries.Add"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "source",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7827a91be16eaa9037e43bb9db50d45c8a942434a1b18d03264181f3e42f34c6",
+      "norm": "7827a91be16eaa9037e43bb9db50d45c8a942434a1b18d03264181f3e42f34c6"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelClearFormat",
+    "source_line": 148,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Range",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartDataLabel.ClearFormat",
+      "ChartDataLabelCollection.ClearFormat",
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7b699a41c5506bf49ff6baeaf41dc62bb18f4840db9c26626b62b13fa35a461e",
+      "norm": "7b699a41c5506bf49ff6baeaf41dc62bb18f4840db9c26626b62b13fa35a461e"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestHidingChartDataLabel",
+    "source_line": 182,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f2103db1d8b8c869d52ef3ad7661bc4ec0177492b27d295fda0521ddcfaa13dd",
+      "norm": "f2103db1d8b8c869d52ef3ad7661bc4ec0177492b27d295fda0521ddcfaa13dd"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "Test20203",
+    "source_line": 223,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelPosition",
+      "ChartSeries",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "00ad0a3a767038aaefc00b665a9b10903617d4e4847d118e95fc7e9abbf5ef20",
+      "norm": "00ad0a3a767038aaefc00b665a9b10903617d4e4847d118e95fc7e9abbf5ef20"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "Test21286",
+    "source_line": 249,
+    "classes_used": [
+      "Body",
+      "BuiltInDocumentProperties",
+      "Chart",
+      "ChartSeries",
+      "Document",
+      "Section",
+      "Shape",
+      "Source"
+    ],
+    "methods_used": [
+      "Document.Save"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "source"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "584cc70297e8ecb7b269a8725463420b28c946176e90d9c97cb1c7169214edfd",
+      "norm": "584cc70297e8ecb7b269a8725463420b28c946176e90d9c97cb1c7169214edfd"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "Test23582",
+    "source_line": 284,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.Clear",
+      "Document.Save",
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d39e36be06b2f59604fca91802dbaee99cffb235763d752950da6596c9650483",
+      "norm": "d39e36be06b2f59604fca91802dbaee99cffb235763d752950da6596c9650483"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelFont",
+    "source_line": 314,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "Document",
+      "Font",
+      "LoadFormat",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "Font.ClearFormatting"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "dot",
+      "ott"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c53b0751efc9d89948a6445cdfb69301e6efd2eee675c281801fb42b281b62e5",
+      "norm": "c53b0751efc9d89948a6445cdfb69301e6efd2eee675c281801fb42b281b62e5"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelCollectionFont",
+    "source_line": 444,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "Document",
+      "Font",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "Font.ClearFormatting"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6d2d07c71d827a7fd910a0ed7db4019630a5faa2ad8dc70203ae8a63879f90e9",
+      "norm": "6d2d07c71d827a7fd910a0ed7db4019630a5faa2ad8dc70203ae8a63879f90e9"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelFontInNewChart",
+    "source_line": 565,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Run",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b0c936d399a214132348d1c5692d29bde6d98ce53f24e1d6e9b2707a6dadc5f2",
+      "norm": "b0c936d399a214132348d1c5692d29bde6d98ce53f24e1d6e9b2707a6dadc5f2"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "Test25711",
+    "source_line": 617,
+    "classes_used": [
+      "Chart",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4f4bb9c3f1ed2961349a0942c00576d81b7f96a1449a9b09ad4af5f96302781c",
+      "norm": "4f4bb9c3f1ed2961349a0942c00576d81b7f96a1449a9b09ad4af5f96302781c"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelOrientationInNewChart",
+    "source_line": 649,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "ChartShapeType",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Fill",
+      "Orientation",
+      "Section",
+      "Shape",
+      "ShapeTextOrientation",
+      "ShapeType",
+      "Stroke",
+      "TextOrientation"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart",
+      "Fill.Solid"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d44fbc5860595b772539eebd502b028ae0a68f29d1b9bb2a7c7db451652c2558",
+      "norm": "d44fbc5860595b772539eebd502b028ae0a68f29d1b9bb2a7c7db451652c2558"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDataLabelOrientationInExistingChart",
+    "source_line": 739,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartSeries",
+      "Document",
+      "Orientation",
+      "Section",
+      "Shape",
+      "ShapeTextOrientation",
+      "TextOrientation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c5e07c6de59202a3477a27ef1c45a5b52d492b54f480a5fce8bd2190f8e10bc8",
+      "norm": "c5e07c6de59202a3477a27ef1c45a5b52d492b54f480a5fce8bd2190f8e10bc8"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestPosition",
+    "source_line": 778,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartDataLabelPosition",
+      "ChartSeries",
+      "ChartSeriesCollection",
+      "ChartSeriesType",
+      "ChartType",
+      "ChartXValue",
+      "ChartYValue",
+      "Document",
+      "DocumentBuilder",
+      "Fill",
+      "List",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "Body.Remove",
+      "Body.ToString",
+      "ChartSeries.Add",
+      "ChartSeries.Remove",
+      "ChartSeriesCollection.Add",
+      "ChartSeriesCollection.RemoveAt",
+      "ChartXValue.FromDouble",
+      "ChartYValue.FromDouble",
+      "Document.Remove",
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Section.Remove",
+      "Section.ToString",
+      "Shape.Remove",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a39f85f35b3288474697fb4cec8f7f2abaefa2737b25ced7ba91aacfa48514ab",
+      "norm": "a39f85f35b3288474697fb4cec8f7f2abaefa2737b25ced7ba91aacfa48514ab"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestLeftTopWithAbsoluteCoordinates",
+    "source_line": 901,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartDataLabelLocationMode",
+      "ChartSeries",
+      "ChartType",
+      "ChartXValue",
+      "ChartYValue",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "LegendPosition",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.ClearValues",
+      "ChartXValue.FromDouble",
+      "ChartXValue.FromString",
+      "ChartYValue.FromDouble",
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2219bacbe8b902b4a9082333e3987c9a87fcc1d87e1fa8c63ac8430331fc37f0",
+      "norm": "2219bacbe8b902b4a9082333e3987c9a87fcc1d87e1fa8c63ac8430331fc37f0"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestLeftTopWithRelativeCoordinates",
+    "source_line": 1018,
+    "classes_used": [
+      "AxisBound",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartDataLabelLocationMode",
+      "ChartDataLabelPosition",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae1c494a860da121dceedd65d47ac4d2a4bc27d749767105ae71c59093ce5b92",
+      "norm": "ae1c494a860da121dceedd65d47ac4d2a4bc27d749767105ae71c59093ce5b92"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestPositionInExistingChart",
+    "source_line": 1060,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartDataLabelLocationMode",
+      "ChartDataLabelPosition",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a911545c7f9ad7f40d263a3046185ed2db2d6fd316746c14e36c0923adf564a2",
+      "norm": "a911545c7f9ad7f40d263a3046185ed2db2d6fd316746c14e36c0923adf564a2"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "TestDifferentLocationModes",
+    "source_line": 1084,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelCollection",
+      "ChartDataLabelLocationMode",
+      "ChartDataLabelPosition",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2ccc5fa52b0acfea20952f64e7d4075b6532f5a829b743181aa090ace1f7070d",
+      "norm": "2ccc5fa52b0acfea20952f64e7d4075b6532f5a829b743181aa090ace1f7070d"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "CheckDataLabelPosition",
+    "source_line": 1115,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelLocationMode",
+      "ChartDataLabelPosition"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a7d755e6dc66f61be3adf6a1616ea8fe64f4cdfde72971d68af02f1a4aa53d6",
+      "norm": "0a7d755e6dc66f61be3adf6a1616ea8fe64f4cdfde72971d68af02f1a4aa53d6"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "GetNewXValue",
+    "source_line": 1129,
+    "classes_used": [
+      "Chart",
+      "ChartMultilevelValue",
+      "ChartSeries",
+      "ChartXValue",
+      "ChartXValueType"
+    ],
+    "methods_used": [
+      "ChartXValue.FromDouble",
+      "ChartXValue.FromMultilevelValue",
+      "ChartXValue.FromString"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5ae79efe89503afb249a88c6d27e44024a45340a96ac5840127ed741241da0af",
+      "norm": "5ae79efe89503afb249a88c6d27e44024a45340a96ac5840127ed741241da0af"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "FillSupportedPositions",
+    "source_line": 1156,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartDataLabelPosition",
+      "ChartSeries",
+      "ChartSeriesType",
+      "Fill",
+      "List"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.Clear"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d157c7ab676ed2dc3d8318a1e1100f93f7b180802d918e08567210804a5700fc",
+      "norm": "d157c7ab676ed2dc3d8318a1e1100f93f7b180802d918e08567210804a5700fc"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "CheckOrientation",
+    "source_line": 1173,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "Orientation",
+      "Shape",
+      "ShapeTextOrientation",
+      "TextOrientation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c6ea3c4332472d80e4ac3e04f8c235ece070c94d2b420cec915278322a57c24e",
+      "norm": "c6ea3c4332472d80e4ac3e04f8c235ece070c94d2b420cec915278322a57c24e"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "CheckFont",
+    "source_line": 1183,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ef9ab13353c8be79ef039038484ac944cfb643c8bdf22ba0d3a8153859e2793",
+      "norm": "0ef9ab13353c8be79ef039038484ac944cfb643c8bdf22ba0d3a8153859e2793"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "ChangeFont",
+    "source_line": 1198,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e",
+      "norm": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "CheckLabelCount",
+    "source_line": 1209,
+    "classes_used": [
+      "Chart",
+      "ChartDataLabel",
+      "ChartSeries"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8394da2a60ba267d8146b9f9278e059473d4059ded2c89eca3cf766222821b2a",
+      "norm": "8394da2a60ba267d8146b9f9278e059473d4059ded2c89eca3cf766222821b2a"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataLabel.cs",
+    "source_function": "CreateDocumentWithChart",
+    "source_line": 1223,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0b59c108fe3cea250541d659eb7074210538428f81ec036eda2c33f6276aab02",
+      "norm": "0b59c108fe3cea250541d659eb7074210538428f81ec036eda2c33f6276aab02"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "SetUp",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "TestInheritedPropertyValues",
+    "source_line": 25,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataPoint",
+      "ChartMarker",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "IChartDataPoint",
+      "MarkerSymbol",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.Clear",
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "symbol"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a08ef94c4e97faac41a0c3df9de1918d7d2eefc9302063d1437708ea2537324f",
+      "norm": "a08ef94c4e97faac41a0c3df9de1918d7d2eefc9302063d1437708ea2537324f"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "TestClearFormat",
+    "source_line": 79,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataPoint",
+      "ChartDataPointCollection",
+      "ChartSeries",
+      "Document",
+      "MarkerSymbol",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartDataPoint.ClearFormat",
+      "ChartDataPointCollection.ClearFormat"
+    ],
+    "formats_referenced": [
+      "doc",
+      "symbol"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73109b5e6b9c24af93d04896002fcf5005da5524106bf2150498633c8e18b27e",
+      "norm": "73109b5e6b9c24af93d04896002fcf5005da5524106bf2150498633c8e18b27e"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "TestPointCountWhenContainingOutsidePoint",
+    "source_line": 110,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataPoint",
+      "ChartSeries",
+      "Document",
+      "MarkerSymbol",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "symbol"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e56e4ca6829f8c4de979c70a02dadc1f18ba7f07db8f6d53cd6b59f17228bc91",
+      "norm": "e56e4ca6829f8c4de979c70a02dadc1f18ba7f07db8f6d53cd6b59f17228bc91"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "TestInvertIfNegative",
+    "source_line": 137,
+    "classes_used": [
+      "Body",
+      "BuiltInDocumentProperties",
+      "Chart",
+      "ChartDataPoint",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Fill",
+      "MsWordVersion",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "Body.ToString",
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Fill.Solid",
+      "Section.ToString",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3200f41b8cbfa62e5952f6ceba5347c6c2bd5cbb09d7cdc01c985aaf7b0c51ef",
+      "norm": "3200f41b8cbfa62e5952f6ceba5347c6c2bd5cbb09d7cdc01c985aaf7b0c51ef"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "TestCopyingFormat",
+    "source_line": 194,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartDataPoint",
+      "ChartDataPointCollection",
+      "ChartSeries",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartDataPointCollection.CopyFormat",
+      "ChartDataPointCollection.HasDefaultFormat",
+      "ChartSeries.CopyFormatFrom"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "53131aa2fa2d178264ace215aa2a9710acd2cd1bea1d079cd61d3a5b82000901",
+      "norm": "53131aa2fa2d178264ace215aa2a9710acd2cd1bea1d079cd61d3a5b82000901"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "CheckInvertIfNegative",
+    "source_line": 223,
+    "classes_used": [
+      "Chart",
+      "ChartSeries"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96504c54c97914c89dc4eda10f1373abef04ebc4c91d8a72bb7ce7c7fafb9d05",
+      "norm": "96504c54c97914c89dc4eda10f1373abef04ebc4c91d8a72bb7ce7c7fafb9d05"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "CheckPointCount",
+    "source_line": 234,
+    "classes_used": [
+      "Chart",
+      "ChartDataPoint",
+      "ChartSeries"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "39cb5244bd3c54033cb8136143716db17906c5525ec9f93e5192b3ab8a1c4690",
+      "norm": "39cb5244bd3c54033cb8136143716db17906c5525ec9f93e5192b3ab8a1c4690"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataPoint.cs",
+    "source_function": "CreateDocumentWithChart",
+    "source_line": 248,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0b59c108fe3cea250541d659eb7074210538428f81ec036eda2c33f6276aab02",
+      "norm": "0b59c108fe3cea250541d659eb7074210538428f81ec036eda2c33f6276aab02"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "SetUp",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "TestDataTableProperties",
+    "source_line": 28,
+    "classes_used": [
+      "Body",
+      "Border",
+      "Chart",
+      "ChartDataTable",
+      "Document",
+      "Section",
+      "Shape",
+      "Stroke",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2bc33ae9a01f4e3a1005089fa8a73219b4e8d571827ff581930f4990fafc72bc",
+      "norm": "2bc33ae9a01f4e3a1005089fa8a73219b4e8d571827ff581930f4990fafc72bc"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "TestFont",
+    "source_line": 68,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "Document",
+      "Font",
+      "LoadFormat",
+      "Run",
+      "Section",
+      "Shape",
+      "Table",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "Font.ClearFormatting"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "dot",
+      "ott"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ba34e86662b105d2235370f0ab929e20777524d9fcd6484d98ff0d77ddb4e8eb",
+      "norm": "ba34e86662b105d2235370f0ab929e20777524d9fcd6484d98ff0d77ddb4e8eb"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "TestFontInNewChart",
+    "source_line": 134,
+    "classes_used": [
+      "Chart",
+      "ChartDataTable",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Run",
+      "Shape",
+      "Table",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cc595f25ff331a9b0450d1f412582d3c396268d3527b3d4f651b611714399ef4",
+      "norm": "cc595f25ff331a9b0450d1f412582d3c396268d3527b3d4f651b611714399ef4"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "TestShowingDataTableInNonSupportedChart",
+    "source_line": 165,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "Document",
+      "Section",
+      "Shape",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7962462cf06aa7a4cd31f4a8df5b07930ac8631eccbb870c50fd40118a37635e",
+      "norm": "7962462cf06aa7a4cd31f4a8df5b07930ac8631eccbb870c50fd40118a37635e"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "CheckFont",
+    "source_line": 181,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "80f1eff06fba63a0b415f97723d9ab2b119fb2b73dcea3cf4075df907863e7fe",
+      "norm": "80f1eff06fba63a0b415f97723d9ab2b119fb2b73dcea3cf4075df907863e7fe"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "ChangeFont",
+    "source_line": 196,
+    "classes_used": [
+      "Chart",
+      "Font",
+      "Run",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e",
+      "norm": "8f4518372d08aa22c3e45725731e27f5ca486c42f1baf308735a545b67fd0b0e"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartDataTable.cs",
+    "source_function": "CheckDataTable",
+    "source_line": 207,
+    "classes_used": [
+      "Border",
+      "Chart",
+      "ChartDataTable",
+      "Table"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "49d2c42411f96e814c1b7733e6f4872d3dfb5d49332d88300f3c8b1b3ae82ac7",
+      "norm": "49d2c42411f96e814c1b7733e6f4872d3dfb5d49332d88300f3c8b1b3ae82ac7"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "SetUp",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "Init",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6f3738271ca809e4ae12c924546329da783c33471035f852fab07205b917099a",
+      "norm": "6f3738271ca809e4ae12c924546329da783c33471035f852fab07205b917099a"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "Test23210",
+    "source_line": 40,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartLegendEntry",
+      "ChartLegendEntryCollection",
+      "ChartSeries",
+      "ChartSeriesCollection",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f372d0aabf9bef4088e83fa9557ab3ec33c1ff4ed2dd8d5f5c4640f8d65a6f2a",
+      "norm": "f372d0aabf9bef4088e83fa9557ab3ec33c1ff4ed2dd8d5f5c4640f8d65a6f2a"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "Test23353",
+    "source_line": 74,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartLegendEntry",
+      "ChartLegendEntryCollection",
+      "Document",
+      "Font",
+      "Section",
+      "Shape",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c8982f2a8ca6e430794389943857c27056e283d6d75dc753ee88ef0288a3a580",
+      "norm": "c8982f2a8ca6e430794389943857c27056e283d6d75dc753ee88ef0288a3a580"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestLegendEntryFont",
+    "source_line": 144,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartLegendEntry",
+      "ChartLegendEntryCollection",
+      "Document",
+      "Font",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef6889c5b1382ee7f1b6ace4b532b8eb18ef6f9b9f8f085d8d0feb9046b5746c",
+      "norm": "ef6889c5b1382ee7f1b6ace4b532b8eb18ef6f9b9f8f085d8d0feb9046b5746c"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestLegendEntryFontInheritedProperties",
+    "source_line": 228,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartLegendEntry",
+      "ChartLegendEntryCollection",
+      "Document",
+      "Fill",
+      "Font",
+      "Paragraph",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "latin",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "11603e181c35e200a4ecf0c3fa633f1ba9b9c492f664863036db71f2e4f97067",
+      "norm": "11603e181c35e200a4ecf0c3fa633f1ba9b9c492f664863036db71f2e4f97067"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "Test23543",
+    "source_line": 315,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart",
+      "Font.ClearFormatting"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "dot",
+      "ott"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fb5c75bd3bb6b37aeb448e7188c55e987141c463a719702ccfd97870d25cd914",
+      "norm": "fb5c75bd3bb6b37aeb448e7188c55e987141c463a719702ccfd97870d25cd914"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestLegendEntryFormat",
+    "source_line": 359,
+    "classes_used": [
+      "Chart",
+      "Document",
+      "Font",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e182b357d67e93f8ac77a7776431e6af17be93d680ba5ca93eb454b3c3bff0a8",
+      "norm": "e182b357d67e93f8ac77a7776431e6af17be93d680ba5ca93eb454b3c3bff0a8"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestSupportedFontProperties",
+    "source_line": 410,
+    "classes_used": [
+      "Border",
+      "Chart",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "EmphasisMark",
+      "Fill",
+      "FillType",
+      "Font",
+      "LineStyle",
+      "Paragraph",
+      "Shading",
+      "Shape",
+      "Style",
+      "StyleIdentifier",
+      "TextDmlEffect",
+      "TextEffect",
+      "Theme",
+      "ThemeColor",
+      "ThemeFont",
+      "Underline"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart",
+      "Fill.Solid",
+      "Font.HasDmlEffect"
+    ],
+    "formats_referenced": [
+      "complexscript",
+      "doc",
+      "ps",
+      "text",
+      "theme"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a42c6e0d84bbbd0caf7383791fbdf682d068089c8227eead2eac1dc3a0a53de",
+      "norm": "7a42c6e0d84bbbd0caf7383791fbdf682d068089c8227eead2eac1dc3a0a53de"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestUnsupportedFontProperties",
+    "source_line": 517,
+    "classes_used": [
+      "Chart",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Font",
+      "Shape",
+      "Theme",
+      "ThemeColor"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "obj",
+      "theme"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4299c3307480c299b296234ef9bcf1b51125df4f5c57c9323f490d29c0fa763c",
+      "norm": "4299c3307480c299b296234ef9bcf1b51125df4f5c57c9323f490d29c0fa763c"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestFontFill",
+    "source_line": 537,
+    "classes_used": [
+      "Chart",
+      "ChartLegend",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Fill",
+      "Font",
+      "Run",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.Remove",
+      "Document.Save",
+      "DocumentBuilder.InsertChart",
+      "Fill.Solid",
+      "Run.Remove",
+      "Shape.Remove"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1b18fec8832b61bf23186b933dce3aecafa7b1921899cf0fa3186ad34ecfb4cb",
+      "norm": "1b18fec8832b61bf23186b933dce3aecafa7b1921899cf0fa3186ad34ecfb4cb"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestLegendFont",
+    "source_line": 579,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "Document",
+      "Font",
+      "Run",
+      "Section",
+      "Shape",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "64f45c54d7069a4d80bdd3e91871795e23b9adf56998f33e59924b4edce0652e",
+      "norm": "64f45c54d7069a4d80bdd3e91871795e23b9adf56998f33e59924b4edce0652e"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestLegendFontInNewChart",
+    "source_line": 650,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Fill",
+      "Font",
+      "GradientStyle",
+      "GradientVariant",
+      "Paragraph",
+      "Run",
+      "Section",
+      "Shape",
+      "Style",
+      "Underline",
+      "VerticalAlignment"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart",
+      "DocumentBuilder.InsertParagraph",
+      "Fill.TwoColorGradient"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "ps"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b7d2d68810cdd8e4ef6763d491f5eb704b33b7cadf86aa9c61e1a75f828d9178",
+      "norm": "b7d2d68810cdd8e4ef6763d491f5eb704b33b7cadf86aa9c61e1a75f828d9178"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "TestWord2016ChartLegendPosition",
+    "source_line": 726,
+    "classes_used": [
+      "Chart",
+      "ChartLegend",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "LegendPosition",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc",
+      "ott"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7972708f1ccdab4d7f6bdd2b587798775fb30964235f21e9abfe23e4fd453c27",
+      "norm": "7972708f1ccdab4d7f6bdd2b587798775fb30964235f21e9abfe23e4fd453c27"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "CheckChartExLegendPosition",
+    "source_line": 763,
+    "classes_used": [
+      "Chart",
+      "ChartLegend",
+      "LegendPosition"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0edc3e9414e93c1afc560ea8cf9c3d311855ba7b9204c905b3a700254b74db35",
+      "norm": "0edc3e9414e93c1afc560ea8cf9c3d311855ba7b9204c905b3a700254b74db35"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "CheckLegendEntryFont",
+    "source_line": 774,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartLegend",
+      "ChartLegendEntry",
+      "Document",
+      "Font",
+      "Section",
+      "Shape",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b7109da5b748e76759965d334024624b7ecd24462a3a9488c4e8931951eb85a4",
+      "norm": "b7109da5b748e76759965d334024624b7ecd24462a3a9488c4e8931951eb85a4"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartLegend.cs",
+    "source_function": "CheckFont",
+    "source_line": 788,
+    "classes_used": [
+      "Font",
+      "Underline"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5645a88d4f59e16c71141595bff3dfb32e5f8d1581a8c230f560e523b1ad379f",
+      "norm": "5645a88d4f59e16c71141595bff3dfb32e5f8d1581a8c230f560e523b1ad379f"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "SetUp",
+    "source_line": 18,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestSetUp",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12d7e99e0d986b1b5513e75c8bb5be56e6a8a95fbd7ab99e7d24e5ddde6e6f50",
+      "norm": "12d7e99e0d986b1b5513e75c8bb5be56e6a8a95fbd7ab99e7d24e5ddde6e6f50"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestNonWord2016ChartSeriesType",
+    "source_line": 30,
+    "classes_used": [
+      "Chart",
+      "ChartSeries",
+      "ChartSeriesType",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "DocumentBuilder.InsertChart"
+    ],
+    "formats_referenced": [
+      "doc"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ac21dddce2240829c95d5f31ec0130a3c269debbe0f8f816228a5aeebdeba7da",
+      "norm": "ac21dddce2240829c95d5f31ec0130a3c269debbe0f8f816228a5aeebdeba7da"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestParetoChartSeriesType",
+    "source_line": 76,
+    "classes_used": [
+      "Body",
+      "Chart",
+      "ChartSeries",
+      "ChartSeriesCollection",
+      "ChartSeriesType",
+      "Document",
+      "Section",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "doc",
+      "docx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "602162d047e6f21920eacab2dc04c47d6c6b7ee6384d6deed8a0da4d2ffaec84",
+      "norm": "602162d047e6f21920eacab2dc04c47d6c6b7ee6384d6deed8a0da4d2ffaec84"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithStringX",
+    "source_line": 94,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "da95a88aec821ecaf1a0fa3394bc1c4c1f423b491331ec64e419be64ae19ced5",
+      "norm": "da95a88aec821ecaf1a0fa3394bc1c4c1f423b491331ec64e419be64ae19ced5"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithDoubleX",
+    "source_line": 121,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a7ca66f9bbfcbcc491c55a9114ef662644dbd3ddc13a67c7a9f31f7e5b318954",
+      "norm": "a7ca66f9bbfcbcc491c55a9114ef662644dbd3ddc13a67c7a9f31f7e5b318954"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithDateTimeX",
+    "source_line": 157,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f5d9e2cbd56700062a48fdf145dffa7f6b78d17993d47fc5ea5c34fa4b8ea9a",
+      "norm": "8f5d9e2cbd56700062a48fdf145dffa7f6b78d17993d47fc5ea5c34fa4b8ea9a"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithBubbleSize",
+    "source_line": 195,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "00b905ba7cac4f9bc1fa5773a74bb4254c9beab9ba53b2194208406451143b62",
+      "norm": "00b905ba7cac4f9bc1fa5773a74bb4254c9beab9ba53b2194208406451143b62"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithMultilevelX",
+    "source_line": 223,
+    "classes_used": [
+      "Chart",
+      "ChartMultilevelValue",
+      "ChartSeries",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "ChartSeries.Add",
+      "ChartSeries.Clear",
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3bc0ce92240d7d5896985030e1d277ae4a631cae6972ead2f0bb41822c5f746e",
+      "norm": "3bc0ce92240d7d5896985030e1d277ae4a631cae6972ead2f0bb41822c5f746e"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithoutY",
+    "source_line": 263,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2c1250d5d319e3843a5e457e6072ddf09c40af6572843515a23d64dfc1e0ed83",
+      "norm": "2c1250d5d319e3843a5e457e6072ddf09c40af6572843515a23d64dfc1e0ed83"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeries.cs",
+    "source_function": "TestAddingSeriesWithIsSubtotal",
+    "source_line": 287,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Document",
+      "DocumentBuilder",
+      "Shape"
+    ],
+    "methods_used": [
+      "Document.ToString",
+      "DocumentBuilder.InsertChart",
+      "Shape.ToString"
+    ],
+    "formats_referenced": [
+      "doc",
+      "docx",
+      "text"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1ee39ee83a1728eabe0f9c613f516e4158d0ebdc3d17ad2fb3f752db7b4b261",
+      "norm": "e1ee39ee83a1728eabe0f9c613f516e4158d0ebdc3d17ad2fb3f752db7b4b261"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.cs",
+    "source_file": "Aspose.Words.Tests/Dml/Charts/TestChartSeriesGroup.cs",
+    "source_function": "SetUp",
+    "source_line": 19,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef",
+      "norm": "fa3106361722259304a47f32dbf0e11be4cf7cfa95e43370d0eb4529449628ef"
+    }
+  }
+]

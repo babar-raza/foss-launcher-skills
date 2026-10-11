@@ -1,122 +1,139 @@
 ---
 name: heal-batch
-id: S-94
 description: >
-  Batch healing from a content_eval report. Routes findings through the heal
-  policy table and dispatches to auto, LLM, or regen healing modes in a single
-  pass. Supersedes the deterministic fix portion of batch-remediate (S-40).
-args: "{eval-report-path} [--mode auto|llm|regen|all] [--dry-run] [--json]"
+  Batch healing from content_eval report using policy-routed auto/llm/regen modes
+args: "{eval-report-path} [--mode auto|llm|regen|all] [--dry-run] [--after-report {path}] [--json]"
 ---
 
-# S-94: Heal Batch — Batch Healing from Eval Report
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+<!-- CONTRACT: scripts/pipeline/commands/content/remediate.py heal
+     purpose: batch healing from eval report — plan, execute, verify across auto/llm/regen modes
+     preconditions: content_eval JSON report exists with findings
+     postcondition: auto-fixes applied; LLM queue emitted; regen queue emitted; optional verification
+     idempotent: auto-fixes are idempotent; LLM/regen queues are descriptors only
+     verified: 2026-04-16
+-->
+# S-89: Heal Batch — Batch Healing from Eval Report
 
 **Arguments**: $ARGUMENTS
 Expected format: `{eval-report-path} [--mode auto|llm|regen|all] [--dry-run] [--after-report {path}] [--json]`
 
 ## Purpose
 
-Run the healing pipeline on a batch of findings from a content_eval report. Uses the
-HealController to route findings through the heal policy table and dispatch to the
-correct healing mode (auto, LLM, regen) in a single pass.
+Run the healing pipeline on a batch of findings from a content_eval report. Unlike S-40
+(batch-remediate) which runs eval→triage→fix→LLM sequentially, heal-batch uses the
+`HealController` to route findings through the heal policy table and dispatch to the
+correct healing mode (auto, llm, regen) in a single pass.
 
 **Relationship to other healing skills:**
-- **S-26 (heal-page)**: Single-page LLM healing with 2-pass escalation. Heal-batch may queue S-26 invocations for LLM-mode findings.
-- **S-40 (batch-remediate)**: Legacy eval→fix pipeline. Heal-batch supersedes the deterministic fix portion and adds policy-routed LLM/regen dispatch.
+- **S-26 (heal-page)**: Single-page LLM healing with 2-pass escalation. Heal-batch may
+  queue S-26 invocations for LLM-mode findings.
+- **S-87 (system-heal)**: Audit-driven healing with origin classification and phased
+  verification. Higher-level orchestrator that may invoke heal-batch internally.
+- **S-40 (batch-remediate)**: Legacy eval→fix pipeline. Heal-batch supersedes the
+  deterministic fix portion and adds policy-routed LLM/regen dispatch.
 
 ## Pre-conditions
 
 1. A content_eval JSON report exists at `{eval-report-path}` with a `findings` array.
-2. `knowledge/{family}/{platform}/merged/model.yaml` exists with `stale_since: null` for each product in scope.
-
-## Healing Modes
-
-| Mode | What it does |
-|------|-------------|
-| `auto` | Script-driven deterministic fixes (claim ID updates, provenance fixes, structural corrections) |
-| `llm` | LLM-driven prose/content fixes — queues S-26 (heal-page) invocations |
-| `regen` | Full page regeneration for grade D/F pages — queues appropriate generation skill |
-| `all` | Run all three modes in order: auto → llm → regen |
+2. `scripts/pipeline/commands/content/remediate.py` is available with the `heal` subcommand.
+3. `scripts/pipeline/lib/heal_controller.py`, `heal_policy.py`, and `verify.py` are importable.
 
 ## Steps
 
-1. **Parse arguments**: Extract report path, mode, and flags.
+> **Skill context gate** -- run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-89 --scope "*"
+> ```
 
-2. **Load eval report**: Read `{eval-report-path}`. Validate it contains a `findings` array.
+1. **Parse arguments**: Extract eval-report path and optional flags from $ARGUMENTS.
 
-3. **Group findings by heal mode** using the heal policy table:
-
-   | Finding type | Heal mode |
-   |---|---|
-   | Stale claim ID (`CLM-` format changed) | auto |
-   | Missing provenance block | auto |
-   | Structural frontmatter issue | auto |
-   | Broken evidence citation | auto |
-   | Low evidence depth (grade B→A improvement) | llm |
-   | Incorrect prose claim | llm |
-   | Missing section | llm |
-   | Grade D or F (multiple FAIL findings) | regen |
-
-4. **Auto mode fixes** (if `--mode auto` or `--mode all`):
+2. **Run heal subcommand**:
    ```bash
-   python scripts/pipeline/commands/content/remediate.py heal \
-     --report {eval-report-path} \
-     --mode auto \
-     [--dry-run]
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/remediate.py heal \
+       {eval-report-path} \
+       --mode {mode|all} \
+       [--dry-run] \
+       [--after-report {after-report-path}] \
+       [--json]
    ```
-   Report: `Auto-fixed: N findings across M files`
 
-5. **LLM mode — queue S-26 invocations** (if `--mode llm` or `--mode all`):
-   For each LLM-mode finding, emit a queued directive:
-   ```
-   QUEUE: /heal-page {path} --scope {finding_type} --hint "{finding_description}"
-   ```
-   If not `--dry-run`: invoke each S-26 in sequence.
+   The `heal` subcommand performs:
+   - **Plan**: Triage all findings through the heal policy table, group by heal mode
+   - **Execute auto**: Run deterministic fixers on auto-group findings
+   - **Execute LLM**: Emit skill invocation descriptors for llm-group findings
+   - **Execute regen**: Emit regen invocation descriptors for regen-group findings
+   - **Verify** (if `--after-report`): Compare before/after findings for regression detection
 
-6. **Regen mode — queue generation skills** (if `--mode regen` or `--mode all`):
-   For each regen-mode page, determine and emit the appropriate generation skill.
-   If not `--dry-run`: invoke each generation skill in sequence.
+3. **Process LLM queue** (if mode is `llm` or `all` and queue is non-empty):
+   For each item in the LLM queue, the agent invokes the referenced skill (typically
+   S-21 page-enhance or S-26 heal-page) with the finding context. This step is
+   **agent-executed**, not automated by the script.
 
-7. **Post-healing verification** (if `--after-report {path}` or not `--dry-run`):
-   Re-run content_eval on all touched files:
+4. **Process regen queue** (if mode is `regen` or `all` and queue is non-empty):
+   For each item in the regen queue, the agent invokes S-74 (causal-backtrack) to
+   resolve upstream dependencies before local fixes. This step is **agent-executed**.
+
+5. **Re-evaluate** (if not `--dry-run` and fixes were applied):
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {touched-files} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate \
+       --files {space-separated list of healed files} \
+       --format json --remediation \
+       --out {after-report-path}
    ```
-   Compare before/after grades.
 
-8. **Summary report**:
+6. **Verify** (if re-evaluation was run):
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/remediate.py heal \
+       {eval-report-path} \
+       --after-report {after-report-path} \
+       --json
    ```
-   === HEAL BATCH ===
-   Report:   {eval-report-path}
-   Mode:     {mode}
-   Dry-run:  {yes|no}
+   Check `verification.regression_detected`. If true, investigate before committing.
 
-   Findings processed: N
-     Auto-mode:  N
-     LLM-mode:   N
-     Regen-mode: N
+7. **Report**: Review the output summary:
+   - `plan`: Finding counts by heal mode
+   - `auto_results`: Deterministic fixes applied
+   - `llm_queue`: Findings requiring LLM skill invocation
+   - `regen_queue`: Findings requiring upstream backtracking
+   - `verification` (if present): Regression detection results
 
-   Auto fixes applied: N (dry-run: would apply N)
-   LLM jobs queued:    N (dry-run: preview only)
-   Regen jobs queued:  N (dry-run: preview only)
-
-   Grade changes (verified):
-     Improved: N files
-     Unchanged: N files
-     Regressed: N files (investigate)
-   ```
+> **Skill context close** -- run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-89 --status completed
+> ```
 
 ## Post-conditions
 
-- Auto fixes applied to all auto-mode findings (or queued if `--dry-run`)
-- LLM jobs queued for all LLM-mode findings
-- Regen jobs queued for all regen-mode pages
-- No page grade decreased (regressions reported)
+- Auto-mode findings have deterministic fixes applied (or dry-run report generated)
+- LLM-mode findings have structured invocation descriptors for agent execution
+- Regen-mode findings have structured invocation descriptors with `regen_after` flags
+- If `--after-report` provided: verification confirms no regressions introduced
+- No-downgrade-guard is enforced by the underlying auto-fixers
 
-## Error handling
+## Modes
 
-| Error | Action |
-|-------|--------|
-| Report file not found | FAIL with helpful message |
-| Knowledge model stale for a product | Skip that product; report warning |
-| Auto fix causes FAIL | Revert that file; report as error |
-| S-26 invocation fails | Log; continue with remaining LLM jobs |
+| Mode | What it does | Automated? |
+|------|-------------|------------|
+| `auto` | Deterministic fixers (frontmatter, structure, format) | Yes |
+| `llm` | Emits skill invocation descriptors for LLM healing | Queue only |
+| `regen` | Emits regen descriptors for upstream backtracking | Queue only |
+| `all` | Runs all three modes | Auto + queues |
+
+## Error Handling
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `No findings in report` | Empty or malformed eval report | Re-run content_eval |
+| `Policy not found` | Finding category not in heal_policy table | Check heal_policy.py; may need new entry |
+| `Regression detected` | After-report shows new failures | Review verification output; revert if needed |
+| `run_fixes failed` | Auto-fixer error on a specific file | Check file format; may need manual intervention |
+
+## Related Skills
+
+- **S-26 heal-page**: Single-page LLM healing (invoked by LLM queue items)
+- **S-40 batch-remediate**: Legacy eval→fix pipeline (heal-batch supersedes auto-fix portion)
+- **S-41 batch-eval-fix**: Quick eval + auto-fix only (subset of heal-batch auto mode)
+- **S-74 causal-backtrack**: Upstream dependency resolution (invoked by regen queue items)
+- **S-87 system-heal**: Audit-driven healing orchestrator (may invoke heal-batch)

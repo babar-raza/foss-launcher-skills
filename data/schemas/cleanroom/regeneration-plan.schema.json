@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegenerationPlan",
+  "description": "Phase A agent-dispatch plan for non-reference subdomains.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "phase_a_complete", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "phase_a_complete": { "type": "boolean" },
+    "created_at": { "type": "string" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["planned_task_id", "subdomain", "skill_id", "target_path", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "planned_task_id": { "type": "string" },
+          "subdomain": { "type": "string", "enum": ["blog", "docs", "kb", "products"] },
+          "skill_id": { "type": "string" },
+          "target_path": { "type": "string" },
+          "source_site_plan_entry": { "type": ["string", "null"] },
+          "slug": { "type": ["string", "null"] },
+          "page_type": { "type": ["string", "null"] },
+          "skill_args": { "type": "object" },
+          "status": { "type": "string", "enum": ["PLANNED", "RUNNING", "COMPLETED", "SKIPPED_WITH_REASON", "FAILED"] }
+        }
+      }
+    }
+  }
+}

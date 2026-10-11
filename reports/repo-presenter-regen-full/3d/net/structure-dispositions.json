@@ -1,0 +1,22 @@
+[
+  {
+    "unit_id": "s0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/ColladaWriter.cs"
+    }
+  }
+]

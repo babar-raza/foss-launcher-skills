@@ -1,0 +1,87 @@
+mission_authority:
+  mission_id: MT014-2026-07-29-PDF-GO-REDO
+  mission_summary: 'Redo pdf/go (Aspose.PDF FOSS for Go) thoroughly across all 5 aspose.org
+    subdomains using the Go interface/embedding extraction fix landed during the cells/go
+    mission (MT011, commit d05c8943dd). That fix was already retroactively re-scouted
+    against pdf/go (MT011 Phase 7, commit bb5a511e58): 42 classes'' methods/bases
+    were corrected and their reference pages regenerated, but two things were deliberately
+    left out of that narrow fix''s scope and tracked as separate backlog items this
+    mission reconciles into one governed refresh_run.py cycle: (1) PDFGO-STALE-001
+    -- ~63 unrelated new upstream classes/functions (OCR/LLM/Copilot/Markdown features)
+    with zero content anywhere, plus corpus-wide evidence.model_sha staleness on pages
+    outside the 42-class fix; (2) PDF-GO-REFRESH-001 -- the original 2026-07-14 launch
+    refresh''s 3 unresolved truth-audit FAILs (ST-017, accepted/non-blocking; ST-022
+    and ST-023, real unrelated pipeline defects). Phase 0 of this mission additionally
+    built a new, reusable skill (mechanism-sweep, S-117) to formalize detecting this
+    exact recurring pattern -- an extraction/enrichment improvement making other already-launched
+    products stale independent of any upstream change -- for any future product/language,
+    per explicit user request. Phase P fixed ST-022 (scripts/pipeline/extraction/formats.py:
+    PascalCase verb+format-token method detection, e.g. Page.AddSVG/Document.LoadSVG)
+    and ST-023 (scripts/pipeline/content_eval/evaluators/prose_truth.py: sentence-directionality
+    resolution for export/import claims), both generically, both independently re-verified
+    (446 tests passing, 0 regressions) and pushed. Remaining phases (K-X) execute
+    the actual pdf/go content regeneration: knowledge re-scout picking up the 63 new
+    classes, reference/docs/kb/blog/products regeneration and evidence-SHA refresh,
+    full verification (refresh-oracle, regression-classification, re-audit proving
+    ST-022/ST-023 closure), and governed commit.'
+  governing_plan_path: <local-plan-cache>/we-have-improved-go-floating-tiger.md
+  current_phase: Phase 0/G/P complete (skill built+registered, backlog reconciled,
+    ST-022/ST-023 fixed+pushed); entering Phase K (knowledge re-scout + site-plan
+    delta)
+  in_scope_outcomes:
+  - mechanism-sweep (S-117) skill + command registered, mirrored to all 3 provider
+    trees, dogfood-verified against the Go interface/embedding mechanism (DONE)
+  - docs/workflows/change-trigger-matrix.md written as the live successor to AGENTS.md
+    section 9b/9c's dead pointer (DONE)
+  - ST-022 (formats.py SVG/PascalCase-format-method import-direction gap) and ST-023
+    (prose_truth.py export/import directionality false-positive) fixed generically,
+    tested, 0 regressions (DONE)
+  - 'refresh_run.py start pdf go --mode combined: knowledge re-scout against the now-fixed
+    extractors, picking up the ~63 new upstream classes'
+  - 'reference.aspose.org: new pages for the 63 new classes; evidence-SHA refresh
+    across the ~134 already-correct classes + index not touched by MT011 Phase 7'
+  - 'docs.aspose.org / kb.aspose.org / blog.aspose.org: evidence-SHA refresh; new
+    pages only for whatever delta-site-plan''s own clustering judgment recommends
+    for the 63 new classes (not pre-decided)'
+  - 'products.aspose.org: one family-sync (S-48) pass to reflect updated platform
+    metrics'
+  - 'Full verification: refresh-oracle, regression-classification (complete list),
+    re-audit proving Page.md and the blog post no longer FAIL (ST-017 remains a cited,
+    accepted WARN), S-90 verdict, readiness scorecard, Hugo build 5/5'
+  - Both PDFGO-STALE-001 and PDF-GO-REFRESH-001 closed in backlog/BACKLOG.md citing
+    the run ID and commit SHA
+  out_of_scope_items:
+  - Full locale/translation re-propagation as a mission-close gate -- runs decoupled/async
+    via /locale-refresh-handoff (S-107) per existing pipeline convention, per explicit
+    user decision
+  - ST-024 (OpenWithPassword missing password param) -- optional/P3/XS, bundle only
+    if trivial, does not block mission closure
+  - 'Promoting the 3 dead draft/shadow_candidate ''-overview'' pages (blog/docs/kb,
+    predating this mission, 2026-06-09 ACT pilot) to draft:false -- only their stale
+    url: override is stripped for tree hygiene; the promotion decision itself is separate,
+    unreviewed editorial judgment this mission does not make'
+  - Fixing the already-accepted ST-017 gap (native save-to-own-format not counted
+    as an export claim) -- deliberately left alone, cited as an accepted WARN
+  mandatory_acceptance_criteria:
+  - truth_audit.py pdf go shows 0 FAIL (ST-017 cited as accepted WARN, not silently
+    dropped)
+  - content_eval shows 0 FAIL across all touched pdf/go pages
+  - /publish-readiness-review (S-90) verdict PUBLISH; readiness scorecard READY TO
+    SHIP; backlink audit compliant; Hugo build succeeds on all 5 sites
+  - regression-classification's complete list (not a sample) shows every grade delta
+    JUSTIFIED or explicitly remediated
+  - Both PDFGO-STALE-001 and PDF-GO-REFRESH-001 show CLOSED in backlog/BACKLOG.md
+    citing the run ID + commit SHA
+  conflicts_found:
+  - 'Prior occupant of this root slot (seo-keyword-production-integration) confirmed
+    dormant before takeover: session status literally ''stale'' in reports/session-state/,
+    no active reports/skill-context/active/ lock, last real file activity ~13h before
+    this mission opened (verified per explicit user request to check deeply, 2026-07-30/31).
+    Its archive entry was closed via mission_authority.py close before this mission
+    opened -- its own progress (40+ real commits) is fully preserved in git history
+    and its durable archive at reports/plan_state/seo-keyword-production-integration/,
+    not lost or overwritten.'
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-07-30T22:14:12Z'
+  _closed_at: '2026-07-31T19:16:03Z'

@@ -1,0 +1,1311 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Cells FOSS for Rust is a free, open-source, pure-Rust library for creating,\nloading, editing, and saving Excel `.xlsx` (Office Open XML / SpreadsheetML) workbooks.\nIt exposes an API modeled after Aspose.Cells, so\nthe familiar `Workbook` / `Worksheet` / `Cells` object model is available to Rust\nprograms with no proprietary runtime, no Microsoft Office installation, and no external\nAspose dependency. The OOXML packaging — ZIP container, relationships, shared strings,\nstyles, worksheet XML, and charts — is implemented from scratch on top of a small set of\ngeneral-purpose crates: `zip` (package container), `roxmltree` (XML parsing), `chrono`\n(date/time), `sha2` / `base64` / `getrandom` (protection hashing), and `serde_json`.",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Project Structure](#project-structure)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Create a new `Workbook` with `Workbook::new` (starts with one sheet, `\"Sheet1\"`), or\n  load an existing `.xlsx` file from a path (`Workbook::load_xlsx`), a stream\n  (`load_xlsx_from_stream`), or in-memory bytes (`load_xlsx_from_bytes`) — with defensive\n  repair options via `LoadOptions` (`try_repair_package`, `try_repair_xml`) and structured\n  `LoadDiagnostics` for the issues found along the way.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Manage worksheets through `WorksheetsMut` / `Worksheets` (add, look up by index or\n  name, active-sheet state) and `Worksheet` (name, visibility, tab color, gridlines,\n  zoom, right-to-left layout, and protection).",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Read and write typed cell values through `Cell` / `CellMut` — `put_value_string`,\n  `put_value_i32`, `put_value_bool`, `put_value_decimal`, `put_value_date_time` —\n  addressed by A1 name (`get`) or row/column index (`get_by_index`), and enter formulas\n  with cached results via `put_formula_with_cached_value`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Apply cell styling through `CellStyle` with `Font`, `Fill`, and `Borders`, targeted\n  updates via `StyleFlag`, and custom `NumberFormat` strings.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.rs"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Size and organize rows, columns, and merged cell areas through `Rows` / `Columns` and `Cells`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/RowCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Enforce data validation rules (`Validation`, `ValidationType`, `OperatorType`) and apply\n  conditional formatting — cell-value, expression, color-scale, data-bar, and icon-set\n  rules — through `FormatCondition` and `ConditionalFormattingCollection`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Validation.rs"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Build charts through `ChartType` on a worksheet's chart collection — column, line, bar,\n  area, pie, doughnut, scatter, radar, bubble, and stock families, plus their stacked and\n  3D variants, each rendered as real OOXML chart markup.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartType.rs"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- Embed pictures with `Picture` and drawing shapes with `Shape` / `AutoShapeType`\n  (rectangles, stars, arrows, and other preset geometries).",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Picture.rs"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- Build structured Excel tables with `ListObject` (table styles, totals), auto-filters\n  with `AutoFilter`, and compact in-cell trend charts with `SparklineGroup`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObject.rs"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Attach hyperlinks (`Hyperlink`), workbook- and sheet-scoped defined names\n  (`DefinedName`), and cell comments (`Comment`) with author, note, and visibility\n  control.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Hyperlink.rs"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- Read and write core and extended document properties (`DocumentProperties`,\n  `ExtendedDocumentProperties`) and configure print and page layout through `PageSetup`\n  (paper size, orientation, margins, page breaks) and `FreezePane`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/DocumentProperties.rs"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- Save back to `.xlsx` — to a file path (`save` / `save_xlsx`), a stream\n  (`save_xlsx_to_stream`), or in-memory bytes (`save_xlsx_to_bytes`) — with `SaveOptions`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Aspose.Cells FOSS for Rust is not yet published to [crates.io](https://crates.io/) (see\n[Scope and Limitations](#scope-and-limitations)). Once the repository is live at its real\nGitHub location, add it as a Git dependency in `Cargo.toml`:",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "For local development against a cloned copy, use a path dependency instead:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "The package name is `aspose-cells-foss-rust`; the library is imported as\n`aspose_cells_foss_rust`. Requires a recent stable Rust toolchain (2021 edition or later).\nNo proprietary Aspose runtime and no Microsoft Office installation is required.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "To build the library directly from a clone:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `zip` 0.6 — reads and writes the XLSX ZIP container.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- `roxmltree` 0.20 — parses the OOXML part XML (relationships, shared strings, styles,\n  worksheet XML).",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `chrono` 0.4 — date/time handling for cell values and formulas.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `sha2` 0.10, `base64` 0.22, `getrandom` 0.3 — hashing and encoding used by document\n  protection features.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `serde_json` 1 — JSON support for diagnostics and serialization helpers.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- Requires a recent stable Rust toolchain (2021 edition or later).",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "Create a workbook, write typed values and a formula with a cached result, save it as\nXLSX, and load it back:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "More real, runnable examples are collected below — see [`samples/`](samples/) and\n[`samples/README.md`](samples/README.md) for the complete set.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "Open workbooks defensively with `LoadOptions` repair flags and inspect structured load\ndiagnostics:",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.rs"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "The library source lives under `src/Aspose.Cells_FOSS/`, one module per public type, with\nrunnable samples alongside it at the repository root:",
+    "disposition": "merged_reframed",
+    "target_section": "Project Structure",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/lib.rs"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "The primary entry point is `Workbook`, which owns a `Worksheets` / `WorksheetsMut`\ncollection of `Worksheet` objects. Each `Worksheet` exposes its cells through\n`get_cells()` / `get_cells_mut()`, returning a `Cells` / `CellsMut` accessor used for\nindividual `Cell` / `CellMut` access, row/column collections, and merged ranges. The\npublic API surface includes 213 public types, summarized in the module-grouped table\nbelow.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "<details>\n<summary>View the Complete Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `AlignmentValue` | Struct with 1 method. |\n| `AutoFilter` | Represents auto filter. |\n| `AutoFilterColorFilter` | Represents auto filter color filter. |\n| `AutoFilterColorFilterModel` | Struct with 1 method. |\n| `AutoFilterCustomFilter` | Represents auto filter custom filter. |\n| `AutoFilterCustomFilterCollection` | Represents a collection of auto filter custom filter objects. |\n| `AutoFilterCustomFilterModel` | Struct extending Default. |\n| `AutoFilterDynamicFilter` | Represents auto filter dynamic filter. |\n| `AutoFilterDynamicFilterModel` | Struct with 1 method. |\n| `AutoFilterModel` | Struct with 2 methods. |\n| `AutoFilterSortCondition` | Represents auto filter sort condition. |\n| `AutoFilterSortConditionCollection` | Represents a collection of auto filter sort condition objects. |\n| `AutoFilterSortConditionModel` | Struct extending Default. |\n| `AutoFilterSortState` | Represents auto filter sort state. |\n| `AutoFilterSortStateModel` | Struct with 2 methods. |\n| `AutoFilterTop10` | Represents auto filter top10. |\n| `AutoFilterTop10Model` | Struct with 1 method. |\n| `Border` | Represents border. |\n| `BorderSideValue` | Struct with 1 method. |\n| `Borders` | Represents borders. |\n| `BordersValue` | Struct with 1 method. |\n| `CalculationProperties` | Represents calculation properties. |\n| `CalculationPropertiesModel` | Struct with 2 methods. |\n| `Cell` | Represents a single worksheet cell and exposes value, formula, and style operations. |\n| `CellArea` | Represents cell area. |\n| `CellFormatValue` | Struct extending Default. |\n| `CellMut` | Represents a single worksheet cell and exposes value, formula, and style operations. |\n| `CellRange` | Struct with 2 properties. |\n| `CellRecord` | Struct extending Default. |\n| `CellRef` | Struct with 2 properties. |\n| `CellStyle` | Represents a mutable cell style facade that can be applied to one or more cells. |\n| `Cells` | Provides access to worksheet cells, rows, columns, and merged ranges. |\n| `CellsException` | Represents an error that occurs during cells. |\n| `CellsMut` | Provides access to worksheet cells, rows, columns, and merged ranges. |\n| `Chart` | Represents a chart embedded in a worksheet. |\n| `ChartCollection` | Represents collection of charts on a worksheet. |\n| `ChartCompanionFile` | Struct extending Default. |\n| `ChartModel` | Struct extending Default. |\n| `ChartXmlTemplates` | Struct with 24 methods. |\n| `Color` | Represents color. |\n| `ColorValue` | Struct with 2 methods and 4 properties. |\n| `Column` | Represents column. |\n| `ColumnMut` | Represents column. |\n| `ColumnProperties` | Encapsulates a single worksheet and its supported v0.1 worksheet features. |\n| `ColumnRangeModel` | Struct extending Default. |\n| `Columns` | Represents a collection of column objects. |\n| `ColumnsMut` | Represents a collection of column objects. |\n| `Comment` | Represents a worksheet comment (legacy note) anchored to a single cell. |\n| `CommentCollection` | Represents the collection of comments (legacy notes) on a worksheet. |\n| `CommentModel` | Struct extending Default. |\n| `ConditionalFormattingCollection` | Represents a collection of conditional formatting objects. |\n| `ConditionalFormattingModel` | Struct extending Debug. |\n| `CoreDocumentProperties` | Represents core document properties. |\n| `CoreDocumentPropertiesModel` | Struct with 2 methods. |\n| `DefinedName` | Represents defined name. |\n| `DefinedNameCollection` | Represents a collection of defined name objects. |\n| `DefinedNameModel` | Struct extending Default. |\n| `DefinedNameUtility` | Struct with 5 methods. |\n| `DiagnosticBag` | Struct with 1 method and 1 property. |\n| `DiagnosticEntry` | Struct extending Default. |\n| `DisplayFormatSectionInfo` | Struct extending Default. |\n| `DisplayTextDateFormatSupport` | Struct with 17 methods. |\n| `DisplayTextFormatter` | Struct with 2 methods. |\n| `DisplayTextFormatterSupport` | Struct with 16 methods. |\n| `DisplayTextLocaleSupport` | Struct with 4 methods. |\n| `DocumentProperties` | Represents document properties. |\n| `DocumentPropertiesModel` | Struct with 2 methods. |\n| `ExtendedDocumentProperties` | Represents extended document properties. |\n| `ExtendedDocumentPropertiesModel` | Struct with 2 methods. |\n| `ExternalLinkModel` | Struct extending Default. |\n| `Fill` | Represents a mutable cell style facade that can be applied to one or more cells. |\n| `FillValue` | Struct extending Default. |\n| `FilterColumn` | Represents filter column. |\n| `FilterColumnCollection` | Represents a collection of filter column objects. |\n| `FilterColumnModel` | Struct with 2 methods. |\n| `FilterValueCollection` | Represents a collection of filter value objects. |\n| `Font` | Represents font. |\n| `FontValue` | Struct with 1 method. |\n| `FormatCondition` | Represents format condition. |\n| `FormatConditionCollection` | Represents a collection of format condition objects. |\n| `FormatConditionModel` | Struct with 1 method. |\n| `FormulaException` | Represents an error that occurs during formula. |\n| `FreezePane` | Encapsulates a single worksheet and its supported v0.1 worksheet features. |\n| `Hyperlink` | Represents hyperlink. |\n| `HyperlinkCollection` | Encapsulates the hyperlinks defined for a worksheet. |\n| `HyperlinkModel` | Struct extending Default. |\n| `IListObjectOwner` | Struct extending Default. |\n| `IPackageReader` | Struct extending Default. |\n| `IPackageWriter` | Struct extending Default. |\n| `InvalidFileFormatException` | Represents an error that occurs during invalid file format. |\n| `ListColumn` | Represents a single column in an Excel table. |\n| `ListColumnCollection` | Represents the ordered collection of columns in an Excel table. |\n| `ListColumnModel` | Struct extending Default. |\n| `ListObject` | Represents an Excel table (structured reference / ListObject). |\n| `ListObjectCollection` | Represents the collection of Excel tables on a worksheet. |\n| `ListObjectModel` | Struct extending Default. |\n| `ListObjectSupport` | Struct with 12 methods. |\n| `LoadDiagnostics` | Represents load diagnostics. |\n| `LoadIssue` | Represents load issue. |\n| `LoadOptions` | Specifies how a workbook should be loaded. |\n| `MergeRegion` | Struct extending Default. |\n| `MissingPartException` | Struct extending Default. |\n| `NumberFormat` | Provides number format operations. |\n| `NumberFormatValue` | Struct with 1 method. |\n| `PackageLoadContext` | Struct extending Default. |\n| `PackageModel` | Struct extending Default. |\n| `PackagePartDescriptor` | Struct extending Default. |\n| `PackageStructureException` | Struct extending Default. |\n| `PackagingConventions` | Struct extending Default. |\n| `PageSetup` | Represents worksheet print and page-layout settings. |\n| `Picture` | Represents a picture (image) anchored to a worksheet. |\n| `PictureCollection` | Represents collection of pictures anchored to a worksheet. |\n| `PictureModel` | Struct extending Default. |\n| `ProtectionValue` | Struct with 1 method. |\n| `RelationshipDescriptor` | Struct extending Default. |\n| `RelationshipResolutionException` | RelationshipResolutionException is thrown when the library cannot resolve a package relationship during load or save. |\n| `Row` | Represents row. |\n| `RowModel` | Struct extending Default. |\n| `RowMut` | Represents row. |\n| `RowProperties` | Encapsulates a single worksheet and its supported v0.1 worksheet features. |\n| `Rows` | Represents a collection of row objects. |\n| `RowsMut` | Represents a collection of row objects. |\n| `SaveOptions` | Specifies how a workbook should be saved. |\n| `Shape` | Represents a drawing object (auto shape) anchored to a worksheet. |\n| `ShapeCollection` | Represents collection of drawing objects (shapes) on a worksheet. |\n| `ShapeImageModel` | Struct extending Default. |\n| `ShapeModel` | Struct extending Default. |\n| `SharedStringRepository` | Struct with 3 methods and 2 properties. |\n| `SharedStringTableXmlMapper` | Struct with 2 methods. |\n| `SparklineGroup` | A sparkline group contains sparkline items that share type and settings. |\n| `SparklineGroupCollection` | Represents a collection of sparkline groups on a worksheet. |\n| `StyleException` | Represents an error that occurs during style. |\n| `StyleFlag` | Represents flags which indicate applied formatting properties. |\n| `StyleRepository` | Struct with 1 method. |\n| `StyleValue` | Struct with 1 method. |\n| `StyleValueSanitizer` | Struct with 3 methods. |\n| `StylesheetLoadContext` | Struct extending Default. |\n| `StylesheetSaveContext` | Struct with 2 methods and 2 properties. |\n| `StylesheetXmlMapper` | Struct with 2 methods. |\n| `UnsupportedFeatureException` | Represents an error that occurs during unsupported feature. |\n| `Validation` | Represents validation. |\n| `ValidationCollection` | Represents a collection of validation objects. |\n| `ValidationMessage` | Struct extending Default. |\n| `ValidationModel` | Struct with 1 method and 14 properties. |\n| `WarningInfo` | Represents warning info. |\n| `Workbook` | Represents the root spreadsheet object used to create, load, modify, and save an XLSX workbook. |\n| `WorkbookLoadException` | Represents an error that occurs during workbook load. |\n| `WorkbookModel` | Struct extending Default. |\n| `WorkbookProperties` | Represents workbook properties. |\n| `WorkbookPropertiesModel` | Struct with 2 methods. |\n| `WorkbookProtection` | Represents workbook protection. |\n| `WorkbookProtectionModel` | Struct with 2 methods. |\n| `WorkbookSaveException` | Represents an error that occurs during workbook save. |\n| `WorkbookSettings` | Represents workbook-level settings that affect date handling and display formatting. |\n| `WorkbookSettingsModel` | Struct extending Default. |\n| `WorkbookValidator` | Struct with 1 method. |\n| `WorkbookView` | Represents workbook view. |\n| `WorkbookViewModel` | Struct with 2 methods. |\n| `WorkbookXmlMapper` | Struct with 2 methods. |\n| `Worksheet` | Encapsulates a single worksheet and its supported v0.1 worksheet features. |\n| `WorksheetDefinedNamesState` | Struct extending Default. |\n| `WorksheetModel` | Struct extending Default. |\n| `WorksheetProtection` | Represents worksheet protection. |\n| `WorksheetProtectionModel` | Struct with 2 methods. |\n| `WorksheetViewModel` | Struct extending Default. |\n| `WorksheetXmlMapper` | Struct with 2 methods. |\n| `Worksheets` | Encapsulates the workbook's worksheets and active-sheet state. |\n| `WorksheetsMut` | Encapsulates the workbook's worksheets and active-sheet state. |\n| `XlsxWorkbookCommentsLoader` | Struct with 10 methods. |\n| `XlsxWorkbookDefinedNames` | Struct with 9 methods. |\n| `XlsxWorkbookPicturesLoader` | Struct with 40 methods. |\n| `XlsxWorkbookProperties` | Struct with 13 methods. |\n| `XlsxWorkbookStylesValueHelpers` | Struct with 9 methods. |\n| `XlsxWorkbookStylesXml` | Struct with 31 methods. |\n| `XlsxWorkbookWorksheetProtection` | Struct with 6 methods. |\n| `XlsxWorkbookWorksheetViews` | Struct with 12 methods. |\n| `XmlParsingException` | Struct extending Default. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/lib.rs"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AutoShapeType` | Specifies the type of an auto shape (preset geometry). |\n| `BorderLineStyle` | Represents border. |\n| `BorderStyle` | Enum with 14 members. |\n| `BorderStyleType` | Specifies border style type. |\n| `CellObjectValue` | Enum with 14 methods and 5 members. |\n| `CellValue` | Enum with 8 methods and 7 members. |\n| `CellValueKind` | Enum with 7 members. |\n| `CellValueType` | Specifies cell value type. |\n| `CellsError` | Enum with 9 methods and 10 members. |\n| `ChartType` | Specifies the chart type. |\n| `DateSystem` | Enum with 2 members. |\n| `DiagnosticSeverity` | Enum with 4 members. |\n| `FillPattern` | Specifies fill pattern. |\n| `FillPatternKind` | Enum with 18 members. |\n| `FilterOperatorType` | Represents FilterOperatorType. |\n| `FontUnderlineType` | Enumerates font underline types. |\n| `FormatConditionType` | Specifies format condition type. |\n| `HorizontalAlignment` | Enum with 8 members. |\n| `ImageType` | Represents the format of an image stored in a worksheet. |\n| `LoadFormat` | Specifies load format. |\n| `OperatorType` | Specifies operator type. |\n| `PageOrientation` | Enum with 1 method and 3 members. |\n| `PageOrientationType` | Specifies page orientation type. |\n| `PaperSizeType` | Specifies paper size type. |\n| `SaveFormat` | Specifies save format. |\n| `SheetVisibility` | SheetVisibility enum defines three visibility states: Visible, Hidden, and VeryHidden. |\n| `SparklineType` | Represents SparklineType. |\n| `TableStyleType` | Represents the built-in Excel table style types. |\n| `TargetModeType` | Specifies target mode type. |\n| `TotalsCalculation` | Represents the aggregation function shown in a table totals row cell. |\n| `ValidationAlertType` | Specifies validation alert type. |\n| `ValidationMessageSeverity` | Enum with 3 members. |\n| `ValidationType` | Specifies validation type. |\n| `VerticalAlignment` | Enum with 5 members. |\n| `VisibilityType` | Specifies visibility type. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/AutoShapeType.rs"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "| Class | Description |\n|---|---|\n| `IWarningCallback` | Defines a callback that receives load warnings. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/IWarningCallback.rs"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `Workbook`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `new() -> Workbook` / `load_xlsx(path)` / `load_xlsx_from_stream(reader)` / `load_xlsx_from_bytes(bytes)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `load_xlsx_with_options(path, &LoadOptions)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `get_worksheets() -> Worksheets` / `get_worksheets_mut() -> WorksheetsMut`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `worksheet(name) -> Result<Worksheet, CellsError>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `get_settings() -> WorkbookSettings`, `get_properties() -> WorkbookProperties`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `get_document_properties() -> DocumentProperties`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `get_defined_names() -> DefinedNameCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `get_load_diagnostics() -> LoadDiagnostics`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `save(path)` / `save_xlsx(path)` / `save_with_format(path, format)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `save_xlsx_to_stream(writer)` / `save_xlsx_to_bytes() -> Vec<u8>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.rs"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `WorksheetsMut` / `Worksheets`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `count() -> usize`, `add(name) -> usize`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `get(index)` / `get_by_name(name)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `remove_at(index)` — returns `CellsError::Unsupported` if it is the sole remaining worksheet",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `Worksheet`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `get_name()` / `set_name(value)`, `get_visibility_type()` / `set_visibility_type(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `get_tab_color()` / `set_tab_color(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `get_show_gridlines()`, `get_show_row_column_headers()`, `get_right_to_left()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `get_cells() -> Cells` / `get_cells_mut() -> CellsMut`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `get_hyperlinks()`, `get_validations()`, `get_conditional_formattings()`, `get_auto_filter()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `get_page_setup_mut() -> PageSetup`, `get_charts() -> ChartCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `get_pictures()`, `get_shapes()`, `get_list_objects()`, `get_sparkline_groups()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Worksheet.rs"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `Cells` / `CellsMut`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.rs"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `get(a1_address) -> Result<Cell, CellsError>` / `get_by_index(row, column)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.rs"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `get_rows() -> Rows`, `get_columns() -> Columns`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cells.rs"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `Cell` / `CellMut`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `put_value_string(value)`, `put_value_i32(value)`, `put_value_f64(value)`,\n    `put_value_bool(value)`, `put_value_decimal(value)`, `put_value_date_time(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `put_formula_with_cached_value(formula, CellValue)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `display_string_value() -> String`, `value_type() -> CellValueType`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `get_style() -> CellStyle` / `set_style(style)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.rs"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `CellStyle`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.rs"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `get_font_mut() -> &mut Font`, `pattern: FillPattern`, `fill_color: Option<String>`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.rs"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `Font`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Font.rs"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `set_color(value)`, `set_is_bold(value)`, `set_is_italic(value)`, `set_underline(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Font.rs"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `Color`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Color.rs"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `from_argb(a, r, g, b) -> Color`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Color.rs"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- `PageSetup`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PageSetup.rs"
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `set_left_margin_inch(value)`, `set_right_margin_inch(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PageSetup.rs"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `LoadOptions`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.rs"
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `try_repair_package: bool`, `try_repair_xml: bool` (`..LoadOptions::default()`)",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.rs"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- `SaveOptions` — passed to `save_with_options` / `save_xlsx_to_stream_with_options`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/SaveOptions.rs"
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- `Validation` — `set_type(ValidationType)`, `set_formula1(value)`, `set_formula2(value)`,\n  `set_operator(OperatorType)`, `set_show_error(value)`, `set_error_title(value)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Validation.rs"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `FormatCondition` — `set_priority(value)`, `set_stop_if_true(value)`, `get_style()` / `set_style(style)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatCondition.rs"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- `ConditionalFormattingCollection` — `add()`, `add_condition_with_details(FormatConditionType, OperatorType, formula1, formula2)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- `CellsError` (enum, 10 members including `Unsupported(&'static str)`, `Io(String)`)",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/api.rs"
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- `WorkbookLoadException`, `WorkbookSaveException`, `CellsException`, `FormulaException`,\n  `StyleException`, `InvalidFileFormatException`, `UnsupportedFeatureException`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorkbookLoadException.rs"
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/rust/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/rust/)** — task-focused answers for common spreadsheet-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/rust/)** — the complete, browsable reference for the public API surface (the [API reference](#api-reference) section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "- **[Samples overview](samples/README.md)** — every runnable example, one per feature area.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- **[Contributor guide](AGENTS.md)** — architecture notes, module wiring, and conventions for contributors.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Rust/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "- Reads and writes `.xlsx` (OOXML/SpreadsheetML) only — no legacy `.xls` (BIFF), ODS, or CSV.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/lib.rs"
+    }
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "- A workbook must always keep at least one worksheet: `WorksheetsMut::remove_at` returns\n  a `CellsError::Unsupported` error when asked to remove the last remaining worksheet.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/WorksheetCollection.rs"
+    }
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "- The public API surface is broad but, by the repository's own account, not a complete\n  match for Aspose.Cells — some features are still partial, and the crate is early-stage\n  and evolving.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/lib.rs"
+    }
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "- No automated test suite ships yet (`cargo test --all-targets` currently reports 0\n  tests) — see [Development and Testing](#development-and-testing) for how correctness is\n  exercised today.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "- Not yet published to crates.io — see [Installation](#installation) for the current\n  git-dependency workaround.",
+    "disposition": "excluded",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    },
+    "classification_basis": " [2026-09-03 addendum: excluded, see reason]",
+    "excluded_reason": "this Scope-and-Limitations bullet disclosed publication status (\"not yet published to crates.io\"), which must never appear in a public README per explicit user direction (readme-refresh-pdf-typescript-scale-hardening-2026-09-03 addendum); removed entirely, not relocated -- the working git-dependency install path is unaffected"
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "These limitations don't apply to\n[Aspose.Cells — Enterprise Edition](https://products.aspose.com/cells/), which adds\nbroader format coverage (including legacy XLS, CSV, and ODS), full feature completeness,\nand commercial support.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "The repository currently has no unit or integration test suite —\n`cargo test --all-targets` reports 0 tests. The `samples/` directory is the de-facto\nverification suite instead: each sample creates a workbook, saves it under\n`output/samples/`, loads it back, and prints what it read. After a change that touches\nthe read/write path, run the core samples and confirm they still round-trip:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../Cargo.toml"
+    }
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "CI ([`ci.yml`](.github/workflows/ci.yml)) runs `fmt`, `check`, `clippy`, `test`, the three\nsamples above as smoke tests, and `cargo bench` on Linux x64, Windows x64, macOS ARM, and\nmacOS x64. The `samples/` directory demonstrates every feature area — `basic.rs`,\n`styles.rs`, `worksheet_settings.rs`, `validations.rs`, `conditional_formatting.rs`,\n`hyperlinks_and_names.rs`, `pagesetup.rs`, `comments.rs`, `charts.rs`, `list_objects.rs`,\n`pictures.rs`, `shapes.rs`, and `document_properties.rs` (see\n[`samples/README.md`](samples/README.md) for the full overview). Generate local API docs\nwith `cargo doc --no-deps --open`; published API docs are deployed by GitHub Pages\nthrough [`pages.yml`](.github/workflows/pages.yml) — enabling\n`Settings -> Pages -> GitHub Actions` on the repository makes pushes to `main`\nautomatically rebuild and publish the rustdoc site.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/../../.github/workflows/ci.yml"
+    }
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE.txt). The MIT License permits\nuse, copying, modification, distribution, sublicensing, and commercial use, provided its\ncopyright and permission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE.txt"
+    }
+  }
+]

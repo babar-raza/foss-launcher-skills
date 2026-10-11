@@ -1,0 +1,6 @@
+git-repo-health: .git
+  loose objects: 0 (gc.auto threshold: 6700)
+  gc.auto: 0
+  fsck broken-link warnings: 0
+
+HEALTHY: no broken links, loose-object count within threshold.

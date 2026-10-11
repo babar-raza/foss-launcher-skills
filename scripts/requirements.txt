@@ -1,6 +1,11 @@
-# Dependencies for scripts/scout.py and scripts/embed.py
-tree-sitter>=0.25
-tree-sitter-language-pack>=0.13
-tree-sitter-c-sharp>=0.23
-pyyaml>=6.0
-requests>=2.28
+# This file is a navigation index only.
+# Install dependencies per-subfolder using the requirements.txt in each subdirectory.
+#
+# Quick install commands:
+#   pip install -r scripts/pipeline/requirements.txt
+#   pip install -r scripts/translator/requirements.txt
+#   pip install -r scripts/gap-eval/requirements.txt
+#   pip install -r scripts/seo/requirements.txt         # optional — SEO features only
+#   pip install -r scripts/ci/requirements.txt
+#   pip install -r scripts/generator/requirements.txt
+#   pip install -r scripts/maintenance/requirements.txt

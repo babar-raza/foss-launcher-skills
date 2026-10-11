@@ -1,11 +1,19 @@
 ---
 name: batch-remediate
 description: >
-  S-40: Full eval→fix→LLM→re-eval pipeline for all content pages of a product.
-  Evaluates, triages, auto-fixes deterministic issues, applies LLM fixes for
-  non-deterministic issues, then re-evaluates to confirm improvement.
+  Full Eval→Fix→LLM→Re-eval pipeline for batch content remediation
 args: "{family} {platform}"
 ---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+<!-- CONTRACT: scripts/pipeline/commands/content/remediate.py (handles Steps 3-5 only)
+     postcondition: remediate.py applies deterministic auto-fixes and outputs LLM queue
+     postcondition: Step 6 (LLM fix pass) is executed by the agent, not by the script
+     postcondition: re-evaluation in Step 7 runs content_eval again and produces diff report
+     note: remediate.py has no LLM pass — LLM fixes are agent actions using knowledge artifacts
+     verified: 2026-04-01
+-->
 # S-40: Batch Remediate — Full Eval→Fix→LLM→Re-eval Pipeline
 
 **Arguments**: $ARGUMENTS
@@ -13,7 +21,23 @@ Expected format: `{family} {platform}` — e.g. `3d python`
 
 ## Purpose
 
-Run the complete remediation pipeline for all content pages of a product: evaluate, triage, auto-fix deterministic issues, apply LLM fixes for non-deterministic issues, then re-evaluate to confirm improvement.
+Run the complete remediation pipeline for all content pages of a product: evaluate, triage,
+auto-fix deterministic issues (via `remediate.py`), apply LLM fixes for non-deterministic
+issues (agent-executed, not automated by the script), then re-evaluate to confirm improvement.
+
+> **Script scope**: `remediate.py` handles Steps 3–5 only (evaluate, triage, auto-fix).
+> Step 6 (LLM fix pass) is performed **by the agent directly**, not by any script. The agent
+> reads the LLM queue output from Step 4 and applies fixes file-by-file using its own
+> reasoning + knowledge artifacts. If you only need deterministic auto-fixes (no LLM pass),
+> use S-41 (batch-eval-fix) instead.
+
+## Lightweight mode (no LLM)
+
+For deterministic auto-fixes only (no LLM pass), use S-41 (batch-eval-fix) instead:
+```
+/batch-eval-fix {family} {platform}
+```
+This is safe for unattended runs and skips the LLM fix pass (Step 6).
 
 ## Pre-conditions
 
@@ -23,6 +47,12 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 2. `scripts/pipeline/content_eval` and `scripts/pipeline/commands/content/remediate.py` are available.
 
 ## Steps
+
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-40 --scope "*"
+> ```
+
 
 1. **Parse arguments** to get `{family}` and `{platform}`.
 
@@ -35,7 +65,7 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 3. **Run full evaluation**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json --remediation
    ```
 
    Save the report path (e.g. `reports/content_eval/eval-{timestamp}.json`).
@@ -43,7 +73,7 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 4. **Run triage + auto-fix**:
 
    ```bash
-   python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {eval-report-path}
    ```
 
    Parse the remediation report to get: fixes applied, LLM queue, human queue.
@@ -80,13 +110,13 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 7. **Run re-evaluation**:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate {family} {platform} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate {family} {platform} --write-grade --format json
    ```
 
 8. **Diff reports** to show improvement:
 
    ```bash
-   python -m scripts.pipeline.content_eval diff {old-report} {new-report}
+   .venv/Scripts/python -m scripts.pipeline.content_eval diff {old-report} {new-report}
    ```
 
 9. **Report final summary**:
@@ -102,13 +132,31 @@ Run the complete remediation pipeline for all content pages of a product: evalua
    Reports: {report_paths}
    ```
 
+9b. **Backlink compliance assertion**: After LLM fixes, verify all modified pages still
+    have compliant backlinks (LLM rewrites can erase See Also / Related Resources sections):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_audit.py \n      --family {family} --platform {platform} --subdomain {subdomain}
+    ```
+    For any MISSING pages, re-inject:
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain {subdomain} --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-40 --status completed
+> ```
+
 ## Post-conditions
 
 - Auto-fixes are applied and idempotent.
 - LLM fixes pass ground-check (`audit.py`).
 - Re-evaluation report is saved to `reports/content_eval/`.
 - Remediation report is saved to `reports/remediation/`.
-- Human queue items are listed for manual review.
+- Human queue items are listed for manual review. Each item should be addressed via
+  **S-73 (manual-edit)** — the only sanctioned path for operator-directed targeted edits.
 - Maximum 2 LLM passes per file enforced (AGENTS.md Section 8 compliance).
 - No files outside allowed content paths were modified (S-01 path-guard).
 
@@ -118,3 +166,26 @@ Run the complete remediation pipeline for all content pages of a product: evalua
 - **Audit FAIL after LLM fix**: Revert file, add to human queue.
 - **2 LLM passes exhausted**: Escalate to human queue with finding details.
 - **File not found**: Skip and report.
+
+## Related Skills
+
+- **S-41 batch-eval-fix**: Lightweight auto-fix only (no LLM pass). Use when you only need deterministic fixes.
+- **S-42 category-fix**: Run a specific category fixer on targeted files.
+- **S-89 heal-batch**: Policy-routed batch healing from an eval report. Routes findings through the heal policy table to auto/llm/regen modes in a single pass. Use `/heal-batch` when you have an existing eval report and want structured dispatching rather than the sequential eval→fix→LLM pipeline of S-40.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

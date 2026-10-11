@@ -1,16 +1,17 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_docs_propagation.py — Prepare enforcement for Slices 10+11 docs/skills propagation.
 
 Scans AGENTS.md, docs/, README files, and skill files for metrics obligation clauses.
-Classifies each as PRESENT, MISSING, NOT_APPLICABLE, or PENDING.
+Classifies each as PRESENT, MISSING, NOT_APPLICABLE, or PENDING_SLICE_10_11.
 
 Default mode: advisory / pre-propagation — exits 0 even if clauses are missing.
 Writes a clear pending report to show what still needs propagation.
 
 Strict mode (--strict): fails if required docs/skills clauses are missing.
-This checker becomes strict after propagation is complete.
+This checker becomes strict after Slices 10 and 11 are complete.
 
 Does NOT modify docs or skills. Does NOT add clauses.
+
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
 
 Usage:
     python scripts/ci/checks/check_metrics_docs_propagation.py
@@ -25,12 +26,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Docs and files to inspect
 _DOCS_TO_CHECK: list[tuple[str, str, bool]] = [
@@ -68,12 +68,26 @@ _LLM_SKILL_KEYWORDS = [
     "knowledge_enrich", "translate", "gap-eval", "seo", "recommend",
 ]
 
+# Markers that indicate a skill file has been permanently retired.
+# Retired files cannot call LLMs, so the metrics obligation is N/A.
+_RETIRED_MARKERS = [
+    "PERMANENTLY RETIRED",
+    "permanently retired",
+    "## RETIRED",
+    "has been deleted",
+    "has been retired",
+]
+
+
+def _is_retired_skill(text: str) -> bool:
+    return any(m in text for m in _RETIRED_MARKERS)
+
 
 @dataclass
 class PropagationItem:
     path: str
     description: str
-    status: str  # PRESENT | MISSING | NOT_APPLICABLE | PENDING | FILE_NOT_FOUND
+    status: str  # PRESENT | MISSING | NOT_APPLICABLE | PENDING_SLICE_10_11 | FILE_NOT_FOUND
     metrics_clause_found: bool = False
     llm_usage_detected: bool = False
     note: str = ""
@@ -121,13 +135,13 @@ def _check_file(path: Path, description: str, strict_required: bool, root: Path 
         )
     text = path.read_text(encoding="utf-8", errors="ignore")
     has_clause = _has_metrics_clause(text)
-    status = "PRESENT" if has_clause else ("MISSING" if strict_required else "PENDING")
+    status = "PRESENT" if has_clause else ("MISSING" if strict_required else "PENDING_SLICE_10_11")
     return PropagationItem(
         path=rel,
         description=description,
         status=status,
         metrics_clause_found=has_clause,
-        note="" if has_clause else "Metrics clause expected after docs propagation",
+        note="" if has_clause else "Metrics clause expected after Slice 10 (docs propagation)",
     )
 
 
@@ -140,6 +154,13 @@ def _check_skill_file(path: Path, root: Path | None = None) -> PropagationItem:
     if not path.exists():
         return PropagationItem(path=rel, description="Skill file", status="FILE_NOT_FOUND")
     text = path.read_text(encoding="utf-8", errors="ignore")
+    if _is_retired_skill(text):
+        return PropagationItem(
+            path=rel, description="Skill file (retired)",
+            status="NOT_APPLICABLE",
+            llm_usage_detected=False,
+            note="Retired skill — metrics obligation N/A (no LLM calls possible)",
+        )
     is_llm = _has_llm_usage(text)
     if not is_llm:
         return PropagationItem(
@@ -149,13 +170,13 @@ def _check_skill_file(path: Path, root: Path | None = None) -> PropagationItem:
             note="No LLM usage detected — metrics clause not required",
         )
     has_clause = _has_metrics_clause(text)
-    status = "PRESENT" if has_clause else "PENDING"
+    status = "PRESENT" if has_clause else "PENDING_SLICE_10_11"
     return PropagationItem(
         path=rel, description="Skill file (LLM-using)",
         status=status,
         metrics_clause_found=has_clause,
         llm_usage_detected=True,
-        note="" if has_clause else "LLM-using skill: metrics clause expected after skill propagation",
+        note="" if has_clause else "LLM-using skill: metrics clause expected after Slice 11",
     )
 
 
@@ -196,7 +217,7 @@ def run_check(root: Path, strict: bool = False) -> PropagationResult:
             result.present_count += 1
         elif item.status == "MISSING":
             result.missing_count += 1
-        elif item.status == "PENDING":
+        elif item.status == "PENDING_SLICE_10_11":
             result.pending_count += 1
         elif item.status == "NOT_APPLICABLE":
             result.not_applicable_count += 1
@@ -204,7 +225,7 @@ def run_check(root: Path, strict: bool = False) -> PropagationResult:
     # Determine pass/fail
     if strict:
         # In strict mode, MISSING or PENDING items are failures
-        failing = [i for i in result.items if i.status in ("MISSING", "PENDING")]
+        failing = [i for i in result.items if i.status in ("MISSING", "PENDING_SLICE_10_11")]
         if failing:
             result.passed = False
     else:
@@ -221,11 +242,11 @@ def main(argv: list[str] | None = None) -> int:
         epilog=(
             "Default mode: advisory — always exits 0 but reports pending items.\n"
             "Strict mode: exits 1 if required clauses are missing.\n"
-            "Becomes strict after propagation is complete."
+            "Becomes strict after Slices 10 and 11 are complete."
         ),
     )
     parser.add_argument("--strict", action="store_true",
-                        help="Fail if required docs/skills clauses are missing (for post-propagation use)")
+                        help="Fail if required docs/skills clauses are missing (for post-Slice-10/11 use)")
     parser.add_argument("--json-output", action="store_true", help="Print JSON result")
     args = parser.parse_args(argv)
 
@@ -256,14 +277,14 @@ def main(argv: list[str] | None = None) -> int:
               f"present={result.present_count}, pending={result.pending_count}, "
               f"missing={result.missing_count}, n/a={result.not_applicable_count}")
         if result.pending_count or result.missing_count:
-            print(f"  NOTE: {result.pending_count} item(s) pending propagation, "
+            print(f"  NOTE: {result.pending_count} item(s) pending Slices 10/11 propagation, "
                   f"{result.missing_count} missing")
             if args.strict:
-                failing = [i for i in result.items if i.status in ("MISSING", "PENDING")]
+                failing = [i for i in result.items if i.status in ("MISSING", "PENDING_SLICE_10_11")]
                 for i in failing:
                     print(f"  FAIL {i.status}: {i.path}  ({i.note})")
             else:
-                print("  Advisory mode — these will become failures after propagation is complete.")
+                print("  Advisory mode — these will become failures after Slices 10 and 11.")
         if result.passed:
             print(f"check_metrics_docs_propagation: {'PASS' if args.strict else 'PASS (advisory)'}")
         else:

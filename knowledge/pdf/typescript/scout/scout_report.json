@@ -1,0 +1,27 @@
+{
+  "files_attempted": 383,
+  "files_parsed": 383,
+  "files_skipped": [],
+  "skip_reasons": {},
+  "parse_errors": [
+    "src/uafont.ts"
+  ],
+  "parse_error_rate": 0.0026109660574412533,
+  "total_source_files_found": 383,
+  "files_capped": false,
+  "ts_entry_point": "src/index.ts",
+  "fidelity_summary": {
+    "schema_version": 1,
+    "generated_at": "2026-09-25T06:48:34.266671+00:00",
+    "overall_status": "WARN",
+    "findings_count": 2,
+    "fail_count": 0,
+    "probe_statuses": {
+      "P1": "OK",
+      "P2": "WARN",
+      "P3": "OK",
+      "P4": "WARN",
+      "P5": "OK"
+    }
+  }
+}

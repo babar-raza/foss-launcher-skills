@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_manifest_consistency.py — GUARD-04: Manifest/frontmatter grade consistency.
 
 Compares the grade letter in frontmatter with the grade in grade_manifest.json

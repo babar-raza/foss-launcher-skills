@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """grade_manifest.py — External grade manifest for operational pipeline state.
 
 ARCH-01: Stores per-page operational evaluation state (evaluator versions,
@@ -19,8 +18,25 @@ Schema (per entry, keyed by relative filepath):
     "logic_version": "16",
     "enrichment_status": "full|scout|none",
     "evaluated_at": "ISO-8601",
-    "graded_evaluators": "full|audit|structural"
+    "graded_evaluators": "full|audit|structural",
+    "stale": false,
+    "stale_reason": "",
+    "stale_marked_at": ""
   }
+
+RC-tex-python-01/06 (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL blind-spot
+audit, Phase B): ``stale``/``stale_reason``/``stale_marked_at`` are new,
+OPTIONAL fields (default False/""/"") -- absent from every pre-existing
+entry, and every existing consumer (check_grade_downgrade.py,
+publish_readiness_review_run.py, launch_gate.py) reads entries via plain
+dict.get() with no schema validation, so this is a purely additive,
+backward-compatible extension. They exist to close a real, confirmed gap:
+a page can carry a live, deterministically-reproducible defect (e.g. a
+content_eval FAIL) while its persisted grade still reads A/B, because
+nothing previously re-checked a graded page's live state after the fact.
+mark_stale()/clear_stale() below are the intended writers -- see
+scripts/pipeline/commands/governance/grade_staleness_sweep.py (Phase C) for
+the sweep that populates them in production use.
 
 Reference: curried-pondering-music.md §17.2 C-R1, §8.5
 """
@@ -138,6 +154,13 @@ def write_manifest_entry(
         "logic_version": logic_version,
         "enrichment_status": enrichment_status or "full",
         "graded_evaluators": graded_evaluators,
+        # A fresh grade write is, by definition, up to date -- any prior
+        # staleness flag is correctly cleared here, not preserved across
+        # re-grades. See mark_stale()/clear_stale() for the out-of-band
+        # writers used by the Phase C sweep between grading passes.
+        "stale": False,
+        "stale_reason": "",
+        "stale_marked_at": "",
         "evaluated_at": now,
     }
 
@@ -145,6 +168,70 @@ def write_manifest_entry(
         save_manifest(manifest, manifest_path)
 
     return manifest
+
+
+def mark_stale(
+    filepath: str,
+    reason: str,
+    *,
+    manifest: dict[str, dict] | None = None,
+    manifest_path: Path | str | None = None,
+    save: bool = True,
+) -> bool:
+    """Flag an EXISTING manifest entry as stale, preserving every other field
+    (grade, evaluator_versions, etc. are read-modify-write, never replaced).
+
+    Returns False (no-op, nothing written) if no entry exists yet for
+    *filepath* -- marking staleness on a page that was never graded at all
+    is meaningless; grade a page before you can flag its grade as stale.
+
+    Returns True on success.
+    """
+    if manifest is None:
+        manifest = load_manifest(manifest_path)
+
+    key = filepath.replace("\\", "/")
+    entry = manifest.get(key)
+    if entry is None:
+        return False
+
+    entry["stale"] = True
+    entry["stale_reason"] = reason
+    entry["stale_marked_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    if save:
+        save_manifest(manifest, manifest_path)
+    return True
+
+
+def clear_stale(
+    filepath: str,
+    *,
+    manifest: dict[str, dict] | None = None,
+    manifest_path: Path | str | None = None,
+    save: bool = True,
+) -> bool:
+    """Clear a previously-set stale flag on an existing manifest entry
+    (e.g. after the underlying defect has been fixed and reverified), without
+    requiring a full re-grade through write_manifest_entry().
+
+    Returns False (no-op) if no entry exists for *filepath*.
+    """
+    if manifest is None:
+        manifest = load_manifest(manifest_path)
+
+    key = filepath.replace("\\", "/")
+    entry = manifest.get(key)
+    if entry is None:
+        return False
+
+    entry["stale"] = False
+    entry["stale_reason"] = ""
+    entry["stale_marked_at"] = ""
+
+    if save:
+        save_manifest(manifest, manifest_path)
+    return True
 
 
 def manifest_skip_check(

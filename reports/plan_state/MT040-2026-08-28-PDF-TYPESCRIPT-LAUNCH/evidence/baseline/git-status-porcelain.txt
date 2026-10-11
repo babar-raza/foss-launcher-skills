@@ -1,0 +1,804 @@
+MM .claude/commands/new-docs-index.md
+MM .claude/commands/new-products-page.md
+MM .claude/commands/page-update.md
+MM backlog/inbox.md
+ M content/blog.aspose.org/cells/net/_index.md
+ M content/blog.aspose.org/cells/net/cells-key-features-net/index.md
+ M content/blog.aspose.org/cells/net/dotnet-excel-xlsx-library/index.md
+ M content/blog.aspose.org/cells/net/dotnet-xlsx-workbook-worksheet/index.md
+ M content/blog.aspose.org/cells/net/introducing-cells-foss-net/index.md
+ M content/blog.aspose.org/cells/net/spreadsheet-management-in-net/index.md
+ M content/blog.aspose.org/html/python/html-cssom-in-python/index.md
+ M content/blog.aspose.org/note/python/_index.md
+ M content/blog.aspose.org/note/python/extract-text-onenote-python/index.md
+ M content/blog.aspose.org/note/python/introducing-aspose-note-foss-for-python/index.md
+ M content/blog.aspose.org/note/python/introducing-note-foss-python/index.md
+ M content/blog.aspose.org/note/python/note-key-features-python/index.md
+ M content/blog.aspose.org/note/python/parse-onenote-tables-python/index.md
+ M content/blog.aspose.org/note/python/python-onenote-pdf-export/index.md
+ M content/blog.aspose.org/note/python/python-onenote-reader-pypi/index.md
+ M content/blog.aspose.org/note/python/python-onenote-tree-traversal/index.md
+ M content/docs.aspose.org/en/3d/python/developer-guide/features.md
+ M content/docs.aspose.org/en/3d/python/developer-guide/scene-graph.md
+ M content/docs.aspose.org/en/cells/net/developer-guide/working-with-xml-processing.md
+ M content/docs.aspose.org/en/cells/net/getting-started/license.md
+ M content/docs.aspose.org/en/html/python/_index.md
+ M content/docs.aspose.org/en/html/python/getting-started/license.md
+ M content/docs.aspose.org/en/note/python/_index.md
+ M content/docs.aspose.org/en/note/python/developer-guide/_index.md
+ M content/docs.aspose.org/en/note/python/developer-guide/features.md
+ M content/docs.aspose.org/en/note/python/developer-guide/images-and-attachments.md
+ M content/docs.aspose.org/en/note/python/developer-guide/ms-one.md
+ M content/docs.aspose.org/en/note/python/developer-guide/note-document.md
+ M content/docs.aspose.org/en/note/python/developer-guide/onestore-format.md
+ M content/docs.aspose.org/en/note/python/developer-guide/pdf-export.md
+ M content/docs.aspose.org/en/note/python/developer-guide/scene-entities.md
+ M content/docs.aspose.org/en/note/python/developer-guide/tables.md
+ M content/docs.aspose.org/en/note/python/developer-guide/text-extraction.md
+ M content/docs.aspose.org/en/note/python/getting-started/_index.md
+ M content/docs.aspose.org/en/note/python/getting-started/installation.md
+ M content/docs.aspose.org/en/note/python/getting-started/license.md
+ M content/docs.aspose.org/en/note/python/getting-started/quickstart.md
+ M content/kb.aspose.org/en/3d/python/how-to-convert-3d-models-in-python.md
+ M content/kb.aspose.org/en/3d/python/how-to-fix-3d-models-errors-python.md
+ M content/kb.aspose.org/en/3d/python/how-to-traverse-scene-graph-in-python.md
+ M content/kb.aspose.org/en/cells/net/how-to-extract-xml-dotnet.md
+ M content/kb.aspose.org/en/cells/net/how-to-load-spreadsheet-dotnet.md
+ M content/kb.aspose.org/en/cells/net/how-to-work-with-ooxml-packaging-dotnet.md
+ M content/kb.aspose.org/en/cells/net/how-to-work-with-packaging-dotnet.md
+ M content/kb.aspose.org/en/html/python/faq.md
+ M content/kb.aspose.org/en/html/python/how-to-work-with-css-python.md
+ M content/kb.aspose.org/en/html/python/how-to-work-with-dom-python.md
+ M content/kb.aspose.org/en/note/python/_index.md
+ M content/kb.aspose.org/en/note/python/faq.md
+ M content/kb.aspose.org/en/note/python/how-to-build-scene-entities-python.md
+ M content/kb.aspose.org/en/note/python/how-to-convert-onestore-format-python.md
+ M content/kb.aspose.org/en/note/python/how-to-export-onenote-to-pdf-python.md
+ M content/kb.aspose.org/en/note/python/how-to-extract-text-from-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-get-started-note-python.md
+ M content/kb.aspose.org/en/note/python/how-to-inspect-tags-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-parse-tables-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-read-document-metadata-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-read-image-metadata-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-save-attachments-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-traverse-dom-onenote-python.md
+ M content/kb.aspose.org/en/note/python/how-to-work-with-ms-one-python.md
+ M content/products.aspose.org/en/html/python/_index.md
+ M content/products.aspose.org/en/note/python/_index.md
+ M content/reference.aspose.org/en/3d/net/ColladaLoadOptions.md
+ M content/reference.aspose.org/en/3d/net/TmfLoadOptions.md
+ M content/reference.aspose.org/en/3d/net/TmfSaveOptions.md
+ M content/reference.aspose.org/en/3d/net/VertexElementVector.md
+ M content/reference.aspose.org/en/3d/python/A3DObject.md
+ M content/reference.aspose.org/en/3d/python/AnimationChannel.md
+ M content/reference.aspose.org/en/3d/python/AnimationClip.md
+ M content/reference.aspose.org/en/3d/python/AnimationNode.md
+ M content/reference.aspose.org/en/3d/python/AssetInfo.md
+ M content/reference.aspose.org/en/3d/python/BinaryTokenizer.md
+ M content/reference.aspose.org/en/3d/python/BindPoint.md
+ M content/reference.aspose.org/en/3d/python/BooleanOperation.md
+ M content/reference.aspose.org/en/3d/python/BoundingBox.md
+ M content/reference.aspose.org/en/3d/python/Camera.md
+ M content/reference.aspose.org/en/3d/python/ColladaExporter.md
+ M content/reference.aspose.org/en/3d/python/ColladaFormat.md
+ M content/reference.aspose.org/en/3d/python/ColladaFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/ColladaImporter.md
+ M content/reference.aspose.org/en/3d/python/ColladaPlugin.md
+ M content/reference.aspose.org/en/3d/python/ColladaSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/CustomObject.md
+ M content/reference.aspose.org/en/3d/python/Entity.md
+ M content/reference.aspose.org/en/3d/python/Exporter.md
+ M content/reference.aspose.org/en/3d/python/Extrapolation.md
+ M content/reference.aspose.org/en/3d/python/ExtrapolationType.md
+ M content/reference.aspose.org/en/3d/python/FVector2.md
+ M content/reference.aspose.org/en/3d/python/FVector3.md
+ M content/reference.aspose.org/en/3d/python/FVector4.md
+ M content/reference.aspose.org/en/3d/python/FbxElement.md
+ M content/reference.aspose.org/en/3d/python/FbxExporter.md
+ M content/reference.aspose.org/en/3d/python/FbxFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/FbxImporter.md
+ M content/reference.aspose.org/en/3d/python/FbxLoadOptions.md
+ M content/reference.aspose.org/en/3d/python/FbxParser.md
+ M content/reference.aspose.org/en/3d/python/FbxPlugin.md
+ M content/reference.aspose.org/en/3d/python/FbxSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/FbxScope.md
+ M content/reference.aspose.org/en/3d/python/FbxTokenizer.md
+ M content/reference.aspose.org/en/3d/python/FileFormat.md
+ M content/reference.aspose.org/en/3d/python/FormatDetector.md
+ M content/reference.aspose.org/en/3d/python/Geometry.md
+ M content/reference.aspose.org/en/3d/python/GlobalTransform.md
+ M content/reference.aspose.org/en/3d/python/GltfExporter.md
+ M content/reference.aspose.org/en/3d/python/GltfFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/GltfImporter.md
+ M content/reference.aspose.org/en/3d/python/GltfLoadOptions.md
+ M content/reference.aspose.org/en/3d/python/GltfPlugin.md
+ M content/reference.aspose.org/en/3d/python/GltfSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/ImageRenderOptions.md
+ M content/reference.aspose.org/en/3d/python/Importer.md
+ M content/reference.aspose.org/en/3d/python/Interpolation.md
+ M content/reference.aspose.org/en/3d/python/KeyFrame.md
+ M content/reference.aspose.org/en/3d/python/KeyframeSequence.md
+ M content/reference.aspose.org/en/3d/python/LambertMaterial.md
+ M content/reference.aspose.org/en/3d/python/Light.md
+ M content/reference.aspose.org/en/3d/python/LightType.md
+ M content/reference.aspose.org/en/3d/python/LoadOptions.md
+ M content/reference.aspose.org/en/3d/python/MappingMode.md
+ M content/reference.aspose.org/en/3d/python/Material.md
+ M content/reference.aspose.org/en/3d/python/Matrix4.md
+ M content/reference.aspose.org/en/3d/python/Mesh.md
+ M content/reference.aspose.org/en/3d/python/Node.md
+ M content/reference.aspose.org/en/3d/python/ObjExporter.md
+ M content/reference.aspose.org/en/3d/python/ObjFormat.md
+ M content/reference.aspose.org/en/3d/python/ObjFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/ObjLoadOptions.md
+ M content/reference.aspose.org/en/3d/python/ObjPlugin.md
+ M content/reference.aspose.org/en/3d/python/ObjSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/PbrMaterial.md
+ M content/reference.aspose.org/en/3d/python/PhongMaterial.md
+ M content/reference.aspose.org/en/3d/python/PolygonModifier.md
+ M content/reference.aspose.org/en/3d/python/ProjectionType.md
+ M content/reference.aspose.org/en/3d/python/Property.md
+ M content/reference.aspose.org/en/3d/python/PropertyCollection.md
+ M content/reference.aspose.org/en/3d/python/Quaternion.md
+ M content/reference.aspose.org/en/3d/python/ReferenceMode.md
+ M content/reference.aspose.org/en/3d/python/SaveOptions.md
+ M content/reference.aspose.org/en/3d/python/Scene.md
+ M content/reference.aspose.org/en/3d/python/SceneObject.md
+ M content/reference.aspose.org/en/3d/python/StepMode.md
+ M content/reference.aspose.org/en/3d/python/StlExporter.md
+ M content/reference.aspose.org/en/3d/python/StlFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/StlImporter.md
+ M content/reference.aspose.org/en/3d/python/StlLoadOptions.md
+ M content/reference.aspose.org/en/3d/python/StlPlugin.md
+ M content/reference.aspose.org/en/3d/python/StlSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/TextureMapping.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfExporter.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfFormat.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfFormatDetector.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfLoadOptions.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfPlugin.md
+ M content/reference.aspose.org/en/3d/python/ThreeMfSaveOptions.md
+ M content/reference.aspose.org/en/3d/python/Token.md
+ M content/reference.aspose.org/en/3d/python/TokenType.md
+ M content/reference.aspose.org/en/3d/python/Transform.md
+ M content/reference.aspose.org/en/3d/python/Vector2.md
+ M content/reference.aspose.org/en/3d/python/Vector3.md
+ M content/reference.aspose.org/en/3d/python/Vector4.md
+ M content/reference.aspose.org/en/3d/python/VertexElement.md
+ M content/reference.aspose.org/en/3d/python/VertexElementBinormal.md
+ M content/reference.aspose.org/en/3d/python/VertexElementFVector.md
+ M content/reference.aspose.org/en/3d/python/VertexElementIntsTemplate.md
+ M content/reference.aspose.org/en/3d/python/VertexElementNormal.md
+ M content/reference.aspose.org/en/3d/python/VertexElementSmoothingGroup.md
+ M content/reference.aspose.org/en/3d/python/VertexElementTangent.md
+ M content/reference.aspose.org/en/3d/python/VertexElementType.md
+ M content/reference.aspose.org/en/3d/python/VertexElementUV.md
+ M content/reference.aspose.org/en/3d/python/VertexElementVertexColor.md
+ M content/reference.aspose.org/en/3d/python/WeightedMode.md
+ M content/reference.aspose.org/en/cells/net/AutoFilter.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterColorFilter.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterCustomFilter.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterCustomFilterCollection.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterDynamicFilter.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterSortCondition.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterSortConditionCollection.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterSortState.md
+ M content/reference.aspose.org/en/cells/net/AutoFilterTop10.md
+ M content/reference.aspose.org/en/cells/net/AutoShapeType.md
+ M content/reference.aspose.org/en/cells/net/Border.md
+ M content/reference.aspose.org/en/cells/net/Borders.md
+ M content/reference.aspose.org/en/cells/net/CalculationProperties.md
+ M content/reference.aspose.org/en/cells/net/CellArea.md
+ M content/reference.aspose.org/en/cells/net/Cells.md
+ M content/reference.aspose.org/en/cells/net/CellsException.md
+ M content/reference.aspose.org/en/cells/net/Chart.md
+ M content/reference.aspose.org/en/cells/net/ChartCollection.md
+ M content/reference.aspose.org/en/cells/net/ChartType.md
+ M content/reference.aspose.org/en/cells/net/Color.md
+ M content/reference.aspose.org/en/cells/net/Column.md
+ M content/reference.aspose.org/en/cells/net/ColumnCollection.md
+ M content/reference.aspose.org/en/cells/net/Comment.md
+ M content/reference.aspose.org/en/cells/net/CommentCollection.md
+ M content/reference.aspose.org/en/cells/net/ConditionalFormattingCollection.md
+ M content/reference.aspose.org/en/cells/net/CoreDocumentProperties.md
+ M content/reference.aspose.org/en/cells/net/DefinedName.md
+ M content/reference.aspose.org/en/cells/net/ExtendedDocumentProperties.md
+ M content/reference.aspose.org/en/cells/net/FilterColumn.md
+ M content/reference.aspose.org/en/cells/net/FilterColumnCollection.md
+ M content/reference.aspose.org/en/cells/net/FilterValueCollection.md
+ M content/reference.aspose.org/en/cells/net/Font.md
+ M content/reference.aspose.org/en/cells/net/FontUnderlineType.md
+ M content/reference.aspose.org/en/cells/net/FormatCondition.md
+ M content/reference.aspose.org/en/cells/net/FormulaException.md
+ M content/reference.aspose.org/en/cells/net/Hyperlink.md
+ M content/reference.aspose.org/en/cells/net/IWarningCallback.md
+ M content/reference.aspose.org/en/cells/net/ImageType.md
+ M content/reference.aspose.org/en/cells/net/ListColumn.md
+ M content/reference.aspose.org/en/cells/net/ListColumnCollection.md
+ M content/reference.aspose.org/en/cells/net/ListObject.md
+ M content/reference.aspose.org/en/cells/net/ListObjectCollection.md
+ M content/reference.aspose.org/en/cells/net/LoadDiagnostics.md
+ M content/reference.aspose.org/en/cells/net/LoadFormat.md
+ M content/reference.aspose.org/en/cells/net/LoadIssue.md
+ M content/reference.aspose.org/en/cells/net/LoadOptions.md
+ M content/reference.aspose.org/en/cells/net/NumberFormat.md
+ M content/reference.aspose.org/en/cells/net/PageSetup.md
+ M content/reference.aspose.org/en/cells/net/Picture.md
+ M content/reference.aspose.org/en/cells/net/PictureCollection.md
+ M content/reference.aspose.org/en/cells/net/Row.md
+ M content/reference.aspose.org/en/cells/net/RowCollection.md
+ M content/reference.aspose.org/en/cells/net/SaveFormat.md
+ M content/reference.aspose.org/en/cells/net/SaveOptions.md
+ M content/reference.aspose.org/en/cells/net/Shape.md
+ M content/reference.aspose.org/en/cells/net/ShapeCollection.md
+ M content/reference.aspose.org/en/cells/net/Style.md
+ M content/reference.aspose.org/en/cells/net/StyleException.md
+ M content/reference.aspose.org/en/cells/net/StyleFlag.md
+ M content/reference.aspose.org/en/cells/net/TableStyleType.md
+ M content/reference.aspose.org/en/cells/net/TotalsCalculation.md
+ M content/reference.aspose.org/en/cells/net/UnsupportedFeatureException.md
+ M content/reference.aspose.org/en/cells/net/Validation.md
+ M content/reference.aspose.org/en/cells/net/ValidationCollection.md
+ M content/reference.aspose.org/en/cells/net/WarningInfo.md
+ M content/reference.aspose.org/en/cells/net/WorkbookProperties.md
+ M content/reference.aspose.org/en/cells/net/WorkbookProtection.md
+ M content/reference.aspose.org/en/cells/net/WorkbookSettings.md
+ M content/reference.aspose.org/en/cells/net/WorkbookView.md
+ M content/reference.aspose.org/en/cells/net/Worksheet.md
+ M content/reference.aspose.org/en/cells/net/WorksheetProtection.md
+ M content/reference.aspose.org/en/cells/net/_index.md
+ M content/reference.aspose.org/en/html/python/Attr.md
+ M content/reference.aspose.org/en/html/python/BroadcastChannel.md
+ M content/reference.aspose.org/en/html/python/CDATASection.md
+ M content/reference.aspose.org/en/html/python/CSSCounterStyleRule.md
+ M content/reference.aspose.org/en/html/python/CSSFontFaceRule.md
+ M content/reference.aspose.org/en/html/python/CSSImportRule.md
+ M content/reference.aspose.org/en/html/python/CSSKeyframeRule.md
+ M content/reference.aspose.org/en/html/python/CSSKeyframesRule.md
+ M content/reference.aspose.org/en/html/python/CSSLayerBlockRule.md
+ M content/reference.aspose.org/en/html/python/CSSLayerStatementRule.md
+ M content/reference.aspose.org/en/html/python/CSSMediaRule.md
+ M content/reference.aspose.org/en/html/python/CSSNamespaceRule.md
+ M content/reference.aspose.org/en/html/python/CSSPageRule.md
+ M content/reference.aspose.org/en/html/python/CSSPropertyRule.md
+ M content/reference.aspose.org/en/html/python/CSSStyleRule.md
+ M content/reference.aspose.org/en/html/python/CSSSupportsRule.md
+ M content/reference.aspose.org/en/html/python/CharacterData.md
+ M content/reference.aspose.org/en/html/python/Comment.md
+ M content/reference.aspose.org/en/html/python/CustomEvent.md
+ M content/reference.aspose.org/en/html/python/Document.md
+ M content/reference.aspose.org/en/html/python/DocumentFragment.md
+ M content/reference.aspose.org/en/html/python/DocumentType.md
+ M content/reference.aspose.org/en/html/python/Element.md
+ M content/reference.aspose.org/en/html/python/ErrorEvent.md
+ M content/reference.aspose.org/en/html/python/FocusEvent.md
+ M content/reference.aspose.org/en/html/python/HTMLAddressElement.md
+ M content/reference.aspose.org/en/html/python/HTMLAnchorElement.md
+ M content/reference.aspose.org/en/html/python/HTMLAreaElement.md
+ M content/reference.aspose.org/en/html/python/HTMLArticleElement.md
+ M content/reference.aspose.org/en/html/python/HTMLAsideElement.md
+ M content/reference.aspose.org/en/html/python/HTMLAudioElement.md
+ M content/reference.aspose.org/en/html/python/HTMLBRElement.md
+ M content/reference.aspose.org/en/html/python/HTMLBaseElement.md
+ M content/reference.aspose.org/en/html/python/HTMLBodyElement.md
+ M content/reference.aspose.org/en/html/python/HTMLButtonElement.md
+ M content/reference.aspose.org/en/html/python/HTMLCanvasElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDListElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDataElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDataListElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDetailsElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDialogElement.md
+ M content/reference.aspose.org/en/html/python/HTMLDivElement.md
+ M content/reference.aspose.org/en/html/python/HTMLElement.md
+ M content/reference.aspose.org/en/html/python/HTMLEmbedElement.md
+ M content/reference.aspose.org/en/html/python/HTMLFieldSetElement.md
+ M content/reference.aspose.org/en/html/python/HTMLFigCaptionElement.md
+ M content/reference.aspose.org/en/html/python/HTMLFigureElement.md
+ M content/reference.aspose.org/en/html/python/HTMLFooterElement.md
+ M content/reference.aspose.org/en/html/python/HTMLFormElement.md
+ M content/reference.aspose.org/en/html/python/HTMLHRElement.md
+ M content/reference.aspose.org/en/html/python/HTMLHeadElement.md
+ M content/reference.aspose.org/en/html/python/HTMLHeaderElement.md
+ M content/reference.aspose.org/en/html/python/HTMLHeadingElement.md
+ M content/reference.aspose.org/en/html/python/HTMLHtmlElement.md
+ M content/reference.aspose.org/en/html/python/HTMLIFrameElement.md
+ M content/reference.aspose.org/en/html/python/HTMLImageElement.md
+ M content/reference.aspose.org/en/html/python/HTMLInputElement.md
+ M content/reference.aspose.org/en/html/python/HTMLLIElement.md
+ M content/reference.aspose.org/en/html/python/HTMLLabelElement.md
+ M content/reference.aspose.org/en/html/python/HTMLLegendElement.md
+ M content/reference.aspose.org/en/html/python/HTMLLinkElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMainElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMapElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMarkElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMediaElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMenuElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMetaElement.md
+ M content/reference.aspose.org/en/html/python/HTMLMeterElement.md
+ M content/reference.aspose.org/en/html/python/HTMLModElement.md
+ M content/reference.aspose.org/en/html/python/HTMLNavElement.md
+ M content/reference.aspose.org/en/html/python/HTMLNoScriptElement.md
+ M content/reference.aspose.org/en/html/python/HTMLOListElement.md
+ M content/reference.aspose.org/en/html/python/HTMLObjectElement.md
+ M content/reference.aspose.org/en/html/python/HTMLOptGroupElement.md
+ M content/reference.aspose.org/en/html/python/HTMLOptionElement.md
+ M content/reference.aspose.org/en/html/python/HTMLOutputElement.md
+ M content/reference.aspose.org/en/html/python/HTMLParagraphElement.md
+ M content/reference.aspose.org/en/html/python/HTMLParamElement.md
+ M content/reference.aspose.org/en/html/python/HTMLPictureElement.md
+ M content/reference.aspose.org/en/html/python/HTMLPreElement.md
+ M content/reference.aspose.org/en/html/python/HTMLProgressElement.md
+ M content/reference.aspose.org/en/html/python/HTMLQuoteElement.md
+ M content/reference.aspose.org/en/html/python/HTMLRubyElement.md
+ M content/reference.aspose.org/en/html/python/HTMLScriptElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSectionElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSelectElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSmallElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSourceElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSpanElement.md
+ M content/reference.aspose.org/en/html/python/HTMLStyleElement.md
+ M content/reference.aspose.org/en/html/python/HTMLSummaryElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableCaptionElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableCellElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableColElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableRowElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTableSectionElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTemplateElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTextAreaElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTimeElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTitleElement.md
+ M content/reference.aspose.org/en/html/python/HTMLTrackElement.md
+ M content/reference.aspose.org/en/html/python/HTMLUListElement.md
+ M content/reference.aspose.org/en/html/python/HTMLUnknownElement.md
+ M content/reference.aspose.org/en/html/python/HTMLVideoElement.md
+ M content/reference.aspose.org/en/html/python/HTMLWBRElement.md
+ M content/reference.aspose.org/en/html/python/HashChangeEvent.md
+ M content/reference.aspose.org/en/html/python/InputEvent.md
+ M content/reference.aspose.org/en/html/python/KeyboardEvent.md
+ M content/reference.aspose.org/en/html/python/MouseEvent.md
+ M content/reference.aspose.org/en/html/python/Node.md
+ M content/reference.aspose.org/en/html/python/PopStateEvent.md
+ M content/reference.aspose.org/en/html/python/ProcessingInstruction.md
+ M content/reference.aspose.org/en/html/python/Text.md
+ M content/reference.aspose.org/en/html/python/UIEvent.md
+ M content/reference.aspose.org/en/html/python/Window.md
+ M content/reference.aspose.org/en/html/python/WindowEventLoop.md
+ M content/reference.aspose.org/en/html/python/_index.md
+ M content/reference.aspose.org/en/note/python/AsposeNoteError.md
+ M content/reference.aspose.org/en/note/python/AttachmentTagFlowable.md
+ M content/reference.aspose.org/en/note/python/CompositeNode.md
+ M content/reference.aspose.org/en/note/python/DocumentVisitor.md
+ M content/reference.aspose.org/en/note/python/ExtendedGUID.md
+ M content/reference.aspose.org/en/note/python/FileCorruptedException.md
+ M content/reference.aspose.org/en/note/python/FileFormat.md
+ M content/reference.aspose.org/en/note/python/FileNode.md
+ M content/reference.aspose.org/en/note/python/HorizontalAlignment.md
+ M content/reference.aspose.org/en/note/python/IncorrectDocumentStructureException.md
+ M content/reference.aspose.org/en/note/python/IncorrectPasswordException.md
+ M content/reference.aspose.org/en/note/python/JCID.md
+ M content/reference.aspose.org/en/note/python/License.md
+ M content/reference.aspose.org/en/note/python/LoadOptions.md
+ M content/reference.aspose.org/en/note/python/LoadedOneNoteDocument.md
+ M content/reference.aspose.org/en/note/python/LogicalDocument.md
+ M content/reference.aspose.org/en/note/python/LogicalNode.md
+ M content/reference.aspose.org/en/note/python/Metered.md
+ M content/reference.aspose.org/en/note/python/NodeType.md
+ M content/reference.aspose.org/en/note/python/ObjectSpaceState.md
+ M content/reference.aspose.org/en/note/python/OneStoreFile.md
+ M content/reference.aspose.org/en/note/python/OneStoreObject.md
+ M content/reference.aspose.org/en/note/python/OutlineElement.md
+ M content/reference.aspose.org/en/note/python/OutlinePrefixFlowable.md
+ M content/reference.aspose.org/en/note/python/PageHistory.md
+ M content/reference.aspose.org/en/note/python/ParagraphStyle.md
+ M content/reference.aspose.org/en/note/python/PdfSaveOptions.md
+ M content/reference.aspose.org/en/note/python/RevisionManifestRecord.md
+ M content/reference.aspose.org/en/note/python/RevisionRoleBinding.md
+ M content/reference.aspose.org/en/note/python/SaveFormat.md
+ M content/reference.aspose.org/en/note/python/SaveOptions.md
+ M content/reference.aspose.org/en/note/python/TableCell.md
+ M content/reference.aspose.org/en/note/python/TableColumn.md
+ M content/reference.aspose.org/en/note/python/TableRow.md
+ M content/reference.aspose.org/en/note/python/TagStatus.md
+ M content/reference.aspose.org/en/note/python/UnsupportedFileFormatException.md
+ M content/reference.aspose.org/en/note/python/UnsupportedSaveFormatException.md
+ M content/reference.aspose.org/en/note/python/_index.md
+ M content/reference.aspose.org/en/note/python/attachedfile.md
+ M content/reference.aspose.org/en/note/python/document.md
+ M content/reference.aspose.org/en/note/python/image.md
+ M content/reference.aspose.org/en/note/python/node.md
+ M content/reference.aspose.org/en/note/python/notetag.md
+ M content/reference.aspose.org/en/note/python/numberlist.md
+ M content/reference.aspose.org/en/note/python/outline.md
+ M content/reference.aspose.org/en/note/python/page.md
+ M content/reference.aspose.org/en/note/python/richtext.md
+ M content/reference.aspose.org/en/note/python/table.md
+ M content/reference.aspose.org/en/note/python/textrun.md
+ M content/reference.aspose.org/en/note/python/textstyle.md
+ M content/reference.aspose.org/en/note/python/title.md
+ M data/knowledge_state.json
+MM data/registry_exclusions.json
+M  data/seo_schema_a_migration_state.json
+ M data/upstream_baselines.json
+M  keywords/email.json
+M  keywords/html.json
+M  keywords/imaging.json
+M  keywords/ocr.json
+M  keywords/pdf.json
+M  keywords/psd.json
+M  keywords/tasks.json
+M  keywords/words.json
+M  keywords/zip.json
+ M knowledge/3d/net/merged/api_surface.json
+ M knowledge/3d/net/merged/api_surface.md
+ M knowledge/3d/net/merged/bundle_manifest.json
+ M knowledge/3d/net/merged/claims.json
+ M knowledge/3d/net/merged/formats.md
+ M knowledge/3d/net/merged/merge_report.md
+ M knowledge/3d/net/merged/model.yaml
+ M knowledge/3d/python/merged/api_surface.json
+ M knowledge/3d/python/merged/api_surface.md
+ M knowledge/3d/python/merged/bundle_manifest.json
+ M knowledge/3d/python/merged/claims.json
+ M knowledge/3d/python/merged/formats.md
+ M knowledge/3d/python/merged/merge_report.md
+ M knowledge/3d/python/merged/model.yaml
+ M knowledge/_index.json
+ M knowledge/cells/net/merged/api_surface.md
+ M knowledge/cells/net/merged/bundle_manifest.json
+ M knowledge/cells/net/merged/claims.json
+ M knowledge/cells/net/merged/formats.md
+ M knowledge/cells/net/merged/merge_report.md
+ M knowledge/cells/net/merged/model.yaml
+ M knowledge/html/python/merged/api_surface.json
+ M knowledge/html/python/merged/api_surface.md
+ M knowledge/html/python/merged/claims.json
+ M knowledge/html/python/merged/formats.md
+ M knowledge/html/python/merged/merge_report.md
+ M knowledge/html/python/merged/model.yaml
+ M knowledge/note/python/merged/api_surface.json
+ M knowledge/note/python/merged/api_surface.md
+ M knowledge/note/python/merged/claims.json
+ M knowledge/note/python/merged/formats.md
+ M knowledge/note/python/merged/merge_report.md
+ M knowledge/note/python/merged/model.yaml
+ M knowledge/note/python/merged/snippets/snippet_085.py
+ M knowledge/note/python/merged/snippets/snippet_086.py
+ M knowledge/note/python/merged/snippets/snippet_087.py
+ M knowledge/note/python/merged/snippets/snippet_088.py
+ M knowledge/note/python/merged/snippets/snippet_089.py
+ M knowledge/note/python/merged/snippets/snippet_090.py
+ M knowledge/note/python/merged/snippets/snippet_091.py
+ M knowledge/note/python/merged/snippets/snippet_092.py
+ M knowledge/note/python/merged/snippets/snippet_093.py
+ M knowledge/note/python/merged/snippets/snippet_094.py
+ M knowledge/note/python/merged/snippets/snippet_095.py
+ M knowledge/note/python/merged/snippets/snippet_096.py
+ M knowledge/note/python/merged/snippets/snippets_index.json
+MM knowledge/pdf/net/merged/api_surface.md
+MM knowledge/pdf/net/merged/bundle_manifest.json
+MM knowledge/pdf/net/merged/formats.md
+MM knowledge/pdf/net/merged/merge_report.md
+MM knowledge/pdf/net/merged/model.yaml
+ M knowledge/pdf/python/merged/api_surface.json
+ M knowledge/pdf/python/merged/api_surface.md
+ M knowledge/pdf/python/merged/bundle_manifest.json
+ M knowledge/pdf/python/merged/claims.json
+ M knowledge/pdf/python/merged/formats.json
+ M knowledge/pdf/python/merged/formats.md
+ M knowledge/pdf/python/merged/limitations.md
+ M knowledge/pdf/python/merged/merge_report.md
+ M knowledge/pdf/python/merged/model.yaml
+ M knowledge/pdf/python/merged/snippets/snippet_003.py
+ M knowledge/pdf/python/merged/snippets/snippet_004.py
+ M knowledge/pdf/python/merged/snippets/snippet_005.py
+ M knowledge/pdf/python/merged/snippets/snippet_006.py
+ M knowledge/pdf/python/merged/snippets/snippet_007.py
+ M knowledge/pdf/python/merged/snippets/snippet_008.py
+ M knowledge/pdf/python/merged/snippets/snippet_009.py
+ M knowledge/pdf/python/merged/snippets/snippet_010.py
+ M knowledge/pdf/python/merged/snippets/snippet_011.py
+ M knowledge/pdf/python/merged/snippets/snippet_012.py
+ M knowledge/pdf/python/merged/snippets/snippet_013.py
+ M knowledge/pdf/python/merged/snippets/snippet_014.py
+ M knowledge/pdf/python/merged/snippets/snippet_015.py
+ M knowledge/pdf/python/merged/snippets/snippet_016.py
+ M knowledge/pdf/python/merged/snippets/snippet_017.py
+ M knowledge/pdf/python/merged/snippets/snippet_018.py
+ M knowledge/pdf/python/merged/snippets/snippet_019.py
+ M knowledge/pdf/python/merged/snippets/snippet_020.py
+ M knowledge/pdf/python/merged/snippets/snippet_021.py
+ M knowledge/pdf/python/merged/snippets/snippet_022.py
+ M knowledge/pdf/python/merged/snippets/snippet_023.py
+ M knowledge/pdf/python/merged/snippets/snippet_024.py
+ M knowledge/pdf/python/merged/snippets/snippet_025.py
+ M knowledge/pdf/python/merged/snippets/snippet_026.py
+ M knowledge/pdf/python/merged/snippets/snippet_027.py
+ M knowledge/pdf/python/merged/snippets/snippet_028.py
+ M knowledge/pdf/python/merged/snippets/snippet_029.py
+ M knowledge/pdf/python/merged/snippets/snippet_030.py
+ M knowledge/pdf/python/merged/snippets/snippet_031.py
+ M knowledge/pdf/python/merged/snippets/snippet_032.py
+ M knowledge/pdf/python/merged/snippets/snippet_033.py
+ M knowledge/pdf/python/merged/snippets/snippet_034.py
+ M knowledge/pdf/python/merged/snippets/snippet_035.py
+ M knowledge/pdf/python/merged/snippets/snippet_036.py
+ M knowledge/pdf/python/merged/snippets/snippet_037.py
+ M knowledge/pdf/python/merged/snippets/snippet_038.py
+ M knowledge/pdf/python/merged/snippets/snippet_039.py
+ M knowledge/pdf/python/merged/snippets/snippet_040.py
+ M knowledge/pdf/python/merged/snippets/snippet_041.py
+ M knowledge/pdf/python/merged/snippets/snippet_042.py
+ M knowledge/pdf/python/merged/snippets/snippet_043.py
+ M knowledge/pdf/python/merged/snippets/snippet_044.py
+ M knowledge/pdf/python/merged/snippets/snippet_045.py
+ M knowledge/pdf/python/merged/snippets/snippet_046.py
+ M knowledge/pdf/python/merged/snippets/snippet_047.py
+ M knowledge/pdf/python/merged/snippets/snippet_048.py
+ M knowledge/pdf/python/merged/snippets/snippet_049.py
+ M knowledge/pdf/python/merged/snippets/snippet_050.py
+ M knowledge/pdf/python/merged/snippets/snippet_051.py
+ M knowledge/pdf/python/merged/snippets/snippet_052.py
+ M knowledge/pdf/python/merged/snippets/snippet_053.py
+ M knowledge/pdf/python/merged/snippets/snippet_054.py
+ M knowledge/pdf/python/merged/snippets/snippet_055.py
+ M knowledge/pdf/python/merged/snippets/snippet_056.py
+ M knowledge/pdf/python/merged/snippets/snippet_057.py
+ M knowledge/pdf/python/merged/snippets/snippet_058.py
+ M knowledge/pdf/python/merged/snippets/snippet_059.py
+ M knowledge/pdf/python/merged/snippets/snippet_060.py
+ M knowledge/pdf/python/merged/snippets/snippet_061.py
+ M knowledge/pdf/python/merged/snippets/snippet_062.py
+ M knowledge/pdf/python/merged/snippets/snippet_063.py
+ M knowledge/pdf/python/merged/snippets/snippet_064.py
+ M knowledge/pdf/python/merged/snippets/snippet_065.py
+ M knowledge/pdf/python/merged/snippets/snippet_066.py
+ M knowledge/pdf/python/merged/snippets/snippet_067.py
+ M knowledge/pdf/python/merged/snippets/snippet_068.py
+ M knowledge/pdf/python/merged/snippets/snippet_069.py
+ M knowledge/pdf/python/merged/snippets/snippet_070.py
+ M knowledge/pdf/python/merged/snippets/snippet_071.py
+ M knowledge/pdf/python/merged/snippets/snippet_072.py
+ M knowledge/pdf/python/merged/snippets/snippet_073.py
+ M knowledge/pdf/python/merged/snippets/snippet_074.py
+ M knowledge/pdf/python/merged/snippets/snippet_075.py
+ M knowledge/pdf/python/merged/snippets/snippet_076.py
+ M knowledge/pdf/python/merged/snippets/snippet_077.py
+ M knowledge/pdf/python/merged/snippets/snippet_078.py
+ M knowledge/pdf/python/merged/snippets/snippet_079.py
+ M knowledge/pdf/python/merged/snippets/snippet_080.py
+ M knowledge/pdf/python/merged/snippets/snippet_081.py
+ M knowledge/pdf/python/merged/snippets/snippet_082.py
+ M knowledge/pdf/python/merged/snippets/snippet_083.py
+ M knowledge/pdf/python/merged/snippets/snippet_084.py
+ M knowledge/pdf/python/merged/snippets/snippet_085.py
+ M knowledge/pdf/python/merged/snippets/snippet_086.py
+ M knowledge/pdf/python/merged/snippets/snippet_087.py
+ M knowledge/pdf/python/merged/snippets/snippet_088.py
+ M knowledge/pdf/python/merged/snippets/snippet_089.py
+ M knowledge/pdf/python/merged/snippets/snippet_090.py
+ M knowledge/pdf/python/merged/snippets/snippet_091.py
+ M knowledge/pdf/python/merged/snippets/snippet_092.py
+ M knowledge/pdf/python/merged/snippets/snippet_093.py
+ M knowledge/pdf/python/merged/snippets/snippet_094.py
+ M knowledge/pdf/python/merged/snippets/snippet_095.py
+ M knowledge/pdf/python/merged/snippets/snippet_096.py
+ M knowledge/pdf/python/merged/snippets/snippet_097.py
+ M knowledge/pdf/python/merged/snippets/snippet_098.py
+ M knowledge/pdf/python/merged/snippets/snippet_099.py
+ M knowledge/pdf/python/merged/snippets/snippet_100.py
+ M knowledge/pdf/python/merged/snippets/snippets_index.json
+MM scripts/pipeline/commands/content/batch_reference.py
+MM scripts/pipeline/commands/content/body_impact.py
+MM scripts/pipeline/commands/content/claim_parser.py
+MM scripts/pipeline/commands/content/refresh_oracle.py
+MM scripts/pipeline/commands/content/validate_frontmatter.py
+MM scripts/pipeline/commands/ops/post_refresh_verify.py
+MM scripts/pipeline/commands/ops/refresh_run.py
+MM scripts/pipeline/lib/backlink_targets.py
+MM scripts/pipeline/lib/provenance.py
+MM scripts/pipeline/lib/triage_confirm.py
+MM scripts/pipeline/tests/content/test_body_impact.py
+MM scripts/pipeline/tests/content/test_claim_parser.py
+MM scripts/pipeline/tests/content/test_refresh_oracle.py
+MM scripts/pipeline/tests/test_backlink_targets.py
+MM scripts/pipeline/tests/test_batch_reference.py
+MM scripts/pipeline/tests/test_post_refresh_verify.py
+MM scripts/pipeline/tests/test_precommit_audit_step_numbering.py
+MM scripts/pipeline/tests/test_provenance_content_hash_empty_body.py
+MM scripts/pipeline/tests/test_refresh_run.py
+MM scripts/pipeline/tests/test_triage_confirm.py
+MM scripts/pipeline/tests/test_validate_frontmatter.py
+MM scripts/pre-commit-audit.sh
+ M scripts/seo/workflows/seo-keyword-refresh.yml
+?? content/reference.aspose.org/en/3d/python/A3dwSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/AlphaSource.md
+?? content/reference.aspose.org/en/3d/python/AmfSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/ApertureMode.md
+?? content/reference.aspose.org/en/3d/python/ArbitraryProfile.md
+?? content/reference.aspose.org/en/3d/python/ArrayListAdapter.md
+?? content/reference.aspose.org/en/3d/python/Axis.md
+?? content/reference.aspose.org/en/3d/python/BasicLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/BlendFactor.md
+?? content/reference.aspose.org/en/3d/python/Bone.md
+?? content/reference.aspose.org/en/3d/python/BoneLinkMode.md
+?? content/reference.aspose.org/en/3d/python/BonePose.md
+?? content/reference.aspose.org/en/3d/python/BooleanOperand.md
+?? content/reference.aspose.org/en/3d/python/BooleanOperator.md
+?? content/reference.aspose.org/en/3d/python/BoundingBox2D.md
+?? content/reference.aspose.org/en/3d/python/Box.md
+?? content/reference.aspose.org/en/3d/python/CShape.md
+?? content/reference.aspose.org/en/3d/python/CenterLineProfile.md
+?? content/reference.aspose.org/en/3d/python/Circle.md
+?? content/reference.aspose.org/en/3d/python/CircleShape.md
+?? content/reference.aspose.org/en/3d/python/CompareFunction.md
+?? content/reference.aspose.org/en/3d/python/ComposeOrder.md
+?? content/reference.aspose.org/en/3d/python/CoordinateSystem.md
+?? content/reference.aspose.org/en/3d/python/CubeFace.md
+?? content/reference.aspose.org/en/3d/python/CullFaceMode.md
+?? content/reference.aspose.org/en/3d/python/Curve.md
+?? content/reference.aspose.org/en/3d/python/CurveDimension.md
+?? content/reference.aspose.org/en/3d/python/Cylinder.md
+?? content/reference.aspose.org/en/3d/python/Deformer.md
+?? content/reference.aspose.org/en/3d/python/DescriptorSetUpdater.md
+?? content/reference.aspose.org/en/3d/python/Discreet3dsLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/Discreet3dsSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/Dish.md
+?? content/reference.aspose.org/en/3d/python/DracoCompressionLevel.md
+?? content/reference.aspose.org/en/3d/python/DracoFormat.md
+?? content/reference.aspose.org/en/3d/python/DracoSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/DrawOperation.md
+?? content/reference.aspose.org/en/3d/python/DriverException.md
+?? content/reference.aspose.org/en/3d/python/Ellipse.md
+?? content/reference.aspose.org/en/3d/python/EllipseShape.md
+?? content/reference.aspose.org/en/3d/python/EntityRenderer.md
+?? content/reference.aspose.org/en/3d/python/EntityRendererFeatures.md
+?? content/reference.aspose.org/en/3d/python/EntityRendererKey.md
+?? content/reference.aspose.org/en/3d/python/ExportException.md
+?? content/reference.aspose.org/en/3d/python/FMatrix4.md
+?? content/reference.aspose.org/en/3d/python/FileContentType.md
+?? content/reference.aspose.org/en/3d/python/FileFormatType.md
+?? content/reference.aspose.org/en/3d/python/FileSystem.md
+?? content/reference.aspose.org/en/3d/python/FontFile.md
+?? content/reference.aspose.org/en/3d/python/FrontFace.md
+?? content/reference.aspose.org/en/3d/python/Frustum.md
+?? content/reference.aspose.org/en/3d/python/GLSLSource.md
+?? content/reference.aspose.org/en/3d/python/GltfEmbeddedImageFormat.md
+?? content/reference.aspose.org/en/3d/python/Group.md
+?? content/reference.aspose.org/en/3d/python/HShape.md
+?? content/reference.aspose.org/en/3d/python/HollowCircleShape.md
+?? content/reference.aspose.org/en/3d/python/HollowRectangleShape.md
+?? content/reference.aspose.org/en/3d/python/Html5SaveOptions.md
+?? content/reference.aspose.org/en/3d/python/ImportException.md
+?? content/reference.aspose.org/en/3d/python/IndexDataType.md
+?? content/reference.aspose.org/en/3d/python/InitializationException.md
+?? content/reference.aspose.org/en/3d/python/InvalidOperationException.md
+?? content/reference.aspose.org/en/3d/python/JtLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/LShape.md
+?? content/reference.aspose.org/en/3d/python/Line.md
+?? content/reference.aspose.org/en/3d/python/LinearExtrusion.md
+?? content/reference.aspose.org/en/3d/python/MathUtils.md
+?? content/reference.aspose.org/en/3d/python/Microsoft3MFFormat.md
+?? content/reference.aspose.org/en/3d/python/Microsoft3MFSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/MirroredProfile.md
+?? content/reference.aspose.org/en/3d/python/MorphTargetChannel.md
+?? content/reference.aspose.org/en/3d/python/MorphTargetDeformer.md
+?? content/reference.aspose.org/en/3d/python/NurbsCurve.md
+?? content/reference.aspose.org/en/3d/python/NurbsDirection.md
+?? content/reference.aspose.org/en/3d/python/NurbsSurface.md
+?? content/reference.aspose.org/en/3d/python/NurbsType.md
+?? content/reference.aspose.org/en/3d/python/ParameterizedProfile.md
+?? content/reference.aspose.org/en/3d/python/ParseException.md
+?? content/reference.aspose.org/en/3d/python/Patch.md
+?? content/reference.aspose.org/en/3d/python/PatchDirection.md
+?? content/reference.aspose.org/en/3d/python/PatchDirectionType.md
+?? content/reference.aspose.org/en/3d/python/PbrSpecularMaterial.md
+?? content/reference.aspose.org/en/3d/python/PdfFormat.md
+?? content/reference.aspose.org/en/3d/python/PdfLightingScheme.md
+?? content/reference.aspose.org/en/3d/python/PdfLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/PdfRenderMode.md
+?? content/reference.aspose.org/en/3d/python/PdfSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/PixelFormat.md
+?? content/reference.aspose.org/en/3d/python/PixelMapMode.md
+?? content/reference.aspose.org/en/3d/python/PixelMapping.md
+?? content/reference.aspose.org/en/3d/python/Plane.md
+?? content/reference.aspose.org/en/3d/python/PlyFormat.md
+?? content/reference.aspose.org/en/3d/python/PlyLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/PlySaveOptions.md
+?? content/reference.aspose.org/en/3d/python/PointCloud.md
+?? content/reference.aspose.org/en/3d/python/PolygonBuilder.md
+?? content/reference.aspose.org/en/3d/python/PolygonMode.md
+?? content/reference.aspose.org/en/3d/python/Pose.md
+?? content/reference.aspose.org/en/3d/python/PoseType.md
+?? content/reference.aspose.org/en/3d/python/PostProcessing.md
+?? content/reference.aspose.org/en/3d/python/PresetShaders.md
+?? content/reference.aspose.org/en/3d/python/Primitive.md
+?? content/reference.aspose.org/en/3d/python/Profile.md
+?? content/reference.aspose.org/en/3d/python/PropertyFlags.md
+?? content/reference.aspose.org/en/3d/python/PushConstant.md
+?? content/reference.aspose.org/en/3d/python/Pyramid.md
+?? content/reference.aspose.org/en/3d/python/Rect.md
+?? content/reference.aspose.org/en/3d/python/RectangleShape.md
+?? content/reference.aspose.org/en/3d/python/RectangularTorus.md
+?? content/reference.aspose.org/en/3d/python/RelativeRectangle.md
+?? content/reference.aspose.org/en/3d/python/RenderFactory.md
+?? content/reference.aspose.org/en/3d/python/RenderParameters.md
+?? content/reference.aspose.org/en/3d/python/RenderQueueGroupId.md
+?? content/reference.aspose.org/en/3d/python/RenderResource.md
+?? content/reference.aspose.org/en/3d/python/RenderStage.md
+?? content/reference.aspose.org/en/3d/python/RenderState.md
+?? content/reference.aspose.org/en/3d/python/Renderer.md
+?? content/reference.aspose.org/en/3d/python/RendererVariableManager.md
+?? content/reference.aspose.org/en/3d/python/RevolvedAreaSolid.md
+?? content/reference.aspose.org/en/3d/python/RotationMode.md
+?? content/reference.aspose.org/en/3d/python/RotationOrder.md
+?? content/reference.aspose.org/en/3d/python/RvmFormat.md
+?? content/reference.aspose.org/en/3d/python/RvmLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/RvmSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/SPIRVSource.md
+?? content/reference.aspose.org/en/3d/python/SemanticAttribute.md
+?? content/reference.aspose.org/en/3d/python/ShaderException.md
+?? content/reference.aspose.org/en/3d/python/ShaderMaterial.md
+?? content/reference.aspose.org/en/3d/python/ShaderProgram.md
+?? content/reference.aspose.org/en/3d/python/ShaderSet.md
+?? content/reference.aspose.org/en/3d/python/ShaderSource.md
+?? content/reference.aspose.org/en/3d/python/ShaderStage.md
+?? content/reference.aspose.org/en/3d/python/ShaderTechnique.md
+?? content/reference.aspose.org/en/3d/python/ShaderVariable.md
+?? content/reference.aspose.org/en/3d/python/Shape.md
+?? content/reference.aspose.org/en/3d/python/Skeleton.md
+?? content/reference.aspose.org/en/3d/python/SkeletonType.md
+?? content/reference.aspose.org/en/3d/python/SkinDeformer.md
+?? content/reference.aspose.org/en/3d/python/Sphere.md
+?? content/reference.aspose.org/en/3d/python/SplitMeshPolicy.md
+?? content/reference.aspose.org/en/3d/python/StencilAction.md
+?? content/reference.aspose.org/en/3d/python/StencilState.md
+?? content/reference.aspose.org/en/3d/python/SweptAreaSolid.md
+?? content/reference.aspose.org/en/3d/python/TShape.md
+?? content/reference.aspose.org/en/3d/python/Text.md
+?? content/reference.aspose.org/en/3d/python/Texture.md
+?? content/reference.aspose.org/en/3d/python/TextureBase.md
+?? content/reference.aspose.org/en/3d/python/TextureCodec.md
+?? content/reference.aspose.org/en/3d/python/TextureData.md
+?? content/reference.aspose.org/en/3d/python/TextureFilter.md
+?? content/reference.aspose.org/en/3d/python/TextureSlot.md
+?? content/reference.aspose.org/en/3d/python/TextureType.md
+?? content/reference.aspose.org/en/3d/python/Torus.md
+?? content/reference.aspose.org/en/3d/python/TransformBuilder.md
+?? content/reference.aspose.org/en/3d/python/TransformedCurve.md
+?? content/reference.aspose.org/en/3d/python/TrapeziumShape.md
+?? content/reference.aspose.org/en/3d/python/TriMesh.md
+?? content/reference.aspose.org/en/3d/python/TrialException.md
+?? content/reference.aspose.org/en/3d/python/TrimmedCurve.md
+?? content/reference.aspose.org/en/3d/python/U3dLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/U3dSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/UShape.md
+?? content/reference.aspose.org/en/3d/python/UsdSaveOptions.md
+?? content/reference.aspose.org/en/3d/python/Vertex.md
+?? content/reference.aspose.org/en/3d/python/VertexDeclaration.md
+?? content/reference.aspose.org/en/3d/python/VertexElementDoublesTemplate.md
+?? content/reference.aspose.org/en/3d/python/VertexElementEdgeCrease.md
+?? content/reference.aspose.org/en/3d/python/VertexElementHole.md
+?? content/reference.aspose.org/en/3d/python/VertexElementMaterial.md
+?? content/reference.aspose.org/en/3d/python/VertexElementPolygonGroup.md
+?? content/reference.aspose.org/en/3d/python/VertexElementSpecular.md
+?? content/reference.aspose.org/en/3d/python/VertexElementTemplate.md
+?? content/reference.aspose.org/en/3d/python/VertexElementUserData.md
+?? content/reference.aspose.org/en/3d/python/VertexElementVector4.md
+?? content/reference.aspose.org/en/3d/python/VertexElementVertexCrease.md
+?? content/reference.aspose.org/en/3d/python/VertexElementVisibility.md
+?? content/reference.aspose.org/en/3d/python/VertexElementWeight.md
+?? content/reference.aspose.org/en/3d/python/VertexField.md
+?? content/reference.aspose.org/en/3d/python/VertexFieldDataType.md
+?? content/reference.aspose.org/en/3d/python/VertexFieldSemantic.md
+?? content/reference.aspose.org/en/3d/python/Viewport.md
+?? content/reference.aspose.org/en/3d/python/Watermark.md
+?? content/reference.aspose.org/en/3d/python/WindowHandle.md
+?? content/reference.aspose.org/en/3d/python/WrapMode.md
+?? content/reference.aspose.org/en/3d/python/XLoadOptions.md
+?? content/reference.aspose.org/en/3d/python/ZShape.md
+?? knowledge/html/python/merged/bundle_manifest.json
+?? knowledge/note/python/merged/bundle_manifest.json
+?? scripts/seo/workflows/seo-analysis.yml
+?? scripts/seo/workflows/seo-apply.yml
+?? scripts/seo/workflows/seo-review.yml

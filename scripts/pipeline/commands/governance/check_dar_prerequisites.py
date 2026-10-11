@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """DAR prerequisite enforcer — checks if upstream skill prerequisites are satisfied.
 
@@ -69,9 +68,36 @@ def _parse_dar_table(text: str) -> list[tuple[str, str, str]]:
 
 
 def _extract_identifiers(cell: str) -> list[str]:
-    """Extract all S-IDs and slug names from a DAR table cell."""
+    """Extract all S-IDs and slug names from a DAR table cell.
+
+    Slugs are only extracted from a genuine slash-command reference: a
+    backtick immediately followed by a leading slash, e.g. `/knowledge-bootstrap`
+    or `/page-plan` (S-18). A cell documenting a data-file path dependency
+    (e.g. `data/package_registry.json`, `reports/handoff/{mission_id}/fact-pack.json`)
+    has no leading slash on its own code span, so its interior path segments
+    are no longer misread as fabricated skill identifiers.
+
+    Found live 2026-08-25 (TC12 backlink-governance-redesign proof exercise):
+    the previous unscoped ``r"/([\\w-]+)"`` matched ANY slash anywhere in the
+    cell, so it also matched slash-separated path segments inside a data-file
+    dependency cell's prose -- e.g. `reports/handoff/{mission_id}/fact-pack.json`
+    produced fake identifiers ["handoff", "fact-pack"], and
+    `data/package_registry.json` produced ["package_registry"]. Because
+    `_get_prerequisites()` turns every non-empty extraction into a mandatory
+    prerequisite group, and no real skill ever produces a run record tagged
+    "handoff"/"fact-pack"/"package_registry"/"diagram_archetypes"/
+    "diagram_capability_dependencies", this silently made the DAR gate
+    permanently unsatisfiable for every downstream skill with a data-file
+    dependency row -- S-56, S-57, S-58, S-59, S-61, S-84, and S-120 (three
+    such rows) -- directly contradicting each row's own explicit prose that
+    the dependency is "a data-file dependency, not a skill-form one" / "not a
+    hard requirement". Confirmed live: `skill_context.py begin --skill S-84`
+    unconditionally failed with "MISSING (any one satisfies): fact-pack |
+    handoff" for a fresh session, with no way to satisfy it (no skill named
+    "fact-pack" or "handoff" exists to invoke).
+    """
     s_ids = re.findall(r"S-\d+", cell)
-    slugs = re.findall(r"/([\w-]+)", cell)
+    slugs = re.findall(r"`/([\w-]+)", cell)
     return list(set(s_ids + slugs))
 
 

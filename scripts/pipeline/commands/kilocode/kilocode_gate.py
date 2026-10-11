@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Kilo Code gate: enforce skill-first execution and rule compliance.
 
 This script provides pre-execution validation for Kilo Code to ensure

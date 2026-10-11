@@ -1,0 +1,38 @@
+family: psd
+platform: net
+product_name: Aspose.PSD.FOSS
+version: 1.0.0
+license: MIT
+repo_url: https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET.git
+repo_sha: f4e1b261922d514591b898f01346af1c6bf59f92
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-10-07T22:31:33.621092+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 2c63eb86851f18b3c89c6d999d15086233a7287d1548d28209403f5372d3eab4
+generator_semver: 2.0.0
+bundle_id: 00864667-dcc3-4396-a6c6-693025180d16
+bundle_generated_at: '2026-10-07T22:31:33.517272+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: e24f998c0d721fd3
+  scout_claims_sha: c8ff8d3fd09cfc88185a0161881ba91a4d26a1e457bf851368bb9389f3f74630
+  scout_api_surface_sha: f6d95d56892634f068e671ace6d3c6e4dfd592c692cedc46ffa96ad29506445a
+  enriched_claims_sha: 4aa3dfc6401e3a1fa8cbb96f92fc923154c212875ef8a00cd5060559c6ffbc52
+  products_json_entry_sha: 573310b88c0ee7df4b13a26e5d8c7f33a08d8bccb16d503b100ea59c590daf83
+stats:
+  scout_claims: 206
+  enriched_claims: 19
+  supplemental_claims: 0
+  total_claims: 225
+  class_count: 24
+  classes:
+    total_declared: 24
+    public_documented: 24
+    raw_entries_including_non_class: 24
+  forbidden_count: 0
+  snippet_count: 100
+extractor_hash: 4529a951ae6f24f7

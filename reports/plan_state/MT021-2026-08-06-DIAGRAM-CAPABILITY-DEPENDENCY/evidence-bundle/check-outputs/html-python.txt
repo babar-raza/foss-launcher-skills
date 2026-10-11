@@ -1,0 +1,1 @@
+PASS: reports/repo-presenter/html/python/readme.md -- no orphaned capability nodes

@@ -1,0 +1,48 @@
+{
+  "generated_at_utc": "2026-09-18T00:00:00Z",
+  "mission_id": "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE",
+  "taskcard": "MT069-TC-04-USAGE-BILLING-COLLECTION",
+  "source": "User-supplied org GitHub Actions Usage Metrics export (Insights -> Actions usage metrics, Aspose/aspose.org repo view). Provided directly by the user 2026-09-18. This is the authoritative dataset for TC-04 -- per explicit user instruction ('it is the same as I have provided manually, no need to extract it again'), no separate gh api run/job-duration proxy reconstruction (the originally-planned Phase 4a) was performed. Real billing-reported data supersedes an estimate of itself.",
+  "period": {
+    "from": "2026-09-01",
+    "to": "2026-09-18 (approx, 'showing data ... to 18 minutes ago' at export time)",
+    "note": "Current month to date. Workflows were disabled by the user's own emergency stopgap partway through this window (confirmed runs as recent as 2026-09-14); usage in this export is therefore front-loaded into roughly the first two weeks of September, not spread evenly across all 18 days."
+  },
+  "totals": {
+    "total_minutes": 1494,
+    "total_job_runs": 561
+  },
+  "workflows": [
+    {"file": "content-governance-checks.yml", "minutes": 546, "runs": 200, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 36.5},
+    {"file": "llms-generation.yml", "minutes": 259, "runs": 89, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 17.3},
+    {"file": "skill-governance.yml", "minutes": 223, "runs": 40, "jobs": 1, "runner": "hosted", "os": "windows", "share_of_total_pct": 14.9},
+    {"file": "skill-governance.yml", "minutes": 103, "runs": 40, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 6.9},
+    {"file": "seo-tests.yml", "minutes": 83, "runs": 41, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 5.6},
+    {"file": "example-verification-tests.yml", "minutes": 61, "runs": 22, "jobs": 1, "runner": "hosted", "os": "windows", "share_of_total_pct": 4.1},
+    {"file": "aspose-com-targets-watch.yml", "minutes": 40, "runs": 13, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 2.7},
+    {"file": "example-verification-tests.yml", "minutes": 30, "runs": 22, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 2.0},
+    {"file": "ci-eval-consistency.yml", "minutes": 26, "runs": 11, "jobs": 2, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.7},
+    {"file": "package-publish-watch.yml", "minutes": 26, "runs": 13, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.7},
+    {"file": "backlink-compliance-watch.yml", "minutes": 24, "runs": 13, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.6},
+    {"file": "act-pipeline.yml", "minutes": 19, "runs": 6, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.3},
+    {"file": "launch-dashboard.yml", "minutes": 17, "runs": 14, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.1},
+    {"file": "maven-publish-watcher.yml", "minutes": 16, "runs": 13, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 1.1},
+    {"file": "extraction-pipeline.yml", "minutes": 8, "runs": 5, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 0.5},
+    {"file": "reference-index-structure.yml", "minutes": 8, "runs": 6, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 0.5},
+    {"file": "seo-analysis.yml", "minutes": 3, "runs": 1, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 0.2},
+    {"file": "upstream-monitor.yml", "minutes": 2, "runs": 1, "jobs": 1, "runner": "hosted", "os": "linux", "share_of_total_pct": 0.1}
+  ],
+  "zero_usage_this_period": [
+    {"file": "content-audit.yml", "note": "Expected -- confirmed dead trigger (TC-01/TC-02 finding), not undercounted"},
+    {"file": "cross-repo-index-sync.yml", "note": "Consistent with its single-file path filter being rarely hit"},
+    {"file": "metrics-governance.yml", "note": "Consistent with its narrow path filter"},
+    {"file": "install-literal-sweep.yml", "note": "RESOLVED (TC-11 independent review, 2026-09-17; re-verified independently via `git log --follow --diff-filter=A`): this claim was wrong -- the workflow was NOT already active for the full ~18-day window. It was added 2026-09-10 (commit f9cbe210fb), and its weekly Monday-11:00-UTC schedule means at most ONE firing (2026-09-14) was structurally possible before the Sept 1-18 window closed, not 'at least twice.' 2026-09-14 is also the date the mass-disable's own evidence (inventory/disabled_vs_running_anomaly.md) confirms OTHER workflows had their last successful runs, so zero recorded minutes here is fully explained by the file's young age plus the mass-disable, not a defect."}
+  ],
+  "key_findings": [
+    "Top 3 workflows (content-governance-checks.yml + llms-generation.yml + skill-governance.yml combined) = 75.7% of total minutes (1,131 of 1,494).",
+    "llms-generation.yml (259 min, 17.3%) was not previously identified as a top cost driver in the pre-data proxy analysis -- newly surfaced by this real export. It is push(main)-path-filtered only and does not itself deploy anything (its own header comment says aspose.org-workflows regenerates llms output again at deploy time) -- needs investigation in TC-05/TC-06 for whether this private-repo run is a necessary correctness gate or fully duplicated work.",
+    "skill-governance.yml's Windows job (223 min) costs more than its own required Linux job (103 min) -- reverses the earlier proxy-based assumption that the Windows leg was narrow/small and could be deferred.",
+    "The public-migration-candidate workflows (all the small schedule bots, including the designated canary aspose-com-targets-watch.yml) total roughly 12.6% of usage combined -- confirms migrating them is safe/low-risk but not where cost reduction actually comes from.",
+    "This dataset satisfies TC-04's mandatory acceptance criterion (usage/billing figures reconciled against a real org-level source) directly -- there is no separate proxy figure to reconcile against since the real figure was supplied first."
+  ]
+}

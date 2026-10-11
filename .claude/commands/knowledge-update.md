@@ -1,96 +1,149 @@
-# S-14: Knowledge Update — Refresh Knowledge from Source
+<!-- CONTRACT: agent-executed
+     purpose: refresh knowledge model from source via scout/enrich/promote/index chain
+     preconditions: clone cache populated; existing knowledge at knowledge/{family}/{platform}/
+     postcondition: merged knowledge artifacts updated; stale_since cleared; knowledge_delta.json written
+     idempotent: yes — re-running produces same merged artifacts from same source
+     verified: 2026-04-11
+-->
+---
+name: knowledge-update
+id: S-14
+description: >
+  Refresh the knowledge model from source using scout, enrich, promote, and index.
+args: "{family} {platform}"
+---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-14: Knowledge Update - Refresh Knowledge Model from Source
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} {repo-path}`
+Expected format: `{family} {platform}`
+
+## Clone Cache Resolution
+
+The script resolves the repo path automatically from the local clone cache. No `{repo-path}` argument
+is needed. If the clone cache directory is missing, the script auto-clones from `clone_url` in
+`data/products.json` (disable with `--no-auto-clone`).
+
+Override the cache root with `ASPOSE_CLONE_CACHE=/path/to/cache` if needed.
 
 ## Purpose
-Refresh the knowledge model after S-12 (knowledge-diff) detected upstream repository changes and S-13 (stale-detect) identified affected content. Orchestrates the full knowledge pipeline: scout → merge → index → embed.
+
+Refresh the knowledge model for a product by re-running the full knowledge pipeline:
+repo-scout, knowledge-enrich, truth-merge, and truth-index. Use this when `model.yaml`
+has `stale_since != null` or after upstream repo changes detected by S-12 (knowledge-diff).
+
+> **Note on `refresh_knowledge.py`**: Running `python scripts/pipeline/commands/knowledge/refresh_knowledge.py
+> {family} {platform}` executes all 4 pipeline steps: `scout.py → enrich.py → promote.py → index.py`.
+> After a successful run, `merged/pipeline_run.json` confirms all steps completed,
+> `merged/model.yaml` has `stale_since` cleared automatically, and `merged/knowledge_delta.json`
+> is written with the semantic diff of what changed.
 
 ## Pre-conditions
-1. S-12 diff report or S-13 stale report should exist (recommended but not mandatory)
-2. The FOSS repository at `{repo-path}` must be accessible
-3. Current knowledge directory should exist: `knowledge/{family}/{platform}/`
+
+1. `scripts/pipeline/commands/knowledge/scout.py` exists
+2. `scripts/pipeline/commands/knowledge/enrich.py` exists
+3. `scripts/pipeline/commands/knowledge/promote.py` exists
+4. `scripts/pipeline/commands/knowledge/index.py` exists
+5. Current knowledge exists at `knowledge/{family}/{platform}/` (at least `model.yaml`)
+6. Check `knowledge/{family}/{platform}/model.yaml` - if `stale_since` is null, warn that
+   knowledge may not need updating (proceed if user confirms)
 
 ## Steps
 
-1. **Record pre-update state**:
-   - Read current `knowledge/{family}/{platform}/merged/model.yaml`
-   - Note current `repo_sha`, `claim_count`, `last_merged`
-   - These will be compared post-update to summarize changes
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-14 --scope "*"
+> ```
 
-2. **Re-scout the repository** (S-34 repo-scout):
-   - Run: `python scripts/scout.py {family} {platform} {repo-path} knowledge/{family}/{platform}/scout/`
-   - Verify outputs: model.yaml, api_surface.json, claims.json, formats.json, class_graph.json
-   - If scout fails → abort with error details
 
-3. **Re-sync external source** (S-30 truth-sync, if external source configured):
-   - Check if `knowledge/{family}/{platform}/external/` exists
-   - If found → invoke S-30 truth-sync to refresh it from the original source
-   - If not found → skip (scout-only mode, which is the default)
+1. **Parse arguments**: Extract `{family}` and `{platform}` from $ARGUMENTS.
 
-4. **Re-merge sources** (S-35 truth-merge):
-   - Run: `python scripts/merge.py {family} {platform}`
-   - Verify outputs in `knowledge/{family}/{platform}/merged/`
-   - Note any new conflicts in `merge_conflicts.md`
+2. **Run refresh pipeline** (handles backup, diff, and cleanup internally):
+   ```
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py {family} {platform}
+   ```
+   Internally, `refresh_knowledge.py`:
+   - Sets `stale_since` in `merged/model.yaml` to today before running the pipeline
+   - Creates a temporary backup of `merged/` to `merged.bak/` for delta computation
+   - Runs scout → enrich → promote → index in sequence
+   - After successful `promote.py`, writes `knowledge_delta.json` to `merged/` with the
+     semantic diff (new/removed/modified claims and APIs)
+   - Clears `stale_since` in `merged/model.yaml` after success
+   - Always deletes `merged.bak/` on exit (success or failure) — never committed
 
-5. **Re-index** (S-31 truth-index):
-   - Run: `python scripts/index.py {family} {platform}`
-   - Verify `knowledge/{family}/{platform}/merged/index.json` is updated
+   Verify `knowledge/{family}/{platform}/merged/pipeline_run.json` confirms all steps ran.
+   Verify outputs: `model.yaml`, `api_surface.json`, `claims.json` in `knowledge/{family}/{platform}/scout/`.
 
-6. **Re-embed** (S-15 embed-knowledge, if vectors existed):
-   - Check if `knowledge/_vectors/{tier}/{family}/{platform}/` has existing vectors for this product
-   - If yes → run: `python scripts/embed.py {family} {platform}`
-   - If no → skip (embeddings not yet initialized for this product)
+   **TypeScript completeness gate** (TC-MT040-22, `platform in {typescript, javascript, nodejs}`
+   only, same check `launch-product.md`'s Stage 0 runs for a first launch):
+   ```
+   .venv/Scripts/python scripts/pipeline/commands/diagnostics/typescript_api_completeness.py {family} {platform}
+   ```
+   Exit 1 ⇒ treat this refresh as incomplete — do not clear `stale_since` or proceed to
+   content regeneration until the barrel-export gap the report names is resolved.
 
-7. **Clear staleness**:
-   - Update `knowledge/{family}/{platform}/merged/model.yaml`:
-     - Set `stale_since: null`
-     - Update `repo_sha` to new value
-     - Update `last_diff_check` to current timestamp
+3. **Run knowledge-enrich** (S-37) if not already run by refresh pipeline:
+   ```
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py {family} {platform}
+   ```
+   Verify `knowledge/{family}/{platform}/scout/enriched_claims.json` exists and is valid JSON.
 
-8. **Compute change summary**:
-   - Claims added: new claims not in pre-update set
-   - Claims removed: pre-update claims no longer present
-   - Claims modified: same claim_id with changed text or confidence
-   - API changes: classes/methods added or removed
-   - Format changes: format support added or removed
+4. **Run truth-merge** (S-35) if not already run:
+   ```
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/promote.py {family} {platform}
+   ```
+   Verify `knowledge/{family}/{platform}/merged/merge_report.md` exists and shows merge statistics.
 
-## Output
+5. **Run truth-index** (S-31):
+   Generate the knowledge index from the merged artifacts. Verify `knowledge/{family}/{platform}/merged/index.json` is created.
 
-```
-KNOWLEDGE UPDATE — {family}/{platform}
-Repository: {repo-path}
+6. **Verify stale flag cleared**: Confirm `knowledge/{family}/{platform}/merged/model.yaml` has
+   `stale_since: null`. This is automated by `refresh_knowledge.py` — no manual edit needed.
 
-Pipeline results:
-  Scout:  {OK | FAILED}
-  Sync:   {OK | SKIPPED | FAILED}
-  Merge:  {OK | FAILED} ({n} conflicts)
-  Index:  {OK | FAILED}
-  Embed:  {OK | SKIPPED | FAILED}
+7. **Diff report**: Read `merged/knowledge_delta.json` to summarize:
+   - New claims added (`new_claims`)
+   - Claims removed (`removed_claims`)
+   - Claims with changed text or confidence (`modified_claims`)
+   - API surface additions/removals (`new_apis`, `removed_apis`, `modified_apis`)
 
-Previous SHA: {old_sha}
-Current SHA:  {new_sha}
+   Note: `merged.bak/` is NOT available here — cleanup was automatic inside `refresh_knowledge.py`.
+   The `knowledge_delta.json` file is the durable diff artifact for downstream skills (S-20, S-62 --update).
 
-Changes:
-  Claims added:    {n}
-  Claims removed:  {n}
-  Claims modified: {n}
-  API added:       {n} classes, {n} methods
-  API removed:     {n} classes, {n} methods
-  Formats changed: {n}
-
-Staleness: CLEARED
-Next step: Run /page-update on affected content pages (see S-13 stale report)
-```
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-14 --status completed
+> ```
 
 ## Post-conditions
-- `stale_since` is null in model.yaml
-- All knowledge artifacts are refreshed
-- If there are affected content pages (from S-13) → run S-20 (page-update) for each
+
+- `knowledge/{family}/{platform}/scout/` has fresh extraction artifacts
+- `knowledge/{family}/{platform}/merged/` has updated merged artifacts
+- `model.yaml` has `stale_since: null` and current `repo_sha`
+- `merged/knowledge_delta.json` exists with semantic diff of what changed
+- `merged.bak/` does NOT exist (always cleaned up by refresh_knowledge.py)
+- A diff summary is printed showing what changed
 
 ## Error handling
-- If scout fails → abort entire update, keep old knowledge intact
-- If merge fails → abort, keep old merged/ intact
-- If only embed fails → continue (embeddings are optional)
-- If repo-path doesn't exist → abort with clear message
-- Log all pipeline step results for debugging
+
+- If repo-scout fails, abort and preserve existing knowledge (do not corrupt merged/)
+- If promote fails, `knowledge_delta.json` is NOT written (no partial delta); `merged.bak/` is cleaned up
+- If clone cache is missing, script auto-clones from `clone_url` in `data/products.json`; use `--no-auto-clone` to disable
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

@@ -1,0 +1,223 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/ci/hooks/bootstrap_session_gate.sh)",
+      "Bash(.venv/Scripts/python -m pytest tests/*)",
+      "Bash(.venv/Scripts/python -m pytest scripts/pipeline/tests/*)",
+      "Bash(.venv/Scripts/python -m pytest scripts/ci/tests/*)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/*)",
+      "Bash(PYTHONPATH=\"scripts/pipeline\" .venv/Scripts/python -m pytest scripts/pipeline/tests/*)",
+      "Bash(.venv/Scripts/python scripts/ci/checks/check_skill_registry_json.py)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/sync_skills.py --check)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/post_refresh_verify.py *)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/diagnostics/repo_patrol.py report)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_python_placement.py --check-staged)",
+      "Bash(.venv/Scripts/python scripts/ci/checks/check_skill_readme_coverage.py --fix)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py *)",
+      "Bash(.venv/Scripts/python scripts/ci/checks/enforce_venv_python.py --check)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/skill_context.py --help)",
+      "Bash(grep -E '^[a-z]{2}$')",
+      "Bash(.venv/Scripts/python -c \"from datetime import datetime; print\\(datetime.now\\(\\).strftime\\(''%Y%m%d-%H%M%S''\\)\\)\")",
+      "Bash(xargs grep -l \"woolly-brewing-lamport\\\\|TC-CSSP-004\\\\|code-snippet-spacing\")",
+      "Bash(for f in *.json proposed-taskcards/../*.json)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(.venv/../../.venv/Scripts/python.exe -c \"import json,sys; json.load\\(open\\(''$f''\\)\\); print\\(''OK''\\)\")",
+      "Bash(done)",
+      "Bash(ls \"d:/onedrive/Documents/GitHub/aspose.org/scripts/ci/checks/check_metrics_\"*.py)",
+      "Read(//d/onedrive/Documents/GitHub/aspose.net/**)",
+      "Bash(.venv/Scripts/python.exe -m pytest ops/tests/ scripts/validation/ -q --tb=short)",
+      "Bash(gh pr view 1 --repo aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript --json state,mergeable,mergeStateStatus,headRefOid)",
+      "Bash(ROOT_WRITE_AUTHORIZED=1 echo \"testing env var pass-through\")",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/ops/session_ledger.py groups --format json)",
+      "Bash(.venv/Scripts/python -c \":*)",
+      "Bash(xargs grep -l \"wiggly\\\\|watching-finch\\\\|v3\\\\.1.*A7\\\\|amendment.*A7\")",
+      "Bash(xargs grep -l \"BL-DEEP.*plan\\\\|backlink.*plan.*v3\\\\|v2\\\\.0.*A1.*A2\\\\|whole.*plan\")",
+      "Read(//c/Users/prora/.config/kilo/**)",
+      "Bash(.venv/Scripts/python -m pytest scripts/maintenance/supervisor/tests/test_supervisor.py -q)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --knowledge-delta knowledge/pdf/java/merged/knowledge_delta.json)",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(gpg --list-keys --keyid-format LONG packages@aspose.org)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://llm.professionalize.com/v1/models\" -H \"Authorization: Bearer $GPT_OSS_API_KEY\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/ci/checks/check_reference_index_structure.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST https://llm.professionalize.com/v1/chat/completions -H \"Authorization: Bearer $PROFESSIONALIZE_API_KEY\" -H \"Content-Type: application/json\" -d '{\"\"model\"\":\"\"gpt-oss\"\",\"\"messages\"\":[{\"\"role\"\":\"\"user\"\",\"\"content\"\":\"\"ping\"\"}],\"\"max_tokens\"\":5}')",
+      "Bash(grep -l \"ACT-AGENT-DECISION-BOARD\\\\|agent.decision.board\\\\|controlled.draft.write\\\\|CONTROLLED-DRAFT-WRITE\" \"C:\\\\Users\\\\prora\\\\.claude\\\\plans\"/*.md)",
+      "Bash(ls scripts/pipeline/tests/test_*.py)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-73 --scope \"scripts/pipeline/content_eval/evaluators/namespace_correctness.py\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python -c \"from commands.ops.skill_context import SkillContext; sc = SkillContext\\(\\); sc.begin\\(''S-73'', ''scripts/pipeline/tests/test_backlink_adjudicate_review.py''\\)\")",
+      "Bash(.venv/Scripts/python -c \"import scripts.maintenance.supervisor.loop_controller as lc; print\\(''LoopClassification members:'', [e.value for e in lc.LoopClassification]\\); print\\(''Functions:'', [f for f in dir\\(lc\\) if not f.startswith\\(''_''\\)]\\)\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create --path \".claude/commands/heal-batch.md\" --reason \"TC-34: correct false claim about no-downgrade-guard enforcement in heal-batch.md line 104\")",
+      "Bash(.venv/Scripts/python --version)",
+      "Bash(.venv/Scripts/python -c \"import yaml; d=yaml.safe_load\\(open\\(''knowledge/pdf/net/merged/model.yaml''\\)\\); print\\(''repo_sha:'', d.get\\(''repo_sha'',''?''\\)\\); print\\(''stale_since:'', d.get\\(''stale_since'',''?''\\)\\); print\\(''enrichment_status:'', d.get\\(''enrichment_status'',''?''\\)\\)\")",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py pdf net --force --subdomain reference.aspose.org)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/path_guard.py content/products.aspose.org/en/tex/python/_index.md)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/knowledge/enrich.py slides net)",
+      "Bash(gh api repos/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/actions/runners --jq '.runners[] | {name,status,labels: [.labels[].name]}')",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py list-pending)",
+      "Read(//c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/**)",
+      "Bash(ls /c/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/tasks/byeyiul49*)",
+      "Read(//c/Users/prora/AppData/Local/Temp/claude/**)",
+      "Bash(.venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py --help)",
+      "Bash(.venv/Scripts/python -m translator preflight --verbose)",
+      "Bash(PYTHONPATH=\"scripts/pipeline;scripts/pipeline/lib\" .venv/Scripts/python scripts/pipeline/commands/ops/semantic_refresh_guard.py pdf java --source-delta reports/refresh_review/pdf/java/semantic_source_delta.json --page-decisions reports/refresh_review/pdf/java/page_decisions.json --out /tmp/guard_pdf_java_current.json)",
+      "Bash(hugo --config configs/reference.aspose.org.toml --renderToMemory --logLevel warn)",
+      "WebFetch(domain:products.aspose.org)",
+      "Bash(gh run view 29098377327 --repo Aspose/aspose.org-workflows)",
+      "Bash(PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/override_manager.py create --paths scripts/pipeline/evidence/writer.py scripts/pipeline/evidence/runner.py scripts/pipeline/tests/test_evidence_writer.py scripts/pipeline/tests/test_attach_evidence_behavior.py scripts/pipeline/content_eval/evaluators/dead_internal_link.py scripts/pipeline/tests/content_eval/test_dead_internal_link.py --reason 'Fix G-16 \\(evidence writer BOM/double-frontmatter corruption + claim-ID leak\\) and G-18 \\(dead_internal_link false positive on Hugo leaf-bundle sibling links\\), both discovered via the pdf/net v26.7.0 pilot rerun; root causes confirmed via code reading, fixes validated by an independent plan review' --plan staged-discovering-pony)",
+      "Bash(git check-ignore *)"
+    ],
+    "additionalDirectories": [
+      "d:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
+      "D:\\onedrive\\Documents\\GitHub\\aspose.org\\plans\\healing",
+      "d:\\onedrive\\Documents\\GitHub\\aspose.org\\reports\\backlinks\\sprint-BL-DEEP-v3.1-final-artifact-consistency-repair",
+      "C:\\Users\\prora\\.claude\\plans"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/session_start_ledger_hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/session_end_ledger_hook.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/session_heartbeat_hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_session_gate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_content_edit_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_ledger_init_hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_venv_bash_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_destructive_bash_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_commit_bash_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_add_bash_hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_write_path_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_py_write_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_content_write_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_skill_context_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_capture_hook.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_ledger_init_hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/ci/hooks/check_plan_origination_gate_hook.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "_supervisor_mcp_pre_existing": {},
+  "mcpServers": {
+    "task-master-ai": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package=task-master-ai@0.43.1",
+        "task-master-ai"
+      ],
+      "env": {}
+    },
+    "claude-flow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package=claude-flow@3.10.13",
+        "claude-flow",
+        "mcp",
+        "start"
+      ],
+      "env": {}
+    }
+  }
+}

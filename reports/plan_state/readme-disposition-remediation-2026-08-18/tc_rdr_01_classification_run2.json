@@ -1,0 +1,514 @@
+{
+  "3d/java": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 57,
+      "content_unit_excerpt_matches_extraction": 31,
+      "structural_unit_disposition_coverage": 6,
+      "code_example_disposition_coverage": 14,
+      "badge_disposition_coverage": 4
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 6
+    },
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "dev_test_artifacts_linked": 5,
+      "api_reference_table_completeness": 210
+    },
+    "probe": {
+      "family": "3d",
+      "platform": "java",
+      "content_live_count": 88,
+      "content_disp_count": 31,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 6,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 14,
+      "code_disp_count": 0
+    }
+  },
+  "3d/net": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 30,
+      "content_unit_excerpt_matches_extraction": 26,
+      "structural_unit_disposition_coverage": 2,
+      "code_example_disposition_coverage": 9,
+      "badge_disposition_coverage": 3
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 6
+    },
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "diagram_starting_points_format_purity": 3,
+      "diagram_outputs_format_purity": 3,
+      "format_name_casing": 1,
+      "api_reference_detail_collapsed": 1,
+      "scope_limitations_format": 1,
+      "dev_test_artifacts_linked": 2,
+      "dropped_content": 1
+    },
+    "probe": {
+      "family": "3d",
+      "platform": "net",
+      "content_live_count": 56,
+      "content_disp_count": 26,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 2,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 9,
+      "code_disp_count": 0
+    }
+  },
+  "3d/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 15,
+      "content_unit_excerpt_matches_extraction": 71,
+      "structural_unit_disposition_coverage": 4,
+      "code_example_disposition_coverage": 23,
+      "badge_disposition_coverage": 3
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 11
+    },
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "dev_test_artifacts_linked": 6,
+      "dependency_snapshot_completeness": 1
+    },
+    "probe": {
+      "family": "3d",
+      "platform": "python",
+      "content_live_count": 86,
+      "content_disp_count": 71,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 4,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 23,
+      "code_disp_count": 0
+    }
+  },
+  "3d/typescript": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 32,
+      "content_unit_excerpt_matches_extraction": 81,
+      "structural_unit_disposition_coverage": 5,
+      "code_example_disposition_coverage": 21,
+      "badge_disposition_coverage": 1
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 24,
+      "content_unit_merged_into_target_section": 3
+    },
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "diagram_verified_format_claims": 2,
+      "diagram_starting_points_format_purity": 2,
+      "diagram_outputs_format_purity": 2,
+      "api_reference_detail_collapsed": 1,
+      "scope_limitations_format": 1,
+      "dropped_content": 1,
+      "unqualified_dependency_claims": 1
+    },
+    "probe": {
+      "family": "3d",
+      "platform": "typescript",
+      "content_live_count": 113,
+      "content_disp_count": 81,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 5,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 21,
+      "code_disp_count": 0
+    }
+  },
+  "barcode/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 27,
+      "content_unit_excerpt_matches_extraction": 24,
+      "structural_unit_disposition_coverage": 1,
+      "code_example_disposition_coverage": 9,
+      "badge_disposition_coverage": 2
+    },
+    "self_citation_or_merge_verify_findings": {},
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "barcode",
+      "platform": "python",
+      "content_live_count": 51,
+      "content_disp_count": 24,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 1,
+      "structural_disp_count": 2,
+      "structural_matched": 0,
+      "structural_match_rate": 0.0,
+      "code_live_count": 9,
+      "code_disp_count": 0
+    }
+  },
+  "cells/cpp": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 84,
+      "content_unit_excerpt_matches_extraction": 15,
+      "structural_unit_disposition_coverage": 5,
+      "code_example_disposition_coverage": 19,
+      "badge_disposition_coverage": 4
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 1
+    },
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "format_name_casing": 1,
+      "unqualified_dependency_claims": 3
+    },
+    "probe": {
+      "family": "cells",
+      "platform": "cpp",
+      "content_live_count": 99,
+      "content_disp_count": 15,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 5,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 19,
+      "code_disp_count": 0
+    }
+  },
+  "cells/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 22,
+      "content_unit_excerpt_matches_extraction": 24,
+      "structural_unit_disposition_coverage": 4,
+      "code_example_disposition_coverage": 9,
+      "badge_disposition_coverage": 1
+    },
+    "self_citation_or_merge_verify_findings": {},
+    "out_of_family_findings": {
+      "required_sections": 1
+    },
+    "probe": {
+      "family": "cells",
+      "platform": "python",
+      "content_live_count": 46,
+      "content_disp_count": 24,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 3,
+      "structural_disp_count": 7,
+      "structural_matched": 2,
+      "structural_match_rate": 0.286,
+      "code_live_count": 9,
+      "code_disp_count": 0
+    }
+  },
+  "email/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 66,
+      "content_unit_excerpt_matches_extraction": 44,
+      "structural_unit_disposition_coverage": 2,
+      "code_example_disposition_coverage": 10,
+      "badge_disposition_coverage": 5
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_merged_into_target_section": 2
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "email",
+      "platform": "python",
+      "content_live_count": 110,
+      "content_disp_count": 44,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 2,
+      "structural_disp_count": 4,
+      "structural_matched": 1,
+      "structural_match_rate": 0.25,
+      "code_live_count": 10,
+      "code_disp_count": 0
+    }
+  },
+  "html/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "code_example": "SUBSTANTIAL_GROWTH_OR_STALE (count-based heuristic only, not content-matched)",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 43,
+      "content_unit_excerpt_matches_extraction": 38,
+      "structural_unit_disposition_coverage": 1,
+      "code_example_disposition_coverage": 12,
+      "badge_disposition_coverage": 2
+    },
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_merged_into_target_section": 4
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "html",
+      "platform": "python",
+      "content_live_count": 81,
+      "content_disp_count": 38,
+      "content_matched": 0,
+      "content_match_rate": 0.0,
+      "structural_live_count": 4,
+      "structural_disp_count": 5,
+      "structural_matched": 0,
+      "structural_match_rate": 0.0,
+      "code_live_count": 12,
+      "code_disp_count": 8
+    }
+  },
+  "note/python": {
+    "overall": "NO_DISPOSITION_FAMILY_FINDINGS",
+    "family_statuses": {
+      "content": "NOT_APPLICABLE",
+      "structural": "NOT_APPLICABLE",
+      "code_example": "NOT_APPLICABLE",
+      "badge": "NOT_APPLICABLE"
+    },
+    "disposition_family_findings": {},
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_merged_into_target_section": 4
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "note",
+      "platform": "python",
+      "content_live_count": 148,
+      "content_disp_count": 148,
+      "content_matched": 148,
+      "content_match_rate": 1.0,
+      "structural_live_count": 13,
+      "structural_disp_count": 13,
+      "structural_matched": 13,
+      "structural_match_rate": 1.0,
+      "code_live_count": 27,
+      "code_disp_count": 27
+    }
+  },
+  "page/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "structural": "SUBSTANTIAL_GROWTH_OR_STALE",
+      "code_example": "NOT_APPLICABLE",
+      "badge": "NEVER_AUTHORED_OR_STALE"
+    },
+    "disposition_family_findings": {
+      "content_unit_disposition_coverage": 50,
+      "content_unit_excerpt_matches_extraction": 29,
+      "structural_unit_disposition_coverage": 1,
+      "badge_disposition_coverage": 3
+    },
+    "self_citation_or_merge_verify_findings": {},
+    "out_of_family_findings": {
+      "diagram_hybrid_reverification": 1
+    },
+    "probe": {
+      "family": "page",
+      "platform": "python",
+      "content_live_count": 79,
+      "content_disp_count": 29,
+      "content_matched": 1,
+      "content_match_rate": 0.034,
+      "structural_live_count": 4,
+      "structural_disp_count": 5,
+      "structural_matched": 0,
+      "structural_match_rate": 0.0,
+      "code_live_count": 13,
+      "code_disp_count": 13
+    }
+  },
+  "pdf/java": {
+    "overall": "NO_DISPOSITION_FAMILY_FINDINGS",
+    "family_statuses": {
+      "content": "NOT_APPLICABLE",
+      "structural": "NOT_APPLICABLE",
+      "code_example": "NOT_APPLICABLE",
+      "badge": "NOT_APPLICABLE"
+    },
+    "disposition_family_findings": {},
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 1
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "pdf",
+      "platform": "java",
+      "content_live_count": 36,
+      "content_disp_count": 36,
+      "content_matched": 36,
+      "content_match_rate": 1.0,
+      "structural_live_count": 4,
+      "structural_disp_count": 4,
+      "structural_matched": 4,
+      "structural_match_rate": 1.0,
+      "code_live_count": 8,
+      "code_disp_count": 8
+    }
+  },
+  "pdf/net": {
+    "overall": "NO_DISPOSITION_FAMILY_FINDINGS",
+    "family_statuses": {
+      "content": "NOT_APPLICABLE",
+      "structural": "NOT_APPLICABLE",
+      "code_example": "NOT_APPLICABLE",
+      "badge": "NOT_APPLICABLE"
+    },
+    "disposition_family_findings": {},
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 58
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "pdf",
+      "platform": "net",
+      "content_live_count": 69,
+      "content_disp_count": 69,
+      "content_matched": 69,
+      "content_match_rate": 1.0,
+      "structural_live_count": 9,
+      "structural_disp_count": 9,
+      "structural_matched": 9,
+      "structural_match_rate": 1.0,
+      "code_live_count": 10,
+      "code_disp_count": 10
+    }
+  },
+  "pdf/python": {
+    "overall": "NO_DISPOSITION_FAMILY_FINDINGS",
+    "family_statuses": {
+      "content": "NOT_APPLICABLE",
+      "structural": "NOT_APPLICABLE",
+      "code_example": "NOT_APPLICABLE",
+      "badge": "NOT_APPLICABLE"
+    },
+    "disposition_family_findings": {},
+    "self_citation_or_merge_verify_findings": {
+      "content_unit_evidence_resolves": 2
+    },
+    "out_of_family_findings": {},
+    "probe": {
+      "family": "pdf",
+      "platform": "python",
+      "content_live_count": 45,
+      "content_disp_count": 45,
+      "content_matched": 45,
+      "content_match_rate": 1.0,
+      "structural_live_count": 3,
+      "structural_disp_count": 3,
+      "structural_matched": 3,
+      "structural_match_rate": 1.0,
+      "code_live_count": 16,
+      "code_disp_count": 16
+    }
+  },
+  "tex/python": {
+    "overall": "COMPOSE_REQUIRED",
+    "family_statuses": {
+      "content": "NOT_APPLICABLE",
+      "structural": "NEVER_AUTHORED",
+      "code_example": "NEVER_AUTHORED",
+      "badge": "NOT_APPLICABLE"
+    },
+    "disposition_family_findings": {
+      "structural_unit_disposition_coverage": 1,
+      "code_example_disposition_coverage": 12
+    },
+    "self_citation_or_merge_verify_findings": {},
+    "out_of_family_findings": {
+      "required_sections": 1,
+      "dropped_content": 1
+    },
+    "probe": {
+      "family": "tex",
+      "platform": "python",
+      "content_live_count": 13,
+      "content_disp_count": 13,
+      "content_matched": 13,
+      "content_match_rate": 1.0,
+      "structural_live_count": 1,
+      "structural_disp_count": 0,
+      "structural_matched": 0,
+      "structural_match_rate": null,
+      "code_live_count": 12,
+      "code_disp_count": 0
+    }
+  }
+}

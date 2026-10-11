@@ -1,0 +1,22 @@
+{
+  "root_causes": [
+    {
+      "root_cause_id": "RC-tex-python-01",
+      "layer": "script",
+      "file_ref": "scripts/pipeline/lib/grade_writer.py:244",
+      "finding_ids": ["FND-tex-python-001", "FND-tex-python-004"],
+      "why_root_cause_not_symptom": "audit.py (scripts/pipeline/commands/content/audit.py) has zero references to 'grade' anywhere in its own source -- confirmed by direct grep. It is a pure read-only checker: finding a live FAIL never writes, invalidates, or flags the page's persisted grade: frontmatter field. write_grade()/read_grade() in grade_writer.py are a completely separate code path invoked only by other skills (S-26 heal-page, gap-eval scoring, etc.). Result: docs.aspose.org/en/tex/python/_index.md and products.aspose.org/en/tex/python/_index.md both show grade: A in frontmatter right now, at the same time audit.py --files reports live FAILs on both. This is not a one-off content mistake -- it is a structural gap between the check layer and the grade layer that will recur on any page nobody happens to re-grade after a regression or a mis-generated page.",
+      "fix_direction": "Either (a) have audit.py write grade_stale_reason (a field grade_writer.py already defines) when it finds a live FAIL, so the stale state is visible without requiring a separate S-90 run, or (b) wire a lightweight post-audit hook that calls grade_writer.py's staleness path automatically whenever audit.py returns FAIL on a page.",
+      "risk_if_unfixed": "Any product's pages can carry a false grade: A indefinitely after a real regression, with no automatic signal -- exactly what happened here, on the very first page a human/agent would land on for this product."
+    },
+    {
+      "root_cause_id": "RC-tex-python-02",
+      "layer": "script",
+      "file_ref": "scripts/pipeline/content_eval/evaluators/install_recipe.py:491",
+      "finding_ids": ["FND-tex-python-005"],
+      "why_root_cause_not_symptom": "install_recipe.py's unpublished-package check (the RC-W1-003 fix from MT026) is scoped to detecting a literal install-command pattern (e.g. 'pip install X') against verification.published. It has no logic scanning general prose for an unconditional publication assertion. blog/introducing-tex-foss-python/index.md's 'Aspose.TeX FOSS is published on PyPI' and 'The package is available on PyPI as aspose-tex' are plain sentences, not install commands, so they evade this check entirely even though they assert the exact same false fact the command-pattern check exists to prevent.",
+      "fix_direction": "Extend install_recipe.py (or add a sibling check) to also flag unconditional 'published on PyPI' / 'available on PyPI' prose assertions against the same verification.published boolean, not just install-command lines.",
+      "risk_if_unfixed": "A generation path that avoids the literal pip-install-command shape (as this blog post partially did) can still assert false publication status in plain prose and pass every existing gate."
+    }
+  ]
+}

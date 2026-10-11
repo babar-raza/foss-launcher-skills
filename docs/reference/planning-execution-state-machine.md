@@ -1,16 +1,15 @@
 # Planning and Autonomous Execution State Machine
 
 > Status: Reference framework — not itself an operational rule.
-> Source: originally authored outside any one repo; copied verbatim into aspose.org's
-> own governance docs 2026-07-27, then ported unchanged into this repo 2026-08-29 as
-> part of a sync from that repo (see docs/parity/source-anchors.yaml). Zero
-> repo-specific content — independently re-verified during that port.
-> Operational binding for THIS repo: [docs/governance/planning-methodology.md](../governance/planning-methodology.md).
+> Source: copied verbatim from `d:/planning-execution-state-machine.md` (outside this repo), 2026-07-27.
+> Operational binding: [docs/governance/planning-methodology.md](../governance/planning-methodology.md) (see `AGENTS.md` §17).
 > Do not treat the schemas below (taskcard YAML, mission graph YAML, durable-state YAML, etc.)
-> as literal file formats to create in this repo. See the concordance table in
+> as literal file formats to create in this repo. This repo already implements most of this
+> model under different names — see the concordance table in
 > [docs/governance/planning-methodology.md](../governance/planning-methodology.md) before
-> creating any new tracking artifact — this repo's own equivalents (TASK_BACKLOG.md,
-> docs/parity/, .governance/) are named there.
+> creating any new tracking artifact (e.g. schema 5f — `reports/plan_state/{mission_id}/taskcards.jsonl`
+> — for the taskcard/durable-state model, and `MISSION_AUTHORITY.yaml` for the mission-contract
+> model).
 
 ## Purpose
 

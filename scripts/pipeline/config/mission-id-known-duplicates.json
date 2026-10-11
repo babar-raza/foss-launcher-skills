@@ -1,0 +1,26 @@
+{
+  "_comment": "Baseline allowlist for scripts/ci/checks/check_mission_id_no_new_duplicates.py. Every number here is a CONFIRMED, DISCLOSED historical mission-id collision (two or more distinct missions independently issued the same MT0NN number, before scripts/pipeline/lib/mission_id_ledger.py's ST-157 lock existed). Per the disclose-not-rename decision (ST-194, 2026-09-11, matching the original MT018 precedent), none of these are renamed -- the check treats them as known/accepted and only fails on a genuinely NEW duplicate number introduced after this baseline. Do not add a number here to silence a check finding without a citation in mission-ids.jsonl backing it up -- this file records already-disclosed history, it does not grant new collisions a pass. NOTE on 15: docs/readme-refresh/plan-system-forensic-reconciliation.md's 'MT015 (dependency)' row (date 2026-07-30, matching MT015-2026-07-30-PACKAGE-REGISTRY's own start date exactly) looks like a cross-reference TO that real main-track mission, not an independent second use of the number -- included here uniformly with every other Track-B row rather than special-cased, since this repo's own Track-B scanning deliberately does not attempt to reconstruct Track B's narrative meaning (see mission_id_ledger.py's module docstring); flagged here honestly in case a future session investigates further and wants to correct the disclosure.",
+  "known_duplicate_numbers": [
+    14,
+    15,
+    18,
+    21,
+    23,
+    24,
+    25,
+    26,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    37,
+    38,
+    39,
+    40
+  ],
+  "source": "ST-194 (2026-09-11): live audit of scripts/pipeline/config/mission-ids.jsonl after fixing mission_authority.py's Track-B/off-the-books disclosure gaps. MT018 was the original, separately-fixed case (ST-157, 2026-09-01) that this baseline also covers."
+}

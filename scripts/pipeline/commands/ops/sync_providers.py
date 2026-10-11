@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Sync provider skill copies from canonical skills/ directory.
 
 Updates .agents/skills/, .claude/commands/, and .kilocode/skills/ to match canonical skills/,
@@ -19,10 +18,11 @@ import argparse
 import json
 import re
 import sys
-from pathlib import Path
-import os
 
-_DEFAULT_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent.parent)))
+import yaml
+from pathlib import Path
+
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 
 _DEFAULT_CANONICAL_DIR = _DEFAULT_REPO_ROOT / "skills"
@@ -41,19 +41,33 @@ _DEFAULT_SKIP_SLUGS: dict = {
 }
 SKIP_SLUGS = _DEFAULT_SKIP_SLUGS
 
+# Per-provider co-author identity substituted into synced skill content.
+# The canonical skill (skills/) uses Claude's identity; each agent mirror
+# must carry the identity of the agent that will actually run the skill.
+# sync_skills.py --check excludes Co-authored-by lines from parity so these
+# intentional differences do not trigger drift alerts.
+_DEFAULT_PROVIDER_CO_AUTHORS: dict[str, str] = {
+    "claude": "Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "agents": "Co-authored-by: Codex <codex@openai.com>",
+    "kilocode": "Co-authored-by: Kilo Code <kilocode@kilocode.ai>",
+}
+PROVIDER_CO_AUTHORS: dict[str, str] = dict(_DEFAULT_PROVIDER_CO_AUTHORS)
+
 
 def configure(
     *,
     canonical_dir: "Path | str | None" = None,
     providers: "dict | None" = None,
     skip_slugs: "dict | None" = None,
+    provider_co_authors: "dict | None" = None,
 ) -> None:
     """Override module-level path constants for testing."""
-    global CANONICAL_DIR, PROVIDERS, SKIP_SLUGS
-    if canonical_dir is None and providers is None and skip_slugs is None:
+    global CANONICAL_DIR, PROVIDERS, SKIP_SLUGS, PROVIDER_CO_AUTHORS
+    if canonical_dir is None and providers is None and skip_slugs is None and provider_co_authors is None:
         CANONICAL_DIR = _DEFAULT_CANONICAL_DIR
         PROVIDERS = _DEFAULT_PROVIDERS
         SKIP_SLUGS = _DEFAULT_SKIP_SLUGS
+        PROVIDER_CO_AUTHORS = dict(_DEFAULT_PROVIDER_CO_AUTHORS)
         return
     if canonical_dir is not None:
         CANONICAL_DIR = Path(canonical_dir)
@@ -61,6 +75,8 @@ def configure(
         PROVIDERS = providers
     if skip_slugs is not None:
         SKIP_SLUGS = skip_slugs
+    if provider_co_authors is not None:
+        PROVIDER_CO_AUTHORS = provider_co_authors
 
 CROSS_SKILL_NOTE = (
     "> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.\n\n"
@@ -71,7 +87,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from _skill_constants import INTERNAL_SKILLS
 
-_ID_RE = re.compile(r"^#\s+(S-\d+):")
+_ID_RE = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
 _PURPOSE_RE = re.compile(r"^##\s+Purpose\s*$", re.MULTILINE)
 _ARGS_RE = re.compile(r"\*\*Arguments\*\*:\s*(.+)")
 
@@ -85,8 +101,34 @@ def _extract_id_from_content(text: str) -> str | None:
     return None
 
 
-def _extract_description(text: str) -> str:
-    """Extract first sentence after ## Purpose as a description."""
+def _extract_description(text: str, frontmatter: str = "") -> str:
+    """RC-skill-description-placeholder-fix (readme-refresh-hardening-and-regen-2026-08-30):
+    prefer the frontmatter's own curated `description:` field first -- every skill already
+    writes one (it is a required field per the skill-authoring convention), and it is the
+    actual source of truth the registry's own docstring/CONTRACT block promises ("machine-
+    readable skill catalog"). The prior body-only `## Purpose`-heading scan silently produced
+    "Skill description pending" for any skill whose body doesn't happen to use that exact
+    heading -- confirmed live for S-120 (readme-refresh.md has no `## Purpose` section at all;
+    its structure is `## Official execution contract` / `## Steps` / etc.), not a content gap
+    in that skill doc, a scope gap in this extractor. Falls back to the original `## Purpose`
+    body-scan only when frontmatter has no description, so skills relying on that convention
+    are unaffected.
+    """
+    if frontmatter:
+        try:
+            fm_data = yaml.safe_load(frontmatter.strip().strip("-").strip()) or {}
+        except yaml.YAMLError:
+            fm_data = {}
+        fm_description = fm_data.get("description")
+        if isinstance(fm_description, str) and fm_description.strip():
+            # Frontmatter descriptions are often a folded YAML block (`description: >`) --
+            # normalize embedded newlines/indentation to a single sentence-flow string, then
+            # truncate at the first sentence boundary, matching the body-scan branch's own
+            # truncation convention below.
+            flat = " ".join(fm_description.split())
+            if ". " in flat:
+                return flat[:flat.index(". ") + 1]
+            return flat
     m = _PURPOSE_RE.search(text)
     if not m:
         return "Skill description pending"
@@ -165,6 +207,15 @@ def sync_provider(provider: str, dry_run: bool = False,
         # Strip canonical frontmatter — mirrors have their own provider-specific frontmatter
         _, canonical_content = _extract_frontmatter(canonical_raw)
 
+        # Substitute provider-specific co-author identity.
+        # The canonical uses Claude's identity; each agent mirror carries its own.
+        if provider in PROVIDER_CO_AUTHORS:
+            canonical_content = re.sub(
+                r"(?im)^co-authored?-by:.*$",
+                PROVIDER_CO_AUTHORS[provider],
+                canonical_content,
+            )
+
         if provider == "claude":
             provider_path = base / f"{slug}.md"
         else:
@@ -233,7 +284,7 @@ REGISTRY_PATH = CANONICAL_DIR / "registry.json"
 def _extract_title(text: str) -> str:
     """Extract skill title from the # S-XX: Title heading."""
     for line in text[:1500].splitlines():
-        m = re.match(r"^#\s+S-\d+:\s*(.+)", line)
+        m = re.match(r"^#\s+S-[A-Z0-9-]+:\s*(.+)", line)
         if m:
             # Strip trailing markup like " — Foo" keeping " — Foo" as part of the name
             return m.group(1).strip()
@@ -252,14 +303,14 @@ def generate_registry(dry_run: bool = False) -> bool:
             continue
 
         raw = canonical_path.read_text(encoding="utf-8", errors="replace")
-        _, content = _extract_frontmatter(raw)
+        fm, content = _extract_frontmatter(raw)
 
         skill_id = _extract_id_from_content(content)
         if skill_id is None:
             continue
 
         title = _extract_title(content)
-        description = _extract_description(content)
+        description = _extract_description(content, frontmatter=fm)
         args = _extract_args(content)
         internal = slug in INTERNAL_SKILLS
 

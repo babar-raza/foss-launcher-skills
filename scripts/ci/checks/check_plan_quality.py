@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_plan_quality.py — Static analysis for plan file quality.
 
 Scans plan files for conditions that trigger mandatory S-91 plan-normalize,

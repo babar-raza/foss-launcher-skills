@@ -1,10 +1,14 @@
 ---
 name: new-kb-faq
 description: >
-  Generate or update the FAQ page for a product platform with licensing,
-  installation, format support, API usage, and known limitations sections.
+  Generate or update the FAQ page for a product platform
 args: "{family} {platform}"
 ---
+
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-59: New KB FAQ — Generate FAQ Page for Product Platform
+
 Generate or update the FAQ page for a product platform.
 
 **Arguments:** `$ARGUMENTS`
@@ -12,26 +16,29 @@ Generate or update the FAQ page for a product platform.
 
 ## Knowledge Pre-conditions
 
-Before generating any content, you MUST:
+1. **Bootstrap knowledge**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `KNOWLEDGE: STOP:partial` → halt; see printed message
+   - `KNOWLEDGE: REFRESHED` → STOP: "Knowledge refreshed from upstream changes. Run `/knowledge-diff` to review what changed, then re-run this command."
+   - `KNOWLEDGE: READY`, `KNOWLEDGE: BOOTSTRAPPED`, or `KNOWLEDGE: WARN:conflicts` → continue
 
-0. **Validate setup**: Run `python scripts/check_setup.py --family {family} --platform {platform}`
-   - If exit code 2 (ERROR): STOP and report the error to the user before proceeding.
-   - If exit code 1 (WARN): proceed but surface all warnings.
-
-1. **Read knowledge model**: Load `knowledge/{family}/{platform}/merged/index.json`
-   - If it does not exist, STOP and instruct the user to run `/repo-scout` and `/truth-merge` first
-   - If `stale: true`, STOP and instruct the user to run `/knowledge-diff` first
-   - If `has_conflicts: true`, WARN and list unresolved conflicts from `merge_conflicts.md`
-2. **Load verified facts**: Read `knowledge/{family}/{platform}/merged/claims.json` and `api_surface.json`
-2b. **Read API surface summary**: Read `knowledge/{family}/{platform}/merged/api_surface.md`
-    - This is the concise, human-readable API reference
-    - Every class name, method, property, and enum value in your generated content MUST appear in this file
-    - If a name is not in api_surface.md, do not use it
-3. **Load forbidden claims**: Read `forbidden_claims` from `index.json` — never include these in content
-4. **Load format matrix**: Read `formats.json` — only reference formats confirmed here
-5. **Load limitations**: Read `limitations.md` for known NotImplementedError items
+2. **Load verified artifacts**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.md` (human-readable; every class/method name used in content MUST appear here)
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `forbidden_claims` from `knowledge/{family}/{platform}/merged/index.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md` (if the file exists — skip this step
+     if absent) for known unimplemented items — **limitations cross-check**: for every format or
+     capability claim in the FAQ (e.g., "can write to X", "supports Y format"), verify it does not
+     contradict a known limitation. Correct contradictions before generating content.
 
 ## Steps
+
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-59 --scope "*"
+> ```
+
 
 1. **Parse** `$ARGUMENTS` into `family` and `platform`.
 
@@ -44,9 +51,13 @@ Before generating any content, you MUST:
    - Read one existing how-to article from `content/kb.aspose.org/en/{family}/{platform}/` to see keyword style
 
 4. **Frontmatter** (for new files — preserve existing frontmatter when updating):
+
+   Title follows the `kb_faq` skeleton in `scripts/pipeline/config/title_templates.yaml`
+   (product-first, resolves the prior S-22/S-59/production-reality title conflict).
+
    ```yaml
    ---
-   title: Frequently Asked Questions
+   title: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
    description: >
      FAQ about Aspose.{Family} FOSS for {Platform} — licensing, known limitations,
      format support, and common usage questions.
@@ -60,9 +71,13 @@ Before generating any content, you MUST:
    - {product name} python licensing
    - {product name} open source
    - {6–10 more question-oriented keywords}
+   provenance:
+     content_origin: skill-generated
+     last_mechanism: skill
+     auto_updatable: true
    ---
    ```
-   When updating an existing file: update only `lastmod` to today's date; leave all other frontmatter unchanged.
+   When updating an existing file: update only `lastmod` to today's date; leave all other frontmatter unchanged. Do NOT modify the `provenance:` block.
 
 5. **Content structure** — write or append these FAQ categories (skip categories that are already fully covered):
 
@@ -88,22 +103,65 @@ Before generating any content, you MUST:
 
    Each question uses `### Question text?` as the heading followed by one or more answer paragraphs.
 
+   **Keyword-seeded topics** (SEO-FAQ-KEYWORD-SEEDING, optional, additive only): call
+   `scripts/seo/pipeline/faq_keyword_seeding.py::suggest_faq_question_topics(family)` for real
+   search-demand topic hints (Schema B GSC data). **Anti-fabrication guard**: a suggested topic
+   is evidence of real search DEMAND, never evidence a claim about it is TRUE, and carries no
+   answer text. Only add a question from a suggested topic if step 3's reference-content reading
+   already grounds it — never answer a keyword-seeded topic from general knowledge. An empty
+   suggestion list (the common case) changes nothing about the categories above.
+
 6. **Constraints**:
    - All class names, method names, and package import paths must match what you read from the reference content — do not invent API surface
    - Code examples use ` ```python ` language identifier
+   - **"How do I install?" answer**: never write a literal `pip install`/`dotnet add package`/
+     `npm install`/Maven coordinate from LLM knowledge — render it via the shortcode for
+     `{platform}` reading `data/package_registry.json`, same mandatory rule as `new-products-page.md`
+     (S-61)/`new-docs-page.md` (S-56)/`new-kb-howto.md` (S-58)/`new-blog-post.md` (S-57): java →
+     `{{< maven-gav "{family}" "java" >}}` (no backticks), rust → `{{< cargo-crate "{family}" "rust" >}}`,
+     everything else → `{{< package-install "{family}" "{platform}" >}}`. If no registry entry
+     exists, answer with the plain-prose "not yet published, build from source" fallback instead
+     of inventing a command (Mission MT015-2026-07-30-PACKAGE-REGISTRY, root cause 1).
    - `weight: 1` ensures FAQ appears first in the KB listing — never change this value
+   - Do NOT write a `faq:` or `faq.list` key to frontmatter — FAQ entries belong exclusively
+     in the markdown body as `### Question text?` headings followed by answer paragraphs.
+     A `faq.list` frontmatter block is invisible to the Hugo renderer and will trigger
+     `_check_faq` Rule 3 FAIL on the next evaluation
 
-7. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+7. **Pre-write quality check**: Invoke `no-downgrade-guard` before writing:
+   - Target path: `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   - If BLOCK → do not write; report the blocking reason to the user
+   - If WARN → present the warning to the user; await confirmation before writing
+   - If ALLOW → proceed with write
+
+8. **Write** to `content/kb.aspose.org/en/{family}/{platform}/faq.md`
+
+8b. **Backlink injection**: After writing, ensure the `## See Also` section includes the
+    reciprocal aspose.com backlink (idempotent — skips if already present):
+    ```bash
+    .venv/Scripts/python scripts/pipeline/commands/ops/backlink_backfill.py \n      --family {family} --platform {platform} --subdomain kb.aspose.org --write
+    ```
+    If BLOCKED_TARGET: log WARN and continue.
+    **Anchor policy v2**: platform targets → `Aspose.{Family} for {Platform} Enterprise Product`; family targets → `Aspose.{Family} Enterprise Product Family` (governed by `docs/governance/positioning-policy.md`).
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-59 --status completed
+> ```
 
 ## Knowledge Post-conditions
 
 After generating or updating the FAQ:
 
-1. **Run evidence citation**: Execute `/evidence-cite content/kb.aspose.org/en/{family}/{platform}/faq.md` to write the YAML `evidence:` frontmatter block
+1. **Attach evidence**: Run `python scripts/pipeline/commands/healing/attach_evidence.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — this writes the `evidence:` YAML frontmatter block (`model_sha`, `claims`, `apis`).
 2. **Run content check**: Execute `/content-check content/kb.aspose.org/en/{family}/{platform}/faq.md` to validate structure and knowledge alignment
 3. **Run change guard**: Execute `/change-guard {family} {platform}` with any new claims to verify they don't contradict known facts
-4. **Pre-write gate**: Run `python scripts/pre_write.py {output-file}` before committing
-   - Exit 0 (PASS/WARN): proceed
-   - Exit 1 (FAIL): do NOT commit — report findings to user and offer to fix
+4. **Run audit**: `python scripts/pipeline/commands/content/audit.py --files content/kb.aspose.org/en/{family}/{platform}/faq.md`
+   — must exit with 0 FAIL before committing.
+5. **Run format eval**: `python -m scripts.pipeline.content_eval.cli evaluate {family} {platform} --evaluators format_truth,format_completeness --files content/kb.aspose.org/en/{family}/{platform}/faq.md --strict`
+   — must exit 0 (no FAIL findings) before committing.
 
 8. **Confirm** by printing the output path and a count of FAQ items written or added.
+   After writing, verify the body contains ≥1 `###` heading. If absent, regenerate — the page
+   will fail `_check_faq` Rule 3 on the next evaluation.

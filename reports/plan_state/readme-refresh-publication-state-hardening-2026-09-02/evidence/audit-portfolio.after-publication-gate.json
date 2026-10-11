@@ -1,0 +1,404 @@
+{
+  "products": [
+    {
+      "family": "3d",
+      "platform": "java",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "3d",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "3d",
+      "platform": "python",
+      "clean": false,
+      "hard_gate_findings": {
+        "installation_matches_live_publication": 2,
+        "dev_test_artifacts_linked": 2,
+        "code_example_api_coverage_survives": 3,
+        "api_reference_table_completeness": 2
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "3d",
+      "platform": "typescript",
+      "clean": false,
+      "hard_gate_findings": {
+        "code_example_disposition_text_diff": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "barcode",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "cells",
+      "platform": "cpp",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "cells",
+      "platform": "go",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "cells",
+      "platform": "java",
+      "clean": false,
+      "hard_gate_findings": {
+        "code_example_disposition_text_diff": 2
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "cells",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "cells",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "cells",
+      "platform": "rust",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "cells",
+      "platform": "typescript",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "email",
+      "platform": "cpp",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "email",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "email",
+      "platform": "python",
+      "clean": false,
+      "hard_gate_findings": {
+        "code_example_disposition_text_diff": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "font",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "html",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "note",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "page",
+      "platform": "python",
+      "clean": false,
+      "hard_gate_findings": {
+        "license_link_target": 1,
+        "license_section_matches_template": 1,
+        "enterprise_edition_link_resolves": 1,
+        "enterprise_edition_anchor_matches_relationship": 1,
+        "diagram_hybrid_reverification": 1,
+        "content_unit_disposition_coverage": 79,
+        "content_unit_evidence_resolves": 48,
+        "structural_unit_evidence_resolves": 4,
+        "code_example_disposition_coverage": 13,
+        "code_example_evidence_resolves": 13,
+        "badge_disposition_coverage": 3,
+        "dependency_snapshot_completeness": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "pdf",
+      "platform": "cpp",
+      "clean": false,
+      "hard_gate_findings": {
+        "diagram_hybrid_reverification": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "pdf",
+      "platform": "go",
+      "clean": false,
+      "hard_gate_findings": {
+        "diagram_hybrid_reverification": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "pdf",
+      "platform": "java",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "pdf",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "pdf",
+      "platform": "python",
+      "clean": false,
+      "hard_gate_findings": {
+        "content_unit_disposition_coverage": 17,
+        "content_unit_excerpt_matches_extraction": 122,
+        "structural_unit_disposition_coverage": 5,
+        "structural_unit_disposition_text_diff": 4,
+        "code_example_disposition_coverage": 9,
+        "code_example_disposition_text_diff": 4,
+        "code_example_api_coverage_survives": 4,
+        "api_reference_table_completeness": 54
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty"
+    },
+    {
+      "family": "slides",
+      "platform": "cpp",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "slides",
+      "platform": "java",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "slides",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "slides",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    },
+    {
+      "family": "tex",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "words",
+      "platform": "net",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published"
+    },
+    {
+      "family": "words",
+      "platform": "python",
+      "clean": true,
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified"
+    }
+  ],
+  "disposition_verified_count": 17,
+  "clean_count": 23,
+  "dirty_count": 8,
+  "total": 31,
+  "skipped": [
+    {
+      "family": "pdf",
+      "platform": "typescript",
+      "reason": "no candidate file yet"
+    }
+  ],
+  "candidate_tree": "repo-presenter-regen-full",
+  "non_canonical": null,
+  "skeleton_singletons": [
+    {
+      "product": "cells/net",
+      "section": "Development and Testing",
+      "opening_shape": [
+        "para",
+        "para"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "pdf/net",
+      "section": "Documentation & Resources",
+      "opening_shape": [
+        "bullets",
+        "details"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/net",
+      "section": "Documentation & Resources",
+      "opening_shape": [
+        "para",
+        "bullets"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "cells/net",
+      "section": "Installation",
+      "opening_shape": [
+        "fence:code",
+        "fence:code"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/cpp",
+      "section": "Installation",
+      "opening_shape": [
+        "para",
+        "h3"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "email/python",
+      "section": "Key Capabilities",
+      "opening_shape": [
+        "para",
+        "bullets"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/net",
+      "section": "Quick Start",
+      "opening_shape": [
+        "fence:code"
+      ],
+      "portfolio_size": 31,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    }
+  ]
+}

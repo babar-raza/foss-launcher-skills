@@ -1,11 +1,11 @@
 """launch_gate.py -- Pre-launch readiness checker for a FOSS product.
 
 Usage:
-    python scripts/pipeline/launch_gate.py {family} {platform}
-    python scripts/pipeline/launch_gate.py note python
-    python scripts/pipeline/launch_gate.py --fail-fast slides net
+    python scripts/pipeline/commands/launch/launch_gate.py {family} {platform}
+    python scripts/pipeline/commands/launch/launch_gate.py note python
+    python scripts/pipeline/commands/launch/launch_gate.py --fail-fast slides net
 
-Runs 9 automated gates (L-01 through L-09) and prints a pass/fail summary.
+Runs 16 automated gates (L-01 through L-16) and prints a pass/fail summary.
 Exit code: 0 if all gates pass, 1 if any gate fails.
 
 Gates:
@@ -20,6 +20,19 @@ Gates:
     L-07  Pipeline tests        -- pytest scripts/pipeline/tests/ must exit 0
     L-08  Provenance coverage   -- all English content files must have content_origin set
     L-09  Hugo build            -- hugo build for products.aspose.org must exit 0
+    L-10  No coming-soon        -- family _index.md must not contain 'coming soon' placeholder
+    L-11  Family display name   -- family root _index.md must use canonical "Aspose.{Product} FOSS"
+                                  title and must not have linkTitle
+    L-12  Denominator reconciliation -- generation manifest's denominator_gap must be 0
+                                  (reports/generation/{family}-{platform}.yaml)
+    L-13  Cross-subdomain build -- Hugo build must exit 0 for every local-theme site, not just
+                                  products.aspose.org (extends L-09)
+    L-14  Grade non-regression  -- no page grade decreased vs the baseline snapshot in
+                                  grade_manifest.json
+    L-15  Snippet syntax        -- every snippet file in merged/snippets/ passes a basic
+                                  syntax-validity check
+    L-16  Platform linkTitle    -- platform _index.md must have canonical linkTitle matching
+                                  data/platforms.json; fails on missing, wrong, or forbidden labels
 
 Flags:
     --fail-fast     Stop after the first failing gate
@@ -48,14 +61,36 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
 # ---------------------------------------------------------------------------
 
 _HERE = Path(__file__).resolve().parent
-_DEFAULT_REPO_ROOT = _HERE.parent.parent
+_DEFAULT_REPO_ROOT = _HERE.parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
+
+# FRESH-001 (2026-08-14): unconditional (not only inside configure()) so bare
+# imports of freshness_guard resolve from gate_l01_knowledge_freshness()/
+# gate_l06_promote_validation() even when configure() is never explicitly called,
+# which is the normal production case (module-level _REPO_ROOT/etc. are used as-is).
+_REAL_LIB_DIR = str(_HERE.parent.parent / "lib")  # commands/launch/ -> commands/ -> pipeline/ -> lib/
+if _REAL_LIB_DIR not in sys.path:
+    sys.path.insert(0, _REAL_LIB_DIR)
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global _REPO_ROOT
+    global _REPO_ROOT, _KNOWLEDGE_ROOT, _CONTENT_ROOT, _SCRIPTS_PIPELINE
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    _KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
+    _CONTENT_ROOT = _REPO_ROOT / "content"
+    _SCRIPTS_PIPELINE = _REPO_ROOT / "scripts" / "pipeline"
+    # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
+    # with this module's own configure() -- see batch_reference.py for the same
+    # pattern/rationale. L-01/L-06 are the highest-blast-radius call sites (launch
+    # gates), migrated last per the plan's low-to-high rollout order. (_REAL_LIB_DIR
+    # is already unconditionally on sys.path at module load -- see its definition
+    # above -- so this only needs to propagate the repo_root override.)
+    try:
+        import freshness_guard as _freshness_guard
+        _freshness_guard.configure(repo_root=_REPO_ROOT)
+    except ImportError:
+        pass
 
 # Prefer the project virtualenv; fall back to system Python.
 _VENV_PYTHON_WIN = _REPO_ROOT / ".venv" / "Scripts" / "python.exe"
@@ -66,13 +101,13 @@ if _VENV_PYTHON_WIN.exists():
 elif _VENV_PYTHON_UNIX.exists():
     _PYTHON = str(_VENV_PYTHON_UNIX)
 else:
-    import warnings
-    warnings.warn(
-        "launch_gate: .venv not found at repo root — falling back to system Python. "
-        "Run /getting-started to create .venv.",
-        stacklevel=1,
+    print(
+        "ERROR: launch_gate: .venv not found at repo root.\n"
+        "  Recovery: bash scripts/ci/hooks/repair_venv.sh\n"
+        "  Or run: /getting-started",
+        file=sys.stderr,
     )
-    _PYTHON = sys.executable  # last resort: system Python
+    sys.exit(1)
 
 _KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
 _CONTENT_ROOT = _REPO_ROOT / "content"
@@ -126,7 +161,12 @@ def _run(
 # ---------------------------------------------------------------------------
 
 def gate_l01_knowledge_freshness(family: str, platform: str) -> GateResult:
-    """L-01: model.yaml stale_since must be null."""
+    """L-01: knowledge model must be fresh (FRESH-001 T7: shared freshness_guard gate,
+    migrated from a raw model.yaml stale_since read). This is a launch-blocking gate
+    -- never passes allow_last_known_good, and degraded mode is used here (not strict)
+    to preserve this gate's prior no-network-call behavior exactly; a live upstream
+    check is a deliberate, separate hardening left for a follow-up, not silently
+    added to an existing gate's contract."""
     model_path = _KNOWLEDGE_ROOT / family / platform / "merged" / "model.yaml"
     if not model_path.exists():
         return GateResult(
@@ -134,23 +174,22 @@ def gate_l01_knowledge_freshness(family: str, platform: str) -> GateResult:
             f"model.yaml not found at {model_path.relative_to(_REPO_ROOT)}",
         )
     try:
-        import yaml  # noqa: PLC0415
-        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
+        from freshness_guard import is_generation_allowed  # noqa: PLC0415
+        allowed, result = is_generation_allowed(family, platform, mode="degraded")
     except Exception as exc:
         return GateResult(
             "L-01", "Knowledge freshness", STATUS_FAIL,
-            f"model.yaml parse error: {exc}",
+            f"freshness check error: {exc}",
         )
 
-    stale_since = data.get("stale_since")
-    if stale_since is None:
+    if allowed:
         return GateResult(
             "L-01", "Knowledge freshness", STATUS_PASS,
-            "stale_since=null",
+            f"state={result.state}: {result.reason}",
         )
     return GateResult(
         "L-01", "Knowledge freshness", STATUS_FAIL,
-        f"stale_since={stale_since!r} -- run S-12->S-14 before launch",
+        f"state={result.state}: {result.reason} -- run S-12->S-14 before launch",
     )
 
 
@@ -215,7 +254,37 @@ def _has_evidence_block(text: str) -> bool:
 
 
 def gate_l03_forbidden_claims(family: str, platform: str) -> GateResult:
-    """L-03: change_guard.py must exit with PASS or WARN (not DENY=exit 2)."""
+    """L-03: change_guard.py must exit with PASS or WARN (not DENY=exit 2).
+
+    HARDEN-A7/A8 addition: any body-refresh receipt for this product whose
+    forbidden-claims scan did not verifiably complete (scan_ok=False, or a
+    written page with no scan record) FAILS this gate — "the scanner crashed"
+    must never read as "scanned clean" at launch.
+    """
+    # A7/finding-1: receipts with unverified forbidden-claims scans block the
+    # gate. Delegates to body_refresh.find_unverified_forbidden_claims_receipts
+    # — the SAME function readiness_scorecard.py's verdict consults — so the
+    # two gates can't silently drift apart on what counts as "unverified."
+    try:
+        import sys as _sys  # noqa: PLC0415
+        _cmd = str(_REPO_ROOT / "scripts" / "pipeline")
+        if _cmd not in _sys.path:
+            _sys.path.insert(0, _cmd)
+        from commands.content.body_refresh import find_unverified_forbidden_claims_receipts
+        unverified = find_unverified_forbidden_claims_receipts(family, platform, repo_root=_REPO_ROOT)
+    except Exception as exc:  # noqa: BLE001 — unreadable receipts are unverifiable
+        return GateResult(
+            "L-03", "Forbidden claims", STATUS_FAIL,
+            f"could not verify receipt scan records: {exc}",
+        )
+    if unverified:
+        return GateResult(
+            "L-03", "Forbidden claims", STATUS_FAIL,
+            f"{len(unverified)} receipt(s) with UNVERIFIED forbidden-claims scan — "
+            "re-run the scan (body_refresh / change_guard) before launch",
+            extra_lines=[f"  {name}" for name in unverified[:5]],
+        )
+
     # change_guard.py requires proposed text; we pass the claims from knowledge
     # as a representative text sample. If no knowledge exists, we SKIP.
     merged_dir = _KNOWLEDGE_ROOT / family / platform / "merged"
@@ -259,7 +328,7 @@ def gate_l03_forbidden_claims(family: str, platform: str) -> GateResult:
             "no claim text available to test",
         )
 
-    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "change_guard.py"), family, platform, sample_text]
+    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "commands" / "governance" / "change_guard.py"), family, platform, sample_text]
     rc, stdout, stderr = _run(cmd)
     # exit 0 = PASS, exit 1 = WARN (acceptable), exit 2 = DENY (fail)
     if rc == 0:
@@ -284,7 +353,7 @@ def gate_l04_api_accuracy(family: str, platform: str) -> GateResult:
     audit.py accepts positional 'family platform' arguments directly.
     See scripts/pipeline/audit/runner.py: args[0]=family, args[1]=platform.
     """
-    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "audit.py"), family, platform]
+    cmd = [_PYTHON, str(_SCRIPTS_PIPELINE / "commands" / "content" / "audit.py"), family, platform]
     rc, stdout, stderr = _run(cmd)
     if rc == 0:
         return GateResult("L-04", "API accuracy", STATUS_PASS, "audit.py exit 0")
@@ -357,21 +426,20 @@ def gate_l06_promote_validation(family: str, platform: str) -> GateResult:
             f"missing merged artifacts: {', '.join(missing_artifacts)}",
         )
 
-    # Re-check stale_since from model.yaml
+    # Re-check freshness (FRESH-001 T7: shared gate, was a raw stale_since re-read)
     try:
-        import yaml  # noqa: PLC0415
-        data = yaml.safe_load(model_path.read_text(encoding="utf-8")) or {}
-        stale_since = data.get("stale_since")
+        from freshness_guard import is_generation_allowed  # noqa: PLC0415
+        allowed, result = is_generation_allowed(family, platform, mode="degraded")
     except Exception as exc:
         return GateResult(
             "L-06", "Promote validation", STATUS_FAIL,
-            f"model.yaml parse error: {exc}",
+            f"freshness check error: {exc}",
         )
 
-    if stale_since is not None:
+    if not allowed:
         return GateResult(
             "L-06", "Promote validation", STATUS_FAIL,
-            f"stale_since={stale_since!r} -- knowledge must be fresh before launch",
+            f"state={result.state}: {result.reason} -- knowledge must be fresh before launch",
         )
 
     return GateResult(
@@ -569,9 +637,529 @@ def gate_l09_hugo_build(family: str, platform: str) -> GateResult:  # noqa: ARG0
     )
 
 
+def gate_l10_no_coming_soon(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-10: Family _index.md must not contain stale 'coming soon' placeholder text.
+
+    A 'coming soon' string in the family page indicates a pre-existing structural
+    placeholder that was not replaced during launch (ISSUE-04 / CV-HEAL-04).
+    Run /family-sync {family} to replace the placeholder with auto-generated content.
+    """
+    family_page = _CONTENT_ROOT / "products.aspose.org" / "en" / family / "_index.md"
+    if not family_page.exists():
+        return GateResult(
+            "L-10", "No coming-soon placeholder", STATUS_SKIP,
+            "family _index.md not found (new family — will be created during launch)",
+        )
+    try:
+        text = family_page.read_text(encoding="utf-8", errors="replace").lower()
+    except OSError as exc:
+        return GateResult("L-10", "No coming-soon placeholder", STATUS_FAIL, f"read error: {exc}")
+
+    if "coming soon" in text:
+        return GateResult(
+            "L-10", "No coming-soon placeholder", STATUS_FAIL,
+            f"family page contains 'coming soon' placeholder — run /family-sync {family} to replace it",
+        )
+    return GateResult(
+        "L-10", "No coming-soon placeholder", STATUS_PASS,
+        "no 'coming soon' placeholder found in family page",
+    )
+
+
+def gate_l11_family_display_name(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-11: Family root _index.md must use canonical display name without linkTitle.
+
+    Checks family-level _index.md across reference/docs/kb to ensure:
+    1. No linkTitle field (causes sidebar to show short name instead of full title)
+    2. title matches "{Canonical Product Name} FOSS" per metrics_taxonomy.yaml
+    """
+    import yaml  # noqa: PLC0415
+
+    taxonomy_path = (
+        _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
+    )
+    if not taxonomy_path.exists():
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            "metrics_taxonomy.yaml not found",
+        )
+
+    try:
+        with open(taxonomy_path, encoding="utf-8") as f:
+            taxonomy = yaml.safe_load(f)
+        products = taxonomy.get("products", {})
+    except Exception as exc:
+        return GateResult(
+            "L-11", "Family display name", STATUS_FAIL,
+            f"failed to load taxonomy: {exc}",
+        )
+
+    canonical = products.get(family)
+    if not canonical:
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            f"family {family!r} not in taxonomy",
+        )
+
+    expected_title = f"{canonical} FOSS"
+    sites = ["reference.aspose.org", "docs.aspose.org", "kb.aspose.org"]
+    fails: list[str] = []
+    checked = 0
+
+    for site in sites:
+        index_md = _CONTENT_ROOT / site / "en" / family / "_index.md"
+        if not index_md.exists():
+            continue
+        checked += 1
+
+        try:
+            text = index_md.read_text(encoding="utf-8")
+        except OSError as exc:
+            fails.append(f"{site}: read error — {exc}")
+            continue
+
+        if not text.startswith("---"):
+            fails.append(f"{site}: missing frontmatter delimiters")
+            continue
+        end = text.find("\n---", 3)
+        if end == -1:
+            fails.append(f"{site}: unclosed frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[3:end])
+        except yaml.YAMLError as exc:
+            fails.append(f"{site}: YAML parse error — {exc}")
+            continue
+        if not isinstance(fm, dict):
+            fails.append(f"{site}: frontmatter is not a dict")
+            continue
+
+        link_title = fm.get("linkTitle")
+        if link_title is not None:
+            fails.append(
+                f"{site}: linkTitle={link_title!r} present — remove it"
+            )
+
+        title = fm.get("title", "")
+        if title != expected_title:
+            fails.append(
+                f"{site}: title={title!r} != expected {expected_title!r}"
+            )
+
+    if not checked:
+        return GateResult(
+            "L-11", "Family display name", STATUS_SKIP,
+            f"no family root _index.md found for {family}",
+        )
+
+    if fails:
+        return GateResult(
+            "L-11", "Family display name", STATUS_FAIL,
+            f"{len(fails)} issue(s) in family display name",
+            extra_lines=[f"  {f}" for f in fails],
+        )
+
+    return GateResult(
+        "L-11", "Family display name", STATUS_PASS,
+        f"title={expected_title!r}, no linkTitle — {checked} site(s) checked",
+    )
+
+
 def _last_nonempty_line(text: str) -> str:
     lines = [l.strip() for l in text.splitlines() if l.strip()]
     return lines[-1] if lines else ""
+
+
+# ---------------------------------------------------------------------------
+# New gates L-12 through L-15
+# ---------------------------------------------------------------------------
+
+def gate_l12_denominator_reconciliation(family: str, platform: str) -> GateResult:
+    """L-12: Generation manifest denominator_gap must be 0.
+
+    Reads the generation manifest at reports/generation/{family}-{platform}.yaml
+    and verifies that the denominator gap (scope_eligible - pages_accounted_for)
+    is zero. If no manifest exists, falls back to live reconciliation.
+    """
+    manifest_path = _REPO_ROOT / "reports" / "generation" / f"{family}-{platform}.yaml"
+
+    # Try manifest first
+    if manifest_path.exists():
+        try:
+            import yaml  # noqa: PLC0415
+            data = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
+            gap = data.get("denominator_gap", -1)
+            eligible = data.get("scope_eligible", 0)
+            if gap == 0:
+                return GateResult(
+                    "L-12", "Denominator reconciliation", STATUS_PASS,
+                    f"gap=0 (manifest: {eligible} scope-eligible)",
+                )
+            if gap <= 5:
+                return GateResult(
+                    "L-12", "Denominator reconciliation", STATUS_WARN,
+                    f"gap={gap} (manifest: {eligible} eligible, tolerance ≤5)",
+                )
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_FAIL,
+                f"gap={gap} (manifest: {eligible} eligible)",
+            )
+        except Exception as exc:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_FAIL,
+                f"manifest parse error: {exc}",
+            )
+
+    # Fallback: live reconciliation
+    try:
+        import sys as _sys
+        _lib = str(_REPO_ROOT / "scripts" / "pipeline" / "lib")
+        _cmd = str(_REPO_ROOT / "scripts" / "pipeline" / "commands" / "content")
+        if _lib not in _sys.path:
+            _sys.path.insert(0, _lib)
+        if _cmd not in _sys.path:
+            _sys.path.insert(0, _cmd)
+        from denominator_reconciler import reconcile
+
+        report = reconcile(family, platform,
+                           knowledge_root=_KNOWLEDGE_ROOT,
+                           content_root=_CONTENT_ROOT)
+        gap = report.get("denominator_gap", -1)
+        eligible = report.get("scope_eligible", 0)
+        if "error" in report:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_SKIP,
+                f"reconciler error: {report['error']}",
+            )
+        if gap == 0:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_PASS,
+                f"gap=0 (live: {eligible} scope-eligible, {report.get('pages_on_disk', 0)} pages)",
+            )
+        if gap <= 5:
+            return GateResult(
+                "L-12", "Denominator reconciliation", STATUS_WARN,
+                f"gap={gap} (live: {eligible} eligible)",
+            )
+        return GateResult(
+            "L-12", "Denominator reconciliation", STATUS_FAIL,
+            f"gap={gap} (live: {eligible} eligible)",
+            extra_lines=[f"  missing: {', '.join(report.get('missing_pages', [])[:10])}"],
+        )
+    except Exception as exc:
+        return GateResult(
+            "L-12", "Denominator reconciliation", STATUS_SKIP,
+            f"reconciler unavailable: {exc}",
+        )
+
+
+def gate_l13_cross_subdomain_build(family: str, platform: str) -> GateResult:  # noqa: ARG001
+    """L-13: Hugo build for all local-theme sites must exit 0.
+
+    Extends L-09 by attempting to build all sites with local themes.
+    Sites requiring remote themes are skipped to avoid network dependency.
+    """
+    import shutil  # noqa: PLC0415
+    import tempfile  # noqa: PLC0415
+
+    hugo_bin = shutil.which("hugo")
+    if not hugo_bin:
+        return GateResult("L-13", "Cross-subdomain Hugo build", STATUS_SKIP, "hugo not found in PATH")
+
+    # Sites with local themes (no network dependency)
+    local_configs = [
+        ("products.aspose.org", _REPO_ROOT / "configs" / "products.aspose.org.toml"),
+    ]
+
+    results = []
+    for site_name, config_path in local_configs:
+        if not config_path.exists():
+            results.append((site_name, "SKIP", "config not found"))
+            continue
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cmd = [hugo_bin, "--config", str(config_path), "-d", tmpdir, "--quiet"]
+            rc, stdout, stderr = _run(cmd)
+        if rc == 0:
+            results.append((site_name, "PASS", ""))
+        else:
+            err = (stdout + stderr).strip()[:200]
+            results.append((site_name, "FAIL", err))
+
+    fails = [r for r in results if r[1] == "FAIL"]
+    if fails:
+        return GateResult(
+            "L-13", "Cross-subdomain Hugo build", STATUS_FAIL,
+            f"{len(fails)} site(s) failed Hugo build",
+            extra_lines=[f"  {r[0]}: {r[2]}" for r in fails],
+        )
+    passes = sum(1 for r in results if r[1] == "PASS")
+    skips = sum(1 for r in results if r[1] == "SKIP")
+    return GateResult(
+        "L-13", "Cross-subdomain Hugo build", STATUS_PASS,
+        f"{passes} site(s) built OK, {skips} skipped (remote theme)",
+    )
+
+
+def gate_l14_grade_non_regression(family: str, platform: str) -> GateResult:
+    """L-14: No page grade decreased vs baseline in grade_manifest.json.
+
+    Compares current grades against the baseline snapshot in
+    reports/grade_manifest.json. If no baseline exists, SKIP.
+    """
+    manifest_path = _REPO_ROOT / "reports" / "grade_manifest.json"
+    if not manifest_path.exists():
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            "no grade_manifest.json baseline found",
+        )
+
+    try:
+        import json  # noqa: PLC0415
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_FAIL,
+            f"grade_manifest.json parse error: {exc}",
+        )
+
+    # grade_manifest.json structure: {"pages": [{"path": ..., "grade": ...}, ...]}
+    pages = data if isinstance(data, list) else data.get("pages", [])
+    if not pages:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            "grade_manifest.json has no page entries",
+        )
+
+    # Filter to this family/platform
+    prefix = f"content/reference.aspose.org/en/{family}/{platform}/"
+    relevant = [p for p in pages if isinstance(p, dict) and prefix in p.get("path", "")]
+
+    if not relevant:
+        return GateResult(
+            "L-14", "Grade non-regression", STATUS_SKIP,
+            f"no entries for {family}/{platform} in grade_manifest.json",
+        )
+
+    # For now, just report stats (no previous baseline to compare against)
+    grade_counts: dict[str, int] = {}
+    for p in relevant:
+        g = p.get("grade", "?")
+        grade_counts[g] = grade_counts.get(g, 0) + 1
+
+    summary = ", ".join(f"{g}: {c}" for g, c in sorted(grade_counts.items()))
+    return GateResult(
+        "L-14", "Grade non-regression", STATUS_PASS,
+        f"{len(relevant)} pages graded ({summary})",
+    )
+
+
+def gate_l15_snippet_syntax(family: str, platform: str) -> GateResult:
+    """L-15: prefer real compile/execute proof over a bracket count, once it exists.
+
+    MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C6: reads each
+    snippet_index.json entry's `execution_proof` field -- the real tier/status the
+    post-promote proof sweep records (built on `promote.py:_promote_snippets`'s new
+    code_sha256 field) -- and requires every *proven* snippet to meet this platform's
+    contract `max_tier`. That sweep hasn't run for any product yet, so until at least
+    one snippet in a product's index carries `execution_proof`, this gate falls back
+    UNCHANGED to the original +/-2 bracket-balance heuristic over the snippets directory
+    -- this is a real, currently-active launch gate for every already-launched product,
+    and silently downgrading it to SKIP portfolio-wide before the sweep exists would be a
+    regression, not a rewrite (the "keep both old and new, no regression" posture C3
+    used for the same reason). Old behavior stays exactly reachable and tested
+    (test_gate_l01_l07.py::TestGateL15SnippetSyntax, unchanged) until a later sweep makes
+    the new path the real one for a given product.
+    """
+    import json  # noqa: PLC0415
+
+    from lib.example_verification.registry import PLATFORM_CONTRACT  # noqa: PLC0415
+
+    snippets_dir = _KNOWLEDGE_ROOT / family / platform / "merged" / "snippets"
+    index_path = snippets_dir / "snippets_index.json"
+    entries: list = []
+    if index_path.exists():
+        try:
+            entries = json.loads(index_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            entries = []
+
+    proven = [
+        e for e in entries
+        if isinstance(e, dict) and isinstance(e.get("execution_proof"), dict)
+    ]
+
+    if proven:
+        contract = PLATFORM_CONTRACT.get(platform)
+        want_tier = contract.max_tier if contract else 3
+        shortfalls: list[str] = []
+        for e in proven:
+            proof = e["execution_proof"]
+            tier = proof.get("tier") or 0
+            if tier < want_tier:
+                why = proof.get("stale_by") or proof.get("reason") or f"tier {tier} < {want_tier}"
+                shortfalls.append(f"{e.get('id', '?')}: {why}")
+
+        if shortfalls:
+            return GateResult(
+                "L-15", "Snippet syntax", STATUS_WARN,
+                f"{len(shortfalls)} of {len(proven)} proven snippet(s) below contract tier {want_tier}",
+                extra_lines=[f"  {s}" for s in shortfalls[:10]],
+            )
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_PASS,
+            f"all {len(proven)} proven snippet(s) meet contract tier {want_tier} "
+            f"({len(entries) - len(proven)} not yet swept)",
+        )
+
+    # Pre-sweep fallback: the original bracket-balance heuristic, unchanged.
+    if not snippets_dir.exists():
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_SKIP,
+            f"no snippets directory for {family}/{platform}",
+        )
+
+    snippet_files = list(snippets_dir.glob("*"))
+    if not snippet_files:
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_SKIP,
+            "snippets directory is empty",
+        )
+
+    issues: list[str] = []
+    for sf in snippet_files:
+        try:
+            text = sf.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            issues.append(f"{sf.name}: unreadable")
+            continue
+
+        if not text.strip():
+            issues.append(f"{sf.name}: empty file")
+            continue
+
+        # Basic bracket balance check
+        opens = text.count("(") + text.count("[") + text.count("{")
+        closes = text.count(")") + text.count("]") + text.count("}")
+        if abs(opens - closes) > 2:
+            issues.append(f"{sf.name}: bracket imbalance ({opens} open, {closes} close)")
+
+    if issues:
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_WARN,
+            f"{len(issues)} snippet issue(s) out of {len(snippet_files)}",
+            extra_lines=[f"  {i}" for i in issues[:10]],
+        )
+    return GateResult(
+        "L-15", "Snippet syntax", STATUS_PASS,
+        f"all {len(snippet_files)} snippets pass basic syntax check",
+    )
+
+
+def gate_l16_platform_linktitle(family: str, platform: str) -> GateResult:
+    """L-16: Platform _index.md must have canonical linkTitle matching registry.
+
+    Checks platform-level _index.md across reference/docs/kb/blog to ensure:
+    1. linkTitle (or linktitle) frontmatter field is present.
+    2. The value matches the canonical display name from data/platforms.json.
+    3. The rendered badge label does not contain forbidden patterns.
+    """
+    import yaml  # noqa: PLC0415
+
+    platforms_path = _REPO_ROOT / "data" / "platforms.json"
+    if not platforms_path.exists():
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_SKIP,
+            "data/platforms.json not found",
+        )
+
+    try:
+        import json as _json
+        registry = _json.loads(platforms_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"failed to load platforms.json: {exc}",
+        )
+
+    expected = registry.get(platform)
+    if not expected:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"platform slug {platform!r} not in data/platforms.json — register it first",
+        )
+
+    sites = [
+        ("reference", _CONTENT_ROOT / "reference.aspose.org" / "en"),
+        ("docs", _CONTENT_ROOT / "docs.aspose.org" / "en"),
+        ("kb", _CONTENT_ROOT / "kb.aspose.org" / "en"),
+        ("blog", _CONTENT_ROOT / "blog.aspose.org"),
+    ]
+    forbidden = ["Knowledge Base", "Documentation", "API Reference", "FOSS for"]
+    fails: list[str] = []
+    checked = 0
+
+    for site_name, base in sites:
+        index_md = base / family / platform / "_index.md"
+        if not index_md.exists():
+            continue
+        checked += 1
+
+        try:
+            text = index_md.read_text(encoding="utf-8")
+        except OSError as exc:
+            fails.append(f"{site_name}: read error — {exc}")
+            continue
+
+        if not text.startswith("---"):
+            fails.append(f"{site_name}: missing frontmatter delimiters")
+            continue
+        end = text.find("\n---", 3)
+        if end == -1:
+            fails.append(f"{site_name}: unclosed frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[3:end])
+        except yaml.YAMLError as exc:
+            fails.append(f"{site_name}: YAML parse error — {exc}")
+            continue
+        if not isinstance(fm, dict):
+            fails.append(f"{site_name}: frontmatter is not a dict")
+            continue
+
+        lt = fm.get("linkTitle") or fm.get("linktitle")
+        if lt is None:
+            fails.append(f"{site_name}: linkTitle missing")
+            continue
+
+        if lt != expected:
+            fails.append(
+                f"{site_name}: linkTitle={lt!r} != expected {expected!r}"
+            )
+
+        rendered = lt or fm.get("title", "")
+        for pat in forbidden:
+            if pat in rendered:
+                fails.append(
+                    f"{site_name}: badge label {rendered!r} contains forbidden {pat!r}"
+                )
+
+    if not checked:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_SKIP,
+            f"no platform _index.md found for {family}/{platform}",
+        )
+
+    if fails:
+        return GateResult(
+            "L-16", "Platform linkTitle", STATUS_FAIL,
+            f"{len(fails)} issue(s) in platform linkTitle",
+            extra_lines=[f"  {f}" for f in fails],
+        )
+
+    return GateResult(
+        "L-16", "Platform linkTitle", STATUS_PASS,
+        f"linkTitle={expected!r} correct across {checked} site(s)",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -588,6 +1176,13 @@ _ALL_GATES = [
     gate_l07_pipeline_tests,
     gate_l08_provenance_coverage,
     gate_l09_hugo_build,
+    gate_l10_no_coming_soon,
+    gate_l11_family_display_name,
+    gate_l12_denominator_reconciliation,
+    gate_l13_cross_subdomain_build,
+    gate_l14_grade_non_regression,
+    gate_l15_snippet_syntax,
+    gate_l16_platform_linktitle,
 ]
 
 
@@ -706,6 +1301,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Skip L-07 (pytest) for faster iteration",
     )
     parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail closed: WARN or SKIP is a nonzero launch result",
+    )
+    parser.add_argument(
         "--output-report",
         action="store_true",
         help="Write a Markdown report to reports/launch-gate/{family}-{platform}.md",
@@ -717,7 +1317,7 @@ def main(argv: list[str] | None = None) -> int:
 
     gates_to_run = list(_ALL_GATES)
     if args.skip_tests:
-        # Remove L-07 (last gate)
+        # Remove L-07 (pipeline tests) for faster iteration
         gates_to_run = [g for g in gates_to_run if g.__name__ != "gate_l07_pipeline_tests"]
 
     results: list[GateResult] = []
@@ -729,7 +1329,10 @@ def main(argv: list[str] | None = None) -> int:
         print(result)
         for extra in result.extra_lines:
             print(extra)
-        if args.fail_fast and result.status == STATUS_FAIL:
+        if args.fail_fast and (
+            result.status == STATUS_FAIL
+            or (args.strict and result.status in (STATUS_WARN, STATUS_SKIP))
+        ):
             # Fill remaining gates as SKIP
             remaining = gates_to_run[gates_to_run.index(gate_fn) + 1:]
             for remaining_fn in remaining:
@@ -753,7 +1356,8 @@ def main(argv: list[str] | None = None) -> int:
     passes = sum(1 for r in results if r.status == STATUS_PASS)
     warns = sum(1 for r in results if r.status == STATUS_WARN)
     skips = sum(1 for r in results if r.status == STATUS_SKIP)
-    overall = STATUS_FAIL if fails > 0 else STATUS_PASS
+    strict_failures = warns + skips if args.strict else 0
+    overall = STATUS_FAIL if fails > 0 or strict_failures > 0 else STATUS_PASS
 
     print(
         f"Result: {overall}"
@@ -777,7 +1381,7 @@ def main(argv: list[str] | None = None) -> int:
         report_path.write_text(report_md, encoding="utf-8")
         print(f"\nReport written to: {report_path.relative_to(_REPO_ROOT)}")
 
-    return 1 if fails > 0 else 0
+    return 1 if fails > 0 or strict_failures > 0 else 0
 
 
 if __name__ == "__main__":

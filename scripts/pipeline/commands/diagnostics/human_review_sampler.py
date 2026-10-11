@@ -1,9 +1,14 @@
-# Adapted from aspose.org
+#!/usr/bin/env python3
 """Generate review samples for human review gates H-01 and H-02.
 
 H-01: Random sample of 5 non-reference pages (docs, blog, kb, products).
 H-02: Stratified sample of 10 reference pages by class complexity.
 H-03/H-04/H-05: Generate empty sign-off templates (operator fills manually).
+
+Usage:
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate h01
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate h02
+    python scripts/pipeline/commands/diagnostics/human_review_sampler.py --family 3d --platform java --gate all
 
 Output: reports/human-review/{family}-{platform}-{gate}-sample.md
 """
@@ -12,24 +17,16 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import os
 import random
 import re
 import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-_DEFAULT_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
+_DEFAULT_ROOT = Path(__file__).resolve().parents[4]
 _ROOT = _DEFAULT_ROOT
 _CONTENT = _ROOT / "content"
 _REPORT_DIR = _ROOT / "reports" / "human-review"
-
-# Configurable subdomain names — override via environment variables
-_BLOG_SITE = os.environ.get("FOSS_BLOG_SITE", "blog")
-_DOCS_SITE = os.environ.get("FOSS_DOCS_SITE", "docs")
-_KB_SITE = os.environ.get("FOSS_KB_SITE", "kb")
-_PRODUCTS_SITE = os.environ.get("FOSS_PRODUCTS_SITE", "products")
-_REFERENCE_SITE = os.environ.get("FOSS_REFERENCE_SITE", "reference")
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -40,11 +37,12 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
     _REPORT_DIR = _ROOT / "reports" / "human-review"
 
 _SUBDOMAINS_NON_REF = [
-    _DOCS_SITE,
-    _BLOG_SITE,
-    _KB_SITE,
-    _PRODUCTS_SITE,
+    "docs.aspose.org",
+    "blog.aspose.org",
+    "kb.aspose.org",
+    "products.aspose.org",
 ]
+_REFERENCE = "reference.aspose.org"
 
 H01_SAMPLE_SIZE = 5
 H02_SAMPLE_SIZE = 10
@@ -54,51 +52,43 @@ def _collect_non_reference_pages(family: str, platform: str) -> list[Path]:
     """Collect all EN non-reference pages for the product."""
     pages: list[Path] = []
     for site in _SUBDOMAINS_NON_REF:
-        # Try multiple layout patterns (with and without domain suffix, with and without /en/)
-        for site_dir in _CONTENT.iterdir() if _CONTENT.exists() else []:
-            if not site_dir.is_dir():
-                continue
-            if site not in site_dir.name:
-                continue
-            if site == _BLOG_SITE:
-                search_root = site_dir / family / platform
-                if search_root.is_dir():
-                    pages.extend(search_root.rglob("index.md"))
-            elif site == _PRODUCTS_SITE:
-                search_root = site_dir / "en" / family
-                if search_root.is_dir():
-                    pages.extend(search_root.rglob("*.md"))
-                # Also try without /en/
-                search_root = site_dir / family
-                if search_root.is_dir():
-                    pages.extend(search_root.rglob("*.md"))
-            else:
-                search_root = site_dir / "en" / family / platform
-                if search_root.is_dir():
-                    pages.extend(search_root.rglob("*.md"))
-                search_root = site_dir / family / platform
-                if search_root.is_dir():
-                    pages.extend(search_root.rglob("*.md"))
+        site_root = _CONTENT / site
+        if site == "blog.aspose.org":
+            search_root = site_root / family / platform
+            if search_root.is_dir():
+                pages.extend(search_root.rglob("index.md"))
+        elif site == "products.aspose.org":
+            # products.aspose.org nests a separate _index.md per platform
+            # under en/{family}/{platform}/ (like docs/kb/reference), plus
+            # one shared en/{family}/_index.md family page -- unlike
+            # docs/kb/reference, family and platform pages are SIBLINGS in
+            # the same directory tree, not parent/child. A bare
+            # `en/{family}/**/*.md` rglob (the shape used before this fix)
+            # therefore also matched every SIBLING platform's own product
+            # page (e.g. sampling pdf/typescript pulled in pdf/net/_index.md)
+            # -- confirmed live 2026-08-29 generating pdf/typescript's H-01
+            # sample (MT040): candidate #5 was products.aspose.org/en/pdf/
+            # net/_index.md, not pdf/typescript's own page, for a
+            # family with 6 sibling platforms.
+            platform_root = site_root / "en" / family / platform
+            if platform_root.is_dir():
+                pages.extend(platform_root.rglob("*.md"))
+            family_index = site_root / "en" / family / "_index.md"
+            if family_index.is_file():
+                pages.append(family_index)
+        else:
+            search_root = site_root / "en" / family / platform
+            if search_root.is_dir():
+                pages.extend(search_root.rglob("*.md"))
     return pages
 
 
 def _collect_reference_pages(family: str, platform: str) -> list[Path]:
     """Collect all EN reference pages for the product."""
-    pages: list[Path] = []
-    if not _CONTENT.exists():
-        return pages
-    for site_dir in _CONTENT.iterdir():
-        if not site_dir.is_dir():
-            continue
-        if _REFERENCE_SITE not in site_dir.name:
-            continue
-        for search_root in [
-            site_dir / "en" / family / platform,
-            site_dir / family / platform,
-        ]:
-            if search_root.is_dir():
-                pages.extend(search_root.rglob("*.md"))
-    return pages
+    search_root = _CONTENT / _REFERENCE / "en" / family / platform
+    if not search_root.is_dir():
+        return []
+    return list(search_root.rglob("*.md"))
 
 
 def _page_complexity(page: Path) -> str:
@@ -129,6 +119,7 @@ def _stratified_sample(pages: list[Path], n: int) -> list[Path]:
         random.shuffle(pool)
         sample.extend(pool[:count])
 
+    # Fill remainder from any tier if under-sampled
     remaining = n - len(sample)
     if remaining > 0:
         all_remaining = [p for p in pages if p not in sample]
@@ -156,13 +147,41 @@ def _relative(page: Path) -> str:
         return str(page)
 
 
+def _compute_bindings_for(family: str, platform: str) -> "dict | None":
+    """Best-effort current bindings for a fresh sample file. Never raises --
+    a missing/unavailable knowledge model just means an unbound sample, not
+    a generation failure."""
+    try:
+        lib_dir = str(_ROOT / "scripts" / "pipeline" / "lib")
+        if lib_dir not in sys.path:
+            sys.path.insert(0, lib_dir)
+        import acceptance_bindings
+        # Propagate this module's own (possibly test-configured) _ROOT --
+        # acceptance_bindings.py has its own independent configure() seam;
+        # see readiness_scorecard.py's _import_acceptance_bindings() for the
+        # identical fix and the live bug it closes.
+        acceptance_bindings.configure(repo_root=_ROOT)
+        return acceptance_bindings.compute_bindings(family, platform)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _signoff_block(
     *,
     logic_version: str = "",
     pages_hash: str = "",
     evaluator_version: str = "",
+    bindings: "dict | None" = None,
 ) -> str:
-    """Generate the YAML sign-off block with integrity binding fields."""
+    """Generate the YAML sign-off block with integrity binding fields.
+
+    R-1 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-49): *bindings*
+    (see lib/acceptance_bindings.py) records the knowledge/evaluator state
+    THIS sample was generated against -- distinct from *pages_hash* (which
+    only binds to which pages were sampled). readiness_scorecard.py's
+    _read_hgate_signoffs() reads this block back and downgrades a PASS to
+    STALE when it no longer matches the product's current state.
+    """
     integrity = ""
     if logic_version:
         integrity += f"\nlogic_version: \"{logic_version}\""
@@ -170,6 +189,16 @@ def _signoff_block(
         integrity += f"\npages_hash: \"{pages_hash}\""
     if evaluator_version:
         integrity += f"\nevaluator_version: \"{evaluator_version}\""
+    bindings_block = ""
+    if bindings:
+        try:
+            lib_dir = str(_ROOT / "scripts" / "pipeline" / "lib")
+            if lib_dir not in sys.path:
+                sys.path.insert(0, lib_dir)
+            import acceptance_bindings
+            bindings_block = "\n" + acceptance_bindings.format_bindings_yaml(bindings)
+        except Exception:  # noqa: BLE001 -- bindings are additive, never block sample generation
+            bindings_block = ""
     return f"""
 ---
 
@@ -180,7 +209,7 @@ def _signoff_block(
 reviewer: ""
 date: ""
 result: ""  # PASS | FAIL | CONDITIONAL
-notes: ""{integrity}
+notes: ""{integrity}{bindings_block}
 ```
 
 **Instructions**: Fill in the sign-off block above after completing the review.
@@ -202,9 +231,11 @@ def generate_h01(family: str, platform: str) -> Path:
     out = _REPORT_DIR / f"{family}-{platform}-h01-sample.md"
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    # Deterministic seed: ISO week number for weekly reproducibility
     iso_week = date.today().isocalendar()[1]
     seed = hashlib.sha256(f"{family}/{platform}/w{iso_week}".encode()).hexdigest()[:8]
 
+    # Compute pages_hash for integrity binding
     page_paths_str = "\n".join(sorted(_relative(p) for p in sample))
     pages_hash = hashlib.sha256(page_paths_str.encode()).hexdigest()[:12]
 
@@ -237,13 +268,15 @@ def generate_h01(family: str, platform: str) -> Path:
     for i, p in enumerate(sample, 1):
         grade = _read_grade(p)
         rel = _relative(p)
+        # Identify subdomain
         parts = rel.split("/")
         site = parts[1] if len(parts) > 1 else "unknown"
+        # Pre-populate verdict from grade when available
         verdict = f"grade={grade}" if grade not in ("?", "ungraded") else ""
         lines.append(f"| {i} | `{rel}` | {grade} | {site} | {verdict} |")
 
     lines.append("")
-    lines.append(_signoff_block(pages_hash=pages_hash))
+    lines.append(_signoff_block(pages_hash=pages_hash, bindings=_compute_bindings_for(family, platform)))
 
     out.write_text("\n".join(lines), encoding="utf-8")
     return out
@@ -263,6 +296,7 @@ def generate_h02(family: str, platform: str) -> Path:
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
+    # Compute pages_hash for integrity binding
     page_paths_str = "\n".join(sorted(_relative(p) for p in sample))
     pages_hash = hashlib.sha256(page_paths_str.encode()).hexdigest()[:12]
 
@@ -300,7 +334,7 @@ def generate_h02(family: str, platform: str) -> Path:
         lines.append(f"| {i} | `{rel}` | {grade} | {complexity} | {verdict} |")
 
     lines.append("")
-    lines.append(_signoff_block(pages_hash=pages_hash))
+    lines.append(_signoff_block(pages_hash=pages_hash, bindings=_compute_bindings_for(family, platform)))
 
     out.write_text("\n".join(lines), encoding="utf-8")
     return out
@@ -317,7 +351,7 @@ def generate_h03_h04_h05(family: str, platform: str) -> list[Path]:
         "h04": ("H-04 Link Validation",
                 "Verify all cross-subdomain links resolve.\n\n"
                 "- [ ] Hugo build succeeds with no broken link warnings\n"
-                "- [ ] All cross-subdomain URLs use correct absolute https:// format\n"
+                "- [ ] All cross-subdomain URLs use absolute https:// format\n"
                 "- [ ] English URLs omit /en/ prefix"),
         "h05": ("H-05 License Accuracy",
                 "Verify open source license claims match the upstream repo LICENSE file.\n\n"
@@ -336,7 +370,7 @@ def generate_h03_h04_h05(family: str, platform: str) -> list[Path]:
             f"# {title}: {family}/{platform}\n\n"
             f"**Generated**: {now}\n\n"
             f"## Review Checklist\n\n{checklist}\n"
-            f"{_signoff_block()}"
+            f"{_signoff_block(bindings=_compute_bindings_for(family, platform))}"
         )
         out.write_text(content, encoding="utf-8")
         outputs.append(out)

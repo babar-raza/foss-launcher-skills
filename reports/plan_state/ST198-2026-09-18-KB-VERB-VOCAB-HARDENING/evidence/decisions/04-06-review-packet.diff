@@ -1,0 +1,428 @@
+diff --git a/scripts/pipeline/commands/launch/site_planner.py b/scripts/pipeline/commands/launch/site_planner.py
+index a9947a5ce8..18e2466d03 100644
+--- a/scripts/pipeline/commands/launch/site_planner.py
++++ b/scripts/pipeline/commands/launch/site_planner.py
+@@ -126,7 +126,8 @@ def slug_from_category(category: str) -> str:
+ # Helper: KB verb detection
+ # ---------------------------------------------------------------------------
+ 
+-_VERB_KEYWORDS: list[tuple[list[str], str]] = [
++# True verb synonyms: safe as a slug's leading verb (forward and reverse).
++_KB_VERB_SYNONYMS: list[tuple[list[str], str]] = [
+     (["load", "read", "open", "import"],                      "load"),
+     (["save", "write", "export"],                             "export"),
+     (["convert", "transform"],                                "convert"),
+@@ -137,6 +138,10 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["parse", "extract", "inspect", "analyze"],              "extract"),
+     (["traverse"],                                            "traverse"),
+     (["optimize", "compress"],                                "optimize"),
++]
++
++# Cluster-name hints (forward classification only) -- never treat as slug verbs.
++_KB_CATEGORY_VERB_HINTS: list[tuple[list[str], str]] = [
+     # Sub-package cluster names mapped to meaningful verbs
+     (["format"],                                              "convert"),   # format-support → convert
+     (["scene-manage", "scene-management"],                    "load"),      # scene-management → load
+@@ -181,6 +186,13 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["metadata-util"],                                       "extract"),   # metadata-utilities → extract
+ ]
+ 
++# ST-198: compat alias -- same name, order, content. detect_kb_verb() (forward
++# classification of a cluster NAME) scans both tables; the reverse parser
++# (split_kb_slug_verb_noun(), below) scans only _KB_VERB_SYNONYMS, because a
++# category-hint keyword (e.g. "msg", "mesh", "cfb", "comment") is never a
++# legitimate leading verb word of a slug.
++_VERB_KEYWORDS: list[tuple[list[str], str]] = _KB_VERB_SYNONYMS + _KB_CATEGORY_VERB_HINTS
++
+ # Clusters that should NOT generate KB howto pages (reference-only).
+ # Also excluded from docs developer-guide topic pages.
+ KB_SKIP_CLUSTERS = {
+@@ -217,6 +229,37 @@ def detect_kb_verb(category: str) -> str:
+     return "work-with"
+ 
+ 
++# ST-198: reverse vocabulary = every canonical verb ANY row can emit (exactly
++# what the old _known_verbs set held) + the synonym raw keywords (e.g. "read",
++# "save", "parse" -- ST-198's core fix) + "work-with". Deterministic order:
++# (-len, alphabetical) so compound verbs like "work-with" are matched before
++# their single-word prefixes, with a stable tie-break independent of hash seed.
++_KB_REVERSE_VERB_VOCAB: tuple[str, ...] = tuple(sorted(
++    {v for _, v in _VERB_KEYWORDS} | {kw for kws, _ in _KB_VERB_SYNONYMS for kw in kws} | {"work-with"},
++    key=lambda v: (-len(v), v)))
++
++
++def split_kb_slug_verb_noun(slug: str, platform: str) -> tuple[str, str]:
++    """Split a 'how-to-{verb}-{noun}[-{platform suffix}]' slug into (verb, noun).
++
++    Single implementation shared by _validate_kb_slugs() (below) and
++    content_eval.evaluators.topic_grounding._extract_topic_noun() -- see
++    _KB_REVERSE_VERB_VOCAB's docstring for why the vocabulary is built the
++    way it is. verb == "" when no known verb leads the slug (noun is then
++    the whole remainder, unchanged -- the pre-existing, tested fallback).
++    """
++    if not slug.startswith("how-to-"):
++        raise ValueError(f"not a how-to slug: {slug!r}")
++    inner = slug[len("how-to-"):]
++    suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
++    if inner.endswith(f"-{suffix}"):
++        inner = inner[: -(len(suffix) + 1)]
++    for kv in _KB_REVERSE_VERB_VOCAB:
++        if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
++            return kv, inner[len(kv) + 1:]
++    return "", inner
++
++
+ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
+     """Derive a concise KB howto noun from the cluster category name.
+ 
+@@ -1766,33 +1809,12 @@ def _validate_kb_slugs(
+     For source=discovered pages (existing deployed URLs), a warning is logged
+     but no exception is raised — live URLs must not be broken.
+     """
+-    # Build verb list (longest first) so compound verbs like "work-with" are
+-    # matched before their single-word prefixes ("work").
+-    _known_verbs: list[str] = sorted(
+-        {v for _, v in _VERB_KEYWORDS} | {"work-with"},
+-        key=len,
+-        reverse=True,
+-    )
+-
+-    plat_suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
+     for page in pages:
+         slug = page.get("slug", "")
+         source = page.get("source", "")
+         if not slug.startswith("how-to-"):
+             continue
+-        # Strip leading "how-to-" and trailing "-{plat_suffix}"
+-        inner = slug[7:]
+-        if inner.endswith(f"-{plat_suffix}"):
+-            inner = inner[: -(len(plat_suffix) + 1)]
+-        # Find verb by matching known verb prefixes (longest first to handle
+-        # compound verbs like "work-with" before single-word "work").
+-        verb = ""
+-        noun = inner
+-        for kv in _known_verbs:
+-            if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
+-                verb = kv
+-                noun = inner[len(kv) + 1:]
+-                break
++        verb, noun = split_kb_slug_verb_noun(slug, platform)
+         if not noun:
+             continue
+ 
+@@ -1814,16 +1836,21 @@ def _validate_kb_slugs(
+ 
+         # Check 2: verb-noun duplication — verb appears at the start OR end of
+         # the noun, including nominal forms (e.g. "extract" matches "extraction").
+-        verb_forms = [verb] + [verb + s for s in ("ion", "ing", "tion", "ation")]
+-        noun_parts = noun.split("-")
+-        if (any(noun.startswith(f) for f in verb_forms)
+-                or any(noun.endswith("-" + f) for f in verb_forms)
+-                or any(part in verb_forms for part in noun_parts)):
+-            _fail_or_warn(
+-                f"KB slug has verb-noun duplication: {slug!r}\n"
+-                f"  verb={verb!r} appears in noun={noun!r}"
+-            )
+-            continue
++        # ST-198 F-1: only meaningful when a verb was actually parsed -- an
++        # empty verb makes every verb_form the empty string, and
++        # noun.startswith("") is always True, so this used to fire a false
++        # "duplication" on every slug whose leading word matched no known verb.
++        if verb:
++            verb_forms = [verb] + [verb + s for s in ("ion", "ing", "tion", "ation")]
++            noun_parts = noun.split("-")
++            if (any(noun.startswith(f) for f in verb_forms)
++                    or any(noun.endswith("-" + f) for f in verb_forms)
++                    or any(part in verb_forms for part in noun_parts)):
++                _fail_or_warn(
++                    f"KB slug has verb-noun duplication: {slug!r}\n"
++                    f"  verb={verb!r} appears in noun={noun!r}"
++                )
++                continue
+ 
+         # Check 3: generic noun (primary word only)
+         primary = noun.split("-")[0]
+diff --git a/scripts/pipeline/content_eval/__init__.py b/scripts/pipeline/content_eval/__init__.py
+index cc1fd70745..6ff8b61935 100644
+--- a/scripts/pipeline/content_eval/__init__.py
++++ b/scripts/pipeline/content_eval/__init__.py
+@@ -90,5 +90,5 @@ EVALUATOR_VERSIONS: dict[str, str] = {
+     "generic_description_check": "1",  # TC-GDF-001: initial version
+     "duplicate_content": "1",  # RC-W1-005: initial version — whole-page duplicate + alias-collision detection
+     "example_execution": "1",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: initial version
+-    "topic_grounding": "1",  # CE-02 (2026-09-17 healing plan G-03): initial version
++    "topic_grounding": "2",  # CE-02 -> ST-198: shared slug verb parser (synonym-led slugs now parse)
+ }
+diff --git a/scripts/pipeline/content_eval/evaluators/topic_grounding.py b/scripts/pipeline/content_eval/evaluators/topic_grounding.py
+index 39de4d0eff..1046098f97 100644
+--- a/scripts/pipeline/content_eval/evaluators/topic_grounding.py
++++ b/scripts/pipeline/content_eval/evaluators/topic_grounding.py
+@@ -68,22 +68,24 @@ def configure(*, knowledge_root: "Path | str | None" = None) -> None:
+ # tested implementation lives in site_planner.py's _validate_kb_slugs())
+ # rather than re-deriving a heuristic (taskcard Hard Rule). That function is
+ # a batch validator (raises/logs) outside this taskcard's allowed paths, so
+-# its VERB LIST and PLATFORM-SUFFIX TABLE are imported and the small
+-# extraction loop is replicated here verbatim (same longest-prefix-match
+-# order as site_planner.py).
++# ST-198 delegates directly to its single shared implementation
++# (split_kb_slug_verb_noun()) instead of maintaining a second copy of the
++# verb vocabulary and extraction loop -- the prior verbatim-replica approach
++# is exactly what let the two copies drift out of sync with each other.
+ # ---------------------------------------------------------------------------
+ 
+ try:
+-    from commands.launch.site_planner import _VERB_KEYWORDS, KB_PLATFORM_SUFFIX
++    from commands.launch.site_planner import split_kb_slug_verb_noun
+ except ImportError:
+-    _VERB_KEYWORDS = []
+-    KB_PLATFORM_SUFFIX = {}
+-
+-_KNOWN_VERBS: list[str] = sorted(
+-    ({v for _, v in _VERB_KEYWORDS} | {"work-with"}) if _VERB_KEYWORDS else set(),
+-    key=len,
+-    reverse=True,
+-)
++    def split_kb_slug_verb_noun(slug: str, platform: str) -> tuple[str, str]:
++        # Degraded fallback matching this module's pre-ST-198 ImportError
++        # behavior: no vocabulary available, so no verb is ever recognised.
++        if not slug.startswith("how-to-"):
++            raise ValueError(f"not a how-to slug: {slug!r}")
++        inner = slug[len("how-to-"):]
++        if inner.endswith(f"-{platform}"):
++            inner = inner[: -(len(platform) + 1)]
++        return "", inner
+ 
+ # RC-W1-004 platform->language table. Deliberately a LOCAL, minimal copy --
+ # member_validity.py defines the identical table with the same rationale
+@@ -146,15 +148,7 @@ def _extract_topic_noun(slug: str, platform: str) -> "str | None":
+     does not invent a second heuristic for other shapes (Hard Rule)."""
+     if not slug.startswith("how-to-"):
+         return None
+-    inner = slug[len("how-to-"):]
+-    plat_suffix = KB_PLATFORM_SUFFIX.get(platform, platform)
+-    if inner.endswith(f"-{plat_suffix}"):
+-        inner = inner[: -(len(plat_suffix) + 1)]
+-    noun = inner
+-    for kv in _KNOWN_VERBS:
+-        if inner.startswith(kv + "-") and len(inner) > len(kv) + 1:
+-            noun = inner[len(kv) + 1:]
+-            break
++    _verb, noun = split_kb_slug_verb_noun(slug, platform)
+     return noun or None
+ 
+ 
+diff --git a/scripts/pipeline/tests/content_eval/test_topic_grounding.py b/scripts/pipeline/tests/content_eval/test_topic_grounding.py
+index ebf379d521..18e810c8f6 100644
+--- a/scripts/pipeline/tests/content_eval/test_topic_grounding.py
++++ b/scripts/pipeline/tests/content_eval/test_topic_grounding.py
+@@ -157,6 +157,19 @@ class TestExtractTopicNoun:
+         # the full inner string rather than raising or dropping a word.
+         assert tg._extract_topic_noun("how-to-frobnicate-widget-python", "python") == "frobnicate-widget"
+ 
++    def test_strips_raw_verb_synonym(self):
++        # ST-198: a slug led by a raw verb synonym (not the canonical form
++        # detect_kb_verb() would have produced) must still be recognised.
++        assert tg._extract_topic_noun("how-to-read-msg-files-cpp", "cpp") == "msg-files"
++        assert tg._extract_topic_noun("how-to-save-3d-scenes-python", "python") == "3d-scenes"
++
++    def test_evaluator_uses_shared_parser_with_no_local_vocabulary(self):
++        # ST-198: the duplicated vocabulary/loop is gone -- this module
++        # delegates to site_planner's single implementation.
++        assert not hasattr(tg, "_KNOWN_VERBS")
++        import commands.launch.site_planner as sp
++        assert tg.split_kb_slug_verb_noun is sp.split_kb_slug_verb_noun
++
+ 
+ class TestNounSegments:
+     def test_connector_splits_into_independent_segments(self):
+diff --git a/scripts/pipeline/tests/test_site_planner.py b/scripts/pipeline/tests/test_site_planner.py
+index 17ff1bb932..06e564e33d 100644
+--- a/scripts/pipeline/tests/test_site_planner.py
++++ b/scripts/pipeline/tests/test_site_planner.py
+@@ -6,6 +6,7 @@ Synthetic fixtures are built in-memory or in tmp_path.
+ from __future__ import annotations
+ 
+ import json
++import logging
+ from pathlib import Path
+ 
+ import pytest
+@@ -1147,6 +1148,178 @@ class TestKbSlugValidator:
+         # "unknown-family" has no entry in _FAMILY_PRODUCT_KEYWORDS → C4 skipped
+         sp._validate_kb_slugs(pages, "unknown-family", "net")  # no exception
+ 
++    # ST-198 F-1: Check 2 must not fire when no verb was parsed --------------
++
++    def test_synonym_led_discovered_slug_logs_no_duplication_warning(self, caplog):
++        pages = [self._make_page("how-to-read-msg-files-cpp", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "email", "cpp")
++        assert not any("verb-noun duplication" in r.message for r in caplog.records)
++
++    def test_unknown_verb_discovered_slug_logs_no_duplication_warning(self, caplog):
++        pages = [self._make_page("how-to-get-started-email-cpp", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "email", "cpp")
++        assert not any("verb-noun duplication" in r.message for r in caplog.records)
++
++    def test_unknown_verb_derived_slug_does_not_raise_duplication(self):
++        pages = [self._make_page("how-to-get-started-email-cpp", source="derived")]
++        sp._validate_kb_slugs(pages, "email", "cpp")  # no exception
++
++    def test_real_duplication_still_raises_for_derived_synonym_verb(self):
++        pages = [self._make_page("how-to-read-reading-documents-python", source="derived")]
++        with pytest.raises(ValueError, match=r"verb='read'"):
++            sp._validate_kb_slugs(pages, "pdf", "python")
++
++    def test_real_duplication_still_warns_for_discovered_canonical_verb(self, caplog):
++        pages = [self._make_page("how-to-convert-converters-python", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "words", "python")
++        assert any(
++            "verb-noun duplication" in r.message and "verb='convert'" in r.message
++            for r in caplog.records
++        )
++
++
++class TestKbVerbVocabulary:
++    """ST-198: split_kb_slug_verb_noun() and the _VERB_KEYWORDS table partition.
++
++    Golden pin (this class's first test) freezes detect_kb_verb()'s current
++    output for every raw keyword in _VERB_KEYWORDS plus several compound
++    category names -- the table partition (synonym rows vs category-hint
++    rows) must not change a single forward-path result."""
++
++    def test_detect_kb_verb_forward_path_golden(self):
++        golden = {
++            "load": "load", "read": "load", "open": "load", "import": "load",
++            "save": "export", "write": "export", "export": "export",
++            "convert": "convert", "transform": "convert", "render": "render",
++            "create": "create", "generate": "create", "construct": "create",
++            "build": "build", "add": "add", "insert": "add", "append": "add",
++            "parse": "extract", "extract": "extract", "inspect": "extract",
++            "analyze": "extract", "traverse": "traverse", "optimize": "optimize",
++            "compress": "optimize", "format": "convert",
++            "scene-manage": "load", "scene-management": "load",
++            "scene-entit": "build", "entities": "build", "mesh": "build",
++            "animation": "add", "material": "add", "shading": "add",
++            "message-pars": "extract", "msg": "extract",
++            "compound-file": "load", "cfb": "load",
++            "presentation-content": "create", "pptx": "create",
++            "visual-effect": "add", "effects": "add", "export-render": "export",
++            "package-manage": "build", "opc": "build",
++            "drawing-shape": "add", "drawing": "add", "note-document": "load",
++            "save-export": "export", "saving": "export",
++            "onestore-format": "convert", "onestore": "load",
++            "spreadsheet-oper": "load", "cells": "create",
++            "xml-process": "extract", "app-properties": "extract",
++            "comment": "add", "core-properties": "extract",
++            "presentation-struct": "create", "presentation-manage": "create",
++            "spreadsheet-manage": "load", "email-process": "extract",
++            "document-manage": "load", "core-manage": "work-with",
++            "theme-styl": "add", "annotations-form": "add",
++            "text-extract": "extract", "content-oper": "work-with",
++            "facades-api": "work-with", "logical-struct": "create",
++            "page-generat": "create", "graphics-draw": "add",
++            "devices-render": "render", "conversion-optim": "convert",
++            "security-sign": "add", "navigation-action": "add",
++            "metadata-util": "extract",
++            "export-rendering": "export", "text-extraction": "extract",
++            "message-parsing": "extract", "document-loading": "load",
++            "zzz-unknown": "work-with",
++        }
++        for category, expected in golden.items():
++            assert sp.detect_kb_verb(category) == expected, (
++                f"detect_kb_verb({category!r}) changed: expected {expected!r}, "
++                f"got {sp.detect_kb_verb(category)!r}"
++            )
++
++    def test_synonym_verbs_are_stripped(self):
++        for kws, canon in sp._KB_VERB_SYNONYMS:
++            for kw in kws:
++                verb, noun = sp.split_kb_slug_verb_noun(
++                    f"how-to-{kw}-widgets-python", "python"
++                )
++                assert (verb, noun) == (kw, "widgets"), (
++                    f"raw synonym {kw!r} (canonical {canon!r}) was not stripped: "
++                    f"got verb={verb!r} noun={noun!r}"
++                )
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-read-msg-files-cpp", "cpp"
++        ) == ("read", "msg-files")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-save-3d-scenes-python", "python"
++        ) == ("save", "3d-scenes")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-parse-tables-onenote-python", "python"
++        ) == ("parse", "tables-onenote")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-inspect-tags-onenote-python", "python"
++        ) == ("inspect", "tags-onenote")
++
++    def test_canonical_and_compound_verbs_still_stripped(self):
++        for kws, canon in sp._KB_VERB_SYNONYMS:
++            verb, noun = sp.split_kb_slug_verb_noun(
++                f"how-to-{canon}-widgets-python", "python"
++            )
++            assert (verb, noun) == (canon, "widgets"), (
++                f"canonical verb {canon!r} was not stripped: got {(verb, noun)!r}"
++            )
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-work-with-attachments-cpp", "cpp"
++        ) == ("work-with", "attachments")
++
++    def test_unknown_verb_returns_empty_verb_and_whole_remainder(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-get-started-email-cpp", "cpp"
++        ) == ("", "get-started-email")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-frobnicate-widget-python", "python"
++        ) == ("", "frobnicate-widget")
++
++    def test_category_hint_keywords_are_never_verbs(self):
++        """Negative control: rows 11+ (category/cluster-name hints, e.g. msg,
++        mesh, cfb, comment, format) must NEVER be recognised as a strippable
++        leading verb -- only true verb synonyms (rows 1-10) may be."""
++        hint_raw_keywords = {
++            kw for kws, _ in sp._KB_CATEGORY_VERB_HINTS for kw in kws
++        }
++        synonym_raw_keywords = {
++            kw for kws, _ in sp._KB_VERB_SYNONYMS for kw in kws
++        }
++        assert hint_raw_keywords.isdisjoint(set(sp._KB_REVERSE_VERB_VOCAB) - synonym_raw_keywords - {
++            v for _, v in sp._VERB_KEYWORDS
++        } - {"work-with"})
++
++    def test_format_hint_is_not_stripped(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-format-support-python", "python"
++        ) == ("", "format-support")
++
++    def test_reverse_vocab_is_deterministic_longest_first(self):
++        vocab = list(sp._KB_REVERSE_VERB_VOCAB)
++        assert vocab == sorted(vocab, key=lambda v: (-len(v), v))
++        assert len(vocab) == len(set(vocab))
++        assert "work-with" in vocab
++        assert (
++            {v for _, v in sp._VERB_KEYWORDS} | {"work-with"}
++        ) <= set(vocab)
++
++    def test_verb_keywords_alias_is_exact_concatenation(self):
++        assert sp._VERB_KEYWORDS == sp._KB_VERB_SYNONYMS + sp._KB_CATEGORY_VERB_HINTS
++
++    def test_platform_suffix_handling(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-save-presentations-dotnet", "net"
++        ) == ("save", "presentations")
++        # F-3 (deferred): legacy "-net" suffixed slugs keep -net in the noun.
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-read-msg-files-net", "net"
++        ) == ("read", "msg-files-net")
++
++    def test_non_howto_slug_raises_value_error(self):
++        with pytest.raises(ValueError):
++            sp.split_kb_slug_verb_noun("faq", "python")
++
+ 
+ # ---------------------------------------------------------------------------
+ # SQ-10: _match_existing_to_cluster concat-synonym fix

@@ -1,0 +1,11 @@
+=== fetch_aspose_com_targets.py ===
+Repo root: reports\plan_state\MT022-2026-08-06-ASPOSE-COM-TARGETS-HARDENING\pilot\pilot_repo_root
+Discovered 0 families from content directory
+[P0] Synthesizing URLs for docs.aspose.com ...
+  -> included=0 excluded=0
+[P0] Synthesizing URLs for products.aspose.com ...
+  -> included=0 excluded=0
+[P1] Fetching https://reference.aspose.com/sitemap.xml ...
+  WARN: Could not fetch /email/en/sitemap.xml: Invalid URL '/email/en/sitemap.xml': No scheme supplied. Perhaps you meant https:///email/en/sitemap.xml?
+  WARN: Could not fetch /page/en/sitemap.xml: Invalid URL '/page/en/sitemap.xml': No scheme supplied. Perhaps you meant https:///page/en/sitemap.xml?
+  \u2192 72305 raw URLs fetched

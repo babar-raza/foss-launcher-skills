@@ -1,0 +1,542 @@
+{
+  "provenance": {
+    "base_sha": "7339ec86529ebf05ddf9abfafbd42123e360bfcb",
+    "base_sha_short": "7339ec86529e",
+    "dirty_content_files": 191,
+    "generated_at": "2026-09-10T19:25:17Z",
+    "tree_dirty_in_content": true
+  },
+  "report": {
+    "per_product": [
+      {
+        "family": "3d",
+        "files_checked": 1013,
+        "files_with_findings": 209,
+        "findings": 280,
+        "platform": "net",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.3D'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\net\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'Install-Package Aspose.3D'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\net\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.3D'",
+            "path": "content\\docs.aspose.org\\bg\\3d\\net\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "3d",
+        "files_checked": 1198,
+        "files_with_findings": 392,
+        "findings": 465,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-3d-foss'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-3d-foss'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\python\\developer-guide\\features.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-3d-foss'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\python\\getting-started\\installation.md"
+          }
+        ]
+      },
+      {
+        "family": "3d",
+        "files_checked": 1231,
+        "files_with_findings": 402,
+        "findings": 510,
+        "platform": "typescript",
+        "published": false,
+        "registry_type": "npm",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/3d'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\typescript\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/3d'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\typescript\\developer-guide\\format-support.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/3d'",
+            "path": "content\\docs.aspose.org\\ar\\3d\\typescript\\getting-started\\installation.md"
+          }
+        ]
+      },
+      {
+        "family": "barcode",
+        "files_checked": 336,
+        "files_with_findings": 125,
+        "findings": 201,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-barcode-foss'",
+            "path": "content\\docs.aspose.org\\ar\\barcode\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-barcode-foss'",
+            "path": "content\\docs.aspose.org\\bg\\barcode\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-barcode-foss'",
+            "path": "content\\docs.aspose.org\\cs\\barcode\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "cells",
+        "files_checked": 412,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "cpp",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": []
+      },
+      {
+        "family": "cells",
+        "files_checked": 152,
+        "files_with_findings": 22,
+        "findings": 22,
+        "platform": "go",
+        "published": true,
+        "registry_type": "go_modules",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26'",
+            "path": "content\\docs.aspose.org\\en\\cells\\go\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26'",
+            "path": "content\\blog.aspose.org\\cells\\go\\introducing-cells-foss-go\\index.ar.md"
+          },
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26'",
+            "path": "content\\blog.aspose.org\\cells\\go\\introducing-cells-foss-go\\index.de.md"
+          }
+        ]
+      },
+      {
+        "family": "cells",
+        "files_checked": 899,
+        "files_with_findings": 369,
+        "findings": 421,
+        "platform": "net",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.Cells_FOSS'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\net\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'Install-Package Aspose.Cells.FOSS'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\net\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.Cells_FOSS'",
+            "path": "content\\docs.aspose.org\\bg\\cells\\net\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "cells",
+        "files_checked": 1396,
+        "files_with_findings": 427,
+        "findings": 535,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-cells-foss'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install markitdown-aspose-cells-plugin'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\python\\developer-guide\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-cells-foss'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\python\\developer-guide\\export-formats.md"
+          }
+        ]
+      },
+      {
+        "family": "cells",
+        "files_checked": 401,
+        "files_with_findings": 79,
+        "findings": 151,
+        "platform": "typescript",
+        "published": false,
+        "registry_type": "npm",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/cells@1.0.0'",
+            "path": "content\\docs.aspose.org\\ar\\cells\\typescript\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/cells@1.0.0'",
+            "path": "content\\docs.aspose.org\\bg\\cells\\typescript\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'npm install @aspose/cells@1.0.0'",
+            "path": "content\\docs.aspose.org\\ca\\cells\\typescript\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "email",
+        "files_checked": 717,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "cpp",
+        "published": false,
+        "registry_type": "nuget",
+        "sample_findings": []
+      },
+      {
+        "family": "email",
+        "files_checked": 896,
+        "files_with_findings": 74,
+        "findings": 111,
+        "platform": "net",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'Install-Package Aspose.Email.Foss'",
+            "path": "content\\docs.aspose.org\\ar\\email\\net\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.Email.Foss'",
+            "path": "content\\docs.aspose.org\\ar\\email\\net\\getting-started\\quickstart.md"
+          },
+          {
+            "message": "Raw literal install command found: 'Install-Package Aspose.Email.Foss'",
+            "path": "content\\docs.aspose.org\\bg\\email\\net\\getting-started\\installation.md"
+          }
+        ]
+      },
+      {
+        "family": "email",
+        "files_checked": 761,
+        "files_with_findings": 285,
+        "findings": 375,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-email-foss'",
+            "path": "content\\docs.aspose.org\\ar\\email\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-email-foss'",
+            "path": "content\\docs.aspose.org\\ar\\email\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-email-foss'",
+            "path": "content\\docs.aspose.org\\bg\\email\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "font",
+        "files_checked": 779,
+        "files_with_findings": 148,
+        "findings": 148,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-font>=1.0.0'",
+            "path": "content\\docs.aspose.org\\ar\\font\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-font>=1.0.0'",
+            "path": "content\\docs.aspose.org\\bg\\font\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-font>=1.0.0'",
+            "path": "content\\docs.aspose.org\\ca\\font\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "html",
+        "files_checked": 88,
+        "files_with_findings": 2,
+        "findings": 2,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-html-foss'",
+            "path": "content\\docs.aspose.org\\en\\html\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-html-foss'",
+            "path": "content\\kb.aspose.org\\en\\html\\python\\how-to-work-with-dom-python.md"
+          }
+        ]
+      },
+      {
+        "family": "note",
+        "files_checked": 1241,
+        "files_with_findings": 190,
+        "findings": 406,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-note'",
+            "path": "content\\docs.aspose.org\\ar\\note\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install \"aspose-note[pdf]>=26.3.2\"'",
+            "path": "content\\docs.aspose.org\\ar\\note\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-note'",
+            "path": "content\\docs.aspose.org\\bg\\note\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "page",
+        "files_checked": 629,
+        "files_with_findings": 133,
+        "findings": 133,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-page-foss>=0.1.0'",
+            "path": "content\\docs.aspose.org\\ar\\page\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-page-foss>=0.1.0'",
+            "path": "content\\docs.aspose.org\\ar\\page\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-page-foss>=0.1.0'",
+            "path": "content\\docs.aspose.org\\bg\\page\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "pdf",
+        "files_checked": 120,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "cpp",
+        "published": false,
+        "registry_type": "nuget",
+        "sample_findings": []
+      },
+      {
+        "family": "pdf",
+        "files_checked": 426,
+        "files_with_findings": 109,
+        "findings": 139,
+        "platform": "go",
+        "published": true,
+        "registry_type": "go_modules",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go'",
+            "path": "content\\docs.aspose.org\\ar\\pdf\\go\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go'",
+            "path": "content\\docs.aspose.org\\bg\\pdf\\go\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'go get github.com/aspose-pdf-foss/aspose-pdf-foss-for-go'",
+            "path": "content\\docs.aspose.org\\ca\\pdf\\go\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "pdf",
+        "files_checked": 1408,
+        "files_with_findings": 378,
+        "findings": 443,
+        "platform": "net",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: '<PackageReference Include=\"Aspose.Pdf.Foss\"'",
+            "path": "content\\kb.aspose.org\\ar\\pdf\\net\\faq.md"
+          },
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.Pdf.Foss'",
+            "path": "content\\kb.aspose.org\\ar\\pdf\\net\\how-to-add-pdf-annotations-dotnet.md"
+          },
+          {
+            "message": "Raw literal install command found: 'dotnet add package Aspose.Pdf.Foss'",
+            "path": "content\\kb.aspose.org\\ar\\pdf\\net\\how-to-add-pdf-graphics-dotnet.md"
+          }
+        ]
+      },
+      {
+        "family": "pdf",
+        "files_checked": 80,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": []
+      },
+      {
+        "family": "pdf",
+        "files_checked": 98,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "typescript",
+        "published": false,
+        "registry_type": "npm",
+        "sample_findings": []
+      },
+      {
+        "family": "slides",
+        "files_checked": 1279,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "cpp",
+        "published": false,
+        "registry_type": "nuget",
+        "sample_findings": []
+      },
+      {
+        "family": "slides",
+        "files_checked": 1584,
+        "files_with_findings": 73,
+        "findings": 177,
+        "platform": "net",
+        "published": false,
+        "registry_type": "nuget",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'Install-Package Aspose.Slides.Foss'",
+            "path": "content\\docs.aspose.org\\ar\\slides\\net\\getting-started\\installation.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'Install-Package Aspose.Slides.Foss'",
+            "path": "content\\docs.aspose.org\\bg\\slides\\net\\getting-started\\installation.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'Install-Package Aspose.Slides.Foss'",
+            "path": "content\\docs.aspose.org\\ca\\slides\\net\\getting-started\\installation.md"
+          }
+        ]
+      },
+      {
+        "family": "slides",
+        "files_checked": 1482,
+        "files_with_findings": 278,
+        "findings": 387,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-slides-foss'",
+            "path": "content\\docs.aspose.org\\ar\\slides\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-slides-foss'",
+            "path": "content\\docs.aspose.org\\ar\\slides\\python\\getting-started\\installation.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-slides-foss'",
+            "path": "content\\docs.aspose.org\\bg\\slides\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "tex",
+        "files_checked": 411,
+        "files_with_findings": 48,
+        "findings": 83,
+        "platform": "python",
+        "published": false,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-tex>=26.5.'",
+            "path": "content\\docs.aspose.org\\ar\\tex\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-tex>=26.5.'",
+            "path": "content\\docs.aspose.org\\el\\tex\\python\\_index.md"
+          },
+          {
+            "message": "Specific install command found for an UNPUBLISHED package: 'pip install aspose-tex>=26.5.'",
+            "path": "content\\docs.aspose.org\\fa\\tex\\python\\_index.md"
+          }
+        ]
+      },
+      {
+        "family": "words",
+        "files_checked": 143,
+        "files_with_findings": 0,
+        "findings": 0,
+        "platform": "net",
+        "published": true,
+        "registry_type": "nuget",
+        "sample_findings": []
+      },
+      {
+        "family": "words",
+        "files_checked": 977,
+        "files_with_findings": 144,
+        "findings": 248,
+        "platform": "python",
+        "published": true,
+        "registry_type": "pypi",
+        "sample_findings": [
+          {
+            "message": "Raw literal install command found: 'pip install aspose-words-foss>=26.4.0'",
+            "path": "content\\docs.aspose.org\\ar\\words\\python\\_index.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-words-foss>=26.4.0'",
+            "path": "content\\docs.aspose.org\\ar\\words\\python\\developer-guide\\core-management.md"
+          },
+          {
+            "message": "Raw literal install command found: 'pip install aspose-words-foss>=26.4.0'",
+            "path": "content\\docs.aspose.org\\bg\\words\\python\\_index.md"
+          }
+        ]
+      }
+    ],
+    "total_files_checked": 20157,
+    "total_files_with_findings": 3887,
+    "total_findings": 5237
+  }
+}

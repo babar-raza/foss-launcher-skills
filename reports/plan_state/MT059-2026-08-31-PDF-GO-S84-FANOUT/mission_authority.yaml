@@ -1,0 +1,74 @@
+mission_authority:
+  mission_id: MT059-2026-08-31-PDF-GO-S84-FANOUT
+  mission_summary: 'MT033-FANOUT-001 slice: pdf/go is 1 of 7 remaining products (of
+    9 total) carrying real, uncommitted content-evidence-refresh drift from the FRESH-001
+    fleet knowledge regeneration, per the S-84 remediation chain already proven twice
+    (3d/net via MT034, 3d/typescript via MT040 Phase I). Confirmed live at mission
+    open: knowledge/pdf/go/merged/model.yaml repo_sha 4a8d9cd1df is stale against
+    the clone cache HEAD 2306eeb062 (refresh_knowledge.py --check-only). The prior
+    refresh_run for this product (rf-20260730T221725Z-ae8ecb8ba065) already reached
+    COMMITTED (commit cf6b23d92b5843bb0d0f16c9b3c339d4bb7a8093, 2026-07-31) -- this
+    mission starts a NEW run against the current, newer upstream clone SHA, not a
+    resumption of that one. Executes refresh_run.py --mode combined end-to-end (start
+    -> run -> verify -> English commit via git_plumb_commit.py -> bind-commit) exactly
+    as the two prior fanout products did, fixing any real chain-hardening defects
+    found along the way at their owning boundary rather than working around them,
+    then a content-diff-routed locale handoff (S-107) for any touched pages.'
+  governing_plan_path: <local-plan-cache>/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md
+  in_scope_outcomes:
+  - pdf/go's refresh_run reaches COMMITTED with a bound, verified commit and its own
+    content_coverage_comparison.newly_missing == []
+  - 'Any genuine chain-hardening defect the run surfaces (matching the class already
+    found twice: install-recipe wording, refresh_run bind_commit edge cases, cross-platform
+    format-direction bugs) is fixed at its owning boundary with a regression test,
+    not worked around'
+  - 'Locale handoff for any English pages the run body-refreshes, routed by content
+    diff (S-107): <3 changed sentences -> S-75 literal patch, >=3 -> queued, never
+    a blanket re-translation'
+  - 'backlog/BACKLOG.md''s MT033-FANOUT-001 row updated with the real outcome (pdf/go:
+    3 of 9 done) and commit SHAs, matching the exact update pattern its own row already
+    uses for 3d/net and 3d/typescript'
+  out_of_scope_items:
+  - The other 6 remaining MT033-FANOUT-001 products (3d/python, slides/python, cells/python,
+    page/python, words/python, pdf/python) -- each gets its own mission slice, sequenced
+    after this one, not attempted together
+  - ST-151/ST-152 (3d/typescript locale structural drift) -- unrelated product, already
+    correctly scoped and left open in backlog/inbox.md this same session
+  - Any upstream code defect in pdf/go itself outside what the refresh_run's own validation
+    chain and content-truth checks surface
+  human_authority_boundaries:
+  - A genuine S-90 BLOCKED verdict, or a truth-audit FAIL that remediation cannot
+    clear, halts this mission slice for operator review -- not silently worked around
+  mandatory_acceptance_criteria:
+  - refresh_run.py status for the run this mission starts shows state=COMMITTED with
+    a real, non-empty commit_sha, verified via git diff --stat sha^ sha showing real
+    content changes
+  - content_coverage_comparison.newly_missing == [] for this run
+  - Every genuine chain-hardening defect found is either fixed with a regression test
+    and its own commit, or explicitly recorded as BLOCKED_EXTERNAL with the exact
+    resume condition -- none silently worked around
+  - backlog/BACKLOG.md's MT033-FANOUT-001 row updated with pdf/go's real outcome and
+    commit SHA(s) before mission close
+  conflicts_found:
+  - 'Checked live at mission open (2026-08-31): mission_authority.py status --json
+    shows no active mission lock; mission_authority.py list shows the root slot held
+    by MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING, status open, mission_locked:
+    false. Root MISSION_AUTHORITY.yaml''s own conflicts_found records that MT058 itself
+    took over from MT040 (closed) the same way -- safe to take over per the same established,
+    sanctioned mechanism; MT058''s full content remains durably archived at reports/plan_state/MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING/mission_authority.yaml
+    (confirmed present) and is not lost by this overwrite.'
+  - reports/locks/refresh/pdf-go.lock does not exist (no live refresh in flight for
+    this product); reports/refresh_runs/pdf/go/ has no ACTIVE.json (no orphaned/dead
+    run to recover); the prior run for this product already reached COMMITTED -- clean
+    slate confirmed before starting a new run.
+  - Live evidence of other concurrent sessions active in this repo (git index.lock
+    contention hit earlier this same session, unrelated dirty files from other in-flight
+    work) -- all commits this mission makes use git_plumb_commit.py's isolated temp
+    index, never the shared real index, matching the same safety precedent MT058's
+    own conflicts_found already established.
+  - Mission ID chosen after the repo-wide grep ST-157 (filed this same session) recommends
+    -- MT059 confirmed unclaimed across reports/plan_state/*/mission_authority.yaml,
+    docs/readme-refresh/*, and plans/master-plan.md before use.
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-31T13:53:59Z'

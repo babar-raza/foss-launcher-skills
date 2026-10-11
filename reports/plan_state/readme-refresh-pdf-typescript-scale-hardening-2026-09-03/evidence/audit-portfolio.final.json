@@ -1,0 +1,597 @@
+{
+  "products": [
+    {
+      "family": "3d",
+      "platform": "java",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "3d",
+      "platform": "net",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "content_unit_reframe_fidelity": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "pinned"
+      }
+    },
+    {
+      "family": "3d",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": false,
+      "verification_status": "skipped_published",
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published",
+      "baseline_coverage": null
+    },
+    {
+      "family": "3d",
+      "platform": "typescript",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "installation_matches_live_publication": 1,
+        "content_unit_reframe_fidelity": 18,
+        "code_example_disposition_text_diff": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "barcode",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "cpp",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "go",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "java",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "code_example_disposition_text_diff": 2
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "net",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "rust",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "installation_matches_live_publication": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "cells",
+      "platform": "typescript",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "pinned"
+      }
+    },
+    {
+      "family": "email",
+      "platform": "cpp",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "email",
+      "platform": "net",
+      "clean": true,
+      "fully_verified": false,
+      "verification_status": "skipped_published",
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published",
+      "baseline_coverage": null
+    },
+    {
+      "family": "email",
+      "platform": "python",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "code_example_disposition_text_diff": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "font",
+      "platform": "python",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "indeterminate",
+      "hard_gate_findings": {
+        "content_unit_disposition_coverage": 91,
+        "content_unit_excerpt_matches_extraction": 50,
+        "code_example_disposition_coverage": 49,
+        "badge_disposition_coverage": 3
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "indeterminate",
+      "baseline_coverage": {
+        "status": "unrecoverable_unpinned",
+        "reason": "mirror-classified target (currently or at a past push) -- git history not durable, local git-archaeology backfill is unsafe",
+        "run_id": "rr-20260902T104838Z-d00e617b6702",
+        "pinned_clone_cache_head": "c6d820937a37eae3131ad2f4efdef0a2b15edbc3"
+      }
+    },
+    {
+      "family": "html",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "note",
+      "platform": "python",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "content_unit_reframe_fidelity": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "pinned"
+      }
+    },
+    {
+      "family": "page",
+      "platform": "python",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "license_link_target": 1,
+        "license_section_matches_template": 1,
+        "enterprise_edition_link_resolves": 1,
+        "enterprise_edition_anchor_matches_relationship": 1,
+        "diagram_hybrid_reverification": 1,
+        "installation_matches_live_publication": 1,
+        "content_unit_disposition_coverage": 79,
+        "content_unit_evidence_resolves": 48,
+        "structural_unit_evidence_resolves": 4,
+        "code_example_disposition_coverage": 13,
+        "code_example_evidence_resolves": 13,
+        "badge_disposition_coverage": 3,
+        "dependency_snapshot_completeness": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "cpp",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "diagram_hybrid_reverification": 1,
+        "installation_matches_live_publication": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "go",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "diagram_hybrid_reverification": 1
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "java",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "net",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "python",
+      "clean": false,
+      "fully_verified": false,
+      "verification_status": "checked_dirty",
+      "hard_gate_findings": {
+        "installation_matches_live_publication": 1,
+        "content_unit_disposition_coverage": 17,
+        "content_unit_excerpt_matches_extraction": 122,
+        "structural_unit_disposition_coverage": 5,
+        "structural_unit_disposition_text_diff": 4,
+        "code_example_disposition_coverage": 9,
+        "code_example_disposition_text_diff": 4,
+        "code_example_api_coverage_survives": 4,
+        "api_reference_table_completeness": 54
+      },
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "checked_dirty",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "pdf",
+      "platform": "typescript",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "slides",
+      "platform": "cpp",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "slides",
+      "platform": "java",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "slides",
+      "platform": "net",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "slides",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    },
+    {
+      "family": "tex",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "pinned"
+      }
+    },
+    {
+      "family": "words",
+      "platform": "net",
+      "clean": true,
+      "fully_verified": false,
+      "verification_status": "skipped_published",
+      "hard_gate_findings": {},
+      "published": true,
+      "candidate_drift": [],
+      "disposition_tracking": "skipped_published",
+      "baseline_coverage": null
+    },
+    {
+      "family": "words",
+      "platform": "python",
+      "clean": true,
+      "fully_verified": true,
+      "verification_status": "verified",
+      "hard_gate_findings": {},
+      "published": false,
+      "candidate_drift": [],
+      "disposition_tracking": "verified",
+      "baseline_coverage": {
+        "status": "no_push_yet"
+      }
+    }
+  ],
+  "result_schema_version": 2,
+  "disposition_verified_count": 18,
+  "indeterminate_count": 1,
+  "clean_count": 21,
+  "dirty_count": 11,
+  "total": 32,
+  "skipped": [],
+  "candidate_tree": "repo-presenter-regen-full",
+  "non_canonical": null,
+  "skeleton_singletons": [
+    {
+      "product": "cells/net",
+      "section": "Development and Testing",
+      "opening_shape": [
+        "para",
+        "para"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "pdf/net",
+      "section": "Documentation & Resources",
+      "opening_shape": [
+        "bullets",
+        "details"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/net",
+      "section": "Documentation & Resources",
+      "opening_shape": [
+        "para",
+        "bullets"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "cells/net",
+      "section": "Installation",
+      "opening_shape": [
+        "fence:code",
+        "fence:code"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/cpp",
+      "section": "Installation",
+      "opening_shape": [
+        "para",
+        "h3"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "email/python",
+      "section": "Key Capabilities",
+      "opening_shape": [
+        "para",
+        "bullets"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "pdf/typescript",
+      "section": "Key Capabilities",
+      "opening_shape": [
+        "bullets",
+        "details"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "slides/net",
+      "section": "Quick Start",
+      "opening_shape": [
+        "fence:code"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    },
+    {
+      "product": "pdf/typescript",
+      "section": "Scope and Limitations",
+      "opening_shape": [
+        "bullets",
+        "bullets"
+      ],
+      "portfolio_size": 32,
+      "reason": "this section's opening shape is held by no other product in the portfolio -- a review prompt (a real singleton can be legitimate), never a defect verdict"
+    }
+  ]
+}

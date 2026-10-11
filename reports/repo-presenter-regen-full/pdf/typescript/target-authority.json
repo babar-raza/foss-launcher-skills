@@ -1,0 +1,10 @@
+{
+  "authority": "canonical",
+  "signals": {
+    "zero_parent_head": false,
+    "orphan_root_count": 1,
+    "mirror_text_hit": true
+  },
+  "recorded_at": "2026-09-04T12:23:28.476092Z",
+  "recorded_by": "9d8aa2aa-a458-4688-acc4-4048b8aa9955"
+}

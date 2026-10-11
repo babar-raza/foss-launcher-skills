@@ -1,0 +1,33 @@
+family: 3d
+platform: python
+version: 1
+
+discovery_hints:
+  # NOTE: this repo uses setup.py, NOT pyproject.toml
+  package_source_file: setup.py
+  package_extraction: "regex:name=['\"]([^'\"]+)['\"]"
+  language: python
+  format_source_glob: "src/**/formats/*.py"
+  stub_search_hints:
+    - "raise NotImplementedError"
+    - "pass  # TODO"
+  runtime_requirement_source: setup.py
+
+discovered_actuals:
+  package_name: "aspose-3d-foss"
+  import_path: "aspose.threed"
+  package_source_actual: setup.py
+  format_files_found: null
+  last_baseline_sha: 37114723be16c9c9441c8fb93116b044ad1aa6b5
+
+language_conventions:
+  method_naming: snake_case
+  enum_values: UPPER_CASE
+  pass_by: reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

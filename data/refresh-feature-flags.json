@@ -1,0 +1,10 @@
+{
+  "refresh_decision_engine_enabled": true,
+  "refresh_decision_engine_shadow": true,
+  "refresh_reconciliation_shadow": true,
+  "refresh_reconciliation_enforced": true,
+  "refresh_manifest_write_enabled": true,
+  "refresh_content_write_enabled": true,
+  "refresh_run_type_label_enabled": true,
+  "refresh_generation_manifest_write_enabled": true
+}

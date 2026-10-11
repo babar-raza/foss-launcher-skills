@@ -1,9 +1,8 @@
-# Adapted from aspose.org
 """env_loader.py — Load .env from repo root into os.environ.
 
 Call ``load_env()`` once at the top of every CLI entry point that needs
 environment variables.  Uses ``override=False`` so shell-exported variables
-always take precedence over .env values.
+always take precedence over .env values — existing behaviour is preserved.
 
 The .env file is located by walking up from this file's location:
     core/ -> pipeline/ -> scripts/ -> repo_root

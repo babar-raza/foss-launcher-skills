@@ -1,14 +1,11 @@
 ---
 name: coverage-reconcile
-id: S-85
 description: >
-  Produce a full disposition table for every knowledge unit (claim, API member)
-  for a given product, showing coverage status: used in content, stored but
-  unused, orphaned, or excluded by site planner.
+  Trace every knowledge unit (claim, API member) to a page disposition
 args: "{family} {platform}"
 ---
 
-# S-85: Coverage Reconcile — Knowledge Unit Disposition Report
+# S-80: Coverage Reconcile — Knowledge Unit Disposition Report
 
 **Arguments**: $ARGUMENTS
 **Expected format**: `{family} {platform}` — e.g. `cells net` or `slides python`
@@ -17,64 +14,94 @@ args: "{family} {platform}"
 
 Produce a full disposition table for every knowledge unit (claim from claims.json,
 API member from api_surface.json) for the given product, showing whether it is:
-- **Used**: cited in a content page's `evidence.claims` or `evidence.apis`
-- **Stored**: in the knowledge store but not cited anywhere
-- **Orphaned**: no page covers the relevant topic
-- **Excluded**: cluster excluded from site plan
+- Used in a content page (cited in evidence.claims or evidence.apis)
+- Stored but not used (in knowledge store, not cited anywhere)
+- Orphaned (no page covers the relevant topic)
+- Excluded by the site planner (cluster excluded from site plan)
 
 This enables the operator to verify knowledge coverage and identify gaps before
 trusting a product launch as complete.
 
-## Pre-conditions
+## Inputs
 
-1. `knowledge/{family}/{platform}/merged/claims.json` exists
-2. `knowledge/{family}/{platform}/merged/api_surface.json` exists
-3. Content pages exist under `$CONTENT_REPO_PATH/content/` for the product
+- `knowledge/{family}/{platform}/merged/claims.json` — all knowledge claims
+- `knowledge/{family}/{platform}/merged/api_surface.json` — all API members
+- `reports/plans/{family}/{platform}/site_plan.yaml` — planner exclusions
+- `content/*/en/{family}/{platform}/` — all generated content files (evidence frontmatter)
 
-## Steps
+## Execution Steps
 
-1. **Load all knowledge units**:
-   - Claims: read `knowledge/{family}/{platform}/merged/claims.json`
-   - API members: read `knowledge/{family}/{platform}/merged/api_surface.json`
+### Step 1 — Load knowledge
 
-2. **Index all content evidence blocks**:
-   - Scan all `$CONTENT_REPO_PATH/content/**/{family}/{platform}/**/*.md` frontmatter
-   - Extract `evidence.claims` and `evidence.apis` from each file
-   - Build a reverse map: claim_id → [pages that cite it]
+```python
+claims = load_json("knowledge/{family}/{platform}/merged/claims.json")
+api_surface = load_json("knowledge/{family}/{platform}/merged/api_surface.json")
+site_plan = load_yaml("reports/plans/{family}/{platform}/site_plan.yaml")
+```
 
-3. **Classify each knowledge unit**:
+### Step 2 — Walk content pages
 
-   | Disposition | Criteria |
-   |---|---|
-   | `USED` | Cited in at least one page's evidence block |
-   | `STORED` | In knowledge store, not cited in any page |
-   | `ORPHANED` | Not cited; no content page covers its topic |
-   | `EXCLUDED` | Marked `excluded: true` in site plan |
+For each content file matching `content/*/en/{family}/{platform}/**/*.md`:
+- Extract `evidence.claims` from frontmatter → set of ERC IDs cited
+- Extract `evidence.apis` from frontmatter → set of API member references cited
 
-4. **Compute coverage metrics**:
-   ```
-   Claims:
-     Total:    N
-     Used:     N (X%)
-     Stored:   N (Y%)
-     Orphaned: N (Z%)
+Accumulate: `used_claims = all cited ERC IDs`, `used_apis = all cited API members`
 
-   API members:
-     Total:    N
-     Used:     N (X%)
-     Stored:   N (Y%)
-     Orphaned: N (Z%)
-   ```
+### Step 3 — Classify each knowledge unit
 
-5. **Write report** to `reports/coverage/{family}/{platform}/coverage-reconcile.md`:
-   - Summary table with counts by disposition
-   - Full disposition table listing each knowledge unit, its disposition, and which pages cite it
+For each claim in claims.json:
+- `claim.id` in `used_claims` → **used_in_content**
+- Claim's topic in planner excluded_topics → **excluded_by_planner**
+- Otherwise → **orphaned**
 
-6. **Flag critical gaps**: Any ORPHANED claim with `confidence >= 0.8` should be flagged as `HIGH_PRIORITY_GAP` — these are high-confidence capabilities with no content coverage.
+For each API member in api_surface.json (format: `{ClassName}.{memberName}`):
+- Member reference in `used_apis` → **used_in_content**
+- Class has no page in site_plan → **excluded_by_planner** (if site_plan excluded it)
+- Otherwise → **orphaned**
 
-## Post-conditions
+### Step 4 — Write reconciliation report
 
-- Report written to `reports/coverage/{family}/{platform}/coverage-reconcile.md`
-- Coverage metrics printed to output
-- HIGH_PRIORITY_GAP items listed for operator review
-- No content modified (read-only)
+Write `reports/coverage/{family}/{platform}/{date}-coverage-report.md` with:
+
+1. **Summary table**
+   | Disposition | Claims | API Members | % of total |
+
+2. **Orphaned clusters** — groups of orphaned claims/members by topic/class
+
+3. **Exclusion justification** — which topics were excluded by site planner and why
+
+4. **Coverage ratio** — `used / (used + orphaned)` as a percentage; flag if < 90%
+
+### Step 5 — Return verdict
+
+- Coverage ≥ 90%: PASS — "Knowledge coverage is adequate"
+- Coverage 70–89%: WARN — "Knowledge coverage below 90%; review orphaned clusters"
+- Coverage < 70%: FAIL — "Significant knowledge orphaning detected; launch quality is impaired"
+
+## Acceptance Criteria
+
+- Every claim in claims.json has exactly one disposition
+- Every public API member in api_surface.json has exactly one disposition
+- Report written to `reports/coverage/{family}/{platform}/{date}-coverage-report.md`
+- Verdict returned to operator
+
+## Failure Modes
+
+| Condition | Action |
+|-----------|--------|
+| claims.json missing | STOP — run `/knowledge-update {family} {platform}` first |
+| No content files found | Report coverage = 0%; return FAIL |
+| Evidence frontmatter malformed | Log as WARN; skip file; continue |
+
+## Related Skills
+
+- `/knowledge-update {family} {platform}` — refreshes the knowledge store
+- `/launch-rollback {family} {platform}` — S-79, revert flawed launch
+- `/content-eval {family} {platform}` — per-page quality evaluation
+
+## Registry
+
+**Skill code**: S-80
+**Status**: REGISTERED — AGENTS.md §12 / [docs/registries/skills.md](../docs/registries/skills.md) entry added 2026-04-07
+**Script**: `scripts/pipeline/commands/knowledge/knowledge_coverage.py` (existing — check if compatible)
+**Test**: `scripts/pipeline/tests/test_coverage_reconcile.py` (to be created)

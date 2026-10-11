@@ -1,15 +1,16 @@
-"""decision_engine.py — Per-surface freshness decision engine.
+"""decision_engine.py — TC-PROD-004: Per-surface freshness decision engine.
 
-Ported from aspose.org scripts/pipeline/lib/decision_engine.py.
-
-Separates input change evaluation from output drift evaluation.
+Separates input change evaluation from output drift evaluation (plan Section E).
 
 Decision priority:
   1. Output drift (missing or drifted content) overrides input-unchanged.
   2. FRESH requires both inputs unchanged AND output current.
-  3. Input changes are classified by fingerprint type
-     (upstream > generator > metadata > policy).
-  4. BASELINED_UNPROVEN or no stored manifest -> VALIDATE_ONLY.
+  3. Input changes are classified by fingerprint type (upstream > generator > metadata > policy).
+  4. BASELINED_UNPROVEN or no stored manifest → VALIDATE_ONLY.
+
+Phase 2 (shadow-only): results are written to shadow paths only. The existing
+site_planner.py sys.exit(0) is NOT changed. Feature flag 'refresh_decision_engine_shadow'
+controls whether results are emitted.
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from scripts.pipeline.lib.freshness_manifest import FreshnessManifest
+from freshness_manifest import FreshnessManifest
 
 
 # ---------------------------------------------------------------------------
@@ -40,7 +41,7 @@ DRY_RUN_PASS = "DRY_RUN_PASS"
 _INPUTS_UNCHANGED = "INPUTS_UNCHANGED"
 _OUTPUT_CURRENT = "OUTPUT_CURRENT"
 
-# Fingerprint -> decision mapping (priority: upstream > generator > metadata > policy)
+# Fingerprint → decision mapping (priority: upstream > generator > metadata > policy)
 _UPSTREAM_FINGERPRINTS = frozenset({"upstream_repo_sha", "local_knowledge_sha"})
 _GENERATOR_FINGERPRINTS = frozenset({"generator_code_hash", "template_hash"})
 _METADATA_FINGERPRINTS = frozenset({"products_json_hash"})
@@ -167,7 +168,7 @@ def decide(
     Separates input change evaluation from output drift evaluation:
     - Output drift (missing or drifted content) overrides input-unchanged.
     - FRESH requires both inputs unchanged AND output current.
-    - BASELINED_UNPROVEN or no stored manifest -> VALIDATE_ONLY.
+    - BASELINED_UNPROVEN or no stored manifest → VALIDATE_ONLY.
 
     Args:
         product: Product slug "family/platform".

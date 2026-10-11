@@ -1,0 +1,68 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "ci_build_status",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "ci_build_status",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "language_package_reference",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0004",
+    "action": "preserved",
+    "new_badge_unit_id": "b0004",
+    "category": "license",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0005",
+    "action": "preserved",
+    "new_badge_unit_id": "b0005",
+    "category": "language_version",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0006",
+    "action": "preserved",
+    "new_badge_unit_id": "b0006",
+    "category": "docs_link",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  }
+]

@@ -14,13 +14,29 @@ from __future__ import annotations
 
 import json
 import re
+from functools import lru_cache as _lru_cache
 from pathlib import Path
 from typing import Any
 
 from ..models import Finding, Page
 from . import BaseEvaluator
+from ._claim_index import is_markdown_table_row
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: Path | None = None) -> None:
+    """Override the knowledge root for isolated callers and tests."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = knowledge_root or _DEFAULT_KNOWLEDGE_ROOT
+
+# Maps enum-style canonical keys (lowercased) to their common file-extension
+# equivalents so that content using "3MF" matches formats.json key "ThreeMf".
+_FORMAT_ALIASES: dict[str, str] = {
+    "threemf": "3mf",
+    "microsoft3mf": "3mf",
+}
 
 # Broad list of format extensions to watch for
 _KNOWN_EXTENSIONS = {
@@ -31,6 +47,17 @@ _KNOWN_EXTENSIONS = {
     # additional common formats
     "u3d", "amf", "rvm", "ma", "mb", "blend", "draco",
     "zip", "tar", "gz",
+    # note/email formats
+    "one", "msg", "eml", "mht", "mhtml", "ics", "vcf", "pst", "ost",
+    # spreadsheet/cell formats
+    "csv", "tsv",
+    # geospatial formats (H-3, MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-
+    # GATE-HARDENING): absent entirely before gis/net's real launch — confirmed
+    # live that this evaluator's tokenizer could not even recognize "GeoJSON"/
+    # "Shapefile"/"KML"/"GPX" as format words, so it had no way to compare
+    # gis/net's placeholder page's over-claim (Shapefile/GeoJSON/KML/GPX/File
+    # Geodatabase) against the real repo's WKT+GeoJSON-only formats.json.
+    "shp", "shapefile", "kml", "kmz", "gpx", "geojson", "wkt", "gml",
 }
 
 # Regex: matches format extensions used as tokens (case-insensitive)
@@ -42,22 +69,108 @@ _FORMAT_TOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 
+
+@_lru_cache(maxsize=64)
+def _format_token_re_for(extra_tokens: frozenset[str]) -> re.Pattern[str]:
+    """H-3 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    per-product-dynamic token recognition, unioned with the static
+    `_KNOWN_EXTENSIONS` baseline above.
+
+    The static baseline alone is a closed-world list that only grows when a
+    human manually notices and edits it per new format domain (confirmed
+    live: it had zero geospatial tokens until gis/net's launch). This unions
+    it with the CURRENT product's own `formats.json` keys (already loaded by
+    `_load_formats()`), so a real, product-specific format that isn't yet in
+    the static list — for gis/net specifically, and for any future new-domain
+    product — is still recognized as a token worth checking, without a manual
+    token-list edit being a hard prerequisite for every new domain. This does
+    NOT replace the static-list additions made alongside this function (the
+    static list is still what lets an OVER-claimed format absent from the
+    product's own formats.json — e.g. "Shapefile" on a WKT+GeoJSON-only
+    product — be recognized as a token to check at all; a purely dynamic,
+    formats.json-only source could never discover a claim for a format the
+    product does NOT have).
+
+    Cached per unique extra_tokens set (bounded: one entry per distinct
+    formats.json key-set actually seen in a single evaluation run).
+    """
+    if not extra_tokens:
+        return _FORMAT_TOKEN_RE
+    combined = sorted(set(_KNOWN_EXTENSIONS) | extra_tokens, key=len, reverse=True)
+    return re.compile(
+        r"(?<![a-zA-Z])(?:\*\.|\.)?" + r"(" +
+        "|".join(re.escape(ext) for ext in combined) +
+        r")" + r"(?![a-zA-Z0-9])",
+        re.IGNORECASE,
+    )
+
 # Direction verbs preceding a format reference
+# ST-029 pattern (3): "output" is added alongside the explicit export verbs so
+# that "Image output ... supports BMP/GIF/..." resolves to export-only, not
+# "both" (the bare "supports" in _BOTH_VERB_RE would otherwise win) — directionless
+# "supports" following an "output" framing is export framing, not bidirectional.
 _EXPORT_VERB_RE = re.compile(
-    r"\b(?:export|save|write|convert\s+to|render\s+to)\b",
+    r"\b(?:export|save|write|convert\s+to|render\s+to|output)\b",
     re.IGNORECASE,
 )
 _IMPORT_VERB_RE = re.compile(
-    r"\b(?:import|load|read|open|convert\s+from|parse)\b",
+    r"\b(?:import|load|read(?!-only)|open|convert\s+from|parse|input)\b",
     re.IGNORECASE,
 )
 _BOTH_VERB_RE = re.compile(
-    r"\b(?:support|handle|process|convert)\b",
+    r"\b(?:support(?:s|ed)?|handle|process|convert)\b",
     re.IGNORECASE,
 )
 
 
 _EXT_RE = re.compile(r"^[a-z0-9]{2,6}$")
+
+# Negation context — when a format mention is surrounded by these phrases it is
+# explicitly described as unsupported and should NOT be counted as an "unknown" mention.
+_NEGATION_RE = re.compile(
+    r"\b(?:not\s+support|unsupport|are\s+not|is\s+not|cannot|no\s+support|"
+    r"does\s+not\s+support|don't\s+support|doesn't\s+support|"
+    r"does\s+not\s+include|do\s+not\s+include|doesn't\s+include|don't\s+include|"
+    r"not\s+included|not\s+functional|does\s+not\s+work|"
+    r"not\s+in\s+this\s+edition|no\s+printing)\b|"
+    # FIX-NEG-01: "no <format list> export/import/output" — a bare "no" directly
+    # negating an I/O verb, without the word "support" (e.g. "no PDF/XPS/image
+    # export", "no PDF, XPS, or image export"). Found 2026-07-23 alongside the
+    # format_truth known_dir=="none" branch fix: multiple already-reviewed,
+    # accurate pages (developer-guide/_index.md, features.md, license.md,
+    # troubleshooting.md, use-cases.md) use this exact natural phrasing, and the
+    # narrow "no support"-only pattern above missed all of them. Bounded to a
+    # short (<=40 char) span so it can't accidentally swallow an unrelated,
+    # genuinely positive claim much later in a long line.
+    r"\bno\s+[a-z0-9,/\s]{0,40}?(?:export|import|output)\b",
+    re.IGNORECASE,
+)
+
+# Variant qualifiers — when a format mention is immediately preceded by one of
+# these words (e.g. "binary FBX", "ASCII OBJ"), a negation on the same line
+# applies to the variant, not the format as a whole.  EC-03 FP fix.
+_VARIANT_QUALIFIER_RE = re.compile(
+    r"\b(?:binary|ascii|text|xml|legacy|old|v[0-9]+|compressed|uncompressed"
+    r"|embedded|standalone|raw|plain)\s+$",
+    re.IGNORECASE,
+)
+
+# ST-029 pattern (2): "Aspose.PDF", "Aspose.Cells", etc. name the PRODUCT
+# family, not a format-extension claim — even though the family name can be
+# identical to a real format token (PDF is both a product family and a
+# format). Real example: "Aspose.PDF FOSS ... does not support .NET
+# Framework" was misread as "PDF format is not supported", when the negated
+# subject is the .NET runtime, not the PDF format.
+_PRODUCT_NAME_PREFIX_RE = re.compile(r"aspose\.?\s*$", re.IGNORECASE)
+
+
+def _is_product_name_mention(text: str, pos: int) -> bool:
+    """True if the format token whose match starts at `pos` is really part of
+    an "Aspose.<Name>" product-family reference, not a format-extension claim.
+    `pos` is m.start(0) from _FORMAT_TOKEN_RE, i.e. it points at the leading
+    dot (or the token itself if no dot matched) — the text immediately before
+    it is exactly what would precede "Aspose.PDF"'s dot."""
+    return bool(_PRODUCT_NAME_PREFIX_RE.search(text[max(0, pos - 10):pos]))
 
 
 def _is_enum_name_schema(entries: list[dict]) -> bool:
@@ -93,16 +206,36 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
     except (json.JSONDecodeError, TypeError):
         return {}
 
-    # Skip extension matching when the schema uses enum names, not extensions
-    if _is_enum_name_schema(data):
-        return {}
+    is_enum_schema = _is_enum_name_schema(data)
 
     result: dict[str, str] = {}
     for entry in data:
-        ext = (entry.get("format") or entry.get("ext") or "").lower().lstrip(".")
-        if not ext:
+        raw_key = (entry.get("format") or entry.get("ext") or "").lstrip(".")
+        if not raw_key:
             continue
+        ext = raw_key.lower()
         direction = (entry.get("direction") or entry.get("support") or "").lower()
+        # Normalize enum_only: the enum constant exists for identification.
+        # If functional == False, the constant is a stub (cannot read or write).
+        # If functional is absent or True, reading is supported (direction = import).
+        if direction == "enum_only":
+            functional = entry.get("functional", None)
+            if functional is False:
+                direction = "none"
+            else:
+                direction = "import"
+        elif entry.get("functional") is False:
+            # FIX-G30: functional=False can appear on entries whose raw direction
+            # is already "import"/"export"/"both" (not just "enum_only") — e.g. a
+            # format-detection dispatch that gates a real reader/writer class behind
+            # a throw, per formats.py's FOSS-gate scanning. The enum_only branch
+            # above already treats functional=False as "no real capability"; the
+            # same rule must apply here too, or a gated format's own direction
+            # value gets taken at face value and reported as genuinely supported.
+            # Found 2026-07-23 via words/net's HTML entries (direction: "import"/
+            # "export", functional: false) producing FAIL-level false positives
+            # on 7 reference pages that correctly state HTML is unsupported.
+            direction = "none"
         if not direction:
             # Infer from boolean fields
             can_import = entry.get("import", False)
@@ -115,13 +248,42 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
                 direction = "export"
             else:
                 direction = "none"
-        result[ext] = direction
+        existing = result.get(ext)
+        if existing and existing != direction:
+            # Don't upgrade to "both" if either entry is "none" — a non-functional
+            # enum_only stub from one direction does not add real capability.
+            if direction == "none":
+                pass  # keep existing
+            elif existing == "none":
+                result[ext] = direction  # replace none with actual direction
+            else:
+                result[ext] = "both"
+        else:
+            result[ext] = direction
+
+    # Register aliases so human-readable display names match enum canonical keys.
+    for canon, alias in _FORMAT_ALIASES.items():
+        if canon in result and alias not in result:
+            result[alias] = result[canon]
+
+    # For enum-name schemas (e.g., OneNote2010 instead of .one), extension
+    # matching against prose will not work.  But we still return the data so
+    # that callers can use it for direction lookups when the enum name itself
+    # appears in content.  The caller must be aware that keys are enum names,
+    # not file extensions.
     return result
 
 
-def _extract_format_mentions(text: str) -> list[tuple[str, int]]:
-    """Return list of (ext_lower, start_pos) for every format token found."""
-    return [(m.group(1).lower(), m.start()) for m in _FORMAT_TOKEN_RE.finditer(text)]
+def _extract_format_mentions(
+    text: str, extra_tokens: frozenset[str] = frozenset()
+) -> list[tuple[str, int]]:
+    """Return list of (ext_lower, start_pos) for every format token found.
+
+    `extra_tokens` (H-3, MT074): the current product's own formats.json keys,
+    unioned with the static baseline — see `_format_token_re_for()`.
+    """
+    pattern = _format_token_re_for(extra_tokens) if extra_tokens else _FORMAT_TOKEN_RE
+    return [(m.group(1).lower(), m.start()) for m in pattern.finditer(text)]
 
 
 def _claim_direction(context: str) -> str | None:
@@ -145,6 +307,68 @@ def _claim_direction(context: str) -> str | None:
     return None
 
 
+_SENTENCE_BOUNDARY_RE = re.compile(r"[.!?]\s+")
+
+
+def _resolve_list_direction(claimed_dir: "str | None", line_text: str, pos: int) -> "str | None":
+    """ST-029 pattern (3): resolve a bare "both" claim for a format that is
+    part of an enumerated list ("Image output ... supports BMP, GIF, JPEG,
+    PNG, TIFF") where only the first item falls inside _claim_direction's
+    narrow +/-80-char window — later items in the same list see no local
+    export/import verb at all and fall back to the generic "both" from a bare
+    "supports". Only applied when the narrow window itself found no
+    distinguishing verb (claimed_dir == "both").
+
+    Widens the search back to the START OF THE CURRENT SENTENCE (not the
+    whole line) — a single line can hold multiple distinct sentences/claims
+    (e.g. "The library reads and writes PDF. Image output ... supports BMP,
+    GIF, ..."), and widening to the whole line would let an earlier,
+    unrelated clause's verbs leak into a later, separate claim's direction.
+    If exactly one of export/import framing appears within the current
+    sentence (not both), that framing wins.
+
+    Known limitation (found by independent review, RPR-J-10): the sentence
+    boundary is punctuation-based ([.!?]\s+). A SINGLE sentence that joins a
+    genuinely separate import clause and an export-framed list via "and"
+    instead of a period — e.g. "Aspose.3D can read scene data and output to
+    FBX, OBJ, STL, PLY, GLTF images." — still resolves the list items to the
+    ambiguous "both" (has_export and has_import both true within one
+    sentence), so an export-only format late in such a list can still
+    produce a false bidirectional-mismatch WARN. This is the same severity
+    class as the bug this function fixes, not a new failure mode, and no
+    fix was attempted here: distinguishing "and" as a clause boundary from
+    "and" as a plain list conjunction ("BMP, GIF, and TIFF") reliably needs
+    more than a regex heuristic, and a wrong heuristic risks being worse
+    than the current, at least well-understood, boundary. Tracked as a
+    follow-up rather than papered over.
+    """
+    if claimed_dir != "both":
+        return claimed_dir
+    sentence_start = 0
+    for m in _SENTENCE_BOUNDARY_RE.finditer(line_text[:pos]):
+        sentence_start = m.end()
+    preceding = line_text[sentence_start:pos]
+    has_export = bool(_EXPORT_VERB_RE.search(preceding))
+    has_import = bool(_IMPORT_VERB_RE.search(preceding))
+    if has_export and not has_import:
+        return "export"
+    if has_import and not has_export:
+        return "import"
+    return claimed_dir
+
+
+# H-09: Site-specific severity for direction mismatches.
+# Reference and products pages get FAIL (factual errors are critical there),
+# other sites get WARN.
+_DIRECTION_MISMATCH_SEVERITY: dict[str, str] = {
+    "reference": "FAIL",
+    "products": "FAIL",
+    "blog": "WARN",
+    "kb": "WARN",
+    "docs": "WARN",
+}
+
+
 class FormatTruthEvaluator(BaseEvaluator):
     """Comprehensive check that format support claims match formats.json knowledge.
 
@@ -159,9 +383,59 @@ class FormatTruthEvaluator(BaseEvaluator):
         if not page.family or not page.platform:
             return []
 
+        # EC-03 Pattern 4 fix: enum reference pages (SaveFormat, SourceFormat,
+        # etc.) list enum constants as API documentation — mentioning a format
+        # name in the enum table is NOT a claim about I/O direction.  Suppress
+        # direction-mismatch checks entirely on these pages.
+        categories = page.frontmatter.get("categories") or []
+        layout = page.frontmatter.get("layout", "")
+        if "Enum" in categories and layout.startswith("reference"):
+            return []
+
+        # FIX-IFACE-01: interface reference pages (IDocumentMergerPlugin,
+        # IDocumentConverterPlugin, etc.) describe a CONTRACT for an external
+        # implementer, not the library's own behavior — e.g.
+        # IDocumentMergerPlugin's docstring "Merges the given input PDF
+        # documents..." describes what a conforming plugin implementation
+        # would do, not a capability Aspose.Words itself has. Mirrors the
+        # Enum-page exclusion above for the identical reason. Found 2026-07-23
+        # via words/net (27 Interface-category reference pages in this
+        # product alone).
+        if "Interface" in categories and layout.startswith("reference"):
+            return []
+
         format_direction = _load_formats(page.family, page.platform)
         if not format_direction:
             return []  # No format knowledge available
+        # H-3 (MT074): recognize this product's own real format keys as
+        # tokens worth checking, in addition to the static baseline — see
+        # _format_token_re_for()'s docstring.
+        extra_tokens = frozenset(format_direction.keys())
+
+        # FIX-DISCLOSED-01: once a page has ALREADY disclosed, in its own body,
+        # that a format has no working I/O path (e.g. a reference page's
+        # Overview caveat "HTML, MHTML, EPUB, AZW3, and MOBI export are not
+        # functional in this FOSS edition"), every LATER mechanically-transcribed
+        # docstring row on the SAME page repeating that same format (e.g. a
+        # *SaveOptions class with 60+ properties whose real C# docstrings all
+        # say "...to HTML, MHTML or EPUB") is not a fresh, independent claim —
+        # it is the identical, already-covered fact restated. Without this, a
+        # single class-level caveat does nothing to prevent dozens of per-row
+        # FAILs on the very same page for the very same already-disclosed
+        # limitation. Found 2026-07-23 via words/net's HtmlSaveOptions.md (66
+        # properties, most mentioning HTML/MHTML/EPUB export).
+        full_text = "\n".join(t for _, t in page.prose_lines)
+        disclosed_none_formats: set[str] = set()
+        for m in re.finditer(
+            r"([A-Za-z][A-Za-z0-9]*(?:\s*,\s*[A-Za-z][A-Za-z0-9]*)*"
+            r"(?:\s*,?\s*(?:and|or)\s+[A-Za-z][A-Za-z0-9]*)?)"
+            r"\s+(?:export|import|loading|load)\s+(?:is|are)\s+not\s+functional",
+            full_text, re.IGNORECASE,
+        ):
+            for tok in re.split(r"\s*,\s*|\s+(?:and|or)\s+", m.group(1)):
+                tok = re.sub(r"^(?:and|or)\s+", "", tok.strip(), flags=re.IGNORECASE).lower()
+                if tok:
+                    disclosed_none_formats.add(tok)
 
         findings: list[Finding] = []
         # Track per-page stats for the "many unknown" check
@@ -172,6 +446,8 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         def _check(ext: str, claimed_dir: str | None, line_no: int, source: str):
             all_mentioned.add(ext)
+            if ext in disclosed_none_formats and format_direction.get(ext) == "none":
+                return  # Already disclosed elsewhere on this same page
             known_dir = format_direction.get(ext)
 
             if known_dir is None:
@@ -197,13 +473,16 @@ class FormatTruthEvaluator(BaseEvaluator):
             if claimed_dir is None:
                 return  # No direction context; can't check mismatch
 
-            # Direction mismatch checks
+            # Direction mismatch checks — H-09: site-specific severity
+            _mm_level = _DIRECTION_MISMATCH_SEVERITY.get(
+                page.subdomain, "WARN"
+            )
             if claimed_dir == "export" and known_dir == "import":
                 key = (ext, "export-mismatch")
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,
@@ -218,7 +497,7 @@ class FormatTruthEvaluator(BaseEvaluator):
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,
@@ -233,7 +512,7 @@ class FormatTruthEvaluator(BaseEvaluator):
                 if key not in reported:
                     reported.add(key)
                     findings.append(Finding(
-                        level="WARN",
+                        level=_mm_level,
                         category="FT",
                         filepath=str(page.filepath),
                         line_no=line_no,
@@ -247,23 +526,236 @@ class FormatTruthEvaluator(BaseEvaluator):
                         ),
                         evaluator=self.name,
                     ))
+            # "detect" means the format enum exists for identification only —
+            # the library can recognize the format but cannot read or write it.
+            # Any claim of import, export, or both is a false capability claim.
+            elif known_dir == "detect" and claimed_dir in ("import", "export", "both"):
+                key = (ext, "detect-only-mismatch")
+                if key not in reported:
+                    reported.add(key)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Claims {ext.upper()} {claimed_dir} support but "
+                            f"formats.json shows detect-only (no I/O capability)"
+                        ),
+                        suggestion=(
+                            f"Remove the {claimed_dir} claim for {ext.upper()} — "
+                            f"the library can only detect this format, not read or write it"
+                        ),
+                        evaluator=self.name,
+                    ))
+            # "none" means the format has no working I/O capability at all (e.g.
+            # gated behind a throw, per formats.py's FOSS-gate scanning — see
+            # FIX-G30). Unlike the branches above, which catch a claim in the
+            # WRONG direction, this branch is the only one that fires for a
+            # positive capability claim (any direction) against a format with
+            # NO real capability whatsoever — a gap found 2026-07-23 alongside
+            # FIX-G30 while testing it: this _check() helper had no "none"
+            # branch at all, so a genuine false "export works" claim against a
+            # fully-gated format silently passed through this evaluator
+            # (capability_claim_check.py's _direction_compatible() already
+            # covered this case independently, which is why the corpus-wide
+            # gap wasn't visible until a dedicated unit test isolated this
+            # evaluator alone).
+            elif known_dir == "none" and claimed_dir in ("import", "export", "both"):
+                key = (ext, "none-mismatch")
+                if key not in reported:
+                    reported.add(key)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Claims {ext.upper()} {claimed_dir} support but "
+                            f"formats.json shows no working I/O capability"
+                        ),
+                        suggestion=(
+                            f"Remove the {claimed_dir} claim for {ext.upper()} — "
+                            f"this format has no functional read or write path in this edition"
+                        ),
+                        evaluator=self.name,
+                    ))
+
+        # Regex: detects Markdown table access-column values ("| Read |",
+        # "| Write |", "| Read/Write |") that should not count as I/O verbs.
+        _TABLE_ACCESS_COL_RE = re.compile(
+            r"\|\s*(?:Read(?:/Write)?|Write)\s*\|", re.IGNORECASE
+        )
 
         # --- Scan prose lines ---
         for line_no, line_text in page.prose_lines:
-            mentions = _extract_format_mentions(line_text)
+            # Properties/Methods table rows on reference pages are generated
+            # verbatim from api_surface.json's per-member `doc` field (see
+            # batch_reference.py) -- the description column often mentions a
+            # format name in a completely unrelated technical sense (e.g.
+            # "Gets or sets a value indicating whether to convert loaded SVG
+            # images to the EMF format" describes what ONE PROPERTY does
+            # internally, not a claim that the containing class/page supports
+            # SVG as a document format). Table content is already verified by
+            # dedicated table-focused evaluators, not this one. Found
+            # 2026-07-23: mirrors the identical fix already applied to
+            # prose_claim_binding.py/prose_truth.py -- never extended here.
+            if is_markdown_table_row(line_text):
+                continue
+            # A question is never itself a capability assertion, regardless of
+            # phrasing — "Can X export to Y?" states nothing about whether X can;
+            # only its (separately-scanned) answer does. KB/blog FAQ content commonly
+            # renders questions as markdown headings ("#### Does this edition
+            # support X?"), which land here as ordinary prose lines. Skip them so
+            # the natural question/no-answer FAQ pattern doesn't produce a false
+            # positive. Found 2026-07-23 via words/net's products-page FAQ.
+            if line_text.rstrip().endswith("?"):
+                continue
+            # Lines that explicitly state a format is NOT supported need a
+            # separate check: if formats.json says it IS supported, the claim
+            # is a false limitation (VBD-01 fix).
+            # Direction-aware: infer what direction the negation is claiming is
+            # unsupported using the WHOLE LINE context (not per-position), so
+            # that verb context from any part of the line is considered.
+            if _NEGATION_RE.search(line_text):
+                # Determine the direction context for the whole line once
+                line_neg_dir = _claim_direction(line_text)
+                for ext, _pos in _extract_format_mentions(line_text, extra_tokens):
+                    known_dir = format_direction.get(ext)
+                    if not known_dir or known_dir in ("none", "detect"):
+                        continue  # Content correctly says it's unsupported
+                    # ST-029 pattern (2): "Aspose.PDF ... does not support .NET
+                    # Framework" — the negated subject is the runtime, not the
+                    # format; "PDF" here names the product, not a format claim.
+                    if _is_product_name_mention(line_text, _pos):
+                        continue
+                    # EC-03 FP fix: skip variant-qualified mentions like
+                    # "binary FBX is not implemented" — the negation applies
+                    # to the variant, not the format as a whole.
+                    pre_text = line_text[:_pos]
+                    if _VARIANT_QUALIFIER_RE.search(pre_text):
+                        continue
+                    # If direction is unknown we cannot determine what is being negated:
+                    # prose like "is not tagged as page content" matches _NEGATION_RE
+                    # but carries no format I/O claim.  Skip to avoid false positives.
+                    if line_neg_dir is None:
+                        continue
+                    # If the negated direction is not covered by known_dir, it's correct
+                    if line_neg_dir == "export" and known_dir == "import":
+                        continue  # "can't export X" — correct, only import is supported
+                    if line_neg_dir == "import" and known_dir == "export":
+                        continue  # "can't import X" — correct, only export is supported
+                    key = (ext, "false-negative-claim")
+                    if key not in reported:
+                        reported.add(key)
+                        _neg_level = _DIRECTION_MISMATCH_SEVERITY.get(
+                            page.subdomain, "WARN"
+                        )
+                        findings.append(Finding(
+                            level=_neg_level,
+                            category="FT",
+                            filepath=str(page.filepath),
+                            line_no=line_no,
+                            message=(
+                                f"Claims {ext.upper()} is not supported but "
+                                f"formats.json shows {known_dir} support"
+                            ),
+                            suggestion=(
+                                f"Remove the 'not supported' limitation for "
+                                f"{ext.upper()} — formats.json confirms "
+                                f"{known_dir} capability is present"
+                            ),
+                            evaluator=self.name,
+                        ))
+                continue  # Don't double-count this line as a positive claim
+            # Normalize table access-column values BEFORE extracting mentions so
+            # that "| Read |" / "| Write |" cells are never part of the direction
+            # context window, regardless of where the format token falls on the
+            # line (avoids pos-60 boundary splitting the pattern).
+            scan_text = _TABLE_ACCESS_COL_RE.sub("| - |", line_text)
+            mentions = _extract_format_mentions(scan_text, extra_tokens)
             for ext, pos in mentions:
-                # Build context around the position for direction detection
-                before = line_text[max(0, pos - 60) : pos]
-                after = line_text[pos : min(len(line_text), pos + 40)]
+                tail = scan_text[pos + len(ext):]
+                # Skip Python type-annotation context: "doc: Type" where the
+                # format token is a variable name, not a file-extension claim.
+                if tail.lstrip().startswith(":"):
+                    continue
+                # ST-029 pattern: a format token immediately followed by
+                # ".<identifier>" is member/property access on a variable named
+                # like the format, not a format claim — e.g. `` `doc.Range.
+                # Bookmarks` `` (the near-universal idiom for an Aspose Document
+                # variable). Mirrors capability_claim_check.py's identical
+                # guard, which this evaluator was missing. Found 2026-07-23.
+                if tail[:1] == "." and (tail[1:2].isalpha() or tail[1:2] == "_"):
+                    continue
+                # Skip Markdown inline spans (*doc*, `doc`, _doc_) where the
+                # format token is a variable reference, not a format claim.
+                pre_char = scan_text[pos - 1 : pos] if pos > 0 else ""
+                if pre_char in ("*", "`", "_") and tail[:1] == pre_char:
+                    continue
+                # FIX-FNAME-01: example filenames like `input.doc`/`output.pdf`
+                # illustrating a PATH or an error case (e.g. "passing an
+                # unsupported path such as `input.doc` to the Document
+                # constructor raises this exception") are not a format-support
+                # claim — the extension here just completes an example
+                # filename. Skip when the format token is immediately preceded
+                # by "." with a bare identifier before that (no format-context
+                # markers like a leading "*." glob or a surrounding backtick
+                # already consumed above). Found 2026-07-23 via words/net.
+                if pre_char == "." and re.search(r"[A-Za-z_][A-Za-z0-9_]*\.$", scan_text[:pos]):
+                    continue
+                # ST-029 pattern (2): "Aspose.PDF" names the product, not a
+                # format-extension claim.
+                if _is_product_name_mention(scan_text, pos):
+                    continue
+                before = scan_text[max(0, pos - 60) : pos]
+                after = scan_text[pos : min(len(scan_text), pos + 40)]
                 claimed_dir = _claim_direction(before + after)
+                claimed_dir = _resolve_list_direction(claimed_dir, scan_text, pos)
                 _check(ext, claimed_dir, line_no, "prose")
 
         # --- Scan code blocks ---
         for block in page.code_blocks:
-            for ext, pos in _extract_format_mentions(block.content):
-                before = block.content[max(0, pos - 60) : pos]
-                after = block.content[pos : min(len(block.content), pos + 40)]
-                claimed_dir = _claim_direction(before + after)
+            for ext, pos in _extract_format_mentions(block.content, extra_tokens):
+                # Skip variable-name false positives: "doc.save()", "doc = ..."
+                # A format token immediately followed by ".<letter>" or " =" is
+                # a Python identifier, not a file-extension mention.
+                tail = block.content[pos + len(ext):]
+                if tail and (
+                    re.match(r"\.[a-zA-Z]", tail)   # doc.save(), doc.get_text()
+                    or tail.lstrip().startswith("=")  # doc = Document(...)
+                ):
+                    continue
+                # Skip file-path literals: "input.docx", 'report.pdf', etc.
+                # These are I/O arguments, not capability claims.
+                pre = block.content[max(0, pos - 30) : pos]
+                if re.search(r'["\'][^"\']*\.\s*$', pre):
+                    continue
+                # ST-029 pattern (3): a format token used as a bare
+                # function-call argument (e.g. `device.Process(doc, stream);`)
+                # is a variable reference passed by value -- not a format
+                # claim -- and isn't covered by the ".identifier"/"= " guard
+                # above (no member access, no assignment here). Preceded by
+                # "(" or "," (an argument position, allowing whitespace) and
+                # followed by "," or ")" (end of that argument slot).
+                # capability_claim_check.py already guards the equivalent
+                # prose-context case (measured: 39 false "Claims DOC export"
+                # findings across 19 pdf/net pages from the "doc" variable
+                # idiom), but this code-block guard was never updated to
+                # match, so the same idiom used as a bare argument in a code
+                # sample still false-positived here. Found 2026-07-23 via an
+                # independent review of the words/net launch's evaluator fixes.
+                if tail[:1] in (",", ")") and re.search(r"[(,]\s*$", pre):
+                    continue
+                # EC-03 FP fix: limit direction context to the same line
+                # within the code block to prevent cross-statement bleed
+                # (e.g. a load statement picking up save() from the next line).
+                line_start = block.content.rfind("\n", 0, pos) + 1
+                line_end = block.content.find("\n", pos)
+                if line_end == -1:
+                    line_end = len(block.content)
+                code_line = block.content[line_start:line_end]
+                claimed_dir = _claim_direction(code_line)
                 _check(ext, claimed_dir, block.start_line, "code")
 
         # Aggregate: many unknown formats on a structured page
@@ -283,5 +775,75 @@ class FormatTruthEvaluator(BaseEvaluator):
                     ),
                     evaluator=self.name,
                 ))
+
+        # FR-17d: products_format_unsupported — products pages that mention formats
+        # that are neither importable nor exportable per formats.json
+        if page.subdomain == "products":
+            findings.extend(
+                self._check_products_format_unsupported(page, format_direction)
+            )
+
+        return findings
+
+    # ------------------------------------------------------------------
+    # FR-17d helper
+    # ------------------------------------------------------------------
+
+    # Pattern for 3-5 char uppercase format tokens (e.g. FBX, OBJ, STL, GLTF, PPTX)
+    _UPPERCASE_FORMAT_RE = re.compile(
+        r"(?<![A-Z])([A-Z]{3,5})(?![A-Z])",
+    )
+
+    def _check_products_format_unsupported(
+        self,
+        page: Page,
+        format_direction: dict[str, str],
+    ) -> list[Finding]:
+        """Emit FAIL when a products page positively mentions a format that is
+        neither importable nor exportable per formats.json.
+
+        Only fires when formats.json is available (format_direction non-empty).
+        """
+        if not format_direction:
+            return []
+
+        findings: list[Finding] = []
+        reported: set[str] = set()
+
+        for line_no, line_text in page.prose_lines:
+            if is_markdown_table_row(line_text):
+                continue
+            stripped = line_text.strip()
+            # Only examine bullet lines or lines with "support"/"format" context
+            if not any(kw in stripped.lower() for kw in ("support", "format", "import", "export", "read", "writ", "load", "save")):
+                continue
+            for m in self._UPPERCASE_FORMAT_RE.finditer(stripped):
+                fmt_upper = m.group(1)
+                fmt_lower = fmt_upper.lower()
+                # Only check formats we know about in formats.json
+                if fmt_lower not in format_direction:
+                    continue
+                if fmt_lower in reported:
+                    continue
+                direction = format_direction[fmt_lower]
+                # "none" direction means canImport=false AND canExport=false
+                if direction == "none":
+                    reported.add(fmt_lower)
+                    findings.append(Finding(
+                        level="FAIL",
+                        category="FT",
+                        filepath=str(page.filepath),
+                        line_no=line_no,
+                        message=(
+                            f"Products page positively mentions `{fmt_upper}` but "
+                            f"formats.json shows canImport=false AND canExport=false"
+                        ),
+                        suggestion=(
+                            f"Remove the `{fmt_upper}` reference or add a clear "
+                            f"'not supported' caveat — the knowledge model shows "
+                            f"this format is not supported"
+                        ),
+                        evaluator=self.name,
+                    ))
 
         return findings

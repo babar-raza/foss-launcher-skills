@@ -1,124 +1,177 @@
-# S-18: Page Plan — Structure Planning
+<!-- CONTRACT: agent-executed
+     purpose: plan page structure before generation by compiling relevant claims and API surface
+     preconditions: knowledge model bootstrapped; claims.json + api_surface.json available
+     postcondition: YAML page plan written with claims, API surface, snippets, and structure
+     idempotent: no — LLM selects different claims and structures between invocations
+     verified: 2026-04-11
+-->
+# S-18: Page Plan — Plan Page Structure Before Generation
 
 **Arguments**: $ARGUMENTS
-Expected format: `{family} {platform} {site-type} {slug}`
+Expected format: `{family} {platform} {section} {slug}` — e.g. `3d python developer-guide rendering`
 
 ## Purpose
-Plan the page structure before drafting. Maps sections to evidence claims, code positions to snippets, and FAQ items to knowledge. Produces a structured plan that S-19 (page-draft) will follow.
+Plan a page's structure before drafting. Compiles relevant claims from knowledge, determines page structure based on the section type, and outputs a structured plan that S-19 (page-draft) will consume.
 
 ## Pre-conditions
-1. S-10 plan file should exist: `reports/plans/{family}-{platform}-{slug}.yaml`
-2. Knowledge model must exist: `knowledge/{family}/{platform}/merged/index.json`
-3. Knowledge must not be stale
-
-## Golden Corpus Pre-conditions
-
-1. **Load corpus profile**: Read `knowledge/{family}/{platform}/_corpus/{site-type}_profile.json`
-   - If not found → WARN and suggest running `/corpus-scan {family} {platform} {site-type}`; proceed with default template
-
-2. **Load golden index**: Read `golden/_index.json`
-   - If not found → WARN and suggest running `python scripts/golden_index.py`; proceed with default template
-
-3. **Determine variant**: Read `selected_variant` from the corpus profile
-   - Record this in the structure plan for S-19 to use
-
-4. **Select golden page**: From `golden/_index.json`, find the page matching the target page_role and variant
-   - Page role is determined by site-type: docs→`workflow_page`, blog→`feature_blog`, kb→`howto_article`, reference→`api_reference`
-
-5. **Incorporate golden structural contracts into the plan**: For each planned section:
-   - Look up the matching section in the golden page
-   - Record its structural contract (required block types, minimum counts, target word count) in the plan YAML
-   - This ensures S-19 has explicit per-section block requirements
-
-6. **Record style rubric in plan**: Include the golden page's `style_rubric` values in the structure YAML so S-19 can enforce them
+1. **Knowledge bootstrap**: Run `/knowledge-bootstrap {family} {platform}` and check status:
+   - `STOP:partial` → halt (see printed message)
+   - `REFRESHED` → STOP: "Knowledge was refreshed from upstream changes. Run /knowledge-diff to review what changed before generating content, then re-run this command."
+   - `READY`, `BOOTSTRAPPED`, or `WARN:conflicts` → continue
+2. `knowledge/{family}/{platform}/merged/` must have `claims.json`, `api_surface.json`, `formats.json` after bootstrap
+3. Determine target site from `{section}`:
+   - `developer-guide`, `getting-started` → docs.aspose.org
+   - `how-to-*`, `faq`, `troubleshooting`, `use-cases` → kb.aspose.org
+   - Blog topic → blog.aspose.org
+   - API reference → reference.aspose.org
+   - `products`, `_index`, `product-landing` → products.aspose.org
+     Note: Platform product pages live at `content/products.aspose.org/en/{family}/{platform}/_index.md`
+     (layout: `plugin`). Family landing pages at `{family}/_index.md` (layout: `family`) are managed
+     by `/family-sync` — never written by page-draft or new-products-page.
+     Use `/new-products-page {family} {platform}` instead of page-draft for platform product pages.
 
 ## Steps
 
-1. **Read S-10 plan** from `reports/plans/{family}-{platform}-{slug}.yaml`
-   - If not found, proceed with arguments directly (S-10 is recommended but not mandatory)
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-18 --scope "*"
+> ```
 
-2. **Load knowledge artifacts**:
-   - `knowledge/{family}/{platform}/merged/index.json`
-   - `knowledge/{family}/{platform}/merged/claims.json`
-   - `knowledge/{family}/{platform}/merged/api_surface.json`
-   - `knowledge/{family}/{platform}/merged/formats.json`
-   - `knowledge/{family}/{platform}/merged/constants.json` — module-level constants
-   - List available snippets in `knowledge/{family}/{platform}/merged/snippets/`
 
-3. **Determine page template** from site-type:
-   - `docs` → use new-docs-page section structure (getting-started or developer-guide)
-   - `blog` → use new-blog-post section structure
-   - `kb` → use new-kb-howto section structure (or new-kb-faq if slug is "faq")
-   - `reference` → use new-reference-page section structure
+1. **Parse arguments**: Extract `{family}`, `{platform}`, `{section}`, and `{slug}` from $ARGUMENTS.
 
-4. **Select relevant claims**: From claims.json, filter claims that are:
-   - Relevant to the page's topic (based on slug and purpose)
-   - Confidence >= 0.5
-   - Not from `forbidden_claims`
-   - Prioritize `dual` and `dual_fuzzy` provenance over single-source
+2. **Load knowledge**:
+   - Read `knowledge/{family}/{platform}/merged/claims.json`
+   - Read `knowledge/{family}/{platform}/merged/api_surface.json`
+   - Read `knowledge/{family}/{platform}/merged/formats.json`
+   - Read `knowledge/{family}/{platform}/merged/limitations.md`
+   - Read `knowledge/{family}/{platform}/snippets/` directory listing
 
-5. **Map sections to claims**: For each section in the template:
-   - Assign 2–5 claims that the section should cover
-   - Note the claim_id for each (used by S-24 later)
+3. **Select relevant claims**: Filter claims from `claims.json` that are relevant to the `{slug}` topic:
+   - Match by claim `kind` (e.g., `format_rw`, `api_method`, `capability`)
+   - Match by keyword overlap with `{slug}`
+   - Include all claims with confidence >= 0.5
+   - Flag claims with confidence < 0.7 as needing careful wording
+   - **For `platform: java` install/coordinate claims**: never carry a literal Maven groupId or
+     `<dependency>` block into the plan's YAML — reference it structurally instead (e.g.
+     `install_source: maven-coord-shortcode`). page-draft.md renders the actual coordinate via
+     the `maven-coord`/`maven-gav` shortcodes from `data/foss_packages.json` at build time; a
+     literal coordinate embedded here would bypass that and could go stale. See Mission MT008
+     in `plans/master-plan.md`.
 
-6. **Map code positions to snippets**: For each code block position:
-   - Select a snippet from `snippets/` that demonstrates the relevant API
-   - If no snippet available, note which API methods to demonstrate (must be in api_surface.json)
+4. **Select relevant API surface**: From `api_surface.json`, identify classes and methods related to the topic.
 
-7. **Map FAQ items** (if page type includes FAQ):
-   - Select questions from knowledge: usage patterns, format support, limitations
-   - Link each to supporting claims
+5. **Select snippets**: From `knowledge/{family}/{platform}/snippets/`, find code examples matching the topic.
 
-8. **Check reference content**: Read existing pages for the same family/platform:
-   - Note internal link targets available for cross-referencing
-   - Identify any overlap with existing content (avoid duplication)
+6. **Determine page structure** based on section type:
 
-9. **Write structure plan** to `reports/plans/{family}-{platform}-{slug}-structure.yaml`:
+   **developer-guide** page:
+   - Introduction paragraph (what + why)
+   - Key concepts section
+   - Code example sections (one per relevant snippet)
+   - API reference links
+   - Limitations/notes section
+
+   **how-to** KB article:
+   - Brief intro
+   - Prerequisites
+   - Steps (3-7 numbered steps with code)
+   - Expected output
+   - Troubleshooting tips
+
+   **faq** KB article:
+   - Q&A pairs grouped by subtopic
+   - Code snippets where applicable
+   - Links to detailed docs
+
+   **blog post**:
+   - Hook paragraph
+   - Feature walkthrough
+   - Code demonstration
+   - Conclusion + links
+
+7. **Output the plan** as structured YAML:
    ```yaml
-   family: {family}
-   platform: {platform}
-   site_type: {site-type}
-   slug: {slug}
-   template: {template name}
-   golden_variant: {selected variant from corpus profile}
-   golden_style_rubric:
-     prose_before_code: true
-     use_case_required: false
-     code_completeness_required: true
-     avg_sentence_length: 20
-     min_code_variety: 3
-   sections:
-     - heading: "{section title}"
-       claims: [CLM-xxx, CLM-yyy]
-       code_snippet: "{snippet filename or null}"
-       api_demo: [ClassName.method]
-       structural_contract: "{block sequence and minimum counts from golden}"
-       notes: "{any special instructions}"
-   faq_items:
-     - question: "{question}"
-       answer_claims: [CLM-xxx]
-   internal_links:
-     - "{relative path to existing page}"
-   created_at: {ISO-8601}
+   plan:
+     family: {family}
+     platform: {platform}
+     section: {section}
+     slug: {slug}
+     target_path: content/{site}/en/{family}/{platform}/{section}/{slug}.md
+     page_type: {docs|topic|blog}
+
+     claims_used:
+       - id: CLM-xxx
+         text: "..."
+         confidence: 0.9
+         provenance: dual
+       ...
+
+     api_surface:
+       - class: ClassName
+         methods: [method1, method2]
+       ...
+
+     snippets:
+       - file: snippet_name.py
+         purpose: "demonstrates X"
+       ...
+
+     structure:
+       - heading: "Introduction"
+         content_brief: "..."
+         claims: [CLM-xxx]
+       - heading: "..."
+         content_brief: "..."
+         claims: [CLM-yyy]
+         code: snippet_name.py
+       ...
+
+     limitations:
+       - "..."
+
+     low_confidence_claims:
+       - id: CLM-zzz
+         note: "confidence 0.6 — use hedging language"
    ```
 
-10. **Update S-10 plan status** to `structure_planned`
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-18 --status completed
+> ```
 
-## Output
+## Post-conditions
+- Plan is output as valid YAML
+- Every claim referenced exists in `claims.json`
+- Every API member referenced exists in `api_surface.json`
+- Every snippet referenced exists in `snippets/`
+- No fabricated API names or format claims
+- Plan is ready for consumption by S-19 (page-draft)
 
-```
-PAGE PLAN — {family}/{platform}/{slug}
-Template: {template name}
-Sections: {count}
-Claims mapped: {count}
-Snippets selected: {count}
-FAQ items: {count}
+## Error Handling
 
-Structure plan: reports/plans/{family}-{platform}-{slug}-structure.yaml
-Next step: Run /page-draft {family} {platform} {site-type} {slug}
-```
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Knowledge unavailable` | Knowledge not bootstrapped | Run `/knowledge-bootstrap {family} {platform}` |
+| No relevant claims for topic | Topic doesn't match any claims in claims.json | Check slug spelling; run `/knowledge-update` to refresh claims |
+| No snippets available | Snippet extraction didn't produce code for this topic | Note in plan; S-19 will use `{TODO: snippet needed}` placeholders |
+| `model.yaml stale_since` warning | Knowledge artifacts are outdated | Run `/knowledge-update {family} {platform}` to refresh |
+| `api_surface.json` missing | Scout extraction not run | Run `/repo-scout {family} {platform}` |
+| Plan YAML validation error | Malformed plan output | Re-run; if persistent, check claims.json for encoding issues |
 
-## Error handling
-- If no claims match the topic → WARN and suggest broader topic or different slug
-- If no snippets available → proceed but note code blocks will need manual API demos
-- If knowledge is stale → abort
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

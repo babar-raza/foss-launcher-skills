@@ -1,0 +1,1 @@
+internal string PathFor(string fileName) => System.IO.Path.Combine(_root, fileName);

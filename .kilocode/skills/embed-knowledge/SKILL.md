@@ -7,33 +7,156 @@ description: >
 args: "{family} {platform} | all"
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+<!-- CONTRACT: scripts/pipeline/commands/knowledge/embed.py (standard mode)
+     postcondition: knowledge/_vectors/api/ exists (if Tier 1 succeeded)
+     postcondition: knowledge/_vectors/local/ exists (if Tier 2 succeeded)
+     postcondition: paths do NOT include family/platform subdirectories (flat structure)
+     postcondition: gap-index mode writes a validated profile beneath
+                    knowledge/_vectors/{family}/{platform}/profiles/{profile-id}/
+                    and atomically selects it through active.json
+     postcondition: gap-index mode never overwrites or deletes a legacy api.vectors.json
+     verified: 2026-07-26
+-->
 # S-15: Embed Knowledge — Vector Store Generation
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform}` or `all`
 
 ## Purpose
-Embed knowledge artifacts into dual vector stores using the three-tier embedding infrastructure (professionalize.com → Ollama → TF-IDF).
+Embed knowledge artifacts into dual vector stores using the three-tier embedding infrastructure
+(Professionalize API → Ollama → TF-IDF). Vectors are consumed by S-43 (gap-eval) and S-45
+(gap-report) for semantic similarity search. This skill is optional — content generation does
+not require vectors, but gap evaluation quality degrades without them.
 
 ## Pre-conditions
-1. `knowledge/{family}/{platform}/merged/` must exist
-2. For Tier 1: `PROFESSIONALIZE_API_KEY` environment variable must be set
-3. For Tier 2: Ollama must be running locally (`curl http://localhost:11434/api/tags`)
-4. Tier 3 (TF-IDF) is always available as last resort
+1. `knowledge/{family}/{platform}/merged/` must exist with `claims.json`.
+2. For Professionalize: at least one registry credential alias must be set. The
+   ordered chain is `LLM_API_KEY`, `GPT_OSS_API_KEY`, `LITELLM_KEY`, then the
+   deprecated `PROFESSIONALIZE_API_KEY`.
+3. For Tier 2: Ollama must be running locally (`curl http://localhost:11434/api/tags` returns 200).
+4. Tier 3 (TF-IDF) is always available — no pre-condition.
+5. `scripts/pipeline/config/llm_registry.yaml` must validate. Endpoint, model,
+   dimensions, retries, credentials, and fallback policy come from this registry.
 
 ## Steps
 
-1. **Parse arguments**: `{family} {platform}` or `all`
-2. **Run embedding**: `python scripts/pipeline/commands/knowledge/embed.py {family} {platform}`
-3. **Verify outputs**: Check that vector files were created in `knowledge/_vectors/`
-4. **Report**: Print which tiers were used and how many vectors were generated
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-15 --scope "*"
+> ```
+
+
+1. **Parse arguments**: Extract `{family}` and `{platform}` (or `all`).
+
+2. **Attempt Tier 1 — Professionalize API**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py {family} {platform} --tier api
+   ```
+   - `EmbeddingClient` delegates to `LLMRouter`, which delegates transport to
+     `ProfessionalizeClient`; do not pass a separate endpoint, key, retry, model,
+     or dimension authority.
+   - On 401/403 the router tries the next configured credential alias.
+   - In standard mode, successful vectors are written to
+     `knowledge/_vectors/api/` (the existing flat standard store).
+   - If the API key is missing or the call fails: log "Tier 1 unavailable" and proceed to Tier 2.
+
+3. **Attempt Tier 2 — Ollama (local)**:
+   ```bash
+   .venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py {family} {platform} --tier local
+   ```
+   - If Ollama is running and returns vectors: written to
+     `knowledge/_vectors/local/` (flat structure).
+   - If Ollama is not running or returns an error: log "Tier 2 unavailable" and proceed to Tier 3.
+
+4. **Tier 3 — TF-IDF (always available)**:
+   - TF-IDF vectors are computed on-demand by consuming skills (S-43, S-45) and do NOT
+     produce persistent files. If neither Tier 1 nor Tier 2 succeeded, log:
+     "No persistent vectors generated. Gap-eval will use TF-IDF computed on demand."
+   - This is not an error — TF-IDF is a valid fallback, just less semantically precise.
+
+5. **Update config**: Update `knowledge/_vectors/config.json` with `last_embedded` per tier:
+   ```json
+   {
+     "tiers": [
+       { "id": "api", "provider": "professionalize", "last_embedded": "{ISO timestamp}", ... },
+       { "id": "local", "provider": "ollama", "last_embedded": "{ISO timestamp}", ... }
+     ],
+     "active_tier": "api",
+     "claim_count": N,
+     "content_chunk_count": N
+   }
+   ```
+   Note: config.json is only updated when ALL attempted tiers succeed. If any tier fails,
+   config.json is left unchanged to preserve consistency with the actual vector files on disk.
+
+6. **Report**: Print which tiers succeeded, which failed, and how many vectors were generated per tier.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-15 --status completed
+> ```
 
 ## Post-conditions
-- At least one tier of vectors exists in `knowledge/_vectors/`
-- `knowledge/_vectors/config.json` is updated with `last_embedded` timestamps
-- Vector counts match claim counts in merged knowledge
+- If Tier 1 or Tier 2 succeeded: vector files exist under `knowledge/_vectors/{tier}/`
+  (e.g., `knowledge/_vectors/api/claims.vectors.json`, `knowledge/_vectors/api/api.vectors.json`).
+- `knowledge/_vectors/config.json` is updated with `last_embedded` timestamps (only when all
+  attempted tiers succeed — see step 5 note).
+- Vector counts match claim counts in merged knowledge (within 5% tolerance for filtering).
+- If neither Tier 1 nor Tier 2 succeeded: no vector files are created — this is acceptable.
+  Log a notice so the user knows gap-eval will use degraded TF-IDF mode.
+
+## Gap-index mode (S-43 Tier 2)
+For per-product API surface vectors (used by S-43), use the `gap-index` subcommand instead:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/knowledge/embed.py gap-index {family} {platform}
+```
+This mode:
+
+1. freezes the router-selected embedding profile for the build;
+2. writes vectors and a manifest beneath
+   `knowledge/_vectors/{family}/{platform}/profiles/{profile-id}/`;
+3. validates provider, model, dimensions, count, source hash, and vector-file hash;
+4. atomically writes `knowledge/_vectors/{family}/{platform}/active.json` only
+   after validation succeeds.
+
+The root-level `api.vectors.json` is a legacy index. Never overwrite or delete it.
+On failure, leave both `active.json` and the legacy index unchanged. Rollback is
+an atomic `active.json` pointer reversal to a previously validated profile.
 
 ## Notes
-- Tier 1 and Tier 2 use different models, so vectors are NOT interchangeable
-- Each tier has its own subdirectory (`api/`, `local/`)
+- Tier 1 and Tier 2 use different embedding models — their vectors are NOT interchangeable.
+  Each tier has its own flat subdirectory under `knowledge/_vectors/` (`api/`, `local/`) and
+  must not be mixed.
+- Gap-eval queries may consume only the active profile recorded in `active.json`;
+  provider, model, and dimensions must match exactly before cosine comparison.
 - If neither Tier 1 nor Tier 2 is available, TF-IDF is computed on demand by consuming skills
+  (S-43, S-45). The gap-eval verdict will be less precise but still valid.
+- Re-running `gap-index` with unchanged source and registry state is idempotent:
+  it validates/reuses the same profile identity and does not mutate legacy data.
+
+## Error handling
+- All three tiers fail (Tier 3 cannot fail, so this cannot happen).
+- `embed.py` script missing: abort; check that `scripts/pipeline/commands/knowledge/embed.py` exists.
+- `merged/claims.json` is empty (no claims to embed): skip; log "Nothing to embed — run S-35 first."
+- `all` mode: process each product independently; failures for one product do not abort others.
+- A Professionalize response with a different dimension is
+  `CONTRACT_MISMATCH`; do not write or activate the candidate profile.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

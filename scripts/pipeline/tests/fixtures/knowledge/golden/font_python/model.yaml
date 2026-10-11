@@ -1,0 +1,8 @@
+family: font
+platform: python
+version: "25.1.0"
+repo_sha: "fixture_sha_golden_001"
+stale_since: null
+enrichment_status: "full"
+surface_tier: 2
+package_name: "aspose-font"

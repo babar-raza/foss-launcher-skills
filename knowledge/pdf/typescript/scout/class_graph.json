@@ -1,0 +1,302 @@
+[
+  {
+    "child": "TextAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "StampAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "MarkupAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "SquareCircleAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "LineAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "PolyAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "InkAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "FreeTextAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "CaretAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "RedactAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "PopupAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "LinkAction",
+    "parent": "PdfAction",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "LinkAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "FileAttachmentAnnotation",
+    "parent": "Annotation",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ContentLexer",
+    "parent": "Lexer",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "BoxElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "SaveOptions",
+    "parent": "SerializeOptions",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "PdfParseError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "UnsupportedFeatureError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "ResourceLimitError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "SeedValueError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "InvalidPasswordError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "FlowAtomic",
+    "parent": "AtomicSpec",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "TextElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ListItemElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ListBlockElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ImageElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "BoxElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "RuleElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "CodeBlockElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "QuotedElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "FlowClear",
+    "parent": "ClearSide",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "TableElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "TextField",
+    "parent": "Field",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "CheckboxField",
+    "parent": "Field",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "RadioField",
+    "parent": "Field",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ChoiceField",
+    "parent": "Field",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ButtonField",
+    "parent": "Field",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "PageGraphics",
+    "parent": "VectorGraphics",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "TileGraphics",
+    "parent": "VectorGraphics",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "HtmlSink",
+    "parent": "RenderSink",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "ArithIntSource",
+    "parent": "IntSource",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "HuffmanIntSource",
+    "parent": "IntSource",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "LoadLimits",
+    "parent": "LoadLimitValues",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "SaveImagesOptions",
+    "parent": "SaveImageOptions",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "PsFault",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "RasterSink",
+    "parent": "RenderSink",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "SvgSink",
+    "parent": "RenderSink",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "Rect",
+    "parent": "TextRect",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "AttrError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  }
+]

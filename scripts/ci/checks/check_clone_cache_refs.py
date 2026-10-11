@@ -1,13 +1,11 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_clone_cache_refs.py — Enforce that no active file references foss-launcher as clone cache.
 
 Scans governance, skills, source code, docs, and active plans for forbidden patterns that
 imply the obsolete foss-launcher clone-cache location.
 
 Canonical clone cache: runs/.clone_cache/ (inside the aspose.org repo)
-Canonical path: {REPO_ROOT}/runs/.clone_cache/
+Canonical Windows path: D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/
 Resolver: scripts/pipeline/core/clone_cache.py -> cache_root()
 
 Usage:
@@ -22,11 +20,10 @@ from __future__ import annotations
 
 import argparse
 import re
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # ---------------------------------------------------------------------------
 # Forbidden patterns that indicate the obsolete foss-launcher clone-cache path
@@ -230,7 +227,7 @@ def run_checks(dry_run: bool = False) -> int:
     print("     If a reference is genuinely historical and must remain, add this marker to the line:")
     print(f"     {OBSOLETE_MARKER}")
     print()
-    print("Canonical clone cache: runs/.clone_cache/")
+    print("Canonical clone cache: runs/.clone_cache/ (D:/onedrive/Documents/GitHub/aspose.org/runs/.clone_cache/)")
 
     if dry_run:
         print("\n[dry-run] Not failing — run without --dry-run to enforce.")

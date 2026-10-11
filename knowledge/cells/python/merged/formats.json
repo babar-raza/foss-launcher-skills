@@ -1,0 +1,143 @@
+[
+  {
+    "format": "CSV",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/csv_handler.py",
+    "line": 34,
+    "direction": "import"
+  },
+  {
+    "format": "CSV",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/csv_handler.py",
+    "line": 82,
+    "direction": "export"
+  },
+  {
+    "format": "Json",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/json_handler.py",
+    "line": 13,
+    "direction": "export"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/markdown_handler.py",
+    "line": 21,
+    "direction": "export"
+  },
+  {
+    "format": "XLSX",
+    "enum": "SaveFormat",
+    "value": "auto()",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 28,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "CSV",
+    "enum": "SaveFormat",
+    "value": "auto()",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 28,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "TSV",
+    "enum": "SaveFormat",
+    "value": "auto()",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 28,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "MARKDOWN",
+    "enum": "SaveFormat",
+    "value": "auto()",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 28,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "JSON",
+    "enum": "SaveFormat",
+    "value": "auto()",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 28,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 92,
+    "direction": "import"
+  },
+  {
+    "format": "csv",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 434,
+    "direction": "export"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 442,
+    "direction": "export"
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 448,
+    "direction": "export"
+  },
+  {
+    "format": "xlsx",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 448,
+    "direction": "export"
+  },
+  {
+    "format": "csv",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 523,
+    "direction": "export"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 560,
+    "direction": "export"
+  },
+  {
+    "format": "json",
+    "enum": "",
+    "value": "",
+    "file": "aspose/cells_foss/workbook.py",
+    "line": 578,
+    "direction": "export"
+  }
+]

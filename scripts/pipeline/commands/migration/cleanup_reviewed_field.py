@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """cleanup_reviewed_field.py — Remove deprecated 'reviewed' field from provenance blocks.
 
@@ -10,7 +9,7 @@ Usage:
     python scripts/pipeline/commands/migration/cleanup_reviewed_field.py [--apply] [--site SITE]
 
     --apply     Actually write changes (default: dry-run)
-    --site      Limit to one site (e.g. blog)
+    --site      Limit to one site (e.g. blog.aspose.org)
 """
 from __future__ import annotations
 
@@ -20,12 +19,12 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/  # scripts/pipeline/
+    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
     _LIB_DIR = str(Path(_HERE) / "lib") if isinstance(_HERE, str) else str(_HERE / "lib")
     if _LIB_DIR not in sys.path:
         sys.path.insert(0, _LIB_DIR)
 
-from lib.provenance import read_provenance, write_provenance  # noqa: E402
+from provenance import read_provenance, write_provenance  # noqa: E402
 
 _REPO_ROOT = (_HERE / ".." / ".." / ".." / "..").resolve()
 _CONTENT_ROOT = _REPO_ROOT / "content"
@@ -72,7 +71,7 @@ def main() -> None:
         description="Remove deprecated 'reviewed' field from provenance blocks"
     )
     parser.add_argument("--apply", action="store_true", help="Write changes (default: dry-run)")
-    parser.add_argument("--site", help="Limit to one site directory (e.g. blog)")
+    parser.add_argument("--site", help="Limit to one site directory (e.g. blog.aspose.org)")
     args = parser.parse_args()
 
     stats = run(site=args.site, apply=args.apply)

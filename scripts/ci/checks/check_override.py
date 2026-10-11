@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_override.py — Verify a forbidden-path write is covered by an active override.
 
 Called by the pre-commit hook for any file that path_guard.py would DENY.
@@ -17,11 +16,10 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 OVERRIDE_FILE = REPO_ROOT / "overrides" / "active-override.json"
 
 
@@ -40,7 +38,7 @@ def check_override(proposed_path: str) -> tuple[bool, str]:
         return (
             False,
             f"BLOCKED: No active override declared for forbidden path '{normalized}'.\n"
-            "  Create overrides/active-override.json per governance docs §4 before committing.\n"
+            "  Create overrides/active-override.json per AGENTS.md §4 before committing.\n"
             "  See overrides/schema.json for the required format.",
         )
 

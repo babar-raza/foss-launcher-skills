@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Skill contract validation: verify skill invocations before execution.
 
 This script validates skill invocations against registered skills and

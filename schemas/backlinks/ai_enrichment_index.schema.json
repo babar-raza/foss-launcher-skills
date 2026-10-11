@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI Enrichment Index",
+  "description": "Layer 1.5: AI-enriched metadata index for backlink candidates. Advisory only.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "records"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "family": {"type": ["string", "null"]},
+    "platform": {"type": ["string", "null"]},
+    "enriched_count": {"type": "integer", "minimum": 0},
+    "skipped_count": {"type": "integer", "minimum": 0},
+    "failed_count": {"type": "integer", "minimum": 0},
+    "embedding_model": {"type": ["string", "null"]},
+    "embedding_provider": {"type": ["string", "null"]},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_path", "status"],
+        "properties": {
+          "target_path": {"type": "string"},
+          "status": {"type": "string", "enum": ["enriched", "skipped", "failed"]},
+          "error": {"type": ["string", "null"]},
+          "skip_reason": {"type": ["string", "null"]},
+          "embedding_vector": {"type": ["array", "null"], "items": {"type": "number"}},
+          "embedding_model": {"type": ["string", "null"]},
+          "embedding_provider": {"type": ["string", "null"]},
+          "llm_classification": {
+            "type": ["object", "null"],
+            "properties": {
+              "label": {"type": "string", "enum": ["exact_api_class", "related_api_class", "same_topic", "weakly_related", "unrelated"]},
+              "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+              "reasoning": {"type": "string"},
+              "model": {"type": "string"},
+              "provider": {"type": "string"}
+            },
+            "required": ["label", "confidence", "model", "provider"]
+          },
+          "token_usage": {
+            "type": ["object", "null"],
+            "properties": {
+              "prompt": {"type": "integer", "minimum": 0},
+              "completion": {"type": "integer", "minimum": 0}
+            }
+          },
+          "latency_ms": {"type": ["number", "null"]},
+          "enriched_at": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

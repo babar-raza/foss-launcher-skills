@@ -1,0 +1,22 @@
+mission_authority:
+  mission_id: readme-refresh-pdf-typescript-scale-hardening-2026-09-03
+  mission_summary: 'User-directed: generate a pdf/typescript README candidate through the
+    existing /readme-refresh skill (S-120), manually compare it against the live destination
+    repo README (an unusually large, exceptionally precise ~275KB/2642-line document -- by far
+    the largest and densest source this skill has ever been run against), find gaps, harden the
+    skill, and iterate (regenerate -> recompare -> reharden -> regenerate) until the candidate is
+    ready with everything from the destination repo preserved and verified. First real
+    stress-test of S-120 at 5-10x the document scale/density of any prior product.'
+  governing_plan_path: reports/plan_state/readme-refresh-pdf-typescript-scale-hardening-2026-09-03/FINDINGS.md
+  binding_pattern: hand-authored record (root MISSION_AUTHORITY.yaml slot held by MT058)
+  in_scope_outcomes:
+  - 'Generate the first candidate through the real skill process (start/plan/agent-composes)'
+  - 'Run ingest-candidate for real; fix every genuine candidate defect found'
+  - 'Fix every genuine SKILL/check defect found (never work around a real gate bug)'
+  - 'Run verify-examples --typescript-runner against real compiled/executed TypeScript'
+  - 'Retention: every real old-README content/structural/code/badge unit accounted for'
+  - 'Regenerate/recheck to AWAITING_REVIEW; manual comparison review'
+  out_of_scope:
+  - 'Push/PR -- stops at AWAITING_REVIEW unless the user instructs otherwise'
+  recorded_at: 2026-09-03T07:22:00Z
+  recorded_by: session-9d8aa2aa

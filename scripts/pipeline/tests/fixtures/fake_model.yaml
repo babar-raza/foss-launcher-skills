@@ -1,0 +1,8 @@
+version: "1.0"
+repo_sha: "abc123def456789"
+surface_tier: 2
+family: "3d"
+platform: "python"
+package_name: "aspose.threed"
+package_version: "24.1.0"
+enrichment_status: "full"

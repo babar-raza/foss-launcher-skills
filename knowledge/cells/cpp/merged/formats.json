@@ -1,0 +1,20 @@
+[
+  {
+    "format": "Xlsx",
+    "enum": "LoadFormat",
+    "value": "1",
+    "file": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/LoadFormat.h",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Xlsx",
+    "enum": "SaveFormat",
+    "value": "0",
+    "file": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/SaveFormat.h",
+    "line": 7,
+    "direction": "export",
+    "functional": true
+  }
+]

@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """Validate skills/registry.json matches canonical skills/ directory.
 
 Checks:
@@ -19,15 +18,14 @@ from __future__ import annotations
 
 import json
 import re
-import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 REGISTRY_PATH = _REPO_ROOT / "skills" / "registry.json"
 CANONICAL_DIR = _REPO_ROOT / "skills"
 
-_ID_RE = re.compile(r"^#\s+(S-\d+):")
+_ID_RE = re.compile(r"^#\s+(S-[A-Z0-9-]+):")
 
 
 def _discover_canonical() -> dict[str, str]:
@@ -51,7 +49,7 @@ def check() -> list[str]:
     errors = []
 
     if not REGISTRY_PATH.exists():
-        errors.append("skills/registry.json does not exist. Run the sync_providers script")
+        errors.append("skills/registry.json does not exist. Run: python scripts/pipeline/commands/ops/sync_providers.py")
         return errors
 
     try:

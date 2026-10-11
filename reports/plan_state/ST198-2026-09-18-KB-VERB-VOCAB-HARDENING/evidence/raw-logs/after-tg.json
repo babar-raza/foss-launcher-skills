@@ -1,0 +1,63 @@
+{
+ "summary": {
+  "by_category": {
+   "TG": 7
+  },
+  "by_severity": {
+   "FAIL": 7,
+   "INFO": 0,
+   "WARN": 0
+  },
+  "evaluators_run": [
+   "topic_grounding"
+  ],
+  "pages_clean": 9118,
+  "pages_evaluated": 9125,
+  "pages_with_findings": 7,
+  "total_findings": 7
+ },
+ "topic_grounding_findings": [
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/email/cpp/how-to-load-compound-file-cpp.md",
+   "level": "FAIL",
+   "message": "Topic noun 'compound-file' (from slug/title) has no grounding in the reachable knowledge surface for email/cpp (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/email/cpp/how-to-read-msg-files-cpp.md",
+   "level": "FAIL",
+   "message": "Topic noun 'msg-files' (from slug/title) has no grounding in the reachable knowledge surface for email/cpp (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/email/net/how-to-load-compound-file-dotnet.md",
+   "level": "FAIL",
+   "message": "Topic noun 'compound-file' (from slug/title) has no grounding in the reachable knowledge surface for email/net (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/note/python/how-to-build-scene-entities-python.md",
+   "level": "FAIL",
+   "message": "Topic noun 'scene-entities' (from slug/title) has no grounding in the reachable knowledge surface for note/python (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/note/python/how-to-convert-onestore-format-python.md",
+   "level": "FAIL",
+   "message": "Topic noun 'onestore-format' (from slug/title) has no grounding in the reachable knowledge surface for note/python (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/note/python/how-to-work-with-ms-one-python.md",
+   "level": "FAIL",
+   "message": "Topic noun 'ms-one' (from slug/title) has no grounding in the reachable knowledge surface for note/python (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  },
+  {
+   "category": "TG",
+   "file": "content/kb.aspose.org/en/slides/net/how-to-create-presentation-structure-dotnet.md",
+   "level": "FAIL",
+   "message": "Topic noun 'presentation-structure' (from slug/title) has no grounding in the reachable knowledge surface for slides/net (claims.json + api_surface.json), and evidence.claims/evidence.apis are both empty"
+  }
+ ]
+}

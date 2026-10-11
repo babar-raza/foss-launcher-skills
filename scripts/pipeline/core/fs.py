@@ -1,26 +1,84 @@
-"""Filesystem helper utilities.
+"""Atomic filesystem operations for the pipeline.
 
-Ported from aspose.org scripts/pipeline/core/fs.py.
-No aspose-specific paths in this module.
+All file mutations that must be safe to retry on failure should go through
+atomic_write().  The write-to-tmp + os.replace() pattern ensures that a
+crash mid-write leaves the original file intact.
 """
-import pathlib
-import shutil
-from typing import List
+from __future__ import annotations
+
+import hashlib
+import os
+import time
+from pathlib import Path
 
 
-def ensure_dir(path: pathlib.Path) -> pathlib.Path:
-    """Create directory and parents if they do not exist. Return path."""
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def atomic_write(path: Path, content: str, encoding: str = "utf-8") -> None:
+    """Write *content* to *path* atomically.
+
+    Writes to ``<path>.tmp`` first, then calls ``os.replace()`` which is
+    atomic on POSIX and near-atomic on Windows (no partial-read window).
+    Cleans up the temp file if anything goes wrong.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp.write_text(content, encoding=encoding)
+        last_exc: OSError | None = None
+        for attempt in range(5):
+            try:
+                tmp.replace(path)
+                last_exc = None
+                break
+            except PermissionError as exc:
+                last_exc = exc
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1))
+        if last_exc is not None:
+            raise last_exc
+    except Exception:
+        try:
+            tmp.unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
 
 
-def atomic_write(path: pathlib.Path, content: str, encoding: str = "utf-8") -> None:
-    """Write content to a temp file then rename atomically."""
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(content, encoding=encoding)
-    shutil.move(str(tmp), str(path))
+def atomic_write_bytes(path: Path, content: bytes) -> None:
+    """Write binary *content* atomically without newline or encoding changes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        tmp.write_bytes(content)
+        last_exc: OSError | None = None
+        for attempt in range(5):
+            try:
+                tmp.replace(path)
+                last_exc = None
+                break
+            except PermissionError as exc:
+                last_exc = exc
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1))
+        if last_exc is not None:
+            raise last_exc
+    except Exception:
+        try:
+            tmp.unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
 
 
-def list_files(root: pathlib.Path, pattern: str = "**/*") -> List[pathlib.Path]:
-    """Recursively list files matching pattern under root."""
-    return [p for p in root.glob(pattern) if p.is_file()]
+def file_hash(path: Path) -> str:
+    """Return a fast fingerprint of *path* based on size + mtime_ns.
+
+    Not cryptographically secure — intended for change-detection only
+    (e.g. "did this file change since last run?").  Returns a 16-hex-char
+    string so it is cheap to store in manifests.
+    """
+    s = path.stat()
+    return hashlib.sha256(
+        f"{s.st_size}:{s.st_mtime_ns}".encode()
+    ).hexdigest()[:16]

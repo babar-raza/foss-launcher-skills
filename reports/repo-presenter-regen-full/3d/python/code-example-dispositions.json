@@ -1,0 +1,250 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/FileFormat.py"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "setup.py"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/Scene.py"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/gltf/GltfSaveOptions.py"
+    }
+  },
+  {
+    "unit_id": "c0005a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Mesh and Export It to STL' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0005b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Mesh and Export It to STL' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0005c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Mesh and Export It to STL' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0005d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Mesh and Export It to STL' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0006a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0006b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0006c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0006d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0006e",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0006f",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py",
+      "evidence_note": "restored verbatim 2026-09-02 (readme-refresh-publication-state-hardening) under 'Build a Mesh From Control Points and Export It to glTF' -- the pre-mission candidate had replaced this example with a Sphere/STL one and lost mesh.control_points.add, create_polygon, GltfSaveOptions/FileFormat.get_format_by_extension stream export and the json.loads read-back (ST-161)"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Import a COLLADA File' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/entities/Box.py",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Convert a Parametric Primitive to a Mesh' -- positional Box(10, 20, 30) + control-point count is a distinct demonstration from Quick Start's keyword form"
+    }
+  },
+  {
+    "unit_id": "c0009a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Cube and Export It to 3MF' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0009b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Cube and Export It to 3MF' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0009c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Cube and Export It to 3MF' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0009d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Cube and Export It to 3MF' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0009e",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "restored verbatim 2026-09-02 under 'Build a Cube and Export It to 3MF' (readme-refresh-publication-state-hardening): the pre-mission candidate had excluded this whole worked example as 'not reproduced'; executed clean against the published wheel 26.1.0 before restoring"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "setup.py"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/test_obj_importer.py",
+      "evidence_note": "restored verbatim 2026-09-02: the single-test invocation names a real test module"
+    }
+  }
+]

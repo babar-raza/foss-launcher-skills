@@ -1,0 +1,6 @@
+[
+  {"id": "C-001", "text": "Font.open loads a font file from disk.", "kind": "erc_api", "class_prefix": "Font", "confidence": 0.95},
+  {"id": "C-002", "text": "Font.save writes the font to the specified path.", "kind": "erc_api", "class_prefix": "Font", "confidence": 0.92},
+  {"id": "C-003", "text": "FontType.TTF represents TrueType font format.", "kind": "erc_api", "class_prefix": "FontType", "confidence": 0.98},
+  {"id": "C-004", "text": "GlyphId.value returns the numeric glyph identifier.", "kind": "erc_api", "class_prefix": "GlyphId", "confidence": 0.90}
+]

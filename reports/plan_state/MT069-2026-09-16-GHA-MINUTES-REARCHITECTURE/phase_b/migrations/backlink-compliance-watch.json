@@ -1,0 +1,23 @@
+{
+  "workflow_name": "backlink-compliance-watch.yml",
+  "state": "CANARY_CONFIRMED",
+  "state_history": [
+    {"state": "TEMPLATE_BUILT", "at": "2026-09-17T16:50:00Z", "note": "Local template built at scripts/ci/deployed-workflows/backlink-compliance-watch.yml, following the exact proven pattern from aspose-com-targets-watch.yml (PHB-05). Known deferred fragility HP-06 (static review) noted in the template's own comment, not fixed -- out of scope, non-blocking."},
+    {"state": "CANARY_DEPLOYED", "at": "2026-09-17T16:54:00Z", "note": "Pushed to Aspose/aspose.org-workflows main via isolated-temp-index plumbing, fetch-first this time (lesson from the canary's own concurrent-session hazard). Local clone's working tree/index/main ref confirmed untouched before and after.", "deployed_commit_sha": "4e4d883bf8cf3c8215a459c26446ed0e06cc3f28", "deployed_commit_parent": "a00a226538a5a41e2ef7604dc520d856a790e615", "public_template_sha256": "362043763cae5327d198815fbb018001352b316ddea652cb611cbd1cc1761f56", "verified_byte_identical_to_local_template": true},
+    {"state": "CANARY_OBSERVING", "at": "2026-09-17T16:55:36Z", "note": "Manually dispatched for a real end-to-end proof run.", "run_id": 35249572704, "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35249572704"},
+    {"state": "CANARY_CONFIRMED", "at": "2026-09-17T16:56:39Z", "note": "Run completed successfully (1m3s). Checkout of the private repo succeeded; both real checks ran against live data and passed clean; no new issue created on Aspose/aspose.org (confirmed via gh issue list -- most recent pre-existing issue is #83 from 2026-09-07)."}
+  ],
+  "reconciliation": {
+    "public_run_landed": true,
+    "no_new_private_run_since_migration": "implicitly true going forward -- private trigger flipped to workflow_dispatch-only in this same session",
+    "billing_trend": "not yet observable this billing cycle -- too soon after migration"
+  },
+  "private_original": {
+    "path": ".github/workflows/backlink-compliance-watch.yml",
+    "action_taken": "trigger flipped from schedule(daily 11:00 UTC) to workflow_dispatch-only",
+    "not_deleted": true,
+    "not_enabled_or_disabled_via_api": true,
+    "committed": false,
+    "note": "UNCOMMITTED as of this record, same open-precondition pattern flagged for the other private-side edits this mission -- not silently repeated, flagged explicitly."
+  }
+}

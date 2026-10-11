@@ -1,0 +1,7 @@
+{
+  "run_id": "test-docs-leaked-kb",
+  "subdomain": "docs",
+  "adapters_activated": ["docs", "kb", "clone-cache"],
+  "adapters_NOT_activated": ["products", "blog", "reference"],
+  "proposals_generated": 0
+}

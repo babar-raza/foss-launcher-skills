@@ -1,0 +1,310 @@
+# `/readme-refresh` — Current Operational Reference
+
+> **Role**: current-truth orientation for people and LLM agents. This file describes what the
+> system supports **today** and how to work with it safely. It is **not** a state machine and
+> holds no execution status — live status is in `reports/readme_refresh_runs/` and per-product
+> `ACTIVE.json`; actionable work is in the plan's own open taskcards. History, evidence, and every
+> superseded decision live in
+> [plan-system-forensic-reconciliation.md](plan-system-forensic-reconciliation.md) (the forensic
+> report) and the original plan file it audits.
+>
+> **Snapshot date: 2026-08-20 ~17:45 local.** MT041–MT056 (scope enforcement, acceptance
+> registry, label-geometry hard gate, draft-flag removal) landed and committed 2026-08-19
+> (`1f4b934a6e`). Since that snapshot, the entire disposition-family remediation this file's §11
+> once tracked as the largest open item (TC-MICRO-02) has been **closed**: a fresh, coherent,
+> unscoped `audit-portfolio` run on 2026-08-20 confirms **30/30 products clean, 0 dirty** — up
+> from the 3/30 genuinely-verified baseline this same investigation started from. F-02 and
+> TC-AUDIT-01 are also closed. See §11 for the real remaining open items (now short: republication
+> push authorization + this closeout pass itself).
+> Re-run the [Consistency check](#consistency-check) before trusting this file in a later session.
+
+---
+
+## 1. Purpose and scope
+
+`/readme-refresh` (skill **S-120**) generates, verifies, and — on explicit human approval — pushes
+a production-grade `README.md` refresh for **one Aspose FOSS product repository at a time**, via a
+registered, run-bound state machine. It owns the README plus community-health *files* that ride in
+the same PR (SECURITY.md/CONTRIBUTING.md proposals).
+
+It does **not**: edit repo *settings* (description/topics/homepage/org profile/icon — that is the
+never-built `/repo-presenter-metadata` design), touch this repo's `content/` sites, run on a
+schedule, merge without a per-PR human go-ahead, or write to any knowledge/`data` registry it
+consumes (all read-only, exceptions listed in §4).
+
+## 2. Current architecture (active execution path)
+
+```
+data/products.json ──► start (preflight: registry, exclusions, family registered, gh permissions,
+                              clone-cache HEAD pinned)
+                └──► plan  (factpack: ~20 verified _detect_* fields + old-README inventories:
+                            content/structural/code/badge units)
+Agent composes candidate ──► reports/repo-presenter-regen-full/{family}/{platform}/readme.md
+        + sibling dispositions (content / structure / badge / code-example) + upstream-issues.md
+                └──► ingest-candidate  (~101 deterministic result keys; ~64 hard gates block)
+                └──► recheck           (re-run after edits; --allowed-headings / --mermaid-only
+                                        change-isolation gates vs rolling snapshot)
+                └──► verify-examples   (python_verification_runner_v2 via --python-runner: stages
+                                        clone-cache fixtures, runs example chains, executes bash
+                                        blocks through the product's console scripts; other
+                                        languages honest BLOCKED-WITH-REASON stubs; re-runnable
+                                        in place from AWAITING_REVIEW)
+                └──► AWAITING_REVIEW → approve --note (human gate; input drift forces re-plan)
+                └──► push [--dry-run]  (disposable clone → surgical README-only diff →
+                                        commit-tree plumbing → token push → gh pr create)
+                └──► human reviews PR → agent merges on explicit go-ahead:
+                     gh pr merge N --squash --delete-branch --subject … --body …
+                     (body = real commit message + exactly ONE Co-authored-by: <acting model>)
+                └──► verify (post-push) · clone cache fast-forwarded after merge
+```
+
+States: `CREATED → INPUTS_PINNED → PLANNED → VERIFYING_EXAMPLES → AWAITING_REVIEW → APPROVED →
+PUSHING → PUSHED`; rework `AWAITING_REVIEW/APPROVED → PLANNED`; `PUSHING → APPROVED` (dry-run
+return); `BLOCKED` re-enterable from INPUTS_PINNED/PLANNED/VERIFYING_EXAMPLES/PUSHING; terminals
+`PUSHED`, `ABANDONED`. There is **no template engine**: the agent writes the prose; the gates
+enforce the contract.
+
+## 3. Canonical entry points
+
+| Action | Command |
+|---|---|
+| Skill gate | `skill_context.py begin --skill S-120` then follow `skills/readme-refresh.md` |
+| CLI | `PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/foss/readme_refresh_run.py <verb> …` |
+| Verbs | `start FAMILY PLATFORM [--skip-preflight]` · `plan` · `ingest-candidate` · `recheck [--allowed-headings …] [--mermaid-only]` · `verify-examples [--python-runner \| --typescript-runner]` · `status [--json]` · `approve --note …` · `push --acting-model … [--acknowledge-mirror-target …] [--dry-run]` · `verify` · `abandon --reason … [--adopt-orphaned]` · `recover --reason …` — all `--run-id` bound; plus the non-run-scoped `audit-portfolio [--family F --platform P] [--json]` (read-only, portfolio-wide, per-product `published` flag + `skeleton_singletons`), `retention-report FAMILY PLATFORM [--json] [--out PATH]` (read-only per-unit retention table), `pin-old-readme-baseline FAMILY PLATFORM --commit SHA --reason …`, `reconcile-publications (--family F --platform P \| --all) [--apply] [--json]`, `live-published-regression (--family F --platform P \| --all) [--json]`, `declare-scope` / `accept-blocks` / `converge-verify` (MT056 scope machinery). The full block in `skills/readme-refresh.md` is parity-tested against argparse. |
+| Scoped tests (never the full suite) | `pytest scripts/pipeline/tests/test_readme_refresh_checks.py scripts/pipeline/tests/test_readme_refresh_run.py scripts/pipeline/tests/test_dependency_extract.py -q` (795 tests, ~2.5 min) |
+| Commits in this repo | **only** `scripts/pipeline/commands/ops/git_plumb_commit.py` (isolated temp index) — never plain `git commit`; never `git reset`/`git stash` (ST-021) |
+
+## 4. Authoritative data
+
+- **Candidate store (canonical, decided 2026-08-18)**:
+  `reports/repo-presenter-regen-full/{family}/{platform}/` — `readme.md`, `upstream-issues.md`
+  (local-only, **never pushed**), `content-dispositions.json`, `structure-dispositions.json`,
+  `badge-dispositions.json`, `code-example-dispositions.json`, (pilot) `acceptance-registry.json`.
+  `reports/repo-presenter/` is the **frozen historical tree** (readable via
+  `configure(candidate_tree_name="repo-presenter")`; retirement/reconciliation pending).
+  Store record: `data/readme_candidate_store.json` (MT056).
+- **Run evidence**: `reports/readme_refresh_runs/{f}/{p}/{run_id}/` (`manifest.json`,
+  `events.jsonl`, `facts/factpack.json`, `checks/result.json`, `checks/last_checked_candidate.md`,
+  `verification/result.json`, `push/receipt.json`); locks `reports/locks/readme_refresh/`.
+- **External-action ledger**: `reports/repo_presenter_actions.jsonl` (one row per push; started
+  2026-08-15, earlier manual pushes deliberately not backfilled).
+- **Read-only inputs**: `data/products.json` (31) · `data/registry_exclusions.json` ·
+  `data/package_registry.json` (record only — since 2026-09-02 probed live at plan time through `lib/publication_probe.py`; the live fact drives Installation/badges/runner and a HARD gate, the record is a named fallback; drift is surfaced, never auto-applied) ·
+  `data/aspose_com_targets.json` + `data/backlinks/platform_canonical_overrides.yaml` ·
+  `data/format_descriptions.json` · `data/families.json` · `keywords/{family}.json` (known
+  cross-platform-contaminated; filtered) · `knowledge/{f}/{p}/merged/*`
+  (`formats.md` known imperfect → 2-of-3 corroboration) ·
+  `content/reference.aspose.org/en/{f}/{p}/*` · clone cache `runs/.clone_cache/aspose_{f}_{p}/`
+  (never written; fast-forwarded only after a real merge).
+- **Written by this skill (narrow)**: `data/diagram_archetypes.json` (evidence-cited archetype
+  rows; hybrid `decided_at` must be re-verified fresh, never blind-bumped),
+  `data/api_reference_class_exclusions.json`, `data/dependency_overrides.json`,
+  `data/readme_candidate_store.json`.
+
+## 5. Current invariants (every regeneration must obey)
+
+1. Every factual claim verified against real, current source **immediately before writing** — for
+   inclusion *and* for dropping. "The old README said so" is never evidence. Fabricated API
+   surface is the worst defect class.
+2. Section isolation: an edit touches only its declared sections
+   (`check_only_sections_changed` / `--mermaid-only`); deterministic machinery must be idempotent
+   (same input → byte-identical output, proven by running twice). Free LLM prose is **not**
+   promised byte-reproducible — only structural properties are.
+3. Old-README accounting: every content/structural/badge/code unit gets an explicit disposition
+   (merged/corrected/excluded-with-true-reason). Excuses must be factually true ("no template
+   section exists" is never valid for screenshots). Published products
+   (candidate == live upstream README) skip all 25 preservation keys with a disclosed
+   `skipped: True` — never hand-edit dispositions to simulate this.
+4. Diagram: flat `StartingPoints? → PRODUCT → Capabilities → Outputs`; no per-node edges; no
+   custom styling; Starting Points required for transform/compile, forbidden for generative,
+   exactly-2-line for hybrid (fresh source re-verification each time); containers format-pure;
+   every format claim 2-of-3 corroborated; ≤28-char tokens (label-geometry hard gate). **The
+   `## At a Glance` section body is exactly one mermaid fence — nothing before or after it**
+   (`check_at_a_glance_section_shape`, hard gate, 2026-09-02; section-body invariants are
+   indexed in `data/readme_template_contract.json` → `section_shapes`, each with its enforcing
+   check, parity-gated).
+5. Prose hygiene: no process/audit narration; no generation-mechanism narration ("the table below
+   mirrors…"); **no verification-status language about this document's own diagram/examples**
+   ("the diagram below describes the intended API", "the examples above cannot be executed
+   against this snapshot"); no internal artifact names (`upstream-issues.md`,
+   `content-dispositions.json`, `.clone_cache`, `reports/…`); **designed limitations** (stubs,
+   milestone docstrings, documented-empty data dirs) are Scope and Limitations bullets when
+   stated in an approved public source of the target product; **transient defects** (package
+   fails to import, broken build backend, unpublished package) are never in the README — they
+   live in `upstream-issues.md` and the upstream-issue workflow (2026-09-02 rule; html/python
+   precedent); License section = fixed MIT template (linked/unlinked); headings Title Case
+   (glTF exception).
+6. Links: Enterprise link exactly once, in Scope and Limitations' closing paragraph (separate
+   paragraph, never inside a bullet), anchor = `Aspose.{Family} for {Public Platform} — Enterprise
+   Edition` (family-neutral only when no platform page exists), URL from the resolved target map —
+   **never expose implementation bridges anywhere** ("via Java/C++/.NET", wrapper/binding/backed-by).
+   Never link `forum.aspose.com` or any `*.aspose.app`. Documentation & Resources links only when
+   the local `content/...\_index.md` exists. Banner = linked form
+   `[![alt](banner-readme.png)](verified homepage)`.
+7. Badges: License badge + at least one more verified category when available; reconcile against
+   old badges by category+target, never label text.
+8. `## Dependencies` is a required section (after Installation): real manifest-extracted data;
+   verified-zero renders the fixed "No required third-party package dependencies." sentence;
+   unqualified "dependency-free / no external runtime" claims are hard-blocked.
+9. Merge procedure: non-draft PR, 3-section body (Summary / What changed / Verification), agent
+   squash-merges only on an explicit per-PR go-ahead **with explicit `--subject`/`--body`** carrying
+   exactly one `Co-authored-by: <real acting model>` trailer.
+10. Never claim beyond the gate: heuristic silence ≠ verified; a passing gate proves only its
+    narrow claim; date-stamp any "N/30 clean" statement (certifications decay).
+
+## 6. Candidate lifecycle (discovery → publication)
+
+1. **Freshness**: `start` pins clone-cache HEAD; stale knowledge → run the
+   `repo-scout → knowledge-enrich → truth-merge` chain first (hard prerequisite for new products —
+   the 2-of-3 format gate arithmetically blocks without it).
+2. **Facts**: `plan` writes the factpack (never recomputed by the agent by hand).
+3. **Composition**: agent writes candidate + dispositions per skill-doc contract; reads 2–3
+   contamination-checked sibling candidates for tone; omit a framing sentence rather than invent.
+4. **Gating**: `ingest-candidate` (hard gates block) → fix → `recheck` (isolation gates).
+5. **Verification**: `verify-examples` (Python real via runner v2 — fixtures staged from the
+   clone cache, continuation fragments run in their example chain, `bash` blocks executed line
+   by line through the product's own console scripts; statuses `FIXTURE-UNAVAILABLE` /
+   `DEPENDS-ON-FAILED-BLOCK` / `NOT-A-PRODUCT-COMMAND` / `UPSTREAM-BROKEN` are reviewer evidence;
+   others named stubs — BLOCKED-WITH-REASON must be listed by name to the reviewer, never
+   silently shipped). Re-runnable in place from `AWAITING_REVIEW` after a candidate edit.
+6. **Review**: human reviews the bundle; tweaks → `recheck`; the skill never self-approves.
+7. **Publication**: `approve` → `push --dry-run` rehearsal → live `push` (fresh authorization) →
+   human PR review → agent squash-merge per invariant 9 → `verify` → clone cache fast-forward →
+   ledger row. For a regenerated candidate where one exists: the Regeneration Comparison Protocol
+   (structural/factual/wording classes, every factual disagreement source-verified both ways) —
+   never silent replacement.
+
+## 7. Surgical improvement model
+
+To improve one area only: `declare` the scope (MT056 change-scope machinery as it lands; today:
+`recheck --allowed-headings "A,B"` / `--mermaid-only` against the rolling snapshot) → edit only
+those blocks → prove isolation (zero diffs outside the allowed set) → re-run the battery →
+idempotency (second run byte-identical). Accepted/converged blocks (acceptance registry, MT056)
+may not change without a new authorizing scope; source-change invalidation reopens them explicitly.
+
+## 8. Platform and product variation
+
+- **Global**: everything in §5.
+- **Archetype-driven** (`data/diagram_archetypes.json`; absence = `transform`): current overrides —
+  `barcode/python` generative, `tex/python` compile, `pdf/cpp` + `pdf/go` + `page/python` hybrid.
+- **Platform-specific**: install sourcing per registry (live registry probe first, `package_registry.json`
+  as the named fallback; C++ is NOT registry-less — cells/cpp ships NuGet); Go uses module path + `pkg.go.dev`
+  badge (`language_package_reference`, not `package_version`); Python bridge slugs
+  (`python-net`/`python-java`) normalize to public "Python" in anchors.
+- **Product-specific overrides (all evidence-required)**: `registry_exclusions.json`
+  (cells/typescript excluded from site-launch; its repo README was still refreshed under explicit
+  user authorization), `api_reference_class_exclusions.json` (font/python ×3),
+  `dependency_overrides.json`, `3d/typescript`'s class-heading reference convention (parser
+  fallback handles it).
+
+## 9. Validation and evidence (what proves a candidate acceptable)
+
+- `checks/result.json`: 0 hard-gate findings (~64 keys); advisory findings individually triaged,
+  never bulk-dismissed.
+- `verification/result.json`: every block `COMPILED+RAN CLEAN` / `FIXED-THEN-PASSED`, or
+  `BLOCKED-WITH-REASON` explicitly accepted by the reviewer by name.
+- Isolation + idempotency proofs (per §5.2) recorded in the run evidence.
+- Dispositions complete and drift-clean (`content_unit_excerpt_matches_extraction` etc.).
+- `dependency-verification-matrix.json` for reviewer inspection (non-gating).
+- Scoped test suite green (795 as of 2026-08-18) before any code commit.
+- `audit-portfolio` for portfolio claims — freshly run, date-stamped.
+
+## 10. Resume and recovery
+
+- `status --run-id … --json` = current state. One active run per product (`ACTIVE.json` + lock).
+- `BLOCKED` → fix the named cause → `recover --reason …` re-enters `resume_state` → repeat the verb.
+- Input drift at `approve` forces back to `PLANNED` (by design).
+- Interrupted `PUSHING`: re-run `push` — steps are idempotent (existing branch/PR detected).
+- Abandon (`abandon --reason …`) to release a product lock after a proof/verification run; keep
+  the evidence tree.
+- Do not trust the shared git index (ST-021): before any commit, diff working-tree-vs-HEAD and
+  staged-vs-HEAD separately; commit only via `git_plumb_commit.py`.
+
+## 11. Current pending and deferred work (genuine open items only)
+
+Full detail: forensic report §8/§10, the plan's MT055 §2 register + MT056 §5, and
+`C:\Users\prora\.claude\plans\an-independent-review-reflect-dazzling-elephant.md` (the
+2026-08-19/20 remediation session's own plan/log — the authoritative source for everything
+closed below; per-product evidence lives in `reports/plan_state/readme-disposition-remediation-
+2026-08-18/taskcards.jsonl` and `reports/plan_state/readme-portfolio-closure-2026-08-19/
+taskcards.jsonl`).
+
+| ID | Item | Status |
+|---|---|---|
+| TC-MICRO-02 | Per-product disposition-family remediation across the full 30-product portfolio (root cause: old-README content-unit counts had grown/restructured since disposition sidecars were last authored — a bookkeeping-script remap was disproven by a control/treatment pilot; real fix is per-product compose-stage re-authoring). | **CLOSED 2026-08-20.** All 30 products individually taken through the same rigor: real-unit extraction, batch API-name verification against live source, evidence pre-validation, scratch-then-canonical scratch/treatment proof, determinism check. A fresh, coherent, unscoped `audit-portfolio` run (2026-08-20 ~17:45) confirms **30/30 clean, 0 dirty**. Along the way, ~15 genuine content defects were found and fixed (not just bookkeeping) — examples: `3d/typescript` had 4 real product bugs (broken OBJ import/export, broken GLB export, glTF round-trip node duplication) confirmed by *running the product's own test suite*, not just reading source; `cells/java` had a fabricated `SheetVisibility` API claim; `pdf/go` had a fabricated public `FontRepository` type; `pdf/java` had a false "PDF/X out of scope" claim; `words/python`/`slides/python` had a stale fabricated dev-dependency claim (the specific defect that originally motivated `check_dependency_development_claim_not_in_manifest`). Full per-defect evidence in the taskcard ledgers above. |
+| TC-AUDIT-01 | `audit_portfolio`'s `clean: true` conflated genuine disposition verification with `published:true`'s deliberate MT053 skip — the "8/30 clean" headline this reference and the forensic report both cited turned out to mean "3/30 genuinely verified." | **CLOSED** (`91a4dfd51d`). `audit_portfolio` now reports a real `disposition_tracking` field (`verified`/`checked_dirty`/`skipped_published`) and `disposition_verified_count`, so this conflation can't recur. Note: a product reporting `skipped_published` on a given run is not necessarily unverified — see the taskcard ledgers for products individually verified during closure whose candidate is currently, correctly, byte-identical to their live README again. |
+| RC-C cluster (backlog G-51) | `content_unit_evidence_resolves` / `content_unit_merged_into_target_section` findings across several products, some citing a fabricated `TC-MICRO-04` reference. | **CLOSED** (`TC-RC-01` + children, 2026-08-20). Dominant case (`pdf/net`, 58 findings) and the tail case (`note/python`, 4 findings — 2 real disposition-metadata bugs, 2 genuinely-dropped facts restored to prose) both closed with real, source-grounded evidence; the fabricated reference was never reused. |
+| F-02 | `_do_push` hardcoded `Co-Authored-By: Claude Sonnet 5` — contradicted MT032's never-hardcode rule. | **CLOSED** (`fc28d32b9c`). `_do_push`/`push` now require a real `--acting-model` value; a regression test asserts no hardcoded model string can ship again. |
+| TC-HARDEN-47 / 48 | Republish `3d/net` / `3d/python` (live diagram clipping on GitHub since 2026-08-05). | **Open, P0.** Local candidates confirmed to carry the flat-topology fix. Push explicitly gated on a fresh, separate user go-ahead per invariant 9 — not authorized as part of this closeout pass. |
+| New: local-ahead-of-live gaps | `cells/go`, `slides/cpp` (and likely others under W5 below) had a real `## Dependencies` section added locally this session that the live upstream README still lacks — confirmed via live GitHub fetch, not assumed. | **Open, diagnostic only** — not folded into TC-HARDEN-47/48 (reserved for the confirmed `3d/net`/`3d/python` regression). Needs the same design as W5 below before any systematic push. |
+| 3 real check-code bugs found composing this session | (1) `check_no_upstream_issue_leaked_into_readme`: a punctuation-only backtick token (e.g. a lone `-` table placeholder) could spuriously match nearly every bulleted line via bare substring containment. (2) Same check: `## Dependencies` was never added to the narration-exemption list (API Reference/Installation/Quick Start already were). (3) `check_code_example_no_exact_duplicate_merge` had no `evidence_ref`-based exemption, unlike its already-fixed content-unit sibling — two code units sharing a mechanical API-call fingerprint but demonstrating genuinely different, independently-verified behavior were false-flagged. | **CLOSED** (`bf9381af81`). 2 new regression tests; scoped suite (723 tests) green. |
+| TC-MICRO-03 tail | Old-tree (`repo-presenter`) mechanical promotions + NEEDS_REVIEW triage + retirement | Open |
+| W5 (MT053) | Published-then-locally-edited state needs its own design — the byte-compare `published` check structurally can't detect "local candidate is ahead of live," only "local differs from live." Confirmed to affect at least `cells/go`, `slides/cpp` this session (row above), likely also `cells/java`, `3d/java`, `3d/typescript` per the original W5 note. | Open (blocked on design) |
+| TC-HARDEN-01 tail | Real verify-examples runners for Java/.NET/Go/Rust/C++/TS | Open, P1 (per-language missions) |
+| TC-HARDEN-17 | Durability of `reports/repo-presenter*` (single machine, gitignored) | **Blocked on user policy decision** |
+| TC-HARDEN-02 | `SKIP_SKILL_CONTEXT_CHECK=1` session-env bypass | Blocked on user/environment |
+| Sweep backlogs | MT049 (39 entries, pdf/go triage), MT052/TC-110 (32 combos), MT055 self-citation (13 combos) | **Closed as part of TC-MICRO-02** above — folded in, not tracked separately anymore |
+| Misc deferred | portfolio internal-class-leak run (perf) · scratch-script retirement (TC-HARDEN-14) · registry.yaml "21 checks" description fix · pdf/cpp 182 filler descriptions (P4) · `cells/python` live Enterprise-href push · TC-HARDEN-03 DAR gate (governance-owned) · mission registration (TC-HARDEN-06, P3) · `/repo-presenter-metadata` (needs go-ahead) | Open/deferred |
+
+## 12. Do-not-do rules
+
+- Never plain `git commit` / `git reset` / `git stash` in this repo; plumbing commits only.
+- Never write to the clone cache, `knowledge/`, or any read-only registry in §4; never hand-edit
+  `data/package_registry.json`, `formats.md`, or `keywords/` to make a check pass.
+- Never push/merge/open a PR, or `approve`, without a fresh, explicit, per-action user go-ahead;
+  never merge with `gh pr merge` defaults (explicit `--subject`/`--body` always).
+- Never push `upstream-issues.md` or any internal artifact; never name internal artifacts in
+  README prose.
+- Never expose implementation bridges ("via Java/C++/.NET", wrapper/binding); never link
+  `forum.aspose.com` / `*.aspose.app`; never embed GitHub social-preview URLs (5-min expiry).
+- Never hand-edit disposition files for a published product; never fabricate a disposition
+  excuse; never blind-bump a hybrid `decided_at`.
+- Never regenerate against the old wired diagram model (hard-blocked anyway); never weaken a hard
+  gate to make a fixture or candidate pass — fix the content or prove the check wrong.
+- Never treat heuristic silence, a stale "clean" certification, or an agent self-report as
+  verification; never batch-edit multiple products in one uninspected pass.
+- Never assume this file is current in a later session — run the consistency check.
+
+## 13. Consistency check
+
+Run these; any failure means this reference or its forensic companion is stale — re-audit before
+relying on either:
+
+```bash
+# 1. Plan identity (must match forensic report §1 or trigger a refresh)
+sha256sum ~/.claude/plans/d-users-prora-onedrive-documents-github-humble-tome.md
+# audited: 8f5fb4fe6e7c76bc521c85b38b6c7c044e5bf80307a5b46ffb0e9ba159cd09ea (20,903 lines)
+
+# 2. Entry points exist
+ls scripts/pipeline/commands/foss/readme_refresh_run.py \
+   scripts/pipeline/commands/foss/readme_refresh_checks.py \
+   scripts/pipeline/commands/foss/dependency_extract.py skills/readme-refresh.md
+
+# 3. Canonical tree constant (expected: repo-presenter-regen-full)
+grep -n '_DEFAULT_CANDIDATE_TREE_NAME' scripts/pipeline/commands/foss/readme_refresh_run.py
+
+# 4. F-02 regression guard: this must stay EMPTY (fixed 2026-08-19, commit fc28d32b9c — _do_push
+#    now requires a real --acting-model, no hardcoded model string):
+grep -n 'Co-Authored-By: Claude Sonnet 5' scripts/pipeline/commands/foss/readme_refresh_run.py
+#    F-01 regression guard: this must stay EMPTY (the --draft flag was removed 2026-08-18 21:19):
+grep -n '"--draft"' scripts/pipeline/commands/foss/readme_refresh_run.py
+
+# 5. Check-function count vs doc claims (drifts upward as missions land)
+grep -c '^def check_' scripts/pipeline/commands/foss/readme_refresh_checks.py   # 103 at snapshot
+
+# 6. Store record + canonical trees
+cat data/readme_candidate_store.json 2>/dev/null
+ls -d reports/repo-presenter reports/repo-presenter-regen-full
+```
+
+## 14. Historical context (one paragraph)
+
+The system began (2026-08-02) as a manual, agent-driven 30-product README generation with a
+compile-and-run verification sprint, and hardened through ~56 recorded incidents: every convention
+here exists because a real defect shipped without it (fabricated API claims, dropped content,
+narration leaks, dead links, diagram clipping, disposition drift, a revoked bridge-wording policy,
+a skill that sat unused beside the manual process until 2026-08-11). The full evidence trail,
+decision chains, supersessions, and contradiction register are in the
+[forensic reconciliation](plan-system-forensic-reconciliation.md); the immutable source history is
+the original plan file
+(`C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md`).

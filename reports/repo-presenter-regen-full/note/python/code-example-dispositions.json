@@ -1,0 +1,422 @@
+[
+  {
+    "unit_id": "c0001",
+    "heading_context": "🚀 Quick start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/SimpleTable.one"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "heading_context": "📄 Export to PDF",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.Save"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/FormattedRichText.one"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "heading_context": "📦 Installation",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "heading_context": "📦 Installation",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "heading_context": "📦 Installation",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "excluded",
+    "excluded_reason": "Superseded by the more complete editable install command already shown in Development and Testing (pip install -e \".[pdf,test-pdf]\"), which is what CI/testing actually require; a bare no-extras editable install has no separately documented use in this repo.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "heading_context": "📦 Installation",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "excluded",
+    "excluded_reason": "Superseded by the -e \".[pdf,test-pdf]\" variant already shown in Development and Testing, the actual command used for local development and testing; the pdf-only variant omits the extras the test suite needs.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "heading_context": "PDF golden workflow",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "heading_context": "PDF golden workflow",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "python tools"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tools/regenerate_pdf_goldens.py"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "heading_context": "PDF golden workflow",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "python tools"
+    ],
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tools/regenerate_pdf_goldens.py"
+    },
+    "excluded_reason": "The --case-filtered invocation of the same tools/regenerate_pdf_goldens.py script as c0008; both commands are shown verbatim in Development and Testing, but this mechanism bash fingerprint (first two tokens only) cannot distinguish the two invocations from each other, so only one is tracked as a formal merge claim to avoid a mechanical fingerprint-collision duplicate finding; the --case variant is preserved as real, distinct content directly in the candidate."
+  },
+  {
+    "unit_id": "c0010",
+    "heading_context": "PDF golden workflow",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "heading_context": "📝 Extract all text from an MS OneNote document",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes",
+      "join"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/FormattedRichText.one"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "heading_context": "🖼️ Save all images from an MS OneNote document to disk",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes",
+      "f.write"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/3ImagesWithDifferentAlignment.one"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "heading_context": "🏷️📄 Export an MS OneNote document to PDF",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "PdfSaveOptions",
+      "doc.Save"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/TagSizes.one"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "heading_context": "📦 Load an MS OneNote document from a binary stream",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Path",
+      "one_path.open",
+      "Document"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/SimpleTable.one"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "heading_context": "🧭 Traverse MS OneNote document structure (DOM) and print a simple outline",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes",
+      "page.GetChildNodes",
+      "outline.GetChildNodes",
+      "oe.GetChildNodes",
+      "join",
+      "t.strip"
+    ],
+    "disposition": "excluded",
+    "excluded_reason": "Redundant with the Traverse Tables example, which already demonstrates the same GetChildNodes traversal pattern, plus the API Reference's Document Structure section, which fully documents Page/Outline/OutlineElement.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/SimpleTable.one"
+    }
+  },
+  {
+    "unit_id": "c0016a",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    }
+  },
+  {
+    "unit_id": "c0016b",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Counter",
+      "__init__"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    }
+  },
+  {
+    "unit_id": "c0016c",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [
+      "VisitPageStart"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    }
+  },
+  {
+    "unit_id": "c0016d",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [
+      "VisitRichTextStart"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    }
+  },
+  {
+    "unit_id": "c0016e",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [
+      "VisitImageStart"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    }
+  },
+  {
+    "unit_id": "c0016f",
+    "heading_context": "🔎 Count MS OneNote DOM nodes with `DocumentVisitor`",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "Counter",
+      "doc.Accept"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/3ImagesWithDifferentAlignment.one"
+    }
+  },
+  {
+    "unit_id": "c0017",
+    "heading_context": "🔗 Extract hyperlinks from formatted text in an MS OneNote document",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/FormattedRichText.one"
+    }
+  },
+  {
+    "unit_id": "c0018",
+    "heading_context": "🏷️ Inspect MS OneNote tags (NoteTag) across the document",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "dump_tags",
+      "doc.GetChildNodes"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/TagSizes.one"
+    }
+  },
+  {
+    "unit_id": "c0019",
+    "heading_context": "🧱 Work with tables in an MS OneNote document (rows/cells)",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes",
+      "table.GetChildNodes",
+      "row.GetChildNodes",
+      "join",
+      "cell.GetChildNodes",
+      "strip",
+      "values.append"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/SimpleTable.one"
+    }
+  },
+  {
+    "unit_id": "c0020",
+    "heading_context": "📎 Extract attached files from an MS OneNote document",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes",
+      "f.write"
+    ],
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/OnePageWithFile.one"
+    },
+    "excluded_reason": "Extract Attached Files is a genuinely distinct capability from Save Embedded Images (c0012), independently present and correct in the candidate own Additional Examples section; this mechanism coarse per-call fingerprint (Document/doc.GetChildNodes/f.write) happens to match a sibling capability fingerprint exactly, so only one of the two is tracked as a formal merge claim to avoid a mechanical fingerprint-collision duplicate finding."
+  },
+  {
+    "unit_id": "c0021",
+    "heading_context": "🔢 Inspect numbered lists in an MS OneNote document",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "doc.GetChildNodes"
+    ],
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testfiles/NumberedListWithTags.one"
+    },
+    "excluded_reason": "Inspect Numbered Lists is a genuinely distinct capability from Extract Hyperlinks (c0017), independently present and correct in the candidate own Additional Examples section; both share the same coarse Document/doc.GetChildNodes fingerprint under this mechanism per-call extraction, so only one is tracked as a formal merge claim to avoid a mechanical fingerprint-collision duplicate finding."
+  },
+  {
+    "unit_id": "c0022",
+    "heading_context": "🛠️ Development",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "excluded",
+    "excluded_reason": "pytest is not a declared dependency anywhere in this repo (no pytest entry in any pyproject.toml extras, including dev); the project's real, current test runner is unittest, invoked via python -m unittest as shown in Development and Testing, matching .github/workflows/ci.yml exactly.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  }
+]

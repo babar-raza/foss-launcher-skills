@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Batch-generate all missing site plan pages."""
 import yaml, os, json
 from datetime import datetime
@@ -20,17 +19,84 @@ FAMILY_FOSS = {
 }
 
 PACKAGE_NAMES = {
-    ("3d","net"): "Aspose.3D.Foss", ("3d","java"): "com.aspose:aspose-3d-foss",
-    ("3d","python"): "aspose-3d", ("3d","typescript"): "@aspose/3d",
-    ("cells","net"): "Aspose.Cells.Foss", ("cells","java"): "com.aspose:aspose-cells-foss",
-    ("cells","python"): "aspose-cells", ("cells","typescript"): "@aspose/cells",
+    ("3d","net"): "Aspose.3D.Foss",
+    ("3d","python"): "aspose-3d",
+    ("cells","net"): "Aspose.Cells.Foss",
+    ("cells","python"): "aspose-cells",
     ("email","net"): "Aspose.Email.Foss", ("email","cpp"): "aspose-email-cpp",
     ("email","python"): "aspose-email",
     ("font","python"): "aspose-font", ("note","python"): "aspose-note",
-    ("slides","net"): "Aspose.Slides.Foss", ("slides","java"): "com.aspose:aspose-slides-foss",
+    ("slides","net"): "Aspose.Slides.Foss",
     ("slides","python"): "aspose-slides", ("slides","cpp"): "aspose-slides-cpp",
     ("words","python"): "aspose-words",
+    # NOTE: no ("{family}","java") entries here, deliberately. The Java Maven
+    # coordinate is never hardcoded in this file -- see _install_block()/
+    # _install_line() below, which emit the maven-coord/maven-gav Hugo
+    # shortcodes for platform=="java" instead. Mission MT008 (plans/master-plan.md,
+    # D-04): a hardcoded `com.aspose:aspose-{family}-foss` table lived here for
+    # 3 months and was the primary source of the wrong-groupId defect across
+    # KB/docs/blog content. Do not re-add Java entries to this dict.
+    #
+    # NOTE: no ("{family}","typescript") entries here either, deliberately,
+    # for the SAME reason -- Mission MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+    # (TC-MT040-46). ("3d","typescript"): "@aspose/3d" and
+    # ("cells","typescript"): "@aspose/cells" hardcoded a guessed/override
+    # display name here, disagreeing with data/package_registry.json's own
+    # scouted candidate (cells/typescript's real, still-unpublished manifest
+    # name is "excel-cells", not "@aspose/cells" -- see
+    # data/registry_exclusions.json's cells/typescript entry). See
+    # _resolve_package_name() below, which now resolves typescript through
+    # lib/product_registry.py instead. Do not re-add typescript entries to
+    # this dict.
 }
+
+
+def _resolve_package_name(fam, plat, foss):
+    """Resolve the 'pkg' identifier used throughout gen_docs/gen_kb/gen_blog.
+
+    For every platform except typescript, this is byte-identical to the
+    original `PACKAGE_NAMES.get((fam, plat), foss.lower())` lookup -- do not
+    change that behavior. For typescript specifically (TC-MT040-46),
+    PACKAGE_NAMES no longer carries any entries at all (see its own docstring
+    comment above), so resolve through the shared lib/product_registry.py
+    loader instead, falling back to foss.lower() -- this module's existing
+    generic fallback for every platform without a PACKAGE_NAMES entry -- only
+    when that loader has nothing to offer either.
+    """
+    if plat == "typescript":
+        import sys as _sys
+        _pipeline_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if _pipeline_root not in _sys.path:
+            _sys.path.insert(0, _pipeline_root)
+        from lib import product_registry
+        return product_registry.get_package_name(fam, "typescript", "npm") or foss.lower()
+    return PACKAGE_NAMES.get((fam, plat), foss.lower())
+
+
+def _install_block(fam, plat, pc, pkg):
+    """Return the markdown snippet for a full 'install the package' block.
+
+    For java, emits the maven-coord shortcode (which renders its own
+    <pre><code> from data/foss_packages.json, live-verified) instead of a
+    fenced bash block with a hardcoded coordinate string. For every other
+    platform, behavior is unchanged from before Mission MT008.
+    """
+    if plat == "java":
+        return '{{< maven-coord "' + fam + '" "java" >}}'
+    return "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```"
+
+
+def _install_line(fam, plat, pc, pkg):
+    """Return the inline (non-fenced) representation of 'the package', for use
+    in prose or table cells. For java, emits the maven-gav shortcode with NO
+    surrounding backticks (it already renders its own <code> wrapper --
+    wrapping it in backticks too produces a nested <code><code> element,
+    confirmed via a real Hugo build during this mission). For every other
+    platform, behavior is unchanged (still backtick-wrapped by the caller).
+    """
+    if plat == "java":
+        return '{{< maven-gav "' + fam + '" "java" >}}'
+    return pkg
 
 
 def load_api_surface(family, platform):
@@ -95,7 +161,7 @@ def gen_docs(pi, api, sha):
     slug, weight, cluster = pi["slug"], pi["weight"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     page_name = slug.split("/")[-1]
     title = make_page_title(page_name)
     classes = find_classes(api, cluster or page_name)
@@ -143,7 +209,7 @@ def gen_docs(pi, api, sha):
         "", "---", "",
         "## Getting Started", "",
         "Install " + foss + " for " + pc["human"] + ":", "",
-        "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```", "",
+        _install_block(fam, plat, pc, pkg), "",
     ]
     if classes:
         entry = classes[0]
@@ -187,7 +253,7 @@ def _license_page(fam, plat, pc, foss, pkg, weight, sha):
         "- Free use in commercial and non-commercial projects\n- Modification and redistribution\n- Private use without disclosure\n\n"
         "The only requirement is to include the original copyright notice and license text.\n\n---\n\n"
         "## No License Key Required\n\nUnlike proprietary Aspose products, " + foss + " for " + pc["human"] + " does **not** require a license file. Simply install:\n\n"
-        "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```\n\n---\n\n"
+        + _install_block(fam, plat, pc, pkg) + "\n\n---\n\n"
         "## Differences from Proprietary Products\n\n"
         "| Aspect | " + foss + " | Proprietary |\n|--------|--------|-------------|\n"
         "| License | MIT | Commercial |\n| License key | No | Yes |\n| Source code | Open | Closed |\n| Support | Community | Paid |\n\n---\n\n"
@@ -223,7 +289,7 @@ def gen_kb(pi, api, sha):
     fam, plat = pi["family"], pi["platform"]
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     if slug == "use-cases":
         return _use_cases(fam, plat, pc, foss, pkg, sha)
     if slug == "troubleshooting":
@@ -236,7 +302,7 @@ def _howto(pi, api, sha):
     slug, weight, cluster = pi["slug"], pi["weight"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     title = slug_to_title(slug)
     classes = find_classes(api, cluster or slug)
     entry = classes[0] if classes else ""
@@ -250,8 +316,12 @@ def _howto(pi, api, sha):
         'evidence:\n  model_sha: "' + sha + '"\n  model_version: ""\n  claims: []\n  apis: []\n\n---\n\n'
         "This guide shows how to " + title.lower() + " using " + foss + " for " + pc["human"] + ".\n\n---\n\n"
         "## Prerequisites\n\n| Requirement | Detail |\n|-------------|--------|\n"
-        "| Runtime | " + pc["human"] + " |\n| Package | `" + pkg + "` |\n| Install | `" + pc["install_cmd"] + " " + pkg + "` |\n\n---\n\n"
-        "## Steps\n\n1. Install the package:\n\n```bash\n" + pc["install_cmd"] + " " + pkg + "\n```\n\n"
+        "| Runtime | " + pc["human"] + " |\n| Package | "
+        + (_install_line(fam, plat, pc, pkg) if plat == "java" else "`" + pkg + "`")
+        + " |\n| Install | "
+        + (_install_line(fam, plat, pc, pkg) if plat == "java" else "`" + pc["install_cmd"] + " " + pkg + "`")
+        + " |\n\n---\n\n"
+        "## Steps\n\n1. Install the package:\n\n" + _install_block(fam, plat, pc, pkg) + "\n\n"
         + step2 + "\n\n```" + pc["lang"] + "\n// See API reference for " + ref_target + " details\n```\n\n---\n\n"
         "## Tips and Best Practices\n\n"
         "- Check the [API reference](https://reference.aspose.org/" + fam + "/" + plat + "/) for the latest class signatures\n"
@@ -271,7 +341,7 @@ def _use_cases(fam, plat, pc, foss, pkg, sha):
         'evidence:\n  model_sha: "' + sha + '"\n  model_version: ""\n  claims: []\n  apis: []\n\n---\n\n'
         + foss + " for " + pc["human"] + " is suitable for a range of document-processing scenarios.\n\n---\n\n"
         "## Document Generation\n\nGenerate files programmatically from data sources, templates, or application logic.\n\n"
-        "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```\n\n---\n\n"
+        + _install_block(fam, plat, pc, pkg) + "\n\n---\n\n"
         "## File Format Conversion\n\nConvert between supported file formats without requiring external software.\n\n---\n\n"
         "## Data Extraction\n\nRead and extract data, metadata, and structural information from existing files.\n\n---\n\n"
         "## Automated Processing\n\nIntegrate into CI/CD pipelines, batch-processing workflows, or microservices.\n\n---\n\n"
@@ -292,7 +362,7 @@ def _troubleshooting(fam, plat, pc, foss, pkg, sha):
         "This page covers common issues and their solutions when using " + foss + " for " + pc["human"] + ".\n\n---\n\n"
         "## Package Installation Fails\n\n**Symptom**: Package installation command fails with dependency errors.\n\n"
         "**Fix**: Ensure your runtime version meets the minimum requirement. Run:\n\n"
-        "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```\n\n---\n\n"
+        + _install_block(fam, plat, pc, pkg) + "\n\n---\n\n"
         "## File Not Found or Access Denied\n\n**Symptom**: An exception is thrown when opening or saving a file.\n\n"
         "**Fix**: Verify the file path exists and your application has read/write permissions.\n\n---\n\n"
         "## Unsupported File Format\n\n**Symptom**: An exception is thrown when loading a file in an unsupported format.\n\n"
@@ -308,7 +378,7 @@ def gen_blog(pi, api, sha):
     slug, cluster = pi["slug"], pi.get("cluster", "")
     pc = PLATFORM_CONFIG[plat]
     foss = FAMILY_FOSS[fam]
-    pkg = PACKAGE_NAMES.get((fam, plat), foss.lower())
+    pkg = _resolve_package_name(fam, plat, foss)
     title = slug_to_title(slug)
     classes = find_classes(api, cluster or slug)
     cls_lines = ""
@@ -327,7 +397,7 @@ def gen_blog(pi, api, sha):
         'evidence:\n  model_sha: "' + sha + '"\n  model_version: ""\n  claims: []\n  apis: []\n\n---\n\n'
         + foss + " for " + pc["human"] + " provides powerful capabilities for working with " + title.lower() + ".\n\n"
         "## Overview\n\n" + cls_lines + "\n## Getting Started\n\nInstall the package:\n\n"
-        "```bash\n" + pc["install_cmd"] + " " + pkg + "\n```\n\n"
+        + _install_block(fam, plat, pc, pkg) + "\n\n"
         "## Key Capabilities\n\n" + foss + " for " + pc["human"] + " lets you work with " + title.lower() + " programmatically without external dependencies.\n\n"
         "## Learn More\n\n- [Developer Guide](https://docs.aspose.org/" + fam + "/" + plat + "/developer-guide/)\n"
         "- [API Reference](https://reference.aspose.org/" + fam + "/" + plat + "/)\n"

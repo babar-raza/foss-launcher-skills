@@ -1,0 +1,427 @@
+"""Unit tests for check_locale_topology.py."""
+
+from __future__ import annotations
+
+import sys
+import tempfile
+from pathlib import Path
+
+import pytest
+
+_PIPELINE_ROOT = Path(__file__).resolve().parent.parent
+if str(_PIPELINE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_ROOT))
+
+from check_locale_topology import extract_h2s, check_locale, check_all, main  # noqa: E402
+
+
+def _tmp_md(content: str) -> Path:
+    f = tempfile.NamedTemporaryFile(suffix=".md", mode="w", encoding="utf-8", delete=False)
+    f.write(content)
+    f.close()
+    return Path(f.name)
+
+
+ENGLISH_SOURCE = """\
+---
+title: Export Formats
+grade: A
+---
+
+## Save to XLSX and CSV
+
+Example content.
+
+## Save to Markdown
+
+More content.
+
+## See Also
+
+Links.
+"""
+
+MATCHING_LOCALE = """\
+---
+title: Exportformate
+grade: A
+---
+
+## Speichern als XLSX und CSV
+
+Beispiel.
+
+## Als Markdown speichern
+
+Mehr Inhalt.
+
+## Siehe auch
+
+Links.
+"""
+
+MISSING_H2_LOCALE = """\
+---
+title: Missing section
+---
+
+## Save to XLSX and CSV
+
+Content.
+
+## See Also
+
+Links.
+"""
+
+EXTRA_H2_LOCALE = """\
+---
+title: Extra section
+---
+
+## Save to XLSX and CSV
+
+Content.
+
+## Save to Markdown
+
+Content.
+
+## Bonus Section
+
+Extra.
+
+## See Also
+
+Links.
+"""
+
+EMPTY_FILE = """\
+---
+title: Empty
+---
+"""
+
+NO_FRONTMATTER = """\
+## Save to XLSX and CSV
+
+Content.
+
+## Save to Markdown
+
+Content.
+
+## See Also
+
+Links.
+"""
+
+
+class TestExtractH2s:
+    def test_extracts_h2s_from_body(self):
+        p = _tmp_md(ENGLISH_SOURCE)
+        try:
+            h2s = extract_h2s(p)
+            assert h2s == ["Save to XLSX and CSV", "Save to Markdown", "See Also"]
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_ignores_h3_and_deeper(self):
+        content = "---\ntitle: X\n---\n## Top\n### Sub\n#### Deep\n## Second\n"
+        p = _tmp_md(content)
+        try:
+            h2s = extract_h2s(p)
+            assert h2s == ["Top", "Second"]
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_no_frontmatter_still_works(self):
+        p = _tmp_md(NO_FRONTMATTER)
+        try:
+            h2s = extract_h2s(p)
+            assert h2s == ["Save to XLSX and CSV", "Save to Markdown", "See Also"]
+        finally:
+            p.unlink(missing_ok=True)
+
+    def test_empty_body_returns_empty_list(self):
+        p = _tmp_md(EMPTY_FILE)
+        try:
+            assert extract_h2s(p) == []
+        finally:
+            p.unlink(missing_ok=True)
+
+
+class TestCheckLocale:
+    def test_matching_topology_returns_none(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(MATCHING_LOCALE)
+        try:
+            assert check_locale(src, loc) is None
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_missing_h2_returns_mismatch(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(MISSING_H2_LOCALE)
+        try:
+            result = check_locale(src, loc)
+            assert result is not None
+            assert result["check"] == "h2_count_mismatch"
+            assert "source has 3 H2(s)" in result["detail"]
+            assert "locale has 2 H2(s)" in result["detail"]
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_extra_h2_returns_mismatch(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(EXTRA_H2_LOCALE)
+        try:
+            result = check_locale(src, loc)
+            assert result is not None
+            assert result["check"] == "h2_count_mismatch"
+            assert "locale has 4 H2(s)" in result["detail"]
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_empty_locale_returns_mismatch(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(EMPTY_FILE)
+        try:
+            result = check_locale(src, loc)
+            assert result is not None
+            assert "locale has 0 H2(s)" in result["detail"]
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_source_only_file_no_mismatch_with_itself(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        try:
+            assert check_locale(src, src) is None
+        finally:
+            src.unlink(missing_ok=True)
+
+
+class TestPrePatchRegressionFixture:
+    """Fixture-backed tests based on the real historical working-with-formulas.md
+    H2-inflation bug (commit cb8c937d3).
+
+    The fr locale at that commit had 9 H2s vs the English source's 8 because a
+    Note paragraph was incorrectly promoted to a heading:
+
+        ## Aspose.Cells FOSS does not include a formula engine. If you need...
+
+    The checker must detect this; the fixed (8-H2) locale must pass.
+    """
+
+    # English source: 8 H2s — the canonical structure after the WS-11 fix.
+    EN_8H2 = """\
+---
+title: Working with Formulas
+---
+
+## Overview
+
+Content.
+
+## Setting a Formula via the Cell Constructor
+
+Content.
+
+## Setting a Formula via the `.formula` Property
+
+Content.
+
+## Reading a Formula Back
+
+Content.
+
+## Common Excel Formulas
+
+Content.
+
+## Complete Example
+
+Content.
+
+## Notes
+
+A formula string must start with `=`.
+
+## See Also
+
+Links.
+"""
+
+    # Pre-patch broken locale: 9 H2s — Note paragraph promoted to heading.
+    FR_9H2_BROKEN = """\
+---
+title: Travailler avec des formules
+---
+
+## Vue d'ensemble
+
+Contenu.
+
+## Définir une formule via le constructeur Cell
+
+Contenu.
+
+## Définir une formule via le `.formula` Propriété
+
+Contenu.
+
+## Lire une formule
+
+Contenu.
+
+## Formules Excel courantes
+
+Contenu.
+
+## Exemple complet
+
+Contenu.
+
+## Remarques
+
+Contenu.
+
+## Aspose.Cells FOSS does not include a formula engine. If you need the computed résultat d'une formule dans Python, calculez vous-même la valeur.
+
+## Voir aussi
+
+Liens.
+"""
+
+    # Fixed locale: 8 H2s — Note content stays in body, not promoted to heading.
+    FR_8H2_FIXED = """\
+---
+title: Travailler avec des formules
+---
+
+## Vue d'ensemble
+
+Contenu.
+
+## Définir une formule via le constructeur Cell
+
+Contenu.
+
+## Définir une formule via le `.formula` Propriété
+
+Contenu.
+
+## Lire une formule
+
+Contenu.
+
+## Formules Excel courantes
+
+Contenu.
+
+## Exemple complet
+
+Contenu.
+
+## Remarques
+
+Aspose.Cells FOSS n'inclut pas de moteur de formule.
+
+## Voir aussi
+
+Liens.
+"""
+
+    def test_pre_patch_broken_locale_detected(self):
+        """Checker must fire on the historical 9-H2 broken locale (pre-patch state)."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_9H2_BROKEN)
+        try:
+            result = check_locale(src, loc)
+            assert result is not None, "Expected mismatch on pre-patch broken locale"
+            assert result["check"] == "h2_count_mismatch"
+            assert "locale has 9 H2(s)" in result["detail"]
+            assert "source has 8 H2(s)" in result["detail"]
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_fixed_locale_passes(self):
+        """Fixed locale (8 H2s matching source) must pass the checker."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_8H2_FIXED)
+        try:
+            assert check_locale(src, loc) is None, "Expected PASS on fixed locale"
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_cli_exits_1_on_broken_locale(self):
+        """CLI exits 1 when pre-patch broken locale is checked."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_9H2_BROKEN)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 1
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_cli_exits_0_on_fixed_locale(self):
+        """CLI exits 0 when fixed locale is checked."""
+        src = _tmp_md(self.EN_8H2)
+        loc = _tmp_md(self.FR_8H2_FIXED)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 0
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+
+class TestCLI:
+    def test_matching_locale_exits_0(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(MATCHING_LOCALE)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 0
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_missing_h2_exits_1(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(MISSING_H2_LOCALE)
+        try:
+            assert main(["--source", str(src), "--locales", str(loc)]) == 1
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)
+
+    def test_mixed_pass_fail_exits_1(self):
+        src = _tmp_md(ENGLISH_SOURCE)
+        good = _tmp_md(MATCHING_LOCALE)
+        bad = _tmp_md(MISSING_H2_LOCALE)
+        try:
+            assert main(["--source", str(src), "--locales", str(good), str(bad)]) == 1
+        finally:
+            src.unlink(missing_ok=True)
+            good.unlink(missing_ok=True)
+            bad.unlink(missing_ok=True)
+
+    def test_json_output_shape(self, capsys):
+        import json as _json
+        src = _tmp_md(ENGLISH_SOURCE)
+        loc = _tmp_md(MATCHING_LOCALE)
+        try:
+            main(["--source", str(src), "--locales", str(loc), "--json"])
+            data = _json.loads(capsys.readouterr().out)
+            assert "source_h2_count" in data
+            assert data["source_h2_count"] == 3
+            assert data["mismatches"] == []
+            assert data["locales_checked"] == 1
+        finally:
+            src.unlink(missing_ok=True)
+            loc.unlink(missing_ok=True)

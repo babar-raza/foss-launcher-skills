@@ -1,0 +1,3 @@
+version: "1.0"
+repo_sha: "fixture-sha-abc123"
+enrichment_status: full

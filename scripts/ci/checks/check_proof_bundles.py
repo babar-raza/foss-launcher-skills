@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_proof_bundles.py — CI gate: verify compliance observations have proof bundles.
 
 For every .md file in reports/compliance/, check that a corresponding proof bundle
@@ -22,11 +21,10 @@ Exit codes:
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Make shared pipeline utilities importable when this script is run directly.
 _PIPELINE_DIR = _REPO_ROOT / "scripts" / "pipeline"

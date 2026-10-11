@@ -1,0 +1,37 @@
+fix(example-verification): C3 fast-follow -- fix stale chain-continuation cache key in runners/base.py
+
+Independent review of the runners/base.py fast-follow (commit
+aa1f9241f8) found and demonstrated a real bug: BaseRunner._cache_key_for()
+keyed tier-2/3 cache entries on ONLY the current block's own
+identity.code_sha256, but the actual unit compile()/execute() run for a
+chain-continuation block is chain_prefix + code (BaseRunner._climb()'s
+own `script` variable). If a chain's HEAD block changes content (a new,
+correctly different code_sha256, correctly re-executed) while a LATER
+block in the same chain stays byte-identical, that later block's cache
+key was unchanged -- so it hit the stale entry from the previous run and
+silently reported the old result, even though the real concatenated
+script it would actually run had changed. Reviewer's own live repro:
+helper_val changes from 1 to 2 in a chain's first block; a second block
+asserting helper_val == 1 (unchanged text) served a stale cached PASS
+instead of re-running and catching the now-real AssertionError.
+
+Fix: the cache key for a tier-2/3 result is now computed from
+sha256(chain_prefix + code) -- the actual validated content -- rather
+than the block's isolated identity hash. Tier-1 (syntax-only) results
+still key on the block's own identity hash, since check_syntax() never
+sees chain_prefix in the first place; SYNTAX-ERROR is now also actually
+cached (it previously bypassed _maybe_cache() entirely, a documented
+cache.py contract that was dead code from BaseRunner's side).
+
+Adds a regression test reproducing the reviewer's exact scenario
+(test_chain_continuation_cache_key_reflects_chain_prefix_not_just_own_hash)
+plus a real cache test for a deterministic FAILURE (not just PASS) being
+cached and reused, and renames the pre-existing test that the reviewer
+found was mislabeled (test_deterministic_failure_is_cached_and_reused
+previously tested the OPPOSITE -- no cache at all -- now
+test_without_a_cache_every_call_reexecutes).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

@@ -32,7 +32,7 @@ $PYTHON scripts/pipeline/commands/governance/path_guard.py "content/docs.aspose.
 ! $PYTHON scripts/pipeline/commands/governance/path_guard.py "themes/base.html" 2>/dev/null
 
 echo "=== 6. Grade integrity ==="
-$PYTHON scripts/pipeline/commands/governance/check_grade_integrity.py --json 2>/dev/null | $PYTHON -c "import json,sys; d=json.load(sys.stdin); assert d['anomaly_count']==0, f'Anomalies: {d[\"anomaly_count\"]}'"
+$PYTHON scripts/pipeline/commands/governance/check_grade_integrity.py --json 2>/dev/null | $PYTHON -c "import json,sys; d=json.load(sys.stdin.buffer); assert d['anomaly_count']==0, f'Anomalies: {d[\"anomaly_count\"]}'"
 
 echo "=== 6b. Evaluator freeze gate ==="
 $PYTHON scripts/ci/checks/check_evaluator_freeze.py

@@ -1,0 +1,137 @@
+{
+  "generated_at": "2026-05-01T10:18:37.632944+00:00",
+  "min_coverage_threshold_pct": 20.0,
+  "all_pass": false,
+  "products": [
+    {
+      "family": "3d",
+      "platform": "java",
+      "total_members": 725,
+      "erc_member_claims": 425,
+      "coverage_pct": 58.6,
+      "meets_threshold": true
+    },
+    {
+      "family": "3d",
+      "platform": "net",
+      "total_members": 610,
+      "erc_member_claims": 608,
+      "coverage_pct": 99.7,
+      "meets_threshold": true
+    },
+    {
+      "family": "3d",
+      "platform": "python",
+      "total_members": 772,
+      "erc_member_claims": 682,
+      "coverage_pct": 88.3,
+      "meets_threshold": true
+    },
+    {
+      "family": "3d",
+      "platform": "typescript",
+      "total_members": 1044,
+      "erc_member_claims": 927,
+      "coverage_pct": 88.8,
+      "meets_threshold": true
+    },
+    {
+      "family": "cells",
+      "platform": "java",
+      "total_members": 2282,
+      "erc_member_claims": 14,
+      "coverage_pct": 0.6,
+      "meets_threshold": false
+    },
+    {
+      "family": "cells",
+      "platform": "net",
+      "total_members": 1256,
+      "erc_member_claims": 1006,
+      "coverage_pct": 80.1,
+      "meets_threshold": true
+    },
+    {
+      "family": "cells",
+      "platform": "python",
+      "total_members": 1185,
+      "erc_member_claims": 1004,
+      "coverage_pct": 84.7,
+      "meets_threshold": true
+    },
+    {
+      "family": "email",
+      "platform": "cpp",
+      "total_members": 226,
+      "erc_member_claims": 188,
+      "coverage_pct": 83.2,
+      "meets_threshold": true
+    },
+    {
+      "family": "email",
+      "platform": "net",
+      "total_members": 244,
+      "erc_member_claims": 214,
+      "coverage_pct": 87.7,
+      "meets_threshold": true
+    },
+    {
+      "family": "email",
+      "platform": "python",
+      "total_members": 353,
+      "erc_member_claims": 287,
+      "coverage_pct": 81.3,
+      "meets_threshold": true
+    },
+    {
+      "family": "note",
+      "platform": "python",
+      "total_members": 274,
+      "erc_member_claims": 266,
+      "coverage_pct": 97.1,
+      "meets_threshold": true
+    },
+    {
+      "family": "slides",
+      "platform": "cpp",
+      "total_members": 3124,
+      "erc_member_claims": 1906,
+      "coverage_pct": 61.0,
+      "meets_threshold": true
+    },
+    {
+      "family": "slides",
+      "platform": "java",
+      "total_members": 4189,
+      "erc_member_claims": 2364,
+      "coverage_pct": 56.4,
+      "meets_threshold": true
+    },
+    {
+      "family": "slides",
+      "platform": "net",
+      "total_members": 2708,
+      "erc_member_claims": 1818,
+      "coverage_pct": 67.1,
+      "meets_threshold": true
+    },
+    {
+      "family": "slides",
+      "platform": "python",
+      "total_members": 4716,
+      "erc_member_claims": 3066,
+      "coverage_pct": 65.0,
+      "meets_threshold": true
+    },
+    {
+      "family": "words",
+      "platform": "python",
+      "total_members": 616,
+      "erc_member_claims": 525,
+      "coverage_pct": 85.2,
+      "meets_threshold": true
+    }
+  ],
+  "skipped_products": [],
+  "warnings": []
+}

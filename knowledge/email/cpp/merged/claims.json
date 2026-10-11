@@ -1,0 +1,3310 @@
+[
+  {
+    "claim_id": "CLM-email-663670",
+    "kind": "api_method",
+    "text": "cfb_reader.from_file(path) -> cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-383ce1",
+    "kind": "api_method",
+    "text": "cfb_reader.from_stream(stream) -> cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-68c080",
+    "kind": "api_method",
+    "text": "cfb_reader.from_bytes(data) -> cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b082d9",
+    "kind": "api_method",
+    "text": "cfb_reader.from_buffer(data, size) -> cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ae056c",
+    "kind": "api_method",
+    "text": "cfb_reader.header() -> header",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fef8b9",
+    "kind": "api_method",
+    "text": "cfb_reader.difat() -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b0d4cf",
+    "kind": "api_method",
+    "text": "cfb_reader.fat() -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d12fae",
+    "kind": "api_method",
+    "text": "cfb_reader.mini_fat() -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2f43df",
+    "kind": "api_method",
+    "text": "cfb_reader.directory_entries() -> std::vector<directory_entry>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a336ad",
+    "kind": "api_method",
+    "text": "cfb_reader.root_entry() -> directory_entry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1c2131",
+    "kind": "api_method",
+    "text": "cfb_reader.data_size() -> std::size_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a2f9cc",
+    "kind": "api_method",
+    "text": "cfb_reader.directory_entry_count() -> std::size_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4f13d2",
+    "kind": "api_method",
+    "text": "cfb_reader.materialized_stream_count() -> std::size_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-62bed8",
+    "kind": "api_method",
+    "text": "cfb_reader.get_entry(stream_id) -> directory_entry",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a36c91",
+    "kind": "api_method",
+    "text": "cfb_reader.get_stream_data(stream_id) -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e41ec0",
+    "kind": "api_method",
+    "text": "cfb_reader.storage_ids() -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-81a44d",
+    "kind": "api_method",
+    "text": "cfb_reader.stream_ids() -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8a0923",
+    "kind": "api_method",
+    "text": "cfb_reader.child_ids(storage_stream_id) -> std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0898fe",
+    "kind": "api_method",
+    "text": "cfb_reader.find_child_by_name(storage_stream_id, name) -> std::optional<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-45b490",
+    "kind": "api_method",
+    "text": "cfb_reader.resolve_path(names, start_stream_id) -> std::optional<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d54be3",
+    "kind": "api_class",
+    "text": "Class cfb_reader defined in include/aspose/email/foss/cfb/cfb_reader.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5df39c",
+    "kind": "api_method",
+    "text": "cfb_writer.to_bytes(document) -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-328d9c",
+    "kind": "api_method",
+    "text": "cfb_writer.write_file(document, path) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a95799",
+    "kind": "api_method",
+    "text": "cfb_writer.write_stream(document, stream) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bb8fbf",
+    "kind": "api_class",
+    "text": "Class cfb_writer defined in include/aspose/email/foss/cfb/cfb_writer.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b51a06",
+    "kind": "api_method",
+    "text": "msg_reader.from_file(path, strict) -> msg_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-875677",
+    "kind": "api_method",
+    "text": "msg_reader.from_stream(stream, strict) -> msg_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c34bbd",
+    "kind": "api_method",
+    "text": "msg_reader.cfb() -> cfb::cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8620ff",
+    "kind": "api_method",
+    "text": "msg_reader.strict() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f53c7f",
+    "kind": "api_method",
+    "text": "msg_reader.validation_issues() -> std::vector<std::string>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6720f5",
+    "kind": "api_class",
+    "text": "Class msg_reader defined in include/aspose/email/foss/msg/msg_reader.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-60c93a",
+    "kind": "api_method",
+    "text": "msg_writer.to_bytes(document) -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-99247f",
+    "kind": "api_method",
+    "text": "msg_writer.write_file(document, path) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-50e60f",
+    "kind": "api_method",
+    "text": "msg_writer.write_stream(document, stream) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c553f3",
+    "kind": "api_class",
+    "text": "Class msg_writer defined in include/aspose/email/foss/msg/msg_writer.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af611b",
+    "kind": "api_method",
+    "text": "cfb_document.root() -> cfb_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f6b3a1",
+    "kind": "api_method",
+    "text": "cfb_document.major_version() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-29db1d",
+    "kind": "api_method",
+    "text": "cfb_document.set_major_version(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0b7631",
+    "kind": "api_method",
+    "text": "cfb_document.minor_version() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c76d2c",
+    "kind": "api_method",
+    "text": "cfb_document.set_minor_version(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e91f03",
+    "kind": "api_method",
+    "text": "cfb_document.transaction_signature_number() -> std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-632d09",
+    "kind": "api_method",
+    "text": "cfb_document.set_transaction_signature_number(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fc068f",
+    "kind": "api_method",
+    "text": "cfb_document.from_reader(reader) -> cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-eb3c96",
+    "kind": "api_method",
+    "text": "cfb_document.from_file(path) -> cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a1f9d4",
+    "kind": "api_method",
+    "text": "cfb_document.from_stream(stream) -> cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-074323",
+    "kind": "api_method",
+    "text": "cfb_document.from_bytes(data) -> cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-24ffa2",
+    "kind": "api_method",
+    "text": "cfb_document.from_buffer(data, size) -> cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e53b84",
+    "kind": "api_class",
+    "text": "Class cfb_document defined in include/aspose/email/foss/cfb/cfb_document.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b78594",
+    "kind": "api_class",
+    "text": "Class cfb_exception defined in include/aspose/email/foss/cfb/cfb_exception.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_exception.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3d6df5",
+    "kind": "api_method",
+    "text": "cfb_node.~cfb_node() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5bdf1d",
+    "kind": "api_method",
+    "text": "cfb_node.node_kind() -> kind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2c1854",
+    "kind": "api_method",
+    "text": "cfb_node.is_storage() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e1898a",
+    "kind": "api_method",
+    "text": "cfb_node.is_stream() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-840766",
+    "kind": "api_method",
+    "text": "cfb_node.name() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1777ab",
+    "kind": "api_method",
+    "text": "cfb_node.clsid() -> std::array<std::uint8_t, 16>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b78d66",
+    "kind": "api_method",
+    "text": "cfb_node.state_bits() -> std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-160afc",
+    "kind": "api_method",
+    "text": "cfb_node.set_state_bits(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4a34b8",
+    "kind": "api_method",
+    "text": "cfb_node.creation_time() -> std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5a834d",
+    "kind": "api_method",
+    "text": "cfb_node.set_creation_time(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a2431e",
+    "kind": "api_method",
+    "text": "cfb_node.modified_time() -> std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0aa2a6",
+    "kind": "api_method",
+    "text": "cfb_node.set_modified_time(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-492884",
+    "kind": "api_method",
+    "text": "cfb_node.clone() -> std::unique_ptr<cfb_node>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d81edb",
+    "kind": "api_class",
+    "text": "Class cfb_node defined in include/aspose/email/foss/cfb/cfb_node.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_node.hpp",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f4b3b5",
+    "kind": "api_method",
+    "text": "cfb_storage.cfb_storage() -> cfb_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6b3828",
+    "kind": "api_method",
+    "text": "cfb_storage.cfb_storage property of type cfb_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ac84d1",
+    "kind": "api_method",
+    "text": "cfb_storage.cfb_storage() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cd677e",
+    "kind": "api_method",
+    "text": "cfb_storage.children() -> std::vector<std::unique_ptr<cfb_node>>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-76747c",
+    "kind": "api_method",
+    "text": "cfb_storage.add_storage(storage) -> cfb_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7de6a2",
+    "kind": "api_method",
+    "text": "cfb_storage.add_stream(stream) -> cfb_stream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2de29e",
+    "kind": "api_class",
+    "text": "Class cfb_storage defined in include/aspose/email/foss/cfb/cfb_storage.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_storage.hpp",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5ad35b",
+    "kind": "api_method",
+    "text": "cfb_stream.data() -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_stream.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c9b7a7",
+    "kind": "api_method",
+    "text": "cfb_stream.set_data(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_stream.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4ec8f9",
+    "kind": "api_class",
+    "text": "Class cfb_stream defined in include/aspose/email/foss/cfb/cfb_stream.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_stream.hpp",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e8865a",
+    "kind": "api_class",
+    "text": "Class directory_color_flag defined in include/aspose/email/foss/cfb/directory_color_flag.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_color_flag.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ce41b5",
+    "kind": "api_method",
+    "text": "directory_entry.stream_id data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f137c2",
+    "kind": "api_method",
+    "text": "directory_entry.name data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9eb9cd",
+    "kind": "api_method",
+    "text": "directory_entry.directory_entry_name_length data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2ed91d",
+    "kind": "api_method",
+    "text": "directory_entry.object_type data member of type directory_object_type",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c50335",
+    "kind": "api_method",
+    "text": "directory_entry.color_flag data member of type directory_color_flag",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3c2aef",
+    "kind": "api_method",
+    "text": "directory_entry.left_sibling_id data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b84b7b",
+    "kind": "api_method",
+    "text": "directory_entry.right_sibling_id data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-80cc34",
+    "kind": "api_method",
+    "text": "directory_entry.child_id data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2bd84f",
+    "kind": "api_method",
+    "text": "directory_entry.clsid data member of type std::array<std::uint8_t, 16>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f2b774",
+    "kind": "api_method",
+    "text": "directory_entry.state_bits data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e1a96e",
+    "kind": "api_method",
+    "text": "directory_entry.creation_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e85c92",
+    "kind": "api_method",
+    "text": "directory_entry.modified_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6a56ea",
+    "kind": "api_method",
+    "text": "directory_entry.starting_sector_location data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-432134",
+    "kind": "api_method",
+    "text": "directory_entry.stream_size data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0ec90b",
+    "kind": "api_method",
+    "text": "directory_entry.is_storage() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e3bba3",
+    "kind": "api_method",
+    "text": "directory_entry.is_stream() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c7a305",
+    "kind": "api_method",
+    "text": "directory_entry.is_root() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ff1cb5",
+    "kind": "api_class",
+    "text": "Class directory_entry defined in include/aspose/email/foss/cfb/directory_entry.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_entry.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ff9fbf",
+    "kind": "api_class",
+    "text": "Class directory_object_type defined in include/aspose/email/foss/cfb/directory_object_type.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/directory_object_type.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7378f9",
+    "kind": "api_method",
+    "text": "header.header_signature data member of type std::array<std::uint8_t, 8>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-656fdb",
+    "kind": "api_method",
+    "text": "header.header_clsid data member of type std::array<std::uint8_t, 16>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aea1b3",
+    "kind": "api_method",
+    "text": "header.minor_version data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8b6c80",
+    "kind": "api_method",
+    "text": "header.major_version data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-28bba6",
+    "kind": "api_method",
+    "text": "header.byte_order data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5eb026",
+    "kind": "api_method",
+    "text": "header.sector_shift data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f01c1c",
+    "kind": "api_method",
+    "text": "header.mini_sector_shift data member of type std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1ea32c",
+    "kind": "api_method",
+    "text": "header.reserved data member of type std::array<std::uint8_t, 6>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e75f63",
+    "kind": "api_method",
+    "text": "header.number_of_directory_sectors data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-44baf0",
+    "kind": "api_method",
+    "text": "header.number_of_fat_sectors data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-aeb3d9",
+    "kind": "api_method",
+    "text": "header.first_directory_sector_location data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-635214",
+    "kind": "api_method",
+    "text": "header.transaction_signature_number data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-57f785",
+    "kind": "api_method",
+    "text": "header.mini_stream_cutoff_size data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-25a02e",
+    "kind": "api_method",
+    "text": "header.first_mini_fat_sector_location data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fa5f98",
+    "kind": "api_method",
+    "text": "header.number_of_mini_fat_sectors data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3c7007",
+    "kind": "api_method",
+    "text": "header.first_difat_sector_location data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-815f9c",
+    "kind": "api_method",
+    "text": "header.number_of_difat_sectors data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-97f7b7",
+    "kind": "api_method",
+    "text": "header.difat data member of type std::vector<std::uint32_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ca83cd",
+    "kind": "api_method",
+    "text": "header.sector_size() -> std::size_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-26470c",
+    "kind": "api_method",
+    "text": "header.mini_sector_size() -> std::size_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-591bb4",
+    "kind": "api_class",
+    "text": "Class header defined in include/aspose/email/foss/cfb/header.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/header.hpp",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fdd428",
+    "kind": "api_class",
+    "text": "Class sector_marker defined in include/aspose/email/foss/cfb/sector_marker.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/sector_marker.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-829dc0",
+    "kind": "api_class",
+    "text": "Class common_message_property_id defined in include/aspose/email/foss/msg/common_message_property_id.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/common_message_property_id.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b9efe6",
+    "kind": "api_method",
+    "text": "mapi_attachment.from_bytes(filename, data, mime_type, content_id) -> mapi_attachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91425f",
+    "kind": "api_method",
+    "text": "mapi_attachment.from_stream(filename, stream, mime_type, content_id) -> mapi_attachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-394dce",
+    "kind": "api_method",
+    "text": "mapi_attachment.load_data(stream) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e704a7",
+    "kind": "api_method",
+    "text": "mapi_attachment.is_embedded_message() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-38b4f7",
+    "kind": "api_method",
+    "text": "mapi_attachment.filename data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4ec56c",
+    "kind": "api_method",
+    "text": "mapi_attachment.data data member of type std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-42c576",
+    "kind": "api_method",
+    "text": "mapi_attachment.mime_type data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f9eddb",
+    "kind": "api_method",
+    "text": "mapi_attachment.content_id data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e9d9b9",
+    "kind": "api_method",
+    "text": "mapi_attachment.embedded_message data member of type std::shared_ptr<mapi_message>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a6f8c7",
+    "kind": "api_method",
+    "text": "mapi_attachment.properties data member of type mapi_property_collection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-cf07aa",
+    "kind": "api_class",
+    "text": "Class mapi_attachment defined in include/aspose/email/foss/msg/mapi_attachment.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_attachment.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-89d963",
+    "kind": "api_method",
+    "text": "mapi_message.default_property_flags data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a7a2fe",
+    "kind": "api_method",
+    "text": "mapi_message.recipient_type_to data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7ad068",
+    "kind": "api_method",
+    "text": "mapi_message.recipient_type_cc data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-79227e",
+    "kind": "api_method",
+    "text": "mapi_message.recipient_type_bcc data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1b6ac3",
+    "kind": "api_method",
+    "text": "mapi_message.attach_method_by_value data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8d950d",
+    "kind": "api_method",
+    "text": "mapi_message.attach_method_embedded data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6d5e78",
+    "kind": "api_method",
+    "text": "mapi_message.create(subject, body, unicode_strings) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-39eab5",
+    "kind": "api_method",
+    "text": "mapi_message.from_file(path, strict) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6887d9",
+    "kind": "api_method",
+    "text": "mapi_message.from_stream(stream, strict) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c6d5e0",
+    "kind": "api_method",
+    "text": "mapi_message.from_msg_document(document) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3347a3",
+    "kind": "api_method",
+    "text": "mapi_message.load_from_eml(path) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f2fcd9",
+    "kind": "api_method",
+    "text": "mapi_message.load_from_eml(stream) -> mapi_message",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-98f454",
+    "kind": "api_method",
+    "text": "mapi_message.unicode_strings() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7192b0",
+    "kind": "api_method",
+    "text": "mapi_message.set_unicode_strings(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-93aad6",
+    "kind": "api_method",
+    "text": "mapi_message.validation_issues() -> std::vector<std::string>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a84cc7",
+    "kind": "api_method",
+    "text": "mapi_message.subject() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fc6f5a",
+    "kind": "api_method",
+    "text": "mapi_message.set_subject(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fc5f7c",
+    "kind": "api_method",
+    "text": "mapi_message.body() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9ba35e",
+    "kind": "api_method",
+    "text": "mapi_message.set_body(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d66f3a",
+    "kind": "api_method",
+    "text": "mapi_message.html_body() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6d4b40",
+    "kind": "api_method",
+    "text": "mapi_message.set_html_body(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d587e5",
+    "kind": "api_method",
+    "text": "mapi_message.message_class() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8ae67d",
+    "kind": "api_method",
+    "text": "mapi_message.set_message_class(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bc0f2b",
+    "kind": "api_method",
+    "text": "mapi_message.sender_name() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-ac98ce",
+    "kind": "api_method",
+    "text": "mapi_message.set_sender_name(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-330631",
+    "kind": "api_method",
+    "text": "mapi_message.sender_email_address() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-317d8f",
+    "kind": "api_method",
+    "text": "mapi_message.set_sender_email_address(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4f22fc",
+    "kind": "api_method",
+    "text": "mapi_message.sender_address_type() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1b6669",
+    "kind": "api_method",
+    "text": "mapi_message.set_sender_address_type(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1a6072",
+    "kind": "api_method",
+    "text": "mapi_message.internet_message_id() -> std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-81d364",
+    "kind": "api_method",
+    "text": "mapi_message.set_internet_message_id(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-76a1ad",
+    "kind": "api_method",
+    "text": "mapi_message.properties() -> mapi_property_collection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-534e76",
+    "kind": "api_method",
+    "text": "mapi_message.recipients() -> std::vector<mapi_recipient>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-85a158",
+    "kind": "api_method",
+    "text": "mapi_message.attachments() -> std::vector<mapi_attachment>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c03209",
+    "kind": "api_method",
+    "text": "mapi_message.add_recipient(email_address, display_name, recipient_type) -> mapi_recipient",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-41a354",
+    "kind": "api_method",
+    "text": "mapi_message.add_attachment(filename, data, mime_type, content_id) -> mapi_attachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-442c7a",
+    "kind": "api_method",
+    "text": "mapi_message.add_attachment(filename, stream, mime_type, content_id) -> mapi_attachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 75
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9163aa",
+    "kind": "api_method",
+    "text": "mapi_message.add_embedded_message_attachment(message, filename, mime_type) -> mapi_attachment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-37006c",
+    "kind": "api_method",
+    "text": "mapi_message.set_property(property_id, property_type, value, flags) -> mapi_property",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d7a1de",
+    "kind": "api_method",
+    "text": "mapi_message.get_property_value(property_id, property_type) -> std::any",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 79
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-9ddf17",
+    "kind": "api_method",
+    "text": "mapi_message.to_msg_document() -> msg_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-4a85a1",
+    "kind": "api_method",
+    "text": "mapi_message.save() -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-e6601b",
+    "kind": "api_method",
+    "text": "mapi_message.save(path) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-422855",
+    "kind": "api_method",
+    "text": "mapi_message.save(stream) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0e193a",
+    "kind": "api_method",
+    "text": "mapi_message.save_to_eml() -> std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-91d432",
+    "kind": "api_method",
+    "text": "mapi_message.save_to_eml(path) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f57a88",
+    "kind": "api_method",
+    "text": "mapi_message.save_to_eml(stream) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-69192d",
+    "kind": "api_class",
+    "text": "Class mapi_message defined in include/aspose/email/foss/msg/mapi_message.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-18be4a",
+    "kind": "api_method",
+    "text": "mapi_property.property_id() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-32be76",
+    "kind": "api_method",
+    "text": "mapi_property.property_type() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-83ee41",
+    "kind": "api_method",
+    "text": "mapi_property.value() -> std::any",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d4402b",
+    "kind": "api_method",
+    "text": "mapi_property.set_value(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-14e7bf",
+    "kind": "api_method",
+    "text": "mapi_property.flags() -> std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d762b1",
+    "kind": "api_method",
+    "text": "mapi_property.set_flags(value) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-db7649",
+    "kind": "api_method",
+    "text": "mapi_property.property_tag() -> std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-14849a",
+    "kind": "api_class",
+    "text": "Class mapi_property defined in include/aspose/email/foss/msg/mapi_property.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property.hpp",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-194b17",
+    "kind": "api_method",
+    "text": "mapi_property_collection.set(property) -> mapi_property",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-8ecb27",
+    "kind": "api_method",
+    "text": "mapi_property_collection.add(property_id, property_type, value, flags) -> mapi_property",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-096688",
+    "kind": "api_method",
+    "text": "mapi_property_collection.get(property_id, property_type) -> mapi_property",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5b4729",
+    "kind": "api_method",
+    "text": "mapi_property_collection.remove(property_id, property_type) -> void",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-796de6",
+    "kind": "api_method",
+    "text": "mapi_property_collection.items() -> std::map<std::pair<std::uint16_t, std::uint16_t>, mapi_property>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-455a05",
+    "kind": "api_class",
+    "text": "Class mapi_property_collection defined in include/aspose/email/foss/msg/mapi_property_collection.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_property_collection.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d5d709",
+    "kind": "api_method",
+    "text": "mapi_recipient.display_name data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5fdd7b",
+    "kind": "api_method",
+    "text": "mapi_recipient.email_address data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-602af5",
+    "kind": "api_method",
+    "text": "mapi_recipient.recipient_type data member of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-923b91",
+    "kind": "api_method",
+    "text": "mapi_recipient.address_type data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-eb1b8f",
+    "kind": "api_method",
+    "text": "mapi_recipient.properties data member of type mapi_property_collection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-5d0bd0",
+    "kind": "api_class",
+    "text": "Class mapi_recipient defined in include/aspose/email/foss/msg/mapi_recipient.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_recipient.hpp",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a84bf9",
+    "kind": "api_method",
+    "text": "msg_document.root() -> msg_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b977b0",
+    "kind": "api_method",
+    "text": "msg_document.major_version() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d1ea7d",
+    "kind": "api_method",
+    "text": "msg_document.minor_version() -> std::uint16_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7f14f1",
+    "kind": "api_method",
+    "text": "msg_document.transaction_signature_number() -> std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6d4225",
+    "kind": "api_method",
+    "text": "msg_document.strict() -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-eaefc1",
+    "kind": "api_method",
+    "text": "msg_document.from_reader(reader) -> msg_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-078526",
+    "kind": "api_method",
+    "text": "msg_document.from_file(path, strict) -> msg_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-6ac5f0",
+    "kind": "api_method",
+    "text": "msg_document.from_stream(stream, strict) -> msg_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3ce5db",
+    "kind": "api_method",
+    "text": "msg_document.to_cfb_document() -> cfb::cfb_document",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-964ae8",
+    "kind": "api_class",
+    "text": "Class msg_document defined in include/aspose/email/foss/msg/msg_document.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_document.hpp",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2560d4",
+    "kind": "api_class",
+    "text": "Class msg_exception defined in include/aspose/email/foss/msg/msg_exception.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_exception.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-a93dc5",
+    "kind": "api_method",
+    "text": "msg_storage.add_stream(stream) -> msg_stream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-42eb10",
+    "kind": "api_method",
+    "text": "msg_storage.add_storage(storage) -> msg_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b7d08f",
+    "kind": "api_method",
+    "text": "msg_storage.find_stream(stream_name) -> msg_stream",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-f707b4",
+    "kind": "api_method",
+    "text": "msg_storage.find_storage(storage_name) -> msg_storage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-139380",
+    "kind": "api_method",
+    "text": "msg_storage.name data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-c1f297",
+    "kind": "api_method",
+    "text": "msg_storage.role data member of type msg_storage_role",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-26c65e",
+    "kind": "api_method",
+    "text": "msg_storage.clsid data member of type std::array<std::uint8_t, 16>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-85a546",
+    "kind": "api_method",
+    "text": "msg_storage.state_bits data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fe67d5",
+    "kind": "api_method",
+    "text": "msg_storage.creation_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1aaee6",
+    "kind": "api_method",
+    "text": "msg_storage.modified_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0826dc",
+    "kind": "api_method",
+    "text": "msg_storage.streams data member of type std::vector<msg_stream>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-fa5e91",
+    "kind": "api_method",
+    "text": "msg_storage.storages data member of type std::vector<msg_storage>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-7b4e2e",
+    "kind": "api_class",
+    "text": "Class msg_storage defined in include/aspose/email/foss/msg/msg_storage.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage.hpp",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bd6a37",
+    "kind": "api_class",
+    "text": "Class msg_storage_role defined in include/aspose/email/foss/msg/msg_storage_role.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_storage_role.hpp",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0fc002",
+    "kind": "api_method",
+    "text": "msg_stream.name data member of type std::string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-af74b9",
+    "kind": "api_method",
+    "text": "msg_stream.data data member of type std::vector<std::uint8_t>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b539bb",
+    "kind": "api_method",
+    "text": "msg_stream.clsid data member of type std::array<std::uint8_t, 16>",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-2b0028",
+    "kind": "api_method",
+    "text": "msg_stream.state_bits data member of type std::uint32_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bd5b37",
+    "kind": "api_method",
+    "text": "msg_stream.creation_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b00d37",
+    "kind": "api_method",
+    "text": "msg_stream.modified_time data member of type std::uint64_t",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-b7191f",
+    "kind": "api_class",
+    "text": "Class msg_stream defined in include/aspose/email/foss/msg/msg_stream.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_stream.hpp",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-51c9d7",
+    "kind": "api_class",
+    "text": "Class property_type_code defined in include/aspose/email/foss/msg/property_type_code.hpp",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/property_type_code.hpp",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-d1fd54",
+    "kind": "format_support",
+    "text": "import support for cfb via cfb_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_reader.hpp",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-0da453",
+    "kind": "format_support",
+    "text": "export support for cfb via cfb_writer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_writer.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-1a7b78",
+    "kind": "format_support",
+    "text": "import support for msg via msg_reader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_reader.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-3c0c40",
+    "kind": "format_support",
+    "text": "export support for msg via msg_writer",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/msg_writer.hpp",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-56afa2",
+    "kind": "format_support",
+    "text": "import support for reader format (method name: from_reader)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/cfb/cfb_document.hpp",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-298a0f",
+    "kind": "format_support",
+    "text": "import support for eml format (method name: load_from_eml)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-bb455e",
+    "kind": "format_support",
+    "text": "export support for eml format (method name: save_to_eml)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "include/aspose/email/foss/msg/mapi_message.hpp",
+        "line": 85
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-dad836",
+    "kind": "install",
+    "text": "Package name is AsposeEmailFoss",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-email-417235",
+    "kind": "install",
+    "text": "Current version is 0.1.0",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  }
+]

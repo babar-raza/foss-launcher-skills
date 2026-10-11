@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """extract_session_skills.py — Read session invocation logs and suggest Skills invoked text.
 
 Reads reports/session-invocations/*.jsonl from the current session (by date or PID)
@@ -22,12 +21,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(__file__).resolve().parent.parent.parent.parent))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 SESSION_DIR = REPO_ROOT / "reports" / "session-invocations"
 
 

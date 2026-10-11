@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """core/markdown.py — Canonical markdown parsing utilities.
 
 Defines the two FRONTMATTER regex variants and parse_frontmatter().
@@ -21,27 +20,24 @@ import re
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:
-    yaml = None  # type: ignore[assignment]
+import yaml
 
 
 # 1-group: captures only the YAML body (for reading).
+# Closing fence accepts \n or end-of-string: files without a trailing newline
+# after the last --- are still matched (avoids false "no frontmatter" on
+# LLM-generated files that omit the trailing newline).
 _FRONTMATTER_READER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 
 # 3-group: captures (opening-fence, body, closing-fence) (for writing).
+# Same trailing-newline tolerance as the reader variant above.
 _FRONTMATTER_WRITER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
 
 # Convenience alias — matches the name used in knowledge_core.py callers
 _FRONTMATTER_RE = _FRONTMATTER_READER_RE
 
-# Section heading and code fence patterns
+# Section heading pattern
 _HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
-_CODE_FENCE_RE = re.compile(r"^```(\w*)\n(.*?)^```", re.DOTALL | re.MULTILINE)
-
-# Legacy alias for backward compatibility with older foss code
-FRONTMATTER_RE = _FRONTMATTER_READER_RE
 
 
 def extract_frontmatter_body(text: str) -> str | None:
@@ -58,11 +54,6 @@ def split_frontmatter(text: str) -> tuple[str, str, str] | None:
     return m.group(1), m.group(2), m.group(3)
 
 
-def has_frontmatter(text: str) -> bool:
-    """Return True if text starts with YAML frontmatter."""
-    return bool(_FRONTMATTER_READER_RE.match(text))
-
-
 def parse_frontmatter(filepath: Path) -> dict[str, Any]:
     """Extract YAML frontmatter dict from a markdown file.
 
@@ -72,8 +63,6 @@ def parse_frontmatter(filepath: Path) -> dict[str, Any]:
     text = filepath.read_text(encoding="utf-8")
     m = _FRONTMATTER_READER_RE.match(text)
     if not m:
-        return {}
-    if yaml is None:
         return {}
     try:
         return yaml.safe_load(m.group(1)) or {}

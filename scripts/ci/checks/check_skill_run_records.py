@@ -1,18 +1,37 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_skill_run_records.py — CI advisory: validate skill run records against commit declarations.
 
 For each content commit in scope, check whether a skill run record exists and whether
 the 'Skills invoked:' field in the commit message matches the record.
 
-This check is ADVISORY (designed to run with continue-on-error: true). It warns on
-mismatches but does not block PRs until adoption is complete.
+This check is ADVISORY (designed to run with continue-on-error: true, per
+scripts/ci/hooks/simulate_pr_checks.sh, the only place it is currently invoked --
+this repo has no PR-gated CI path in practice; production commits push directly to
+main, see AGENTS.md/CLAUDE.md). It warns on mismatches and on commits missing a
+'Skills invoked:' field entirely.
+
+A missing 'Skills invoked:' field is reported, not silently skipped: prior to
+2026-07-24 this case was silently ignored (`continue` with no output), and its own
+comment incorrectly claimed "handled by the existing hook/CI check". There IS a real,
+robust check for this on the ordinary `git commit` path (.git/hooks/commit-msg, built
+from scripts/commit-msg-skills.sh, TC-GOV-15 -- blocking, with an audited bypass
+trail) -- but a commit built via git write-tree/commit-tree/push (a documented
+workaround for concurrent-session git-index contention, see CLAUDE.md) never invokes
+`git commit`, so commit-msg never fires either. No local git hook CAN fire for that
+commit-construction path -- this is fundamental git behavior, not a fixable bug in
+any hook script. The only viable safety net is post-hoc: this script (invoked from a
+periodic/audit context, e.g. a .supervisor/ post-sprint audit) checking recent
+commits, and a *retroactive* skill run record (skill_run_manager.py create
+--retroactive, finalized with --commit-sha) being created for each git-plumbed commit
+as a required step of that workaround procedure. This script recognizes such records
+(see 'RECONCILED' below) even though it cannot find a message-level declaration.
 
 Usage:
     python scripts/ci/checks/check_skill_run_records.py --commits sha1 sha2 ...
     python scripts/ci/checks/check_skill_run_records.py --commits $(git log origin/main...HEAD --format='%H')
 
 Exit codes:
-    0  all checked commits either have matching records or no records (advisory mode)
+    0  all checked commits either have matching records, no records, or no declaration
+       (advisory mode -- see module docstring above for why this isn't yet a hard block)
     1  mismatches found (advisory — warnings emitted but caller may choose to ignore)
 """
 
@@ -21,11 +40,10 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-import os
 import sys
 from pathlib import Path
 
-_DEFAULT_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _RUNS_DIR = _REPO_ROOT / "reports" / "skill-runs"
 
@@ -37,7 +55,14 @@ def configure(*, repo_root: "Path | str | None" = None, runs_dir: "Path | str | 
     _RUNS_DIR = Path(runs_dir) if runs_dir is not None else _REPO_ROOT / "reports" / "skill-runs"
 
 # Pattern to match "Skills invoked: [S-xx, S-yy]" or "Skills invoked: S-xx, S-yy"
-_SKILLS_RE = re.compile(r"skills?\s*invoked[:\s]+\[?([^\]\n]+)\]?", re.IGNORECASE)
+# Anchored to the START of a line (re.MULTILINE): the real declaration is always its
+# own line (e.g. "Skills invoked: [S-72]"), typically near the end of the message. A
+# bare .search() with no anchor matches the FIRST occurrence anywhere in the message,
+# including a prose mention mid-sentence (e.g. a commit body discussing this exact
+# field, as this fix's own commit message did -- found live, MT007 follow-up: the
+# unanchored regex matched a quoted mention on line 8 instead of the real
+# declaration on line 41).
+_SKILLS_RE = re.compile(r"^skills?\s*invoked[:\s]+\[?([^\]\n]+)\]?", re.IGNORECASE | re.MULTILINE)
 
 
 def _parse_declared_skills(commit_msg: str) -> list[str] | None:
@@ -76,7 +101,7 @@ def _get_commit_message(sha: str) -> str:
     try:
         result = subprocess.run(
             ["git", "log", "-1", "--format=%B", sha],
-            capture_output=True, text=True, cwd=str(_REPO_ROOT)
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(_REPO_ROOT)
         )
         return result.stdout
     except (subprocess.SubprocessError, OSError):
@@ -119,12 +144,50 @@ def main(argv: list[str] | None = None) -> int:
     mismatches: list[str] = []
     no_record: list[str] = []
     validated: list[str] = []
+    no_declaration: list[str] = []
+    reconciled: list[str] = []
+    pending_finalize: list[str] = []
 
     for sha in commits:
         msg = _get_commit_message(sha)
         declared = _parse_declared_skills(msg)
         if declared is None:
-            # No 'Skills invoked:' field — handled by the existing hook/CI check
+            # No 'Skills invoked:' field in the commit MESSAGE. .git/hooks/commit-msg
+            # (TC-GOV-15) robustly enforces this field for ordinary `git commit`
+            # invocations -- but that hook, like every git commit-time hook, never
+            # fires for a commit built via git write-tree/commit-tree/push (a
+            # workaround this repo's own CLAUDE.md documents for concurrent-session
+            # git-index contention). Such a commit reaches here with zero prior
+            # message-level validation (MT007 L1-01/L3-01/L3-02).
+            #
+            # A commit message is immutable once pushed, so the fix is not to
+            # rewrite history -- it's to check whether a *retroactive* skill run
+            # record was created after the fact (skill_run_manager.py create
+            # --retroactive, finalized with --commit-sha). If one exists, this is a
+            # properly reconciled git-plumbed commit, not an unaccounted-for one.
+            record = _find_record_for_commit(sha)
+            if record is not None:
+                skills = record.get("skills_invoked", [])
+                retro = " (retroactive)" if record.get("retroactive") else ""
+                if record.get("outcome") == "pending":
+                    # 2026-08-30 (stale-guard plan T9/TC-SG-04): a sha-linked
+                    # record whose outcome is still 'pending' means the process
+                    # died between push and finalize (git_plumb_commit.py now
+                    # files the record BEFORE pushing) -- previously this state
+                    # was reported as fully RECONCILED, hiding the crash.
+                    pending_finalize.append(
+                        f"  PENDING_FINALIZE: {sha[:10]} has a sha-linked record{retro} "
+                        f"still 'pending' -- finish it: skill_run_manager.py finalize "
+                        f"--run-id {record.get('run_id')} --outcome success "
+                        f"--commit-sha {sha}"
+                    )
+                else:
+                    reconciled.append(
+                        f"  RECONCILED: {sha[:10]} has no message-level declaration but a "
+                        f"skill run record exists{retro}: {sorted(skills)}"
+                    )
+            else:
+                no_declaration.append(f"  NO DECLARATION: {sha[:10]} has no 'Skills invoked:' field")
             continue
 
         record = _find_record_for_commit(sha)
@@ -152,6 +215,29 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Commits with validated skill declarations ({len(validated)}):")
         for v in validated:
             print(v)
+
+    if reconciled:
+        print(f"\nCommits reconciled via a retroactive skill run record ({len(reconciled)}):")
+        for r in reconciled:
+            print(r)
+
+    if pending_finalize:
+        print(f"\nCommits with a sha-linked record awaiting finalize ({len(pending_finalize)}):")
+        for p in pending_finalize:
+            print(p)
+        print("  Advisory: the commit is accounted for, but its record was never")
+        print("  finalized (crash between push and finalize).")
+
+    if no_declaration:
+        print(f"\nCommits with NO 'Skills invoked:' field ({len(no_declaration)}):")
+        for d in no_declaration:
+            print(d)
+        print("  This repo's governance mandate (AGENTS.md / CLAUDE.md) requires every")
+        print("  content commit to go through a skill (S-76 /commit or equivalent), which")
+        print("  populates this field. A missing field means either an unskilled commit,")
+        print("  or a git-plumbing commit (write-tree/commit-tree/push) that bypassed the")
+        print("  commit-time hook chain entirely -- create a retroactive skill run record:")
+        print("    python scripts/pipeline/commands/ops/skill_run_manager.py create --skills S-xx --plan '...'")
 
     if no_record:
         print(f"\nCommits with declarations but no skill run records ({len(no_record)}):")

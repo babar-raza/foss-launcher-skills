@@ -1,0 +1,28 @@
+{
+  "_comment": "MT069 HC-15 (2026-09-23): tracked soak-gated / soft-launched surfaces, each with a real graduation date. Watched by check_soft_launch_deadlines.py, wired into the weekly workflow-cost-telemetry.yml public workflow. This exists because a real incident (TC-SG-07/R-04's stale-guard soak) went silently overdue for 12 days before anyone re-checked it, and a manual reminder had no forcing function.",
+  "schema_version": 1,
+  "entries": [
+    {
+      "id": "stale-guard-wide-findings-soak",
+      "description": "check_stale_file_regression.py / git_plumb_commit.py --wide-findings default is 'warn' (soak), pending flip to 'block'. See docs/operations/stale-guard-graduation-criteria.md.",
+      "kind": "cli-flag-default",
+      "location": "scripts/pipeline/commands/ops/git_plumb_commit.py, scripts/ci/checks/check_stale_file_regression.py",
+      "soak_started": "2026-08-30",
+      "soak_end": "2026-10-07",
+      "owning_card": "MT069-HC-10",
+      "reminder_id": "R-04",
+      "status": "soaking"
+    },
+    {
+      "id": "llms-generation-pre-regen-drift-check",
+      "description": "The new cross-run staleness check in llms-generation.yml (restored-manifest comparison, MT069 HC-12) runs continue-on-error: true pending a soak of real scheduled fires.",
+      "kind": "workflow-step-continue-on-error",
+      "location": "scripts/ci/deployed-workflows/llms-generation.yml (public repo)",
+      "soak_started": "2026-09-23",
+      "soak_end": "2026-10-07",
+      "owning_card": "MT069-HC-12",
+      "reminder_id": null,
+      "status": "soaking"
+    }
+  ]
+}

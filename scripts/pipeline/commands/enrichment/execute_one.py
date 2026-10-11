@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """execute_one.py — CLI entry point: select and preflight one enrichment candidate.
 
 Usage:
@@ -25,35 +24,20 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-try:
-    from enrichment.manifest_consumer import (
-        build_skill_invocation,
-        list_candidates,
-        load_handoff_manifest,
-        preflight_check,
-        select_candidate,
-    )
-except ImportError:
-    def _not_available(*a, **kw):
-        raise ImportError("enrichment.manifest_consumer not ported yet")
-    build_skill_invocation = list_candidates = load_handoff_manifest = _not_available
-    preflight_check = select_candidate = _not_available
-
-try:
-    from enrichment.snapshot_guard import take_snapshot
-except ImportError:
-    take_snapshot = None  # type: ignore[assignment]
-
-try:
-    from enrichment.delta_adapter import build_delta, write_delta
-except ImportError:
-    build_delta = write_delta = None  # type: ignore[assignment]
+from enrichment.manifest_consumer import (
+    build_skill_invocation,
+    list_candidates,
+    load_handoff_manifest,
+    preflight_check,
+    select_candidate,
+)
+from enrichment.snapshot_guard import take_snapshot
+from enrichment.delta_adapter import build_delta, write_delta
 
 # ---------------------------------------------------------------------------
 # Repo root for run-plan output
 # ---------------------------------------------------------------------------
-import os as _os
-_REPO_ROOT = Path(_os.environ.get("REPO_ROOT", str(_PIPELINE_ROOT.parents[1])))
+_REPO_ROOT = _PIPELINE_ROOT.parents[1]
 
 
 def _write_run_plan(

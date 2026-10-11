@@ -1,0 +1,110 @@
+# Title Template Registry
+# SEO-TITLE-TEMPLATE-REGISTRY (seo-keyword-production-integration mission)
+#
+# Governs the peer-consistent title skeleton for each page type this mission
+# has assessed (Finding #22: 31 docs devguide pages share the literal title
+# "Developer Guide"; 28 KB FAQ pages share "Frequently Asked Questions").
+# Every skeleton has exactly ONE variable slot for page-specific content
+# (`content_clause`), bounded to <=6 words and sourced from a real artifact
+# -- never freeform LLM prose. Consumers: S-116 (seo-review, "template
+# conformance" decision-table row), SEO-TITLE-CONSISTENCY-EVALUATOR (checks
+# existing titles against these patterns), SEO-TITLE-PILOT-BACKFILL-PDF-
+# DEVGUIDE (the first real write against this registry, scoped to 3 pages).
+#
+# content_clause_priority (docs_devguide_index only) is the mission's decided
+# answer to "how to merge peer-consistency with SEO-driven specificity":
+#   1. gsc_query        -- a real, English-matched GSC top query for this URL
+#                           (scripts/seo/pipeline/keyword_lookup.py)
+#   2. description       -- a short phrase drawn from the page's own already-
+#                           verified `description` frontmatter (never invented)
+#   3. formats_json       -- a format/extension term from knowledge/{family}/
+#                           {platform}/merged/formats.json
+#   4. claims_json        -- a capability term from knowledge/{family}/
+#                           {platform}/merged/claims.json
+#   5. curated_keywords    -- the page's own `keywords:` frontmatter list
+#                           (lowest priority: least page-specific)
+# If no source clears the specificity bar (a real, non-generic, <=6-word
+# phrase), `fallback` applies -- never leave content_clause empty or invent one.
+
+version: "1.0"
+date_created: "2026-07-29"
+mission_reference: "seo-keyword-production-integration"
+max_content_clause_words: 6
+
+page_types:
+
+  docs_devguide_index:
+    site: docs.aspose.org
+    applies_to: "content/docs.aspose.org/en/{family}/{platform}/developer-guide/_index.md"
+    rigid: false
+    skeleton: "Aspose.{Family} FOSS for {Platform} — {ContentClause}"
+    # Fixed 2026-07-29 (found by an independent S-116 review of the
+    # SEO-TITLE-PILOT-BACKFILL-PDF-DEVGUIDE candidates, before any file was
+    # written): the original fallback "Aspose.{Family} FOSS for {Platform}
+    # Developer Guide" resolves to 38-48 chars for every real family/platform
+    # combination -- always below safety.py's own _TITLE_MIN=50 gate, so any
+    # page that ever needed the fallback would be mechanically REJECTed by
+    # this same pipeline's own length check. The reviewing agent verified
+    # this is systemic (tested across PDF/Cells/3D/Words x 5+ platforms), not
+    # a one-page fluke. New fallback resolves to 50-61 chars across the same
+    # test matrix, always within the 50-70 bound.
+    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} — Developer Guide & Examples"
+    content_clause_priority:
+      - gsc_query
+      - description
+      - formats_json
+      - claims_json
+      - curated_keywords
+    example: "Aspose.PDF FOSS for .NET — Forms, Annotations & JavaScript Extensions"
+    known_duplicate_count_2026_07_29: 31
+
+  kb_faq:
+    site: kb.aspose.org
+    applies_to: "content/kb.aspose.org/en/{family}/{platform}/faq.md"
+    rigid: true
+    # Fixed 2026-07-29 (same length defect found alongside docs_devguide_index's
+    # fallback -- the original "Aspose.{Family} FOSS for {Platform} FAQ"
+    # resolves to only 25-36 chars, always below the 50-char floor. Since
+    # kb_faq is rigid (skeleton == fallback_skeleton), EVERY kb FAQ title
+    # would have failed safety.py's length gate, not just an edge case).
+    skeleton: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
+    fallback_skeleton: "Aspose.{Family} FOSS for {Platform} — Frequently Asked Questions"
+    content_clause_priority: []
+    example: "Aspose.Page FOSS for Python — Frequently Asked Questions"
+    known_duplicate_count_2026_07_29: 28
+    resolution_note: >
+      Resolves the 3-way S-22/S-59/production-reality title conflict,
+      product-first -- this is the FAQ page's actual current H1 identity
+      (a FAQ page IS "the FAQ for product X"), not a place for a
+      per-page content clause.
+
+  products_family_root:
+    site: products.aspose.org
+    applies_to: "content/products.aspose.org/en/{family}/_index.md"
+    rigid: true
+    skeleton_field: "head_title"
+    skeleton: "Aspose.{Family} FOSS | Open-Source {Category}"
+    fallback_skeleton: "Aspose.{Family} FOSS | Open-Source {Category}"
+    content_clause_priority: []
+    example: "Aspose.PDF FOSS | Open-Source PDF Document Processing Library"
+    codify_only: true
+    resolution_note: >
+      This page type is NOT part of the duplicate-title problem -- every
+      family root already has a differentiated head_title. This entry
+      exists to CODIFY the existing, already-correct convention as a
+      registered pattern (so S-116/the evaluator can verify conformance),
+      not to propose a rewrite. Never treat this entry as a backfill target.
+
+  reference_class:
+    site: reference.aspose.org
+    applies_to: "content/reference.aspose.org/en/{family}/{platform}/{ClassName}.md"
+    rigid: true
+    skeleton: "{ClassName}"
+    fallback_skeleton: "{ClassName}"
+    content_clause_priority: []
+    example: "A3DObject"
+    resolution_note: >
+      Deliberately stays rigid -- exact-match intent for API reference
+      lookups. Class names are unique within a family/platform at this
+      scale, so no per-class content clause will ever be needed or wanted;
+      adding one would actively hurt exact-match search/lookup behavior.

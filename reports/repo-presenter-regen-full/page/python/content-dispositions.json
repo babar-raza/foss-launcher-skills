@@ -1,0 +1,950 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Page FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for\nworking with PostScript, Encapsulated PostScript (EPS), and XPS documents. It reads and authors\nPS/EPS and XPS content directly, builds page content programmatically through its own render\nmodel, and writes PDF or raster (PNG, JPEG, BMP, TIFF) output without Ghostscript or Adobe\ntooling. Raster output uses the free `skia-python` package, which has native components.\nThe same conversions are also exposed as MCP tools\nfor LLM-agent and automation workflows.",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Read and parse PS/EPS documents with `PsDocument.from_file()` / `from_bytes()`, backed by a\n  full PostScript interpreter (`PsInterpreter`, `PsParser`, `PsTokenizer`, `OperatorRegistry`)\n  and DSC/EPS metadata extraction (`DscMetadata`).",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Read XPS packages with `XpsDocument.from_file()` / `from_bytes()`, walking fixed pages and\n  print tickets through `XpsParser`, `XpsPackage`, and `XpsRenderer`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/xps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Create and edit PS/EPS and XPS documents from scratch with `PsDocument.create()` /\n  `XpsDocument.create()`, drawing through `PsCanvas` (`move_to`, `line_to`, `curve_to`, `stroke`,\n  `fill`, `draw_text`, `draw_image`) or the `XpsDocumentBuilder` page API, then `save()` back to\n  the source format.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Build page content programmatically with `RenderModelBuilder` — paths, text, images, and a\n  clip/state stack — independent of any PS/XPS input, producing a `RenderDocument`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/common/render_model.py"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Write PDF 1.4 output with `PdfWriter`, including TrueType/Type1 font embedding resolved through\n  `FontResolver` and `FontCache`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/pdf/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Rasterize PS/EPS content to PNG, JPEG, BMP, or TIFF with `RasterRenderer`; the Skia backend\n  (`skia-python`) is used automatically when installed for speed, with a transparent\n  pure-Python fallback (`DefaultRasterWriter`) when it isn't. XPS-to-image conversion has no\n  such fallback — `skia-python` is a hard requirement there (see Scope and Limitations).",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Expose every conversion as an MCP tool (`ps_to_pdf`, `ps_to_image`, `xps_to_pdf`,\n  `xps_to_image`, `eps_metadata`) through `create_server()`, for FastMCP-based automation.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "To build and verify a wheel from a clone of the repository, install `uv`, `setuptools`, and\n`wheel`, then run:",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.py"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "The wheel version comes from `local/Version.txt`. `verify` installs it with all dependencies\nin `.package-venv` and tests PS/XPS to PDF/PNG conversion. To upload the built wheel, use\n`python package.py publish-test` for TestPyPI or `python package.py publish` for PyPI; these\ncommands read credentials from the matching files in `local/`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.py"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "The library targets Python 3.10+ (`pyproject.toml`'s `requires-python = \">=3.10\"`). See\n[Dependencies](#dependencies) below for the full required/optional/native breakdown.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "`skia-python` is required and installed automatically with the wheel.",
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- `fastmcp` — required to host the MCP server (`create_server()` / `run()`); imported lazily,\n  only when the server is started.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- Python 3.10 or later (`pyproject.toml`'s `requires-python = \">=3.10\"`).",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- `pypdf`, `pypdfium2`, and `Pillow` — required only when running the project's tests (see\n  [Development and Testing](#development-and-testing)).",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Convert a PS file to PDF through the MCP handler function:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Convert a PS or EPS file to a raster image directly through the document API:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "No PS/XPS input is required — pages can be constructed entirely in code and written straight to\nPDF. Import `aspose.page.ps` first, before any other `aspose.page` submodule, to avoid a\ncircular-import error in a fresh interpreter:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "XPS-to-PDF-to-PNG conversion:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "![XPS to PDF to PNG result](readme.resources/mb03.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "PS-to-PDF-to-PNG conversion:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "![PS to PDF to PNG result](readme.resources/TestImages.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "PS/EPS-to-image conversion:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "![PS to image sample](readme.resources/RGB10.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "Unlike PS/EPS rasterization, XPS-to-image conversion has no pure-Python fallback — `skia-python`\nmust be installed:",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "`fastmcp` must be installed. This starts a server exposing all five conversion tools over HTTP,\nrather than calling a handler function directly in-process as the examples above do:",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/server.py"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "The primary entry points are `PsDocument` and `XpsDocument`, which read, author, and convert\nPS/EPS and XPS content respectively; both delegate PDF output to `PdfWriter` and raster output to\n`RasterRenderer`, once page content has passed through the shared `RenderModelBuilder` /\n`RenderDocument` model. The public API surface includes 139 types, organized by module below.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "<details>\n<summary>View the Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AxialShading` | Class with 5 properties. |\n| `CieBasedColorSpace` | Class with 3 properties. |\n| `ClipCommand` | Set the current clipping path. |\n| `ColorSpacePaint` | Class with 2 properties. |\n| `DeviceColorSpace` | Class with 1 property. |\n| `DeviceNColorSpace` | Class with 3 properties. |\n| `ExponentialFunction` | ExponentialFunction.evaluate() computes function values for given inputs based on the defined domain, range, and coefficients. |\n| `ImageCommand` | Render an image resource with a transform. |\n| `IndexedColorSpace` | Class with 3 properties. |\n| `Matrix` | Affine transform matrix (a, b, c, d, e, f). |\n| `Paint` | Fill/stroke paint descriptor. |\n| `Path` | A sequence of path segments. |\n| `PathCommand` | Render a path with optional stroke/fill. |\n| `PathSegment` | A path segment with a kind and control points. |\n| `PatternColorSpace` | Class with 1 property. |\n| `PatternPaint` | Class with 3 properties. |\n| `Point` | 2D point in the render model. |\n| `RadialShading` | Class with 5 properties. |\n| `Rect` | Axis-aligned rectangle with min/max coordinates. |\n| `RenderDocument` | A collection of render pages. |\n| `RenderImageResource` | Image payload used by raster backends. |\n| `RenderModelBuilder` | Build render documents incrementally. |\n| `RenderPage` | A single renderable page with commands. |\n| `RenderResources` | Shared render resources for a document. |\n| `SampledFunction` | Class with 1 method and 8 properties. |\n| `SeparationColorSpace` | Class with 3 properties. |\n| `ShadingPattern` | Class with 2 properties. |\n| `StateRestoreCommand` | Restore the previous graphics state. |\n| `StateSaveCommand` | Save the current graphics state. |\n| `StitchingFunction` | Class with 1 method and 5 properties. |\n| `StrokeStyle` | Stroke style settings for path rendering. |\n| `TextCommand` | Render text using a font reference and transform. |\n| `TilingPattern` | Class with 7 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/common/color_resources.py"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "| Class | Description |\n|---|---|\n| `DefaultRasterWriter` | The DefaultRasterWriter.write(document, options) method returns the rendered document as a byte array. |\n| `RasterRenderer` | Render a RenderDocument to a raster surface. |\n| `RasterSurface` | In-memory RGBA pixel surface. |\n| `RasterWriter` | Class with 1 method. |\n| `RenderModelRasterWriter` | Class with 1 method. |\n| `SkiaRasterWriter` | Rasterize a RenderDocument using Skia (requires skia-python). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_writer.py"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "| Class | Description |\n|---|---|\n| `McpConversionOptions` | Conversion options for MCP operations. |\n| `McpInput` | MCP input payload. |\n| `McpOutput` | MCP output configuration. |\n| `McpResult` | MCP output payload. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/types.py"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ImageResource` | Image resource payload for PDF XObject embedding. |\n| `PdfEmbeddedFont` | Class with 17 properties. |\n| `PdfMetadata` | PDF metadata fields for the document info dictionary. |\n| `PdfWriter` | Serialize a render document into PDF 1.4 bytes. |\n| `RectWrapper` | Class with 6 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/pdf/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ClipType` | Class in the Page PYTHON API. |\n| `Clipper` | The Clipper class offers methods such as execute() and add_edge_to_sel() to perform polygon clipping and edge management. |\n| `ClipperBase` | Class with 35 methods and 6 properties. |\n| `ClipperException` | Class extending Exception. |\n| `Direction` | Class in the Page PYTHON API. |\n| `DoublePoint` | Class with 2 properties. |\n| `DscMetadata` | Container for DSC metadata extracted from PS/EPS comments. |\n| `EdgeSide` | Class in the Page PYTHON API. |\n| `EmbeddedType42` | Class with 3 properties. |\n| `EndType` | Class in the Page PYTHON API. |\n| `ExecutionContext` | Holds interpreter stacks, dictionaries, and metadata for execution. |\n| `FilterResult` | Result of decoding a filter chain. |\n| `FontCache` | Class with 4 methods. |\n| `FontMetrics` | Class with 2 properties. |\n| `FontRecord` | Class with 4 properties. |\n| `FontResolver` | Resolve fonts from names or PostScript dictionaries. |\n| `FontResource` | Represents a resolved font resource. |\n| `GlyphPoint` | Class with 3 properties. |\n| `GraphicsState` | Tracks current graphics state parameters. |\n| `ImageInfo` | Decoded raster image data. |\n| `ImageSaveOptions` | Class with 5 properties. |\n| `IntPoint` | Class with 2 properties. |\n| `IntRect` | Class with 4 properties. |\n| `IntersectNode` | Class with 1 method and 4 properties. |\n| `Join` | Class with 1 method and 3 properties. |\n| `JoinType` | Class in the Page PYTHON API. |\n| `LocalMinima` | Class with 1 method and 4 properties. |\n| `OperatorEntry` | Descriptor for a registered PostScript operator. |\n| `OperatorRegistry` | Register and resolve PostScript operator implementations. |\n| `OutPt` | Class with 1 method and 4 properties. |\n| `OutRec` | Class with 1 method and 7 properties. |\n| `PdfSaveOptions` | Class with 2 properties. |\n| `PolyFillType` | Class in the Page PYTHON API. |\n| `PolyNode` | Class with 2 methods and 8 properties. |\n| `PolyOffsetBuilder` | PolyOffsetBuilder.add_point(pt) adds a vertex to the polygon before computing offset geometry, and build() finalizes the construction. |\n| `PolyTree` | Class with 4 methods and 10 properties. |\n| `PolyType` | Class in the Page PYTHON API. |\n| `PsArray` | Class with 1 property. |\n| `PsCanvas` | Canvas that appends PostScript operators to a page. |\n| `PsConversionPipeline` | Convert PS/EPS byte streams into render model documents. |\n| `PsDict` | Class with 1 property. |\n| `PsDocument` | Represents a loaded or editable PS/EPS document. |\n| `PsError` | Base PostScript error. |\n| `PsFile` | Class with 3 properties. |\n| `PsFontId` | Class with 1 property. |\n| `PsGState` | Class with 1 property. |\n| `PsIOError` | Class with 1 method and 2 properties. |\n| `PsImage` | Raster image container for embedding in PS/EPS. |\n| `PsImageResource` | Represents a decoded image resource. |\n| `PsImageStore` | Store image resources by id. |\n| `PsInterpreter` | Execute PostScript/EPS objects using a registry of operators. |\n| `PsInvalidAccess` | Class with 1 method and 2 properties. |\n| `PsLimitCheck` | Class with 1 method and 2 properties. |\n| `PsMark` | Class with 1 property. |\n| `PsName` | Class with 2 properties. |\n| `PsOperator` | Class with 1 property. |\n| `PsPage` | Editable PS/EPS page. |\n| `PsParser` | Parse PostScript/EPS tokens into language objects. |\n| `PsPattern` | Class with 2 properties. |\n| `PsProcedure` | Class with 1 property. |\n| `PsQuit` | Internal non-error signal used by PostScript `quit`. |\n| `PsRangeError` | Class with 1 method and 2 properties. |\n| `PsSave` | Class with 1 property. |\n| `PsSaveState` | Class with 4 properties. |\n| `PsStack` | Simple stack implementation for PostScript execution. |\n| `PsString` | Class with 3 properties. |\n| `PsSyntaxError` | Class with 1 method and 2 properties. |\n| `PsToken` | Represents a token from a PostScript/EPS input stream. |\n| `PsTokenizer` | Tokenize PostScript/EPS bytes into language tokens. |\n| `PsTypeError` | Class with 1 method and 2 properties. |\n| `PsUndefinedError` | Class with 1 method and 2 properties. |\n| `Scanbeam` | Class with 1 method and 2 properties. |\n| `TEdge` | Class with 1 method and 18 properties. |\n| `TrueTypeFont` | TrueTypeFont offers low‑level glyph metrics such as advance width, vertical advance, and outline points for precise text layout. |\n| `Type1Metrics` | Class with 7 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/clipper.py"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "| Class | Description |\n|---|---|\n| `PrintTicket` | Print ticket payload descriptor. |\n| `Relationship` | Represents a package relationship. |\n| `XpsCanvas` | XPS canvas element for grouping content. |\n| `XpsDocument` | Represents a loaded or editable XPS document. |\n| `XpsDocumentBuilder` | Builder for XPS document creation/editing. |\n| `XpsFixedPage` | Editable XPS fixed page. |\n| `XpsGlyphs` | XPS glyphs element. |\n| `XpsImage` | XPS image element. |\n| `XpsImageResource` | Decoded image resource. |\n| `XpsImageStore` | Class with 3 methods. |\n| `XpsPackage` | Represents an XPS package. |\n| `XpsParser` | Parse XPS package relationships to locate pages. |\n| `XpsPath` | XPS path element. |\n| `XpsRenderer` | Render XPS XML to the shared render model. |\n| `XpsResourceDictionary` | Resource dictionary with parent lookup. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/xps/print_tickets.py"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `PrintTicketScope` | Print ticket scopes supported by XPS. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/xps/print_tickets.py"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `PsDocument` — `create(is_eps, page_size)` / `from_bytes(data)` / `from_file(path)`;\n  `add_page(size)` / `insert_page(index, size)` / `remove_page(index)` / `get_page(index)`;\n  `save(path)` / `as_bytes()`; `get_xmp()` / `set_xmp(xmp_xml)` / `remove_xmp()`;\n  `to_pdf(options)` / `to_image(options)`; `pages: list[PsPage]`, `dsc: DscMetadata | None`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `XpsDocument` — `create(title)` / `from_bytes(data)` / `from_file(path)`;\n  `add_page(width, height)` / `insert_page(index, page)` / `remove_page(index)`; `save(path)`;\n  `get_print_tickets()` / `set_print_ticket(scope, xml, page_index)`; `to_pdf(options)` /\n  `to_image(options)`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/xps/document.py"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `PsCanvas` — `move_to(x, y)`, `line_to(x, y)`, `curve_to(...)`, `rect(...)`, `ellipse(...)`,\n  `stroke()`, `fill()`, `fill_stroke()`, `set_stroke_color(color)`, `set_fill_color(color)`,\n  `draw_text(text, x, y, font_name, size)`, `draw_image(image, x, y, w, h)`,\n  `save_state()` / `restore_state()`, `clip()` / `init_clip()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/editing.py"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `DscMetadata` — `bounding_box`, `hires_bounding_box`, `crop_box`, `document_media_size`,\n  `title`, `creator`, `creation_date`, `language_level`, `extensions`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/dsc.py"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `RenderModelBuilder` — `begin_page(width, height)` / `end_page()`; `add_path(...)`,\n  `add_text(...)`, `add_image(...)`; `clip(path, fill_rule)`; `save_state()` /\n  `restore_state()`; `document() -> RenderDocument`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/common/render_model.py"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `RenderDocument` — `pages: list[RenderPage]`, `resources: RenderResources`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/common/render_model.py"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `PdfWriter` — `write(document) -> bytes`. `PdfMetadata` — `title`, `creator`, `producer`,\n  `creation_date`, `mod_date`, `trapped`. `PdfSaveOptions` — `no_compression`,\n  `additional_fonts_folder`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/pdf/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `RasterRenderer` — `render(document, page_index) -> RasterSurface`. `DefaultRasterWriter` /\n  `SkiaRasterWriter` — `write(document, options) -> bytes`. `ImageSaveOptions` — `format`, `dpi`,\n  `raster_writer`, `additional_fonts_folder`, `font_resolver`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `FontResolver` — `resolve(font_name)`, `resolve_ttf_path(font_name)`,\n  `resolve_from_dict(font_dict)`, `register_embedded_type42(...)`,\n  `register_defined_font(name, resource)`. `FontCache` — `load(additional_fonts_folder)`,\n  `find_font(font_name, font_style)`, `metrics_for(path)`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/fonts.py"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `ps_to_pdf(input, output, options=None)`, `ps_to_image(input, output, options)`,\n  `xps_to_pdf(input, output, options=None)`, `xps_to_image(input, output, options)`,\n  `eps_metadata(input) -> dict` — all in `aspose.page.mcp.handlers`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `McpInput` — `input_path`, `input_bytes_b64`. `McpOutput` — `output_path`, `return_bytes`.\n  `McpConversionOptions` — `format`, `dpi`, `no_compress`. `McpResult` — `output_path`,\n  `output_bytes_b64`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/types.py"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `create_server()` / `run(host, port)` in `aspose.page.mcp.server` — registers all five tools\n  above on a `FastMCP(\"Aspose.Page\")` server.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/server.py"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `Clipper` (extends `ClipperBase`) — a full port of the Vatti polygon-clipping algorithm used\n  internally for clip-path handling; `execute(clip_type, solution, subj_fill, clip_fill)` is the\n  primary entry point, alongside `add_path(...)` / `add_paths(...)` inherited from `ClipperBase`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/clipper.py"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/page/python/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/page/python/)** — task-focused answers for common PS/EPS/XPS-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/page/python/)** — the complete, browsable reference for all 139 public types.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- This library converts and authors documents; it does not read existing PDF files (there is no\n  PDF import/parsing API).",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/pdf/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- PS/EPS raster output falls back to a pure-Python renderer when `skia-python` isn't installed —\n  a performance difference, not a functional gap. XPS-to-image conversion has no such fallback:\n  `skia-python` must be installed, or it raises a runtime error.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- Importing `aspose.page.pdf.writer` or `aspose.page.image.raster_renderer` directly, or calling\n  `XpsDocument.to_pdf()` / `to_image()`, before anything has imported `aspose.page.ps` raises a\n  circular-import `ImportError` in a fresh Python interpreter — a structural property of the\n  package's own module graph. Import `aspose.page.ps` first, as the Additional Examples above do,\n  to avoid it; converting a PS/EPS document directly, and every MCP handler, already do this\n  internally and never need the workaround.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/pdf/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- Font embedding resolves TrueType/Type1 glyphs from an explicit `additional_fonts_folder` path\n  via `FontResolver` / `FontCache`; there is no automatic system-font-directory discovery.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/fonts.py"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- The MCP server exposes the five conversion/metadata tools (`ps_to_pdf`, `ps_to_image`,\n  `xps_to_pdf`, `xps_to_image`, `eps_metadata`) only — document creation/authoring\n  (`PsDocument.create`, `XpsDocument.create`) is available through the direct Python API, not as\n  an MCP tool.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "These limitations don't apply to\n[Aspose.Page — Enterprise Edition](https://products.aspose.com/page/), which adds broader format\ncoverage, including PDF reading, and commercial support.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "Sync dependencies and run the test suite with `uv`:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "`make test` runs `python3 -m unittest discover -s tests` (see [`Makefile`](Makefile)); `make\nbuild` produces wheel and sdist artifacts, and `make check` runs both test and build.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "<details>\n<summary>View Additional Development Commands</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "Run only the MCP-focused checks:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "Build wheel and sdist artifacts directly, without also running the test suite:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE.txt). The MIT License permits use,\ncopying, modification, distribution, sublicensing, and commercial use, provided its copyright\nand permission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE.txt"
+    }
+  }
+]

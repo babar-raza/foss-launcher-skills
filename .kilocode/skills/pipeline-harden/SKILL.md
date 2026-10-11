@@ -1,12 +1,25 @@
 ---
 name: pipeline-harden
-id: S-110
-description: Run deep investigation and systematic hardening of the content pipeline for a family/platform
-category: ops
-internal: false
+id: S-99
+description: >
+  Run deep investigation and systematic hardening of the content pipeline for a
+  specific family/platform product, covering state verification, hidden problem
+  discovery, gap taxonomy, fixture design, phased code fixes, and evidence bundle.
 ---
 
-# S-110: Pipeline Harden — Parameterized Pipeline Hardening Sprint
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+<!-- CONTRACT: agent-executed
+     purpose: parameterized pipeline hardening sprint — investigation, taskcard generation, phased execution, evidence bundle
+     preconditions: knowledge model current; clone cache exists; launch_gate.py runnable; pytest passing
+     postcondition: all identified pipeline gaps closed with code + tests + docs; evidence bundle at reports/sprint/{family}-{platform}-hardening/
+     idempotent: no — investigation findings vary; code fixes are additive
+     verified: 2026-05-13
+     id: S-99
+     depends_on: [S-10, S-62, S-54]
+-->
+
+# S-99: Pipeline Harden — Parameterized Pipeline Hardening Sprint
 
 **Arguments**: $ARGUMENTS
 **Expected format**: `{family} {platform} [--investigate-only] [--resume] [--dry-run] [--max-gaps N]`
@@ -24,20 +37,40 @@ Execute a full pipeline hardening sprint for one `{family}/{platform}`. Performs
 
 **Not a content skill.** Never writes to `content/`. Modifies pipeline code, tests, fixtures, and governance docs only.
 
-**Complementary to S-93 (system-heal)**: S-93 heals content; S-110 hardens the pipeline code that produces content.
+**Complementary to S-87 (system-heal)**: S-87 heals content; S-99 hardens the pipeline code that produces content.
+
+## Reuse Gate
+
+Before any execution, this skill was validated through:
+
+1. **Existing Skill Reuse Report** — 83 skill specs + 10 workflow docs inspected; no existing skill targets `scripts/pipeline/` code quality
+2. **Runtime Reuse Verification** — S-87, S-88, S-67, S-90, S-84 verified at runtime; all downstream routing is content-facing and hardcoded
+3. **Shared Core Extraction** — 7 components reused (evidence builder, skill_context, project_phase_store, healing data models, triage_confirm, launch_gate, docs sync checker); 0 duplicated; 2 defined inline (phase engine, gate comparison)
+4. **Three-Way Evaluation** — Option A (enhance S-87): OVERLOADED; Option B (new skill): JUSTIFIED; Option C (shared core only): INSUFFICIENT_ALONE; Selected: B+C hybrid
+
+Reports: `reports/sprint/font-python-hardening/preflight/existing_skill_reuse_report.json`, `runtime_reuse_verification.json`, `shared_core_extraction_report.json`
+
+## Anti-Proliferation Controls
+
+| Control | Value |
+|---------|-------|
+| Lifecycle owner | Solo operator (same maintainer as S-87, S-62, S-88) |
+| Deprecation path | If S-87 gains configurable routing, S-99 investigation phases merge into S-87; S-99 becomes thin wrapper then deprecated |
+| Future overlap rule | Any new skill touching `scripts/pipeline/` code quality must check against S-99 first |
+| Discoverability | Registered in `docs/registries/skills.md`; linked from `skills/README.md` |
 
 ## Skill Context Gate
 
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin \
-  --skill S-110 \
+  --skill S-99 \
   --scope "scripts/pipeline/**,scripts/ci/**,docs/governance/**,docs/workflows/**,docs/registries/**,reports/sprint/**"
 ```
 
 ## Pre-conditions
 
 1. Clone cache exists at `runs/.clone_cache/aspose_{family}_{platform}/` — if missing, HALT; run S-34 first
-2. Knowledge not stale: `knowledge/{family}/{platform}/merged/model.yaml` has `stale_since: null` — if stale, HALT; run S-14 first
+2. Knowledge not stale: `knowledge/{family}/{platform}/merged/model.yaml` has `stale_since: null` — if stale, HALT; run S-54 first
 3. `launch_gate.py` runnable: `.venv/Scripts/python scripts/pipeline/commands/launch/launch_gate.py {family} {platform}` exits without import error
 4. Test suite baseline: `pytest scripts/pipeline/tests/ -q` passes (record count as `baseline_test_count`)
 5. Page count baseline: count `.md` files in `content/reference.aspose.org/en/{family}/{platform}/` (record as `baseline_page_count`)
@@ -78,7 +111,7 @@ Write: `reports/sprint/{family}-{platform}-hardening/preflight/state_snapshot.js
 
 ### Step 0.2 — Prior Claim Audit
 
-Enumerate prior claims from S-93, S-43, S-95 runs, or scout reports as C-01..C-NN. For each:
+Enumerate prior claims from S-87, S-43, S-90 runs, or scout reports as C-01..C-NN. For each:
 
 1. Read the claim text
 2. Verify against actual state (code, files, test output)
@@ -326,13 +359,26 @@ reports/sprint/{family}-{platform}-hardening/
 | Failure | Action |
 |---------|--------|
 | Clone cache missing | HALT; run S-34 first |
-| Knowledge stale | HALT; run S-12 first |
+| Knowledge stale | HALT; run S-54 first |
 | `launch_gate.py` import error | HALT; fix environment |
 | Pytest baseline fails | HALT; fix pre-existing failures first |
 | Git dirty for sprint scope | HALT; stash or commit first |
 | Component not found in Step 0.3 | SKIP; record "not applicable" |
 | File already exists from prior sprint | Abort taskcard; record with diff |
 | Phase has 0 taskcards | Skip phase; proceed |
+| `--resume` but no phase_state.json | Start from Phase 0 |
+
+---
+
+## Rollback Matrix
+
+| Trigger | Scope | Method |
+|---------|-------|--------|
+| Test regression | Last taskcard | `git checkout -- {files_modified}` |
+| Page count change | Last taskcard | `git checkout -- {files_modified}` |
+| Gate PASS->FAIL | Last taskcard | `git checkout -- {files_modified}` |
+| Phase failure | Entire phase | Revert all taskcards in phase |
+| Sprint abort | All changes | `git checkout -- scripts/ docs/governance/ docs/workflows/` |
 
 ---
 
@@ -364,8 +410,8 @@ reports/sprint/{family}-{platform}-hardening/
 
 ```
 NOT_STARTED -> IN_PROGRESS -> COMPLETE
-                             -> FAILED (revert triggered)
-                             -> SKIPPED (no taskcards for phase)
+                            -> FAILED (revert triggered)
+                            -> SKIPPED (no taskcards for phase)
 ```
 
 Blocked: `COMPLETE -> IN_PROGRESS` (no re-entry); `FAILED -> COMPLETE` (must restart); phase N before phase N-1.
@@ -374,8 +420,8 @@ Blocked: `COMPLETE -> IN_PROGRESS` (no re-entry); `FAILED -> COMPLETE` (must res
 
 ```
 NOT_STARTED -> IN_PROGRESS -> VERIFIED_CLOSED (evidence + verification passed)
-                             -> FAILED (revert + skip dependents)
-                             -> SKIPPED (dependency failed)
+                            -> FAILED (revert + skip dependents)
+                            -> SKIPPED (dependency failed)
 ```
 
 **Closure rule**: A taskcard may NOT close unless all `files_to_create` exist, all `files_to_modify` changed, `pytest {test_file}` passes with >= `expected_pass_count`, invariants hold, and evidence JSON is written.
@@ -396,6 +442,7 @@ On `--resume`: read `phase_state.json`, find first non-COMPLETE phase, re-valida
 | Gap taxonomy model | `scripts/pipeline/lib/healing/detector.py` | Import `HealingFinding`, `IssueType`, `Severity` |
 | Claim audit model | `scripts/pipeline/lib/triage_confirm.py` | Call `triage_confirm()` |
 | Launch gate evaluator | `scripts/pipeline/commands/launch/launch_gate.py` | Call twice; diff results inline |
+| Docs sync checker | `scripts/ci/checks/check_skill_readme_coverage.py` | Run as verification step |
 
 ---
 
@@ -403,7 +450,11 @@ On `--resume`: read `phase_state.json`, find first non-COMPLETE phase, re-valida
 
 ```bash
 PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end \
-  --skill S-110 --status completed
+  --skill S-99 --status completed
 ```
 
 Use `--status failed` if halted due to error.
+
+## LLM Metrics Obligation
+
+This skill does not directly invoke `llm.professionalize.com`. Sub-skills handle their own metrics.

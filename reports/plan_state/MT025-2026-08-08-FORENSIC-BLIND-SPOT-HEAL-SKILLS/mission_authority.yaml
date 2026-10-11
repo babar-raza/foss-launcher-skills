@@ -1,0 +1,96 @@
+mission_authority:
+  mission_id: MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS
+  mission_summary: "Build two new skills for the FOSS content generation system, formalizing
+    a mission spec the operator pasted for conversion into a reusable, production-grade
+    skill. S-122 blind-spot-audit: read-only, unaided (no-tooling) dual-pass review of
+    cloned FOSS repos and generated content, sealed before any system tooling runs, then a
+    system-tooling pass, a manual-vs-system blind-spot comparison matrix with a
+    system_recall metric, root-cause analysis with layer attribution, a scored
+    solution-options fix plan, and schema-5f taskcard emission via TaskcardStore. S-123
+    forensic-heal-sprint: consumes a mission's bound taskcards and drives them through
+    system-heal (pipeline/skill/governance layer, never content/ first) -- content-regen
+    -- verify -- harden -- reverify -- pilot-proof -- post-heal re-audit -- 12-mode
+    independent adversarial review -- computed (never asserted) dual verdict, appending one
+    row to a new tracked docs/governance/forensic-heal-history.md ledger (since reports/,
+    .local/, and plans/ are all git-ignored and would otherwise leave no durable trail on a
+    fresh clone). The exact mission this formalizes was already run once by hand, ungoverned,
+    at .local/evidences/foss-manual-system-heal-v2-20260617/ (7 products, 1660 pages, 17
+    manual findings, 4 taskcards, verdict SYSTEM_HEALED_WITH_LIMITATIONS, 6 deferred items
+    including 17 unreviewed products) -- that run is the acceptance corpus for Wave 3's
+    golden-fixture classifier test, and proof of the governance gap this mission closes
+    (its own taskcards never reached reports/plan_state/, used a non-schema status, and
+    closed with a card still at TODO and a dangling blocker, invisible to
+    plan-health-watchdog). The pasted spec's own two invented governance schemes (custom
+    09-taskcards/*.yaml; numbered 00-intake/../17-final/ evidence subdirectories) are
+    explicitly rejected in favor of this repo's real mechanisms (taskcard schema 5f /
+    TaskcardStore; flat evidence-<phase>.json under .local/evidences/<run_id>/), per
+    AGENTS.md section 17's no-parallel-tracker rule."
+  governing_plan_path: '<local-plan-cache>/typed-snuggling-peach.md'
+  current_phase: 'Wave 0: gap-escalation report filed, mission bound (archive-only --
+    root MISSION_AUTHORITY.yaml left untouched, see conflicts_found), seed taskcard next.'
+  in_scope_outcomes:
+    - "S-122 blind-spot-audit: skill doc + 3 provider mirrors + blind_spot_audit_run.py
+      state machine + forensic_heal lib package (manual_first_audit.py, blind_spot_matrix.py,
+      root_cause_model.py, taskcard_bridge.py emit half) + registry/DAR/docs registration +
+      full test suite, including negative-control tests for the unaided-first gate and a
+      golden-fixture replay of the 2026-06-17 run's comparison matrix"
+    - "S-123 forensic-heal-sprint: skill doc + 3 provider mirrors +
+      forensic_heal_sprint_run.py state machine + adversarial_probes.py + verdict.py +
+      taskcard_bridge.py consume half + docs/governance/forensic-heal-history.md tracked
+      ledger + registry/docs registration + full test suite, including a gate-refusal test
+      proving a content/** write before the system-before-content gate is refused"
+    - "reports/skill-gaps/2026-08-08-foss-forensic-blind-spot-heal.md gap-escalation report
+      (DONE, Wave 0)"
+    - "One real end-to-end run: S-122 to completion on a real small scope, taskcards handed
+      to S-123, driven to CLOSED, producing a real docs/governance/forensic-heal-history.md
+      row and a computed final verdict (Wave 6 -- scope target deliberately left open per
+      operator decision, 2026-08-08)"
+  out_of_scope_items:
+    - "Any edit to AGENTS.md itself -- it is in the human-maintainer-only forbidden write
+      list; any pointer to the new skills goes in docs/workflows/skill-chains.md only"
+    - "Fixing the pre-existing check_new_script_placement.py UNKNOWN DOMAIN violations for
+      commands/enrichment/, commands/foss/, commands/websites/ -- confirmed pre-existing and
+      unrelated; new backing scripts land in already-recognized domains (diagnostics,
+      governance) so they do not add a 4th violation, but the existing 3 are not this
+      mission's job to fix"
+    - "Resuming concurrent-toasting-biscuit's own unfinished work -- that mission remains
+      open and unrelated; this mission does not touch its scoped paths"
+    - "Resolving the pasted mission spec's deferred backlog from the 2026-06-17 run
+      (TC-SH-004 blog post, font/python + pdf/net regen, slides/net overload gap, 17
+      unreviewed products) as content work -- that backlog is a candidate Wave 6 pilot
+      TARGET, not something this mission fixes directly outside of running S-122/S-123
+      against it if chosen"
+  mandatory_acceptance_criteria:
+    - "S-122 and S-123 both pass their full test suites (pytest scripts/pipeline/tests/) and
+      check_pipeline_registration.py, check_new_script_placement.py, check_skill_registry.py,
+      check_dar_coverage.py, sync_skills.py --check all exit 0"
+    - "Wave 2's unaided-first negative-control tests provably trip both violation classes
+      (in-window skill invocation; in-window artifact mtime change) and correctly report
+      UNPROVABLE (not CLEAN) when the ledger is unreadable"
+    - "Wave 3's blind-spot classifier reproduces a comparable blind-spot rate against the
+      2026-06-17 run's real comparison-matrix.csv golden fixture"
+    - "Wave 6 produces one real, complete S-122-to-S-123 run with a
+      docs/governance/forensic-heal-history.md row, all in-scope taskcards CLOSED or
+      explicitly exempted, and a computed (not hand-asserted) final verdict"
+    - "Every commit in this mission goes through /commit (S-76); AGENTS.md is never edited
+      directly"
+  conflicts_found:
+    - "Root MISSION_AUTHORITY.yaml is held by concurrent-toasting-biscuit
+      (mission_locked: false, [open] per mission_authority.py list), verified live
+      2026-08-08 via mission_authority.py list plus a direct read of
+      reports/plan_state/concurrent-toasting-biscuit/taskcards.jsonl: 22 cards, 3 CLOSED,
+      15 READY, 3 TODO, 1 BLOCKED_EXTERNAL -- genuinely still in progress, not stale
+      leftover prose. Asked directly, the human maintainer confirmed it is still active and
+      declined to overwrite the root projection. This mission (MT025) therefore takes the
+      archive-only path described in the file header above: it never calls
+      mission_authority.py open, never touches root MISSION_AUTHORITY.yaml, and this
+      archive snapshot is hand-authored to the same schema instead. mission_authority.py
+      status showed 0 file(s) under reports/locks/ and no skill-context lock overlapping
+      any path this mission needs (scripts/pipeline/commands/diagnostics/,
+      scripts/pipeline/commands/governance/forensic_heal_sprint_run.py,
+      scripts/pipeline/lib/forensic_heal/, skills/blind-spot-audit.md,
+      skills/forensic-heal-sprint.md, docs/governance/forensic-heal-history.md) as of
+      2026-08-08T18:44:03Z -- re-check before Wave 1 if significant time has elapsed."
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-08T18:44:03Z'

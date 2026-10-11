@@ -1,0 +1,38 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Add Data Validation (Dropdown List)",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/data_validation.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Export to CSV",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/csv_handler.py"
+    }
+  }
+]

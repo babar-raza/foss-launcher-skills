@@ -1,0 +1,70 @@
+fix(foss): C7 -- RC2 fix: verify-examples now auto-dispatches by platform instead of defaulting to the all-stub
+
+Partial, deliberately conservative progress on taskcard C7 (wire S-120
+dispatch/gate/report to the shared example-verification package). This
+is the highest-risk taskcard in the mission so far -- it touches the live
+production readme_refresh_run.py, the module that gates real PRs against
+real upstream FOSS repos -- so this commit is scoped to the one, real,
+well-evidenced fix that doesn't need any not-yet-built prerequisite.
+
+RC2 (confirmed by direct code read, Round 2 of the governing plan):
+verify_examples() used to fall straight to _default_verification_runner
+(the honest all-stub, every block BLOCKED-WITH-REASON:
+TOOLCHAIN-UNAVAILABLE) unless a caller explicitly passed
+--python-runner/--typescript-runner -- even for a real python/typescript
+product. Since _default_verification_runner's own "all_named" field is
+trivially True (every block gets SOME status), a run with the wrong flag
+(or none) silently produced an all-stub, still-approvable result.
+
+Fix: verify_examples()'s runner-selection line now dispatches
+automatically from the run's own `platform` argument (already threaded
+through the whole call chain) via a new _LANGUAGE_RUNNERS dict --
+{"python": python_verification_runner, "typescript":
+typescript_verification_runner} -- falling back to the honest stub only
+for platforms with no real runner yet. `_verification_runner`
+(configure()/--python-runner/--typescript-runner) still takes precedence
+when explicitly set, so existing callers who DO pass a flag see
+byte-identical behavior; only the previously-silent all-stub default for
+known platforms changes.
+
+Deliberately still points at THIS module's own python_verification_runner/
+typescript_verification_runner (NOT yet swapped to the
+lib.example_verification.runners package copies extracted from them in
+C3) -- both are proven byte-identical (C3's real end-to-end parity pilots
+against the actual pdf/python and pdf/typescript clone caches), but
+swapping the executed code and fixing dispatch are separable risks; this
+commit is about dispatch only. The fuller scope the governing plan's
+Consumer-wiring table describes (report.json/VerificationReport writing,
+the approve()/last-executed.json/audit-portfolio proof_tier reads) needs
+lib/example_verification/api.py, which is listed in the plan's aspirational
+module tree but assigned to NO taskcard in the current C1-C14 rollout -- a
+real, disclosed gap in the plan itself (confirmed independently by C4's
+own reviewer), not silently deferred. Old inline runner code
+(readme_refresh_run.py:4725-5343) is deliberately NOT deleted yet, per the
+stage's own rollback guidance ("keep both old and new runners... do not
+delete yet").
+
+Verification: full existing test_readme_refresh_run.py suite (216 tests)
+passes completely unchanged after this fix -- confirmed by running it in
+full, twice, both before writing new tests and after. 6 new tests added
+(dispatch-dict identity, per-platform selection, unknown-platform
+fallback, explicit-override precedence, and one real full-state-machine
+run of the existing testfam/testplat fixture proving the stub path is
+byte-identical to every pre-C7 run of that exact fixture) -- 222/222
+total pass.
+
+Read-only safety check (no new live run created, to avoid mutating
+production state for a real, possibly-contended product): inspected
+reports/readme_refresh_runs/pdf/python/rr-20260905T065622Z-20ee0e681e4c/
+(an existing, real, completed pdf/python verify-examples run, currently
+AWAITING_REVIEW, owned by a stale/inactive session) -- its
+verification/result.json already shows runner: python_verification_runner_v2
+with real classifications (TOOLCHAIN-UNAVAILABLE, NOT-A-PRODUCT-COMMAND),
+confirming the dispatched functions are already exercised in production
+via the manual flag; this fix only changes WHEN they're invoked
+(automatically for known platforms), not HOW they behave.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C7 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

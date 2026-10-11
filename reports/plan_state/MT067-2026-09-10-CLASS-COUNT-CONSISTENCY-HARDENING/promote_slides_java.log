@@ -1,0 +1,17 @@
+Promote: slides/java
+  Scout: 3692 claims, 240 api_surface entries
+  Enriched: 2303 claims (from enrich.py)
+  Total claims: 5995
+  Claim ID uniqueness: PASS (5995 unique IDs)
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 1785 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 240 entries (238 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 238 classes, 210679 bytes
+  Forbidden claims: 2
+  All artifacts written to knowledge\slides\java\merged.staging.7d685cd6-72c3-4db7-bc50-7e170a1c47e2
+  Format-claims reconciliation: PASS (3 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 7d685cd6-72c3-4db7-bc50-7e170a1c47e2 promoted for slides/java
+
+PROMOTE: PASS

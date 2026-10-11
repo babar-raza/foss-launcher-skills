@@ -1,0 +1,666 @@
+[
+  {
+    "unit_id": "c0001",
+    "heading_context": "Install",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "pip install"
+    ],
+    "disposition": "corrected",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "the aspose-font distribution is not on PyPI (live 404, upstream-issues.md); the candidate gives the working from-checkout form."
+    },
+    "correction_reason": "the aspose-font distribution is not on PyPI (live 404, upstream-issues.md); the candidate gives the working from-checkout form."
+  },
+  {
+    "unit_id": "c0002",
+    "heading_context": "Install",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "pip install"
+    ],
+    "disposition": "corrected",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/mcp.py",
+      "evidence_note": "the mcp extra install line is given in the from-checkout form with the mcp<2.0 pin (aspose-font is not on PyPI; mcp.py imports the 1.x FastMCP path)"
+    },
+    "correction_reason": "the mcp extra install line is given in the from-checkout form with the mcp<2.0 pin (aspose-font is not on PyPI; mcp.py imports the 1.x FastMCP path)"
+  },
+  {
+    "unit_id": "c0003",
+    "heading_context": "Quick Start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "WebFontBuilder.build",
+      "bundle.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "heading_context": "Quick Start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "FontQaReporter.build_package"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "heading_context": "Quick Start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "font.instantiate",
+      "instance.save"
+    ],
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "the old example calls font.instantiate({'wght': 'Bold', 'wdth': 'Condensed'}, ...) -- TtfFont.instantiate (ttf/font.py:582) takes dict[str, float] only and raises ValueError('could not convert string to float: Bold') against this tree (executed live 2026-09-02 against testdata/Roboto-VariableFont_wdth,wght.ttf); only SmartInstancer.instantiate (instancing.py:176) resolves preset names, so the candidate uses font.smart_instancer.instantiate(...) with the same arguments"
+    },
+    "correction_reason": "the old example calls font.instantiate({'wght': 'Bold', 'wdth': 'Condensed'}, ...) -- TtfFont.instantiate (ttf/font.py:582) takes dict[str, float] only and raises ValueError('could not convert string to float: Bold') against this tree (executed live 2026-09-02 against testdata/Roboto-VariableFont_wdth,wght.ttf); only SmartInstancer.instantiate (instancing.py:176) resolves preset names, so the candidate uses font.smart_instancer.instantiate(...) with the same arguments"
+  },
+  {
+    "unit_id": "c0006",
+    "heading_context": "Web Package Handoff",
+    "language": "text",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py",
+      "evidence_note": "WebFontBundle.write_to output listing"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "heading_context": "Web Package Handoff",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font web-build"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "heading_context": "QA Report Package",
+    "language": "text",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py",
+      "evidence_note": "build_package output listing"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "heading_context": "QA Report Package",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font qa-report"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "heading_context": "Variable Instance Review",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "font.smart_instancer.build_family_review_board",
+      "board.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "heading_context": "Axis Grid Proof",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "font.smart_instancer.build_axis_grid_sheet",
+      "grid.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "heading_context": "Delta and Compatibility Evidence",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "font.smart_instancer.compare_delta_glyph",
+      "ord"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "heading_context": "Delta and Compatibility Evidence",
+    "language": "text",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "sample output of compare_delta_glyph"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "heading_context": "Animation and Showcase Assets",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font preview-animation",
+      "aspose-font preview-animation-path-showcase"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "heading_context": "Variable Font Discovery",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open",
+      "font.get_axis",
+      "get_preset",
+      "font.smart_instancer.resolve",
+      "font.smart_instancer.suggest_axis_values",
+      "name",
+      "font.get_named_instance",
+      "format_coordinates",
+      "localized_labels",
+      "font.variable_presentation"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py"
+    }
+  },
+  {
+    "unit_id": "c0016",
+    "heading_context": "Variable Font Discovery",
+    "language": "text",
+    "api_call_fingerprint": [
+      "Regular",
+      "Condensed",
+      "Bold"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "sample output of the discovery example"
+    }
+  },
+  {
+    "unit_id": "c0017a",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/__init__.py",
+      "evidence_note": "the combined import block is split per example; every import survives in the example that uses it"
+    }
+  },
+  {
+    "unit_id": "c0017b",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontLoader.open"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/loader.py"
+    }
+  },
+  {
+    "unit_id": "c0017c",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontSubsetter.subset_for_web_with_coverage"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/subsetter.py"
+    }
+  },
+  {
+    "unit_id": "c0017d",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontPreviewBuilder.build",
+      "preview.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/preview.py"
+    }
+  },
+  {
+    "unit_id": "c0017e",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontPreviewBuilder.build",
+      "svg_preview.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/preview.py"
+    }
+  },
+  {
+    "unit_id": "c0017f",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.instantiate",
+      "instanced.ttf_tables.name.get"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017g",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.instantiate",
+      "menu_named.ttf_tables.name.get"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "the 'STAT' in menu_named.ttf_tables._raw probe of a private attribute is dropped; the instantiate call and the public name-record prints are carried verbatim"
+    }
+  },
+  {
+    "unit_id": "c0017h",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.preview_naming_policy"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017i",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontCleaner.clean_for_web"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cleaner.py",
+      "evidence_note": "clean_for_web call carried in Quick Start; the '\"meta\" in cleaned.ttf_tables._raw' private-attribute probe is dropped"
+    }
+  },
+  {
+    "unit_id": "c0017j",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.check_compatibility"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017k",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.inspect_deltas",
+      "ord"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017l",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.compare_delta_text"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017m",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "FontQaReporter.build",
+      "qa_report.write_html"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py"
+    }
+  },
+  {
+    "unit_id": "c0017n",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.build_web_bundle",
+      "bundle.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0017o",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "WebFontBuilder.build"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/subset_presets.py",
+      "evidence_note": "presets=(latin, arabic) subset request whose coverage the manifest reports"
+    }
+  },
+  {
+    "unit_id": "c0017p",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "WebFontBuilder.build"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py"
+    }
+  },
+  {
+    "unit_id": "c0017q",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "WebFontBuilder.build"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/ttf/instancer.py",
+      "evidence_note": "variable_mode=static with stat_policy=static -- the static-instance STAT path"
+    }
+  },
+  {
+    "unit_id": "c0017r",
+    "heading_context": "Python API Highlights",
+    "language": "python",
+    "api_call_fingerprint": [
+      "font.smart_instancer.build_axis_grid_web_family_package",
+      "grid_package.write_to"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py"
+    }
+  },
+  {
+    "unit_id": "c0018a",
+    "heading_context": "CLI Highlights",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font info",
+      "aspose-font convert",
+      "aspose-font meta-clean"
+    ],
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testdata/Fonts/Roboto-Regular.ttf",
+      "evidence_note": "the old CLI block names Roboto.ttf, a file that exists nowhere in this tree; the candidate uses the real fixture testdata/Fonts/Roboto-Regular.ttf (as every Python example already does) so the block is self-consistent and executable -- runner v2 reported FIXTURE-UNAVAILABLE on Roboto.ttf live 2026-09-02; every other line is carried byte-for-byte"
+    },
+    "correction_reason": "the old CLI block names Roboto.ttf, a file that exists nowhere in this tree; the candidate uses the real fixture testdata/Fonts/Roboto-Regular.ttf (as every Python example already does) so the block is self-consistent and executable -- runner v2 reported FIXTURE-UNAVAILABLE on Roboto.ttf live 2026-09-02; every other line is carried byte-for-byte"
+  },
+  {
+    "unit_id": "c0018b",
+    "heading_context": "CLI Highlights",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font preview",
+      "aspose-font var-instance",
+      "aspose-font var-naming-preview",
+      "aspose-font var-info",
+      "aspose-font preview-grid-sheet",
+      "aspose-font preview-compare",
+      "aspose-font preview-waterfall",
+      "aspose-font preview-matrix",
+      "aspose-font preview-family-board",
+      "aspose-font preview-family-export",
+      "aspose-font web-grid-family"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0018c",
+    "heading_context": "CLI Highlights",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font qa-report",
+      "aspose-font var-compat",
+      "aspose-font var-delta",
+      "aspose-font var-delta-text",
+      "aspose-font var-delta-text-compare",
+      "aspose-font var-delta-text-compare-board",
+      "aspose-font var-delta-compare"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0018d",
+    "heading_context": "CLI Highlights",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "aspose-font web-build",
+      "aspose-font web-family",
+      "aspose-font web-grid",
+      "aspose-font web-grid-family"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/cli.py"
+    }
+  },
+  {
+    "unit_id": "c0019",
+    "heading_context": "MCP Server",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "pip install"
+    ],
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/mcp.py",
+      "evidence_note": "pip install \"aspose-font[mcp]\" replaced by the from-checkout form with the mcp<2.0 pin (unpublished on PyPI; mcp.py imports the 1.x FastMCP path); python -m aspose_font.mcp carried verbatim"
+    },
+    "correction_reason": "pip install \"aspose-font[mcp]\" replaced by the from-checkout form with the mcp<2.0 pin (unpublished on PyPI; mcp.py imports the 1.x FastMCP path); python -m aspose_font.mcp carried verbatim"
+  },
+  {
+    "unit_id": "c0020",
+    "heading_context": "Development",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "uv run"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile",
+      "evidence_note": "pytest/ruff/build carried as the pip -e + make test/lint form plus the verbatim uv build line"
+    }
+  }
+]

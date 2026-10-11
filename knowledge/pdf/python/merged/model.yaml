@@ -1,0 +1,38 @@
+bundle_generated_at: '2026-09-19T11:59:59.050114+00:00'
+bundle_id: 915bf246-716e-4765-8520-2533da8d492b
+config_sha: ba558925e966ce6d
+enrichment_status: full
+extractor_hash: eac3c140f21ca3ff
+family: pdf
+generator_fingerprint: d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 4036d6837916b6fa24470af8a838bb948db1fa3dd59217365de576f7fd8ace60
+  extractor_config_sha: ba558925e966ce6d
+  products_json_entry_sha: 16a493cfbf766c089fe365680542357e6deccee3e898bf89ab230d6c9a39d740
+  scout_api_surface_sha: 2bb9d60872a154a5315d361bd0e1cecadba1538cd93891f1c83b63c1fa5bf6e8
+  scout_claims_sha: 754d992abd17307850e9bd750db18778ee37c8fd0126442057ef9b4d31397612
+license: MIT
+module_assignment_version: 1
+platform: python
+product_name: aspose-pdf-foss-for-python
+promoted_at: '2026-09-19T11:59:59.290885+00:00'
+repo_sha: ab0b00d76b778ebd0bae5e1715276f600b92d893
+repo_url: https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 279
+  classes:
+    public_documented: 273
+    raw_entries_including_non_class: 578
+    total_declared: 279
+  enriched_claims: 1279
+  forbidden_count: 7
+  scout_claims: 2192
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 3468
+version: ''

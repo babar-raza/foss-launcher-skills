@@ -1,0 +1,31 @@
+family: slides
+platform: cpp
+version: 1
+
+discovery_hints:
+  package_source_file: CMakeLists.txt
+  package_extraction: "regex:project\\(([^\\s)]+)"
+  language: cpp
+  format_source_glob: "src/**/Export/**/*.cpp"
+  stub_search_hints:
+    - "throw std::runtime_error(\"not implemented\")"
+    - "// TODO"
+  runtime_requirement_source: CMakeLists.txt
+
+discovered_actuals:
+  package_name: "aspose_slides_foss"
+  package_source_actual: CMakeLists.txt
+  format_files_found: null
+  last_baseline_sha: 25adb25c8796f06d9b89cd5f8093e490091195ef
+
+language_conventions:
+  method_naming: PascalCase
+  enum_values: PascalCase
+  pass_by: pointer_or_reference
+
+expected_sections:
+  - {site: products, mandatory: true}
+  - {site: docs, mandatory: true}
+  - {site: kb, mandatory: true}
+  - {site: reference, mandatory: true}
+  - {site: blog, mandatory: false}

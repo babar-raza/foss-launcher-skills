@@ -6,7 +6,8 @@ REPO = pathlib.Path(__file__).resolve().parent.parent.parent.parent
 # Get English modified files
 result = subprocess.run(
     ["git", "status", "--short", "--", "content/"],
-    capture_output=True, text=True, cwd=REPO
+    capture_output=True, text=True, cwd=REPO,
+    encoding="utf-8", errors="replace",
 )
 en_files = []
 for line in result.stdout.splitlines():
@@ -23,7 +24,8 @@ for i in range(0, len(en_files), batch_size):
     batch = en_files[i : i + batch_size]
     r = subprocess.run(
         [str(REPO / ".venv/Scripts/python"), "scripts/pipeline/commands/content/audit.py", "--files"] + batch,
-        capture_output=True, text=True, cwd=REPO
+        capture_output=True, text=True, cwd=REPO,
+        encoding="utf-8", errors="replace",
     )
     if r.returncode != 0:
         # Parse failing files from output

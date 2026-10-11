@@ -1,0 +1,7 @@
+{
+  "removed_apis": ["OldClass.method"],
+  "new_apis": ["NewClass.convert"],
+  "removed_claims": [],
+  "modified_claims": [],
+  "new_claims": []
+}

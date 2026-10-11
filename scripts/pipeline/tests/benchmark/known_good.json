@@ -1,0 +1,31 @@
+{
+  "_doc": "Pages confirmed correct by human review. System should produce 0 FAIL findings on these. Used to detect false-positive spikes after each ratchet.",
+  "pages": [
+    {
+      "file": "content/products.aspose.org/en/cells/net/_index.md",
+      "family": "cells",
+      "platform": "net",
+      "human_review_source": "cells-net-human-review-2026-04-07.md section 4.1",
+      "human_grade": "A",
+      "notes": "Post-fix: freeze panes removed, all APIs verified"
+    },
+    {
+      "file": "content/kb.aspose.org/en/cells/net/faq.md",
+      "family": "cells",
+      "platform": "net",
+      "human_review_source": "cells-net-human-review-2026-04-07.md section 4.4",
+      "human_grade": "A",
+      "notes": "faq.list absent, all Q&A verified"
+    },
+    {
+      "file": "content/docs.aspose.org/en/cells/net/developer-guide/features.md",
+      "family": "cells",
+      "platform": "net",
+      "human_review_source": "cells-net-human-review-2026-04-07.md section 4.3",
+      "human_grade": "A",
+      "notes": "FT/WARN on limitations prose is evaluator FP, not content error"
+    }
+  ],
+  "fp_threshold": 2,
+  "fp_threshold_doc": "If system produces more than this many FAIL findings across all known-good pages after a ratchet, investigate before proceeding"
+}

@@ -1,0 +1,33 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/tex-python-readme.md.orig	2026-08-06 14:48:16.610229700 +0500
++++ reports/repo-presenter/tex/python/readme.md	2026-08-06 14:48:25.610989400 +0500
+@@ -58,26 +58,19 @@
+     O1["PDF documents"]
+     O2["DVI files"]
+     O3["SVG 1.1 documents (single- or multi-page)"]
++    O4["Font and glyph metrics (widths, kerning, ligatures)"]
+   end
+ 
+   I1 --- PRODUCT
+   I2 --- PRODUCT
+   PRODUCT --- C1
+   PRODUCT --- C2
+-  PRODUCT --- C3
+-  PRODUCT --- C4
+-  C1 --- O1
+-  C1 --- O2
+-  C1 --- O3
+-  C2 --- O1
+-  C2 --- O2
+-  C2 --- O3
+-  C3 --- O1
+-  C3 --- O2
+-  C3 --- O3
++  C1 --- C3
++  C3 --- C4
+   C4 --- O1
+   C4 --- O2
+   C4 --- O3
++  C2 --- O4
+ ```
+ 
+ ## Key capabilities

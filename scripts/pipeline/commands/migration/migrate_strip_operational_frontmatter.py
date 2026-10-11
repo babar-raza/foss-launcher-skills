@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 #!/usr/bin/env python3
 """migrate_strip_operational_frontmatter.py — MIG-01: Strip operational grade fields.
 
@@ -37,7 +36,7 @@ import yaml
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
-    sys.path.insert(0, str(_HERE.parent.parent))  # scripts/pipeline/  # scripts/pipeline/
+    sys.path.insert(0, str(_HERE.parent.parent.parent.parent))  # scripts/pipeline/
 
 from core.markdown import _FRONTMATTER_WRITER_RE  # noqa: E402
 
@@ -64,7 +63,7 @@ OPERATIONAL_GRADE_FIELDS = frozenset({
 ALL_GRADE_FIELDS = CANONICAL_GRADE_FIELDS | OPERATIONAL_GRADE_FIELDS
 
 # Repo root — two levels up from scripts/pipeline/
-_REPO_ROOT = _HERE.parents[3]  # repo root
+_REPO_ROOT = _HERE.parent.parent.parent.parent
 
 # ---------------------------------------------------------------------------
 # Helpers

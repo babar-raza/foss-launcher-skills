@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check-provenance-writes.py — Lint: detect scripts that write provenance fields
 without using the official provenance module API.
 

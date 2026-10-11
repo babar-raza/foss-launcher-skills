@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "stage1-issue-model.schema.json",
+  "title": "Stage 1 issue model (post-sprint audit)",
+  "description": "Derived verbatim from .supervisor/prompts/prompt1-post-sprint-audit.md — its 'Issue Record Format' field list, the three Structured Issue Levels, the Claim Classification Matrix, the Evidence Quality Verdicts, and the Final Verdicts. No field or enum value here was invented; every one appears in that prompt. Authored 2026-08-05 under MT021 TC-MT021-07 (backlog ST-060), because the prompt declared this contract and the file did not exist.",
+  "type": "object",
+  "required": ["mission_id", "issues", "final_verdict"],
+  "properties": {
+    "mission_id": { "type": "string" },
+    "iteration": { "type": "integer" },
+    "evidence_quality_verdict": {
+      "type": "string",
+      "enum": ["STRONG", "ADEQUATE_WITH_LIMITATIONS", "WEAK", "INSUFFICIENT", "MISLEADING"]
+    },
+    "final_verdict": {
+      "type": "string",
+      "enum": [
+        "SPRINT_ALL_GREEN_VERIFIED",
+        "SPRINT_ACCEPTED_WITH_LIMITATIONS",
+        "SPRINT_REQUIRES_PLAN_HARDENING",
+        "SPRINT_REQUIRES_REEXECUTION",
+        "SPRINT_REQUIRES_EVIDENCE_REPAIR",
+        "SPRINT_BLOCKED_EXTERNAL",
+        "SPRINT_SUMMARY_INSUFFICIENT"
+      ]
+    },
+    "claim_classifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "classification"],
+        "properties": {
+          "claim": { "type": "string" },
+          "classification": {
+            "type": "string",
+            "enum": ["ACCEPTED_VERIFIED", "ACCEPTED_WITH_LIMITATIONS", "PARTIAL",
+                     "UNVERIFIED", "FAILED", "STALE", "MISLEADING",
+                     "DAMAGED_OR_REGRESSED", "EXTERNAL_BLOCKED"]
+          },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "issue_level", "title", "description", "evidence",
+                     "root_cause", "severity", "blocker", "recurrence_risk",
+                     "required_fix_type", "recommended_next_stage", "acceptance_impact"],
+        "properties": {
+          "issue_id": { "type": "string" },
+          "issue_level": {
+            "type": "string",
+            "enum": ["L1_EXECUTION", "L2_INTEGRATION", "L3_SYSTEM_WEAKNESS"]
+          },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "evidence": {},
+          "missing_evidence": {},
+          "root_cause": { "type": "string" },
+          "why_not_only_symptom": { "type": "string" },
+          "affected_files": { "type": "array", "items": { "type": "string" } },
+          "affected_components": { "type": "array", "items": { "type": "string" } },
+          "affected_connection_points": { "type": "array", "items": { "type": "string" } },
+          "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+          "blocker": { "type": "boolean" },
+          "recurrence_risk": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          "required_fix_type": { "type": "string" },
+          "requires_plan_update": { "type": "boolean" },
+          "requires_taskcard": { "type": "boolean" },
+          "requires_system_healing": { "type": "boolean" },
+          "requires_reexecution": { "type": "boolean" },
+          "requires_governance_change": { "type": "boolean" },
+          "requires_evidence_repair": { "type": "boolean" },
+          "recommended_next_stage": { "type": "string" },
+          "acceptance_impact": { "type": "string" }
+        }
+      }
+    }
+  }
+}

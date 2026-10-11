@@ -5,12 +5,23 @@
 # Claude Code pipes hook input as JSON to stdin (see hooks.md).
 #
 # Behavior:
-#   - If the target file_path is under content/, requires a content-check pass
-#     marker at reports/content-check/<encoded-path>.pass before allowing Write.
+#   - If the target file_path is under content/ AND already exists on disk,
+#     requires a content-check pass marker at reports/content-check/<encoded-path>.pass
+#     before allowing Write (protects against silently overwriting
+#     already-checked content with unchecked content).
+#   - Brand-new file creation (path does not yet exist) is allowed through
+#     unconditionally (HARDEN-words-net, 2026-07-23) — audit/runner.py's
+#     audit_files() skips (and never markers) a file that doesn't exist yet
+#     (`if not fp.exists(): continue`), so a marker can never be obtained
+#     before a first-time Write, which made this gate unsatisfiable for any
+#     new content file under the documented create-then-content-check skill
+#     order (S-61 etc.: Write first, run /content-check after). Confirmed via
+#     gap-escalation report reports/skill-gaps/2026-07-23-content-write-hook-blocks-new-files.md;
+#     fix approved by user question (not an autonomous governance bypass).
 #   - The marker is written by audit/runner.py (S-23) when a file passes with
 #     zero FAIL findings.
-#   - Exits 2 (block) if the marker is absent.
-#   - Exits 0 for non-content paths or when the marker exists.
+#   - Exits 2 (block) if the file already exists and the marker is absent.
+#   - Exits 0 for non-content paths, brand-new files, or when the marker exists.
 #
 # Exit codes (Claude Code PreToolUse semantics):
 #   0 = allow (tool executes)
@@ -108,6 +119,13 @@ fi
 # Determine repo root from script location (scripts/ci/ — two levels up)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+# Brand-new file creation: nothing to protect yet (content-check can only run
+# against a file that exists), so allow it through unconditionally. Only a
+# Write that would OVERWRITE an existing content file is gated below.
+if [ ! -f "$REPO_ROOT/$FILE_PATH" ]; then
+    exit 0
+fi
 
 # Encode path: replace / with _ (mirrors the bash marker naming in the plan)
 ENCODED="${FILE_PATH//\//_}"

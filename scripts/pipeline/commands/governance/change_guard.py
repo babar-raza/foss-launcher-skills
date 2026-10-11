@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Deterministic pre-write change guard - validates proposed text against knowledge.
 
 Checks proposed text for forbidden claim matches, API reference accuracy,
@@ -28,8 +27,7 @@ _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
-# Platform alias map -- inline fallback (foss does not have content_discovery)
-PLATFORM_MAP: dict[str, str] = {}
+from content_discovery import PLATFORM_MAP  # noqa: E402  (R-4: was knowledge_core)
 
 
 _SCRIPT_DIR = Path(__file__).resolve().parent

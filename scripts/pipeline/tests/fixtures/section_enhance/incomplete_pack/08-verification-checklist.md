@@ -1,0 +1,1 @@
+# Verification Checklist (fixture stub)

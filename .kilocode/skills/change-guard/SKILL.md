@@ -7,6 +7,8 @@ description: >
 args: "{family} {platform} \"{proposed-text}\""
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
 # S-33: Change Guard — Pre-Write Knowledge Gate
 
 **Arguments**: $ARGUMENTS
@@ -22,22 +24,28 @@ Pre-write gate that validates proposed content changes against verified knowledg
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-33 --scope "*"
+> ```
+
+
 ### Step 1: Run deterministic guard script
 
 Run the Python script first to get a reproducible PASS/WARN/DENY decision:
 
 ```bash
 # Inline text:
-python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} "proposed text here"
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "proposed text here"
 
 # From a file:
-python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} --file path/to/draft.md
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --file path/to/draft.md
 
 # From stdin:
-echo "proposed text" | python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} --stdin
+echo "proposed text" | .venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} --stdin
 
 # JSON output:
-python scripts/pipeline/commands/diagnostics/change_guard.py {family} {platform} "proposed text" --json
+.venv/Scripts/python scripts/pipeline/commands/governance/change_guard.py {family} {platform} "proposed text" --json
 ```
 
 The script checks each sentence for:
@@ -61,6 +69,11 @@ Review the issues list in the script output:
 3. `format_direction` — correct the import/export direction claim
 
 Re-run the guard after fixes to confirm PASS.
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-33 --status completed
+> ```
 
 ## Output
 ```

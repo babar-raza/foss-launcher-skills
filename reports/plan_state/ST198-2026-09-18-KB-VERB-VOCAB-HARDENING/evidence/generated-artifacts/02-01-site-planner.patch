@@ -1,0 +1,39 @@
+diff --git a/scripts/pipeline/commands/launch/site_planner.py b/scripts/pipeline/commands/launch/site_planner.py
+index a9947a5ce8..f426e6f4b0 100644
+--- a/scripts/pipeline/commands/launch/site_planner.py
++++ b/scripts/pipeline/commands/launch/site_planner.py
+@@ -126,7 +126,8 @@ def slug_from_category(category: str) -> str:
+ # Helper: KB verb detection
+ # ---------------------------------------------------------------------------
+ 
+-_VERB_KEYWORDS: list[tuple[list[str], str]] = [
++# True verb synonyms: safe as a slug's leading verb (forward and reverse).
++_KB_VERB_SYNONYMS: list[tuple[list[str], str]] = [
+     (["load", "read", "open", "import"],                      "load"),
+     (["save", "write", "export"],                             "export"),
+     (["convert", "transform"],                                "convert"),
+@@ -137,6 +138,10 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["parse", "extract", "inspect", "analyze"],              "extract"),
+     (["traverse"],                                            "traverse"),
+     (["optimize", "compress"],                                "optimize"),
++]
++
++# Cluster-name hints (forward classification only) -- never treat as slug verbs.
++_KB_CATEGORY_VERB_HINTS: list[tuple[list[str], str]] = [
+     # Sub-package cluster names mapped to meaningful verbs
+     (["format"],                                              "convert"),   # format-support → convert
+     (["scene-manage", "scene-management"],                    "load"),      # scene-management → load
+@@ -181,6 +186,13 @@ _VERB_KEYWORDS: list[tuple[list[str], str]] = [
+     (["metadata-util"],                                       "extract"),   # metadata-utilities → extract
+ ]
+ 
++# ST-198: compat alias -- same name, order, content. detect_kb_verb() (forward
++# classification of a cluster NAME) scans both tables; the reverse parser
++# (split_kb_slug_verb_noun(), below) scans only _KB_VERB_SYNONYMS, because a
++# category-hint keyword (e.g. "msg", "mesh", "cfb", "comment") is never a
++# legitimate leading verb word of a slug.
++_VERB_KEYWORDS: list[tuple[list[str], str]] = _KB_VERB_SYNONYMS + _KB_CATEGORY_VERB_HINTS
++
+ # Clusters that should NOT generate KB howto pages (reference-only).
+ # Also excluded from docs developer-guide topic pages.
+ KB_SKIP_CLUSTERS = {

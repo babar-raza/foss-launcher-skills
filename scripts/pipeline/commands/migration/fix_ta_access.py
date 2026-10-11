@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Fix type-accuracy Access column defects in reference pages.
 
 For each reference page where api_surface.json marks a property as
@@ -15,7 +14,7 @@ Usage
 
   # Target specific files:
   python fix_ta_access.py --family cells --platform python \
-      --files content/reference/en/cells/python/AutoFilter.md
+      --files content/reference.aspose.org/en/cells/python/AutoFilter.md
 
 Exit codes
 ----------
@@ -27,7 +26,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -43,7 +41,7 @@ _PROP_ROW_RE = re.compile(
 )
 
 KNOWLEDGE_ROOT = Path("knowledge")
-REFERENCE_ROOT = Path(os.environ.get("REFERENCE_ROOT", "content/reference/en"))
+REFERENCE_ROOT = Path("content/reference.aspose.org/en")
 
 
 def _load_writable_map(family: str, platform: str) -> dict[str, set[str]]:

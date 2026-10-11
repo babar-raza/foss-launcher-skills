@@ -1,0 +1,153 @@
+[
+  {
+    "unit_id": "c0001",
+    "heading_context": "Installation",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "git clone",
+      "npm install"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json"
+    }
+  },
+  {
+    "unit_id": "c0002a",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts"
+    }
+  },
+  {
+    "unit_id": "c0002b",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "Workbook",
+      "workbook.worksheets.get"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts"
+    }
+  },
+  {
+    "unit_id": "c0002c",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "sheet.putValue",
+      "sheet.getCell2",
+      "cellB4.setFormula",
+      "SUM"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/cell.ts"
+    }
+  },
+  {
+    "unit_id": "c0002d",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "Style",
+      "headerStyle.setBold",
+      "headerStyle.setFontColor",
+      "headerStyle.setForegroundColor"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/style.ts"
+    }
+  },
+  {
+    "unit_id": "c0002e",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "sheet.getCell2",
+      ".setStyle"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/cell.ts",
+      "evidence_note": "Real code inlines the two getCell2()->setStyle() chains instead of the original's intermediate cellA1/cellB1 variables -- same real behavior, not byte-identical, hence merged_reframed not merged_verbatim."
+    }
+  },
+  {
+    "unit_id": "c0002f",
+    "heading_context": "Create, style, and save a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "workbook.save"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "heading_context": "Load and update a workbook",
+    "language": "typescript",
+    "api_call_fingerprint": [
+      "Workbook.load",
+      "workbook.worksheets.get",
+      "sheet.getCell2",
+      "cell.putValue",
+      "console.log",
+      "sheet.getCell",
+      "workbook.save"
+    ],
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Real code inlines the intermediate `cell` variable into a chained getCell2().putValue() call -- same real behavior, not byte-identical, hence merged_reframed not merged_verbatim. The console.log read-back line (originally silently dropped) was restored to the candidate as part of this fix (readme-refresh-trackb-and-followon-2026-09-01, TC-B-03)."
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "heading_context": "Build from Source",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "npm install",
+      "npx tsc"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tsconfig.json"
+    }
+  }
+]

@@ -1,13 +1,13 @@
-# Adapted from aspose.org
-"""blog_slug_inventory.py — Scan blog content for folder slug quality.
+#!/usr/bin/env python3
+"""blog_slug_inventory.py — Scan blog.aspose.org for folder slug quality.
 
-Scans every canonical English index.md under a configurable blog content root
-and classifies each folder slug using blog_slug_policy. Produces JSON + Markdown
+Scans every canonical English index.md in content/blog.aspose.org/**/ and
+classifies each folder slug using blog_slug_policy. Produces JSON + Markdown
 inventory reports and a repair candidates JSON for MIGRATION_READY slugs only.
 
 Usage:
-    .venv/Scripts/python scripts/pipeline/commands/diagnostics/blog_slug_inventory.py \
-        --root content/blog \
+    python scripts/pipeline/commands/diagnostics/blog_slug_inventory.py \\
+        --root content/blog.aspose.org \\
         --out reports/blog-slugs
 
 Output files:
@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass
@@ -28,7 +27,7 @@ from typing import Any
 
 # Allow running from repo root or via PYTHONPATH=scripts/pipeline
 _HERE = Path(__file__).resolve()
-_REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", _HERE.parents[4]))
+_REPO_ROOT = _HERE.parents[4]
 sys.path.insert(0, str(_REPO_ROOT / "scripts" / "pipeline"))
 
 import yaml
@@ -44,11 +43,8 @@ from lib.blog_slug_policy import (
 _FM_RE = re.compile(r"^---\s*\n(.*?)\n---\s*(?:\n|$)", re.DOTALL)
 _FM_SPLIT_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DOTALL)
 
-# Depth: {blog_root}/{family}/{platform}/{slug}/index.md -> 4 parts relative
+# Depth: content/blog.aspose.org/{family}/{platform}/{slug}/index.md → 4 parts relative
 _MIN_DEPTH = 4
-
-# Configurable blog domain for URL matching — override via FOSS_BLOG_DOMAIN env var
-_BLOG_DOMAIN = os.environ.get("FOSS_BLOG_DOMAIN", "blog.aspose.org")
 
 
 # ---------------------------------------------------------------------------
@@ -57,12 +53,19 @@ _BLOG_DOMAIN = os.environ.get("FOSS_BLOG_DOMAIN", "blog.aspose.org")
 
 @dataclass
 class FrontmatterParseResult:
-    """Result of parsing YAML frontmatter from a markdown file."""
+    """Result of parsing YAML frontmatter from a markdown file.
+
+    Distinguishes four cases:
+    - No FM block present:              has_frontmatter=False, valid=False
+    - FM block present, YAML error:     has_frontmatter=True,  valid=False, error=<message>
+    - FM block present, non-dict YAML:  has_frontmatter=True,  valid=False, error='not a mapping'
+    - FM block present, valid dict:     has_frontmatter=True,  valid=True,  data=<dict>
+    """
     has_frontmatter: bool
     valid: bool
     data: dict[str, Any]
     error: str | None
-    raw: str
+    raw: str  # raw text between --- delimiters
 
 
 def parse_frontmatter(text: str) -> FrontmatterParseResult:
@@ -94,7 +97,11 @@ def parse_frontmatter(text: str) -> FrontmatterParseResult:
 # ---------------------------------------------------------------------------
 
 def _split_frontmatter_and_body(text: str) -> tuple[str, str]:
-    """Split markdown text into (frontmatter_block, body)."""
+    """Split markdown text into (frontmatter_block, body).
+
+    frontmatter_block includes --- delimiters.
+    Contract: frontmatter_block + body == text always (lossless).
+    """
     m = _FM_SPLIT_RE.match(text)
     if not m:
         return "", text
@@ -108,17 +115,26 @@ def _split_frontmatter_and_body(text: str) -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 
 def _find_slug_in_body(body: str, family: str, platform: str, slug: str) -> bool:
-    """Return True if body contains a URL reference to /{family}/{platform}/{slug}."""
+    """Return True if body contains a URL reference to /{family}/{platform}/{slug}.
+
+    Operates on body text only (frontmatter already stripped).
+    Prevents partial slug matches: slug must be followed by /, ?, #, ", ', ), whitespace, or EOL.
+    Prevents path-prefix false positives: /blog/3d/java/slug must NOT match family=3d.
+    The root-relative form requires a negative lookbehind — /{family} must not be preceded
+    by a path-segment character (letter, digit, dot, underscore, hyphen, or slash).
+    """
     esc_family = re.escape(family)
     esc_platform = re.escape(platform)
     esc_slug = re.escape(slug)
     tail = r"(?=[/?#\"'\)\s]|$)"
-    esc_domain = re.escape(_BLOG_DOMAIN)
 
+    # Absolute forms: domain must be matched exactly (not a substring)
     abs_form = (
-        r"(?:https?://" + esc_domain + r"|//" + esc_domain + r")"
+        r"(?:https?://blog\.aspose\.org|//blog\.aspose\.org)"
         r"/" + esc_family + r"/" + esc_platform + r"/" + esc_slug + tail
     )
+    # Root-relative form: /{family}/{platform}/{slug}
+    # Negative lookbehind ensures we are NOT inside /blog/3d/... or any other prefix path
     root_form = (
         r"(?<![a-zA-Z0-9_./-])"
         r"/" + esc_family + r"/" + esc_platform + r"/" + esc_slug + tail
@@ -138,9 +154,10 @@ def _find_inbound_links(
     a URL reference to /{family}/{platform}/{folder_slug}/."""
     hits = []
     for md_file in sorted(blog_root.rglob("*.md")):
+        # Skip files in the post's own folder
         try:
             md_file.relative_to(own_folder)
-            continue
+            continue  # inside own_folder — skip
         except ValueError:
             pass
         try:
@@ -158,6 +175,7 @@ def _find_inbound_links(
 # ---------------------------------------------------------------------------
 
 def _is_locale_file(path: Path) -> bool:
+    """Return True if the file is a locale translation (e.g. index.ar.md)."""
     stem = path.stem
     if stem == "index":
         return False
@@ -171,6 +189,7 @@ def _count_locale_files(folder: Path) -> int:
 
 
 def _count_source_file_refs(folder: Path, old_source_file_value: str) -> list[Path]:
+    """Find locale files in folder that contain the given source_file value."""
     refs = []
     for f in folder.glob("index.*.md"):
         if not _is_locale_file(f):
@@ -189,12 +208,22 @@ def _count_source_file_refs(folder: Path, old_source_file_value: str) -> list[Pa
 # ---------------------------------------------------------------------------
 
 def scan_posts(blog_root: Path) -> list[dict]:
-    """Scan all English index.md posts under blog_root. Return list of post records."""
+    """Scan all English index.md posts under blog_root. Return list of post records.
+
+    Each record includes:
+    - Slug quality classification
+    - Frontmatter parse diagnostics (has_frontmatter, frontmatter_valid, frontmatter_error)
+    - Path shape validity
+    - Inbound link count and file list (body links only — frontmatter excluded)
+    - Candidate eligibility status and blockers
+    - Existing aliases from frontmatter
+    """
     records = []
     for index_md in sorted(blog_root.rglob("index.md")):
         rel = index_md.relative_to(blog_root)
         path_shape_valid = len(rel.parts) == _MIN_DEPTH
 
+        # Record depth-invalid posts with diagnostics but do not process further
         if not path_shape_valid:
             family = rel.parts[0] if len(rel.parts) >= 1 else ""
             platform = rel.parts[1] if len(rel.parts) >= 2 else ""
@@ -274,6 +303,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
 
         fm_result = parse_frontmatter(content)
 
+        # Extract fields — only trust values from valid frontmatter
         if fm_result.valid:
             fm = fm_result.data
             title = fm.get("title", "")
@@ -291,15 +321,17 @@ def scan_posts(blog_root: Path) -> list[dict]:
                 aliases = []
                 aliases_valid = False
         else:
+            # Invalid FM: use safe defaults but migration is blocked via candidate_blockers
             title = ""
             date = ""
             draft = False
             grade = ""
-            auto_updatable = True
+            auto_updatable = True  # unused — blocked via frontmatter_valid check
             content_origin = "skill-generated"
             aliases = []
             aliases_valid = True
 
+        # Classify slug quality
         if fm_result.valid:
             classification = classify_folder_slug_quality(
                 folder_slug=folder_slug,
@@ -312,6 +344,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
         else:
             classification = NEEDS_REVIEW
 
+        # Build candidate blockers
         candidate_blockers: list[str] = []
         candidate_warnings: list[str] = []
 
@@ -320,6 +353,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
         elif not fm_result.valid:
             candidate_blockers.append("malformed-frontmatter")
 
+        # draft check: treat True or "true" (string) as draft
         is_draft = (draft is True) or (isinstance(draft, str) and draft.lower() == "true")
         if is_draft:
             candidate_blockers.append("draft")
@@ -330,6 +364,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
         if classification == BLOCKED_BY_GOVERNANCE and "auto-updatable-false" not in candidate_blockers:
             candidate_blockers.append("governance-block")
 
+        # Determine candidate_status
         if candidate_blockers:
             candidate_status = "BLOCKED"
             candidate_exclusion_reason: str | None = "; ".join(candidate_blockers)
@@ -343,6 +378,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
             candidate_status = "EXCLUDED"
             candidate_exclusion_reason = f"classification={classification}"
 
+        # Propose repair (only for ELIGIBLE)
         repair_candidate: str | None = None
         repair_blocked_reason: str | None = None
 
@@ -365,8 +401,10 @@ def scan_posts(blog_root: Path) -> list[dict]:
         elif classification in {NEEDS_REVIEW, BAD_NO_PLATFORM}:
             repair_blocked_reason = f"classification={classification} — human review required"
 
+        # Inbound link detection (body only)
         inbound_files = _find_inbound_links(blog_root, family, platform, folder_slug, folder)
 
+        # Alias notes
         alias_notes: list[str] = []
         own_url = f"/{family}/{platform}/{folder_slug}/"
         if own_url in aliases:
@@ -374,8 +412,7 @@ def scan_posts(blog_root: Path) -> list[dict]:
 
         inferred_url = build_blog_url_from_index_path(index_md)
 
-        # Use configurable domain for source_file reference
-        source_file_value = f"{_BLOG_DOMAIN}/{family}/{platform}/{folder_slug}/index.md"
+        source_file_value = f"blog.aspose.org/{family}/{platform}/{folder_slug}/index.md"
         locale_files_with_ref = _count_source_file_refs(folder, source_file_value)
         locale_count = _count_locale_files(folder)
 
@@ -415,7 +452,18 @@ def scan_posts(blog_root: Path) -> list[dict]:
 
 
 def build_repair_candidates(records: list[dict], blog_root: Path) -> list[dict]:
-    """Build repair candidates list from ELIGIBLE records."""
+    """Build repair candidates list from ELIGIBLE records.
+
+    Policy:
+    - Only posts with candidate_status == ELIGIBLE appear here.
+    - ELIGIBLE requires: frontmatter_valid=True, path_shape_valid=True,
+      draft=False/absent, auto_updatable=True, classification=MIGRATION_READY,
+      and a valid repair_candidate slug.
+    - Draft posts (draft: true or draft: "true") are excluded.
+    - Malformed or missing frontmatter posts are excluded.
+    - Each candidate has alias_required=True and required_alias=old_url.
+    - inbound_link_updates is populated from the actual scan results.
+    """
     candidates = []
     for rec in records:
         if rec.get("candidate_status") != "ELIGIBLE":
@@ -428,13 +476,13 @@ def build_repair_candidates(records: list[dict], blog_root: Path) -> list[dict]:
         old_slug = rec["folder_slug"]
         new_slug = rec["repair_candidate"]
 
-        blog_content_prefix = os.environ.get("FOSS_BLOG_CONTENT_PREFIX", f"content/{_BLOG_DOMAIN}")
-        old_path = f"{blog_content_prefix}/{family}/{platform}/{old_slug}"
-        new_path = f"{blog_content_prefix}/{family}/{platform}/{new_slug}"
+        old_path = f"content/blog.aspose.org/{family}/{platform}/{old_slug}"
+        new_path = f"content/blog.aspose.org/{family}/{platform}/{new_slug}"
 
         old_url = f"/{family}/{platform}/{old_slug}/"
         new_url = f"/{family}/{platform}/{new_slug}/"
 
+        # Locale files
         folder = blog_root / family / platform / old_slug
         locale_files = [
             str(f.as_posix())
@@ -442,13 +490,15 @@ def build_repair_candidates(records: list[dict], blog_root: Path) -> list[dict]:
             if _is_locale_file(f)
         ]
 
-        old_sf = f"{_BLOG_DOMAIN}/{family}/{platform}/{old_slug}/index.md"
-        new_sf = f"{_BLOG_DOMAIN}/{family}/{platform}/{new_slug}/index.md"
+        # source_file updates
+        old_sf = f"blog.aspose.org/{family}/{platform}/{old_slug}/index.md"
+        new_sf = f"blog.aspose.org/{family}/{platform}/{new_slug}/index.md"
         source_file_updates = [
             {"file": lf, "old_value": old_sf, "new_value": new_sf}
             for lf in locale_files
         ]
 
+        # Inbound link updates from actual scan
         inbound_link_updates = [
             {"file": f, "old_url": old_url, "new_url": new_url}
             for f in rec.get("inbound_link_files", [])
@@ -533,6 +583,7 @@ def build_markdown_report(records: list[dict], candidates: list[dict]) -> str:
 
     lines.append("")
 
+    # Intentionally unchanged WEAK and NEEDS_REVIEW
     unchanged = [r for r in records if r.get("classification") in {WEAK, NEEDS_REVIEW, BAD_NO_PLATFORM}]
     if unchanged:
         lines += [
@@ -556,16 +607,13 @@ def build_markdown_report(records: list[dict], candidates: list[dict]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Scan blog content for bad folder slugs"
+        description="Scan blog.aspose.org for bad folder slugs"
     )
-    parser.add_argument("--root", default=None,
-                        help="Path to blog content root (default: content/{FOSS_BLOG_DOMAIN})")
+    parser.add_argument("--root", default="content/blog.aspose.org",
+                        help="Path to blog.aspose.org content root")
     parser.add_argument("--out", default="reports/blog-slugs",
                         help="Output directory for reports")
     args = parser.parse_args()
-
-    if args.root is None:
-        args.root = str(_REPO_ROOT / "content" / _BLOG_DOMAIN)
 
     blog_root = Path(args.root).resolve()
     out_dir = Path(args.out).resolve()
@@ -583,18 +631,22 @@ def main() -> int:
     candidates = build_repair_candidates(records, blog_root)
     print(f"  Migration-ready candidates: {len(candidates)}", file=sys.stderr)
 
+    # Write JSON inventory
     inv_json = out_dir / "blog-folder-slug-inventory.json"
     inv_json.write_text(json.dumps(records, indent=2, default=str), encoding="utf-8")
     print(f"  Written: {inv_json}", file=sys.stderr)
 
+    # Write Markdown inventory
     inv_md = out_dir / "blog-folder-slug-inventory.md"
     inv_md.write_text(build_markdown_report(records, candidates), encoding="utf-8")
     print(f"  Written: {inv_md}", file=sys.stderr)
 
+    # Write repair candidates
     cand_json = out_dir / "blog-folder-slug-repair-candidates.json"
     cand_json.write_text(json.dumps(candidates, indent=2, default=str), encoding="utf-8")
     print(f"  Written: {cand_json}", file=sys.stderr)
 
+    # Summary to stdout
     counts: dict[str, int] = {}
     for r in records:
         c = r.get("classification", "UNKNOWN")

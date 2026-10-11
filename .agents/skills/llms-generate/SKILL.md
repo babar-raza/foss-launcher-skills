@@ -1,62 +1,76 @@
 ---
 name: llms-generate
-id: S-116
+id: S-LG-01
 description: >
-  Generate llms-output/ .txt files and a per-site llms.txt index for every
-  site configured in config.yaml. Generalized from aspose.org's llms-generate
-  skill (S-LG-01) -- ported 2026-08-29.
-args: "[--sites docs,blog,...] [--output llms-output] [--clean-output]"
+  Skill description pending
 ---
 
-# S-116: LLMs Generate -- Produce LLM-Consumption Text Outputs
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
 
-**Arguments**: $ARGUMENTS (all optional; default is every site in config.yaml)
+# S-LG-01: llms-generate — Regenerate All LLMs Outputs
 
-## Purpose
-Produce plain-text, LLM-friendly renderings of every eligible content page,
-plus a per-site index, so an LLM agent (or a crawler serving one) can consume
-this repo's content without parsing Hugo templates or shortcodes.
+## Description
 
-## Pre-conditions
-1. `config.yaml` has a non-empty `sites:` block (this repo ships one by default).
-2. `CONTENT_REPO_PATH` env var or `config.yaml:content_repo` points at a real
-   content repo checkout.
+Regenerates all llms-output/ .txt files and llms.txt indexes for all 5 subdomains
+using hierarchical mode. Produces per-page headers (Product/Platform/Page Type/Canonical URL)
+and nested {family}/{platform}/llms.txt indexes alongside the flat llms.txt.
+
+## Contract
+
+**Backing script**: `scripts/generator/llms-generator.py`
+**Mode**: hierarchical (root llms.txt + per-product llms.txt + per-page .txt)
+**Output**: `llms-output/` (gitignored; deployed at build time via aspose.org-workflows)
 
 ## Steps
 
-1. Run the generator for all configured sites:
+1. Run generator for all 5 subdomains:
    ```bash
-   .venv/bin/python scripts/llms_generate.py --output llms-output
-   ```
-   Or a subset:
-   ```bash
-   .venv/bin/python scripts/llms_generate.py --output llms-output --sites docs,kb
-   ```
-
-2. Spot-check outputs:
-   ```bash
-   cat llms-output/docs/llms.txt
+   .venv/Scripts/python scripts/generator/llms-generator.py \
+     --input content \
+     --output llms-output \
+     --all-subdomains \
+     --mode hierarchical \
+     --mapping scripts/generator/mapping.json \
+     --clean-output
    ```
 
-3. Follow up with `/llms-coverage` and `/llms-fidelity` to verify the run.
+2. Verify outputs exist (spot-check):
+   ```bash
+   ls llms-output/reference.aspose.org/llms.txt
+   ls llms-output/reference.aspose.org/pdf/net/llms.txt
+   head -10 llms-output/kb.aspose.org/pdf/net/how-to-extract-text-dotnet.txt
+   ```
 
-## Output
-- `llms-output/{site}/llms.txt` -- per-site index (page list + titles)
-- `llms-output/{site}/{mirrored content path}.txt` -- one text file per
-  eligible page, with a small header block (Site/Title/Source) followed by
-  the page body with Hugo frontmatter stripped
+3. Update provenance manifest:
+   ```bash
+   .venv/Scripts/python scripts/generator/detect_stale_llms.py \
+     --llms-output llms-output --content content --update-manifest
+   ```
+
+## Verification
+
+- Root llms.txt: < 200 lines per site
+- Per-product llms.txt: <= 500 lines
+- Per-page .txt files: start with 6-line YAML header block
+- Run `/llms-stale` to confirm 0 STALE, 0 MISSING
 
 ## Idempotency
-Running twice with unchanged source content produces byte-identical output
-(deterministic sorted file order, no timestamps embedded in bodies).
 
-## Scope cut (stated explicitly, not silently dropped)
-This generalized port does **not** implement the upstream source's
-nested per-product llms.txt hierarchy, its provenance-hash staleness
-manifest (source's `/llms-stale`), or live-HTTP deploy verification
-(source's `/llms-verify`). Those are deferred -- see `TASK_BACKLOG.md`
-and `docs/parity/source-anchors.yaml`.
+Running twice produces identical output (deterministic walk order + sorted file lists).
+Verify: `find llms-output/ -name "*.txt" | sort | xargs sha256sum > /tmp/r1.sha`
+then rerun and `diff /tmp/r1.sha /tmp/r2.sha` → empty diff.
 
 ## Related Skills
-- `/llms-coverage` -- audit coverage gap between content/ and llms-output/
-- `/llms-fidelity` -- audit content fidelity (source vs. output comparison)
+
+- `/llms-stale` — detect stale outputs after source changes
+- `/llms-coverage` — audit coverage gap between content and outputs
+- `/llms-fidelity` — audit content fidelity (source vs output comparison)
+- `/llms-verify` — verify live HTTP endpoints after deployment
+
+## Metrics Obligation
+
+This skill invokes the `llms-generate` pipeline which calls LLM endpoints to produce text outputs. The run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All LLM calls must use `LLMRouter` or a registered adapter in `metrics_callsite_registry.yaml`.
+- Per-call `MetricsEvent` records must be captured and aggregated via `RunMetrics`.
+- Metrics failures must not crash or block the parent pipeline job.

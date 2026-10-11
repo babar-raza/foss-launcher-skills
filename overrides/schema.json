@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Active Override Declaration",
+  "description": "Human-declared override permitting a single write to a forbidden path. Must be created before committing. Consumed and archived by post-commit hook.",
+  "type": "object",
+  "required": ["declared_at", "declared_by", "scope", "reason", "expiry"],
+  "additionalProperties": false,
+  "properties": {
+    "declared_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the override was declared"
+    },
+    "declared_by": {
+      "type": "string",
+      "enum": ["human"],
+      "description": "Who granted the override. Must be 'human' — agents cannot self-grant overrides."
+    },
+    "scope": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Exact file path (relative to repo root) covered by this override. No globs — one path per entry."
+      },
+      "description": "Exact list of forbidden paths this override permits writing to. Must be minimal — no wildcards."
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Human-readable justification for why this override is needed"
+    },
+    "expiry": {
+      "type": "string",
+      "enum": ["single-use"],
+      "description": "Override expires after one commit. Permanent overrides are not permitted."
+    },
+    "session_ref": {
+      "type": "string",
+      "description": "Optional reference to the conversation or ticket that authorized this override"
+    }
+  }
+}

@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Metrics schema definitions and validation for agent metrics capture.
 
 Defines inert data structures (MetricsEvent, MetricsRow) and validation
@@ -68,6 +67,14 @@ class MetricsEvent:
     http_status: int | None = None
     latency_ms: int | None = None
     redacted_error_summary: str | None = None
+    consumer_id: str | None = None
+    provider: str | None = None
+    credential_env_name: str | None = None
+    config_digest: str | None = None
+    embedding_profile: str | None = None
+    observed_dimensions: int | None = None
+    fallback_provider: str | None = None
+    route_outcome: str | None = None
 
 
 @dataclass

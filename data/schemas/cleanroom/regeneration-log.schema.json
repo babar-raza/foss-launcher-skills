@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RegenerationLog",
+  "description": "Per-file outcomes for reference subdomain script-based regeneration.",
+  "type": "object",
+  "required": ["run_id", "baseline_git_sha", "subdomain", "replay_level", "generated_at", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": { "type": "string" },
+    "baseline_git_sha": { "type": "string", "minLength": 7 },
+    "subdomain": { "type": "string" },
+    "replay_level": { "type": "integer", "enum": [1, 2] },
+    "generated_at": { "type": "string" },
+    "total_candidates": { "type": "integer" },
+    "written": { "type": "integer" },
+    "skipped_protected": { "type": "integer" },
+    "skipped_curated": { "type": "integer" },
+    "failed": { "type": "integer" },
+    "dry_run": { "type": "boolean" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "outcome"],
+        "properties": {
+          "path": { "type": "string" },
+          "outcome": { "type": "string", "enum": ["WRITTEN", "SKIPPED_PROTECTED", "SKIPPED_CURATED", "FAILED", "DRY_RUN"] },
+          "reason": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "_errors": { "type": "array", "items": { "type": "string" } }
+  }
+}

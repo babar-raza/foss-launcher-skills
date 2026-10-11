@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org
 """detect_code_block_blanks.py — Diagnostic scanner for spurious blank lines
 inside YAML-embedded fenced code blocks in products.aspose.org pages.
 
-Scans content/products/ for layout:plugin pages and detects blank
+Scans content/products.aspose.org/ for layout:plugin pages and detects blank
 lines immediately after opening code fences or immediately before closing code
 fences inside YAML frontmatter string fields.
 
@@ -11,7 +10,7 @@ Usage
 -----
     python scripts/pipeline/commands/content/detect_code_block_blanks.py
     python scripts/pipeline/commands/content/detect_code_block_blanks.py \\
-        --path content/products/ \\
+        --path content/products.aspose.org/ \\
         --output reports/code-snippet-spacing-plan-repair-20260515/affected-pages.json
 
 Exit codes
@@ -29,21 +28,8 @@ from pathlib import Path
 
 import yaml
 
-
-
-def _resolve_repo_root() -> Path:
-    """Return the repo root via $CONTENT_REPO_PATH or config_loader."""
-    import os as _os
-    env = _os.environ.get("CONTENT_REPO_PATH")
-    if env:
-        return Path(env).resolve()
-    try:
-        return resolve_content_repo()
-    except Exception:
-        return _HERE.parents[3]
-
-_REPO_ROOT = _resolve_repo_root()
-_DEFAULT_PATH = _REPO_ROOT / "content" / "products"
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+_DEFAULT_PATH = _REPO_ROOT / "content" / "products.aspose.org"
 
 # Fields to scan (key_path -> how to extract from parsed frontmatter)
 _FENCE_RE = re.compile(r"^\s*```(\w*)")
@@ -175,7 +161,7 @@ def _derive_family_platform(filepath: Path) -> str:
     parts = filepath.parts
     try:
         # Find 'products.aspose.org' in path
-        idx = next(i for i, p in enumerate(parts) if "products" in p)
+        idx = next(i for i, p in enumerate(parts) if "products.aspose.org" in p)
         # parts after: locale/family/platform/_index.md
         after = parts[idx + 1:]
         if len(after) >= 3:
@@ -191,7 +177,7 @@ def _derive_locale(filepath: Path) -> str:
     """Try to derive locale from path."""
     parts = filepath.parts
     try:
-        idx = next(i for i, p in enumerate(parts) if "products" in p)
+        idx = next(i for i, p in enumerate(parts) if "products.aspose.org" in p)
         after = parts[idx + 1:]
         if after:
             return after[0]
@@ -243,7 +229,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--path",
         type=Path,
         default=_DEFAULT_PATH,
-        help="Root directory to scan (default: content/products/)",
+        help="Root directory to scan (default: content/products.aspose.org/)",
     )
     p.add_argument(
         "--output",

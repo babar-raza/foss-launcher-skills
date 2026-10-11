@@ -1,0 +1,91 @@
+mission_authority:
+  mission_id: MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE
+  predecessor_mission_id: seo-keyword-production-integration
+  mission_summary: 'Resume seo-keyword-production-integration at its real state (33/68
+    CLOSED, ledger last touched 2026-08-01: reports/plan_state/seo-keyword-production-integration/taskcards.jsonl),
+    repair the two live measurement defects found by live investigation on 2026-09-05
+    (F1: keywords/ working tree rolled back to older-than-HEAD data across 11 files;
+    F2: map_url.py resolves URLs with exact-case Path.exists() while Hugo lowercases
+    slugs and reference filenames are PascalCase, making all 7 reference.aspose.org
+    URLs at HEAD unresolvable), and build the v13 Keyword Utilization Engine (Contracts
+    A-J: keyword_intent.py, keyword_page_assignment.py, description_composer.py,
+    naturalness_evaluator.py, metadata_consistency.py, change_budget.py,
+    observe_experiments.py, metadata_rollback.py, autonomy_state.py,
+    execution_invariants.py) plus 14 v12 platform-hardening tasks and
+    title_clause_composer.py, through a self-pacing /loop, ending with one governed,
+    observed pilot of description/title changes on the highest-impression pages.
+    Executed via a /loop dynamic-mode session per the loop iteration protocol in
+    the governing plan; every review/clearance/rollback gate is an independent
+    reviewer Agent per AGENTS.md 7c and the operator''s explicit 2026-09-05 direction
+    that no human is a scheduled gate inside implementation or verification. Registered
+    via the durable archive path because the root MISSION_AUTHORITY.yaml projection
+    is held by MT058 (open) -- GOV-02 retroactive-registration rule, MT062 precedent.'
+  governing_plan_path: <local-plan-cache>/investigate-how-to-best-cozy-pizza.md
+  reauthorization: '<local-plan-cache>/investigate-how-to-best-cozy-pizza.md
+    -- Operator decisions D1-D4 answered 2026-09-05 in the planning session that
+    authored this file (session 5245de3a-5f5b-487b-a026-42cad54e0c8d): D1 mint new
+    mission id via allocate (this record); D2 restore keywords/ working tree to HEAD;
+    D3 pilot writes gated by independent-reviewer-agent clearance, no autonomy beyond
+    pilot without a passed observation window; D4 push to origin/main via
+    git_plumb_commit.py.'
+  in_scope_outcomes:
+  - A taskcard_cli.py wrapper over TaskcardStore so the loop never writes the ledger
+    ad hoc (latest, ready, seed, claim, advance, release, recover-expired)
+  - F1 (keywords/ worktree rollback) and F2 (map_url.py case-sensitive resolution)
+    fixed with regression tests
+  - A fresh SEO pipeline baseline run (validate/inventory/map_url/analyze/recommend/safety/report)
+    after F1/F2 are fixed, no apply.py
+  - Every open task_id from the v14 design plan (check-keywords-this-data-curious-feather.md)
+    re-seeded into this mission's ledger and driven to a terminal status
+  - The 10 Keyword Utilization Engine modules (Contracts A-J) plus title_clause_composer.py
+    built, tested, and wired into the existing seo pipeline (analyze.py, recommend.py,
+    safety.py)
+  - scripts/seo/tests wired into pytest.ini testpaths and CI
+  - An autonomy state machine (Contract I) and 14 execution invariants (Contract J)
+    live, each with a passing negative test, before any content write
+  - One frozen pilot cohort (title on 1 KB/FAQ page; description on <=10 high-impression
+    English pages including reference.aspose.org's slides/net SaveFormat page) written
+    through S-116 -> apply.py after independent-reviewer-agent clearance per product,
+    followed by an observation window with a PASS/INCONCLUSIVE/FAIL verdict against
+    real GSC weekly-snapshot metrics
+  - A plan-only deliverable for the duplicate-<title>-tag remediation campaign (F13;
+    1,097 groups / 10,402 pages) -- not its execution
+  out_of_scope_items:
+  - Executing the duplicate-title backfill campaign itself (plan only)
+  - Any themes/kb/ removal
+  - Any body-prose edit (writable surface is frontmatter description/seoTitle/keywords
+    only, via apply.py)
+  - Any Schema A LLM cost-policy change
+  - www.aspose.org brand-query work
+  mandatory_acceptance_criteria:
+  - keyword_gap_report.py reports 0 false investigate items on a case-sensitive
+    filesystem simulation (regression test for F2)
+  - The weekly "SEO Weekly Analysis" GitHub Actions workflow completes exit 0 on
+    3 consecutive scheduled runs after the F2 fix ships
+  - All 14 named invariants of Contract J (execution_invariants.py) have a passing
+    negative test each
+  - apply.py never writes for a (family, mechanism) pair that is not AUTONOMOUSLY_ELIGIBLE
+    in the autonomy state machine unless --dry-run, proven by a negative test
+  - The pilot cohort's changes carry metadata_experiments.json records with real
+    before/after GSC metrics and a PASS/INCONCLUSIVE/FAIL verdict
+  - Partial completion is always reported as "N closed / 80 total" (68 inherited
+    from the predecessor mission's open rows + 12 new rows discovered 2026-09-05)
+  human_authority_boundaries: 'None inside implementation or verification (operator
+    direction 2026-09-05, consistent with AGENTS.md 7c). D1-D4 are pre-answered.
+    Product clearances, HUMAN_CLEARED grants, rollback decisions, and any go/no-go
+    on an external-repo action (Aspose/aspose.org-workflows: gh workflow disable,
+    gh api PUT, PR merge) are made by a fresh independent reviewer Agent applying
+    a fixed decision table, recorded with a checksummed verdict file. The only
+    conditions that leave the loop running but park a card are AGENTS.md 7c items
+    2-4 and 8 (legal/license/business claims needing outside verification;
+    PIPELINE-bucket skill breakage; evaluator non-determinism) and a credential/permission
+    denial from an external system -- each becomes BLOCKED_EXTERNAL with an exact
+    resume condition; the loop continues with the next eligible card. The operator
+    retains an out-of-band veto (kill the loop, revert a commit) but is never a
+    scheduled gate.'
+  mission_locked: true
+  registered_by_session: d139eb9f-7e3e-4205-92c1-079659bda35e
+  registration_mode: archive_path_GOV-02 (root projection held by MT058; not overwritten,
+    per MT062 precedent)
+  _archive_status: open
+  _archived_at: '2026-09-05T09:27:05Z'

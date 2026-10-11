@@ -1,0 +1,494 @@
+"""Tests for the multi-platform doc name-inference fallback.
+
+Covers _apply_godoc_fallback (and helpers _camel_to_words, _snake_to_words) which
+generates deterministic, auditable descriptions from method/property name patterns.
+Originally solved GODOC-GO-001 (Go only); now extended to Python, Java, C#, C++,
+and TypeScript (camelCase, same as Java).
+
+conftest.py adds commands/knowledge/ to sys.path so bare imports work.
+"""
+from promote import _apply_godoc_fallback, _camel_to_words, _snake_to_words
+
+
+# ---------------------------------------------------------------------------
+# _camel_to_words
+# ---------------------------------------------------------------------------
+
+def test_camel_simple():
+    assert _camel_to_words("TextStyle") == "text style"
+
+
+def test_camel_all_caps():
+    assert _camel_to_words("URL") == "url"
+
+
+def test_camel_all_caps_followed_by_word():
+    # URLPath → URL Path → url path
+    assert _camel_to_words("URLPath") == "url path"
+
+
+def test_camel_single_word():
+    assert _camel_to_words("Text") == "text"
+
+
+def test_camel_read_only():
+    assert _camel_to_words("ReadOnly") == "read only"
+
+
+def test_camel_multiline():
+    assert _camel_to_words("Multiline") == "multiline"
+
+
+def test_camel_default_cell_border():
+    assert _camel_to_words("DefaultCellBorder") == "default cell border"
+
+
+# ---------------------------------------------------------------------------
+# _snake_to_words helper
+# ---------------------------------------------------------------------------
+
+def test_snake_simple():
+    assert _snake_to_words("font_name") == "font name"
+
+
+def test_snake_single_word():
+    assert _snake_to_words("color") == "color"
+
+
+def test_snake_is_bold():
+    assert _snake_to_words("is_bold") == "is bold"
+
+
+def test_snake_multi_word():
+    assert _snake_to_words("get_all_glyphs") == "get all glyphs"
+
+
+# ---------------------------------------------------------------------------
+# _apply_godoc_fallback — platform guard (unsupported platforms)
+# ---------------------------------------------------------------------------
+
+def test_no_op_for_unknown_platform():
+    api = [{"name": "Cell", "methods": [{"name": "SetText", "doc": "", "params": [{"name": "t"}], "return_type": ""}]}]
+    count = _apply_godoc_fallback(api, "ruby")
+    assert count == 0
+    assert api[0]["methods"][0]["doc"] == ""  # unchanged
+
+
+def test_typescript_uses_camel_case_inference():
+    # TypeScript uses camelCase like Java — should infer docs
+    api = [{"name": "Cell", "methods": [
+        {"name": "getText", "doc": "", "params": [], "return_type": "string"},
+        {"name": "setText", "doc": "", "params": [{"name": "v"}], "return_type": ""},
+    ]}]
+    count = _apply_godoc_fallback(api, "typescript")
+    assert count == 2
+    assert api[0]["methods"][0]["doc"] == "Returns the text."
+    assert api[0]["methods"][1]["doc"] == "Sets the text value."
+
+
+# ---------------------------------------------------------------------------
+# Setter pattern: Set{Name}(val) → "Sets the {name} value."
+# ---------------------------------------------------------------------------
+
+def _method(name, doc="", params=None, return_type=""):
+    return {"name": name, "doc": doc, "params": params or [], "return_type": return_type}
+
+
+def _api(class_name="Cell", methods=None):
+    return [{"name": class_name, "methods": methods or []}]
+
+
+def test_setter_infers_description():
+    api = _api(methods=[_method("SetText", params=[{"name": "text"}])])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Sets the text value."
+
+
+def test_setter_marks_doc_source():
+    api = _api(methods=[_method("SetText", params=[{"name": "text"}])])
+    _apply_godoc_fallback(api, "go")
+    assert api[0]["methods"][0]["doc_source"] == "name_inference"
+
+
+def test_setter_multiword():
+    api = _api(methods=[_method("SetTextStyle", params=[{"name": "s"}])])
+    _apply_godoc_fallback(api, "go")
+    assert api[0]["methods"][0]["doc"] == "Sets the text style value."
+
+
+def test_setter_url():
+    api = _api(methods=[_method("SetURL", params=[{"name": "u"}])])
+    _apply_godoc_fallback(api, "go")
+    assert api[0]["methods"][0]["doc"] == "Sets the url value."
+
+
+def test_setter_no_params_not_inferred():
+    # A Set* method with no params is unusual — don't infer
+    api = _api(methods=[_method("SetText", params=[])])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+    assert api[0]["methods"][0]["doc"] == ""
+
+
+def test_set_prefix_only_not_inferred():
+    # "Set" alone is not a valid setter name
+    api = _api(methods=[_method("Set", params=[{"name": "v"}])])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+
+
+# ---------------------------------------------------------------------------
+# Is/Has pattern
+# ---------------------------------------------------------------------------
+
+def test_is_prefix_infers_description():
+    api = _api(methods=[_method("IsMultiline", return_type="bool")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if multiline is set."
+
+
+def test_has_prefix_infers_description():
+    api = _api(methods=[_method("HasTop", return_type="bool")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if top is present."
+
+
+def test_is_with_params_not_inferred():
+    # Is* with params → not a standard predicate; skip
+    api = _api(methods=[_method("IsType", params=[{"name": "t"}], return_type="bool")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+
+
+def test_is_prefix_only_falls_through_to_getter():
+    # "Is" alone (len==2) doesn't match the Is-prefix predicate branch;
+    # falls through to the generic getter → "Returns the is."
+    api = _api(methods=[_method("Is", return_type="bool")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns the is."
+
+
+# ---------------------------------------------------------------------------
+# Generic getter pattern: {Name}() T → "Returns the {name}."
+# ---------------------------------------------------------------------------
+
+def test_getter_infers_description():
+    api = _api(methods=[_method("Text", return_type="string")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns the text."
+
+
+def test_getter_action_type():
+    api = _api(methods=[_method("ActionType", return_type="ActionType")])
+    _apply_godoc_fallback(api, "go")
+    assert api[0]["methods"][0]["doc"] == "Returns the action type."
+
+
+def test_getter_void_return_not_inferred():
+    # No return type → not a getter
+    api = _api(methods=[_method("Draw", return_type="")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+
+
+def test_getter_error_return_not_inferred():
+    # error return → likely a command, not a getter
+    api = _api(methods=[_method("Validate", return_type="error")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+
+
+def test_getter_with_params_not_inferred():
+    # Has params → not a simple getter
+    api = _api(methods=[_method("GetAt", params=[{"name": "idx"}], return_type="string")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+
+
+# ---------------------------------------------------------------------------
+# Existing doc not overwritten
+# ---------------------------------------------------------------------------
+
+def test_existing_doc_not_overwritten():
+    original_doc = "Count reports how many annotations live on this page."
+    api = _api(methods=[_method("Count", doc=original_doc, return_type="int")])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0
+    assert api[0]["methods"][0]["doc"] == original_doc
+
+
+def test_existing_doc_source_not_overwritten():
+    # Even if a method already has doc_source: name_inference from a prior run,
+    # a non-empty doc is never re-generated
+    api = _api(methods=[{
+        "name": "Text",
+        "doc": "Returns the text.",
+        "doc_source": "name_inference",
+        "params": [],
+        "return_type": "string",
+    }])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 0  # already has a doc
+
+
+# ---------------------------------------------------------------------------
+# Multiple methods across multiple classes
+# ---------------------------------------------------------------------------
+
+def test_multiple_empty_methods_all_inferred():
+    api = [
+        {"name": "Cell", "methods": [
+            _method("SetText", params=[{"name": "t"}]),
+            _method("Text", return_type="string"),
+        ]},
+        {"name": "Table", "methods": [
+            _method("IsMultiline", return_type="bool"),
+            _method("HasLeft", return_type="bool"),
+        ]},
+    ]
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 4
+
+
+def test_mixed_empty_and_documented():
+    api = _api(methods=[
+        _method("Count", doc="Count reports how many items.", return_type="int"),
+        _method("Text", return_type="string"),
+    ])
+    count = _apply_godoc_fallback(api, "go")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Count reports how many items."
+    assert api[0]["methods"][1]["doc"] == "Returns the text."
+
+
+# ---------------------------------------------------------------------------
+# Idempotency — running twice produces same result
+# ---------------------------------------------------------------------------
+
+def test_idempotent_second_run_no_change():
+    api = _api(methods=[_method("SetText", params=[{"name": "t"}])])
+    count1 = _apply_godoc_fallback(api, "go")
+    count2 = _apply_godoc_fallback(api, "go")
+    assert count1 == 1
+    assert count2 == 0  # doc already set → not re-inferred
+    assert api[0]["methods"][0]["doc"] == "Sets the text value."
+
+
+# ---------------------------------------------------------------------------
+# C# / .NET (PascalCase, same as Go but Get prefix is now explicitly handled)
+# ---------------------------------------------------------------------------
+
+def test_net_getter_with_get_prefix():
+    api = _api(methods=[_method("GetLineFormat", return_type="ILineFormat")])
+    count = _apply_godoc_fallback(api, "net")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns the line format."
+
+
+def test_net_setter():
+    api = _api(methods=[_method("SetFontBold", params=[{"name": "v"}])])
+    count = _apply_godoc_fallback(api, "net")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Sets the font bold value."
+
+
+def test_cpp_setter():
+    api = _api(methods=[_method("SetPosition", params=[{"name": "p"}])])
+    count = _apply_godoc_fallback(api, "cpp")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Sets the position value."
+
+
+# ---------------------------------------------------------------------------
+# Java — camelCase accessor patterns
+# ---------------------------------------------------------------------------
+
+def _java_method(name, doc="", params=None, return_type=""):
+    return {"name": name, "doc": doc, "params": params or [], "return_type": return_type}
+
+
+def test_java_getter():
+    api = _api(methods=[_java_method("getLineFormat", return_type="ILineFormat")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns the line format."
+
+
+def test_java_setter():
+    api = _api(methods=[_java_method("setFontBold", params=[{"name": "v"}])])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Sets the font bold value."
+
+
+def test_java_is_predicate():
+    api = _api(methods=[_java_method("isMultiline", return_type="boolean")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if multiline is set."
+
+
+def test_java_has_predicate():
+    api = _api(methods=[_java_method("hasBorder", return_type="boolean")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if border is present."
+
+
+def test_java_get_prefix_only_no_infer():
+    # "get" alone (len==3) doesn't qualify — needs a capital letter after prefix
+    api = _api(methods=[_java_method("get", return_type="String")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+
+
+def test_java_lowercase_not_matching_set():
+    # "set" alone doesn't qualify
+    api = _api(methods=[_java_method("set", params=[{"name": "v"}])])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+
+
+def test_java_getter_no_params_required():
+    # getter with params should not be inferred
+    api = _api(methods=[_java_method("getAt", params=[{"name": "idx"}], return_type="String")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+
+
+def test_java_existing_doc_not_overwritten():
+    api = _api(methods=[_java_method("getLineFormat", doc="Returns line format details.", return_type="ILineFormat")])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+    assert api[0]["methods"][0]["doc"] == "Returns line format details."
+
+
+def test_java_idempotent():
+    api = _api(methods=[_java_method("getFontBold", return_type="boolean")])
+    count1 = _apply_godoc_fallback(api, "java")
+    count2 = _apply_godoc_fallback(api, "java")
+    assert count1 == 1
+    assert count2 == 0
+
+
+# ---------------------------------------------------------------------------
+# Python — snake_case accessor patterns
+# ---------------------------------------------------------------------------
+
+def _py_method(name, doc="", params=None, return_type=""):
+    return {"name": name, "doc": doc, "params": params or [], "return_type": return_type}
+
+
+def test_python_getter():
+    api = _api(methods=[_py_method("get_length", return_type="int")])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns the length."
+
+
+def test_python_setter():
+    api = _api(methods=[_py_method("set_font_name", params=[{"name": "name"}])])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Sets the font name value."
+
+
+def test_python_is_predicate():
+    api = _api(methods=[_py_method("is_bold", return_type="bool")])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if bold is set."
+
+
+def test_python_has_predicate():
+    api = _api(methods=[_py_method("has_kerning", return_type="bool")])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["methods"][0]["doc"] == "Returns true if kerning is present."
+
+
+def test_python_getter_with_params_no_infer():
+    api = _api(methods=[_py_method("get_glyph_by_id", params=[{"name": "gid"}], return_type="Glyph")])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 0
+
+
+def test_python_set_prefix_only_no_infer():
+    # set_ with nothing after underscore
+    api = _api(methods=[_py_method("set_", params=[{"name": "v"}])])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 0
+
+
+def test_python_existing_doc_not_overwritten():
+    api = _api(methods=[_py_method("get_length", doc="Returns byte count.", return_type="int")])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 0
+    assert api[0]["methods"][0]["doc"] == "Returns byte count."
+
+
+# ---------------------------------------------------------------------------
+# Property inference — all platforms
+# ---------------------------------------------------------------------------
+
+def _prop(name, doc="", writable=False, prop_type=""):
+    return {"name": name, "doc": doc, "writable": writable, "type": prop_type}
+
+
+def _api_with_props(class_name="Cell", props=None):
+    return [{"name": class_name, "methods": [], "properties": props or []}]
+
+
+def test_property_read_only_inferred():
+    api = _api_with_props(props=[_prop("lineFormat", writable=False)])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["properties"][0]["doc"] == "Gets the line format."
+    assert api[0]["properties"][0]["doc_source"] == "name_inference"
+
+
+def test_property_writable_inferred():
+    api = _api_with_props(props=[_prop("fontBold", writable=True)])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 1
+    assert api[0]["properties"][0]["doc"] == "Gets or sets the font bold."
+
+
+def test_property_snake_read_only():
+    api = _api_with_props(props=[_prop("is_path", writable=False)])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["properties"][0]["doc"] == "Gets the is path."
+
+
+def test_property_snake_writable():
+    api = _api_with_props(props=[_prop("font_name", writable=True)])
+    count = _apply_godoc_fallback(api, "python")
+    assert count == 1
+    assert api[0]["properties"][0]["doc"] == "Gets or sets the font name."
+
+
+def test_property_existing_doc_not_overwritten():
+    api = _api_with_props(props=[_prop("lineFormat", doc="Format of the border line.", writable=False)])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+    assert api[0]["properties"][0]["doc"] == "Format of the border line."
+
+
+def test_property_empty_name_skipped():
+    api = _api_with_props(props=[_prop("", writable=False)])
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 0
+
+
+def test_property_and_method_combined():
+    """Both methods and properties are counted in the total."""
+    api = [{"name": "Cell", "methods": [_java_method("getFontBold", return_type="boolean")],
+            "properties": [_prop("lineFormat", writable=False)]}]
+    count = _apply_godoc_fallback(api, "java")
+    assert count == 2

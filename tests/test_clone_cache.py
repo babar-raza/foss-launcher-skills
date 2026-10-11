@@ -1,106 +1,164 @@
-import os
+"""Tests for scripts/pipeline/core/clone_cache.py — update_clone() function.
+
+Uses a local temporary git repo as the remote to avoid any network calls.
+"""
+from __future__ import annotations
+
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
-from scripts.pipeline.core.clone_cache import cache_root, clone_exists, clone_path
+# Ensure pipeline directory is on sys.path
+_PIPELINE_DIR = Path(__file__).resolve().parents[1] / "scripts" / "pipeline"
+if str(_PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_DIR))
 
-REPO_ROOT = os.path.dirname(os.path.dirname(__file__))
-
-
-def test_cache_root_default(monkeypatch):
-    monkeypatch.delenv("ASPOSE_CLONE_CACHE", raising=False)
-
-    root = cache_root()
-
-    assert root.name == ".clone_cache"
-    assert root.parent.name == "runs"
-    assert "aspose.org" not in str(root).lower()
+from core.clone_cache import (  # noqa: E402
+    clone_exists,
+    clone_head_sha,
+    clone_path,
+    update_clone,
+)
 
 
-def test_cache_root_env_override(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "custom_cache"))
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-    assert cache_root() == (tmp_path / "custom_cache").resolve()
-
-
-def test_cache_root_rejects_obsolete_foss_launcher_variants(monkeypatch):
-    for value in (
-        "/some/path/foss-launcher/runs/.clone_cache",
-        r"C:\foss-launcher\runs\.clone_cache",
-        "/some/path/foss_launcher/runs/.clone_cache",
-    ):
-        monkeypatch.setenv("ASPOSE_CLONE_CACHE", value)
-        with pytest.raises(ValueError, match="obsolete foss-launcher"):
-            cache_root()
-
-
-def test_clone_path_uses_flat_aspose_prefix(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path))
-
-    path = clone_path("3d", "net")
-
-    assert path == tmp_path.resolve() / "aspose_3d_net"
-
-
-def test_clone_exists_requires_git_dir(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path))
-    clone_dir = tmp_path / "aspose_3d_net"
-    clone_dir.mkdir()
-
-    assert clone_exists("3d", "net") is False
-
-    (clone_dir / ".git").mkdir()
-    assert clone_exists("3d", "net") is True
-
-
-def test_cli_resolve_existing_clone_no_network(tmp_path):
-    clone_dir = tmp_path / "aspose_3d_net"
-    clone_dir.mkdir()
-    (clone_dir / ".git").mkdir()
-
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(os.path.join(REPO_ROOT, "scripts", "pipeline", "core", "clone_cache.py")),
-            "resolve",
-            "3d",
-            "net",
-        ],
+def _git(*args: str, cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["git", *args],
+        cwd=str(cwd),
         capture_output=True,
         text=True,
-        env={**os.environ, "ASPOSE_CLONE_CACHE": str(tmp_path)},
+        check=True,
     )
 
-    assert result.returncode == 0, result.stderr
-    assert "aspose_3d_net" in result.stdout
+
+def _make_bare_remote(tmp_path: Path) -> Path:
+    """Create a minimal bare git repo to act as the upstream remote."""
+    remote = tmp_path / "remote.git"
+    remote.mkdir()
+    _git("init", "--bare", cwd=remote)
+    # Seed with one commit so the remote has a HEAD
+    work = tmp_path / "work"
+    work.mkdir()
+    _git("init", cwd=work)
+    _git("config", "user.email", "test@test.com", cwd=work)
+    _git("config", "user.name", "Test", cwd=work)
+    (work / "README.md").write_text("init")
+    _git("add", ".", cwd=work)
+    _git("commit", "-m", "init", cwd=work)
+    _git("remote", "add", "origin", str(remote), cwd=work)
+    _git("push", "origin", "HEAD:main", cwd=work)
+    _git("symbolic-ref", "HEAD", "refs/heads/main", cwd=remote)
+    return remote
 
 
-def test_cli_errors_without_registry_or_existing_clone(tmp_path):
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(os.path.join(REPO_ROOT, "scripts", "pipeline", "core", "clone_cache.py")),
-            "resolve",
-            "missing",
-            "fake",
-        ],
+def _shallow_clone(remote: Path, dest: Path) -> None:
+    """Create a shallow clone of `remote` at `dest`."""
+    subprocess.run(
+        ["git", "clone", "--depth", "1", str(remote), str(dest)],
         capture_output=True,
-        text=True,
-        env={**os.environ, "ASPOSE_CLONE_CACHE": str(tmp_path)},
+        check=True,
     )
 
-    assert result.returncode == 1
-    assert "error:" in result.stderr
 
+# ---------------------------------------------------------------------------
+# Happy path: update_clone on existing clone returns new HEAD SHA string
+# ---------------------------------------------------------------------------
 
-def test_cli_usage_errors():
-    result = subprocess.run(
-        [sys.executable, os.path.join(REPO_ROOT, "scripts", "pipeline", "core", "clone_cache.py")],
+def test_update_clone_returns_sha(tmp_path, monkeypatch):
+    """update_clone() fetches upstream and returns the new HEAD SHA."""
+    remote = _make_bare_remote(tmp_path)
+
+    # Point the cache root at tmp_path
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "cache"))
+
+    family, platform = "testfamily", "testplatform"
+    cache = tmp_path / "cache"
+    dest = cache / f"aspose_{family}_{platform}"
+    cache.mkdir(parents=True, exist_ok=True)
+    _shallow_clone(remote, dest)
+
+    # Confirm clone exists before calling update_clone
+    assert clone_exists(family, platform)
+    initial_sha = clone_head_sha(family, platform)
+    assert initial_sha is not None
+
+    # Push a new commit to remote
+    work = tmp_path / "work2"
+    work.mkdir()
+    _git("init", cwd=work)
+    _git("config", "user.email", "test@test.com", cwd=work)
+    _git("config", "user.name", "Test", cwd=work)
+    (work / "README.md").write_text("updated")
+    _git("add", ".", cwd=work)
+    _git("commit", "--allow-empty", "-m", "second commit", cwd=work)
+    # Push directly to bare remote as a new commit on top of existing
+    subprocess.run(
+        ["git", "push", str(remote), "HEAD:main"],
+        cwd=str(work),
         capture_output=True,
-        text=True,
+        check=False,
+    )
+    # A simpler approach: add a commit in a fresh clone of the remote
+    work2 = tmp_path / "contributor"
+    _shallow_clone(remote, work2)
+    _git("config", "user.email", "c@c.com", cwd=work2)
+    _git("config", "user.name", "Contributor", cwd=work2)
+    (work2 / "NEW.md").write_text("new file")
+    _git("add", ".", cwd=work2)
+    _git("commit", "-m", "add new file", cwd=work2)
+    _git("push", "origin", "HEAD:main", cwd=work2)
+
+    # update_clone should fetch and return a non-None SHA
+    result_sha = update_clone(family, platform)
+    assert result_sha is not None
+    assert isinstance(result_sha, str)
+    assert len(result_sha) == 40  # full git SHA
+
+    # The SHA should now reflect the new commit
+    assert result_sha == clone_head_sha(family, platform)
+
+
+# ---------------------------------------------------------------------------
+# Happy path: update_clone when clone does not exist returns None
+# ---------------------------------------------------------------------------
+
+def test_update_clone_missing_clone_returns_none(tmp_path, monkeypatch):
+    """update_clone() returns None (without raising) when no clone exists."""
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "empty_cache"))
+    result = update_clone("nonexistent", "family")
+    assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Failing path: update_clone when git fetch fails returns None without raising
+# ---------------------------------------------------------------------------
+
+def test_update_clone_bad_remote_returns_none(tmp_path, monkeypatch):
+    """update_clone() returns None when git fetch fails (bad remote URL)."""
+    # Create a shallow clone, then break the remote URL
+    remote = _make_bare_remote(tmp_path)
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "cache"))
+
+    family, platform = "breaktest", "net"
+    cache = tmp_path / "cache"
+    dest = cache / f"aspose_{family}_{platform}"
+    cache.mkdir(parents=True, exist_ok=True)
+    _shallow_clone(remote, dest)
+
+    # Break the origin remote by pointing it at a non-existent path
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", "/no/such/path/repo.git"],
+        cwd=str(dest),
+        capture_output=True,
+        check=True,
     )
 
-    assert result.returncode == 1
-    assert "Usage" in result.stderr
+    # update_clone must return None without raising
+    result = update_clone(family, platform)
+    assert result is None

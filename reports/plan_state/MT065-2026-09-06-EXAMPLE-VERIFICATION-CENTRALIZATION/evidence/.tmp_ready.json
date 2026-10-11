@@ -1,0 +1,282 @@
+{
+  "all": [
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        1,
+        0,
+        "C1"
+      ],
+      "status": "CLOSED",
+      "task_id": "C1"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        2,
+        0,
+        "C2"
+      ],
+      "status": "CLOSED",
+      "task_id": "C2"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        3,
+        -3,
+        "C3"
+      ],
+      "status": "CLOSED",
+      "task_id": "C3"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        4,
+        -4,
+        "C4"
+      ],
+      "status": "CLOSED",
+      "task_id": "C4"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        4,
+        0,
+        "C7"
+      ],
+      "status": "CLOSED",
+      "task_id": "C7"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        1,
+        5,
+        -2,
+        "C6"
+      ],
+      "status": "CLOSED",
+      "task_id": "C6"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        2,
+        4,
+        0,
+        "C5"
+      ],
+      "status": "CLOSED",
+      "task_id": "C5"
+    },
+    {
+      "eligible": false,
+      "exclusion_reasons": [
+        "status=CLOSED not selectable"
+      ],
+      "sort_key": [
+        1,
+        2,
+        5,
+        0,
+        "C11"
+      ],
+      "status": "CLOSED",
+      "task_id": "C11"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        5,
+        0,
+        "C12"
+      ],
+      "status": "TODO",
+      "task_id": "C12"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        5,
+        0,
+        "C9"
+      ],
+      "status": "TODO",
+      "task_id": "C9"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        6,
+        0,
+        "C10"
+      ],
+      "status": "TODO",
+      "task_id": "C10"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        6,
+        0,
+        "C8"
+      ],
+      "status": "TODO",
+      "task_id": "C8"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        3,
+        5,
+        0,
+        "C13"
+      ],
+      "status": "TODO",
+      "task_id": "C13"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        3,
+        5,
+        0,
+        "C14"
+      ],
+      "status": "TODO",
+      "task_id": "C14"
+    }
+  ],
+  "eligible": [
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        5,
+        0,
+        "C12"
+      ],
+      "status": "TODO",
+      "task_id": "C12"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        5,
+        0,
+        "C9"
+      ],
+      "status": "TODO",
+      "task_id": "C9"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        6,
+        0,
+        "C10"
+      ],
+      "status": "TODO",
+      "task_id": "C10"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        2,
+        6,
+        0,
+        "C8"
+      ],
+      "status": "TODO",
+      "task_id": "C8"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        3,
+        5,
+        0,
+        "C13"
+      ],
+      "status": "TODO",
+      "task_id": "C13"
+    },
+    {
+      "eligible": true,
+      "exclusion_reasons": [],
+      "sort_key": [
+        1,
+        3,
+        5,
+        0,
+        "C14"
+      ],
+      "status": "TODO",
+      "task_id": "C14"
+    }
+  ]
+}

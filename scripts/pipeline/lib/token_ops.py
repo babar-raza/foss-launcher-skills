@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """Token extraction and verification against the knowledge API surface.
 
 Extracted from audit.py. Provides Token, Finding, extract_tokens, verify_tokens.
@@ -20,7 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scripts.pipeline.lib.knowledge_core import Knowledge
+    from knowledge_core import Knowledge
 
 
 # ---------------------------------------------------------------------------
@@ -80,6 +79,9 @@ PLATFORM_SDK_CLASSES = {
     "Exception",      # System.Exception (.NET), java.lang.Exception (Java)
     "System",         # System namespace (.NET)
     "Integer",        # java.lang.Integer (Java)
+    "ByteArrayInputStream",   # java.io.ByteArrayInputStream (Java)
+    "ByteArrayOutputStream",  # java.io.ByteArrayOutputStream (Java)
+    "Some",           # Rust Option::Some variant
     "Objects",        # java.util.Objects (Java)
     "Collections",    # java.util.Collections (Java)
     "PointF",         # System.Drawing.PointF (.NET)
@@ -194,6 +196,10 @@ PLATFORM_SDK_CLASSES = {
     "Copyright",           # License notice in comments (not a class)
     "EXTENSIONS",          # Constant/enum (not a product class)
     "Create",              # Factory method pattern (File.Create, etc.)
+    # Go stdlib (fmt package) — appear in Go code examples but not product API
+    "Printf",              # fmt.Printf (Go fmt package)
+    "Println",             # fmt.Println (Go fmt package)
+    "Sprintf",             # fmt.Sprintf (Go fmt package)
 }
 
 
@@ -293,15 +299,48 @@ _PY_PROP_ASSIGNMENT = re.compile(r"(\w+)\s*=\s*(\w+)\.(\w+)(?:\s*$|\s*#)")
 _PY_ENUM_ACCESS = re.compile(r"([A-Z]\w+)\.([A-Z][A-Z_0-9]+)")
 _PY_METHOD_CALL = re.compile(r"(\w+)\.(\w+)\s*\(")
 _PY_PROP_ACCESS = re.compile(r"(\w+)\.(\w+)")
-_PY_CONSTRUCTOR = re.compile(r"(?<!\w)([A-Z][A-Za-z0-9]+)\s*\(")
+# (?<!::) excludes calls immediately after a scope-resolution operator — a Rust
+# tuple-variant construction like CellValue::Number(20.0) would otherwise also be
+# misread as a bare top-level constructor call for a nonexistent class "Number",
+# producing a spurious UNKNOWN_CLASS (RUST-TOKENOPS-001, confirmed live on
+# cells/rust: CellValue::Number(20.0) --> false Number(...) constructor token).
+_PY_CONSTRUCTOR = re.compile(r"(?<!\w)(?<!::)([A-Z][A-Za-z0-9]+)\s*\(")
 
 # C# / Java new-keyword assignment: "var x = new ClassName(" or "Type x = new ClassName("
 # The generic _PY_ASSIGNMENT misses this because "new" is not followed by "(" directly.
 _CS_NEW_ASSIGNMENT = re.compile(r"(?:var\s+)?(\w+)\s*=\s*new\s+([A-Z]\w*)\s*\(")
 
+# TypeScript `as` type assertion, e.g. "const x = factory.method(...) as ConcreteType;" —
+# frequently closes a multi-line call whose OWN opening line already matched
+# _PY_METHOD_ASSIGNMENT with a factory method's declared (often abstract/base)
+# return_type, leaving var_types[x] pointed at the wrong class for every
+# subsequent .method() call in the example. `as` is the developer's explicit,
+# authoritative narrowing and always wins. Found live 2026-08-31,
+# 3d/typescript: `mesh.createElement(...) as VertexElementNormal;` followed
+# by `normals.setData(...)` -- setData() only exists on the concrete subtype,
+# not on Mesh.createElement's declared `VertexElement` base return type, so
+# the cast is not optional (real TypeScript would fail to compile without
+# it) -- yet audit.py still flagged setData() as unknown because the `as`
+# clause was never read.
+_TS_AS_CAST = re.compile(r"\)\s*as\s+([A-Z]\w*)\s*;?\s*$")
+
 # C++ scope-resolution enum access: ClassName::MEMBER_NAME
-# C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID)
-_CPP_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z][A-Z_0-9]+)")
+# C++ enums use ALL_CAPS names (e.g. NullableBool::TRUE, FillType::SOLID).
+#
+# HARDEN-cpp-enum-x-suffix (2026-07-28, MT012): some C++ enums encode a bit-width
+# variant with a lowercase "x" separator (pdf/cpp's CryptoAlgorithm: RC4x40,
+# RC4x128, AESx128, AESx256 -- "AES128" would misread as a single run-on token).
+# The mandatory ALL_CAPS core (`[A-Z][A-Z_0-9]+`, unchanged, still requires 2+
+# uppercase/digit chars so it can never match a mixed-case method name like
+# `IsPredefinedKey`) now accepts an optional trailing `x<digits>` suffix.
+_CPP_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z][A-Z_0-9]+(?:x[0-9]+)?)")
+
+# Rust scope-resolution enum-variant access: EnumName::Variant
+# Unlike C++, Rust enum variants are PascalCase, not ALL_CAPS (CellValue::Number,
+# LoadFormat::Xlsx, ValidationType::List) — a separate pattern from _CPP_ENUM_ACCESS.
+# Associated functions (Workbook::new, Workbook::load_xlsx) are naturally excluded:
+# Rust fn names are snake_case, so the PascalCase member group never matches them.
+_RUST_ENUM_ACCESS = re.compile(r"([A-Z]\w+)::([A-Z]\w*)")
 
 # Java explicit type declaration: ClassName varName = expr
 # Used to override the weaker _PY_METHOD_ASSIGNMENT inference for Java code.
@@ -405,6 +444,21 @@ def _extract_from_code_line(line: str, line_no: int, var_types: dict, platform: 
             for step in _PY_METHOD_CHAIN_STEP.finditer(rest):
                 chain_parts.append(step.group(1))
             var_types[var_name] = ".".join(chain_parts)  # Placeholder for later resolution
+            var_types["__pending_cast_target__"] = var_name
+
+    # --- TypeScript `as` cast (may close the SAME line as the assignment
+    # above, or a LATER line ending a multi-line factory-call) ---
+    # Checked after the assignment-tracking block so a same-line
+    # "var = obj.method(x) as ConcreteType;" also overrides the placeholder
+    # _PY_METHOD_ASSIGNMENT just set via __pending_cast_target__, not only
+    # the later-line multi-line case.
+    if platform == "typescript":
+        mcast = _TS_AS_CAST.search(stripped)
+        if mcast:
+            pending_var = var_types.get("__pending_cast_target__")
+            if pending_var:
+                var_types[pending_var] = mcast.group(1)
+
     # Track var = obj.prop for property type inference (no parens) — only if not already matched as method call
     elif (m := _PY_PROP_ASSIGNMENT.search(stripped)):
         var_name, obj_name, member = m.group(1), m.group(2), m.group(3)
@@ -474,6 +528,12 @@ def _extract_from_code_line(line: str, line_no: int, var_types: dict, platform: 
     # --- C++ scope-resolution enum: ClassName::MEMBER ---
     if platform == "cpp":
         for m in _CPP_ENUM_ACCESS.finditer(stripped):
+            enum_name, member = m.group(1), m.group(2)
+            tokens.append(Token("enum", enum_name, member, line_no, m.group(0)))
+
+    # --- Rust scope-resolution enum-variant: EnumName::Variant ---
+    if platform == "rust":
+        for m in _RUST_ENUM_ACCESS.finditer(stripped):
             enum_name, member = m.group(1), m.group(2)
             tokens.append(Token("enum", enum_name, member, line_no, m.group(0)))
 
@@ -732,6 +792,23 @@ def verify_tokens(tokens: list[Token], knowledge: Knowledge, filepath: Path) -> 
             if not knowledge.methods.get(cls_name) and not knowledge.properties.get(cls_name):
                 continue
             if not knowledge.has_property(cls_name, tok.member_name):
+                if knowledge.has_enum_member(cls_name, tok.member_name):
+                    continue  # PascalCase enum constants (e.g. ConvertErrorAction.Delete) don't
+                              # match the ALL_CAPS enum-access heuristic at extraction time and
+                              # get tokenized as "property" instead of "enum" — mirrors the
+                              # enum branch's own has_property() fallback above.
+                if tok.member_name in knowledge.classes:
+                    continue  # MT074 (found live, 2026-10-08): a 3-segment nested-class-then-
+                              # -constant chain (Java `Outer.Nested.CONSTANT`, e.g. the real,
+                              # compiled, run-verified `ExcelSaveOptions.ExcelFormat.XLSX`) gets
+                              # tokenized the same way as the PascalCase-enum case above, one
+                              # level removed: "ExcelFormat" is PascalCase (not ALL_CAPS), so the
+                              # enum-access skip heuristic does not exclude it, and it is checked
+                              # as a property of ExcelSaveOptions instead of what it actually is
+                              # -- the simple name of a separate, nested/sibling type (our
+                              # extraction flattens a nested class to a top-level api_surface.json
+                              # entry like every other class). A member name that is itself a
+                              # known class is a type reference, not a property miss.
                 if cls_name in PLATFORM_SDK_CLASSES or cls_name in PROPERTY_CHAIN_CLASSES:
                     continue  # Skip platform SDK types and property chain ambiguities
                 if (cls_name, tok.member_name) in knowledge.workaround_members:

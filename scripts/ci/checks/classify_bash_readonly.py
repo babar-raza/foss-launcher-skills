@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """classify_bash_readonly.py - Ultra-strict fail-closed Bash read-only classifier.
 
 Used by check_session_gate.sh to determine if a Bash command is safe to run

@@ -1,0 +1,72 @@
+# Governance Contract -- rules governing the post-sprint autonomy loop
+schema_version: "1.0.0"
+
+loop_governance:
+  quality_threshold: 4
+  max_retries: 2
+  require_structured_summary: true
+  require_evidence_bundle: true
+  require_quality_scoring: true
+  require_adversarial_review_before_acceptance: true
+
+stage_requirements:
+  stage1:
+    must_produce:
+      - L1_execution_issues
+      - L2_integration_issues
+      - L3_system_weaknesses
+      - claim_classification_matrix
+      - evidence_quality_verdict
+      - next_stage_recommendation
+    must_not:
+      - classify_achievement_without_proof_level
+      - accept_summaries_without_evidence
+      - skip_root_cause_analysis
+
+  stage2:
+    must_produce:
+      - master_plan_delta_with_linked_issue_ids
+      - taskcards_for_every_actionable_item
+      - verification_matrix
+      - anti_overclaim_rules
+      - ready_for_execution_verdict
+    must_not:
+      - create_prose_recommendations_without_taskcards
+      - produce_plan_delta_without_issue_links
+      - skip_gap_extraction
+
+  stage3:
+    must_produce:
+      - preflight_state_capture
+      - structured_final_sprint_summary
+      - quality_evaluations_for_every_taskcard
+      - evidence_manifest
+      - prompt1_style_self_review
+    must_not:
+      - accept_taskcard_without_evidence
+      - accept_below_threshold_score
+      - produce_prose_only_summary
+      - skip_quality_scoring
+      - skip_self_review
+
+  loop_controller:
+    must:
+      - classify_summary_deterministically
+      - compute_next_stage_automatically
+      - validate_evidence_bundle_completeness
+      - check_quality_scores
+      - reject_invalid_terminal_states
+    must_not:
+      - return_NEXT_PROMPT_NEEDED
+      - accept_prose_only_summaries
+      - accept_missing_summaries
+      - accept_below_threshold_scores
+      - accept_missing_evidence
+
+fail_closed_guarantees:
+  - "Unknown or ambiguous state results in BLOCK or ESCALATE, never ACCEPT"
+  - "Empty inputs produce MISSING classification, not ACCEPT"
+  - "Contradictory evidence produces BLOCK, not ACCEPT"
+  - "Missing evidence produces EVIDENCE_MISSING, not ACCEPT"
+  - "Prose-only summary produces PROSE_ONLY, not ACCEPT"
+  - "ACCEPT requires: STRUCTURED_ALL_GREEN AND evidence complete AND all scores >= threshold"

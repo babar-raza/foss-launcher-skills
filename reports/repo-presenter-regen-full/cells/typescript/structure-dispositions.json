@@ -1,0 +1,34 @@
+[
+  {
+    "unit_id": "s0001",
+    "source": "clone_cache/README.md",
+    "heading": "Create, style, and save a workbook",
+    "excerpt": "import { Workbook, Style } from \"./aspose_cells\";\n\nconst workbook = new Workbook();\nconst sheet = workbook.worksheets.get(0)!;\n\nsheet.name = \"Products\";\nsheet.putValue(\"A1\", \"Product\"); ... await workbook.save(\"products.xlsx\");",
+    "kind": "code_example",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Every API call in this example (Workbook constructor, worksheets.get(), putValue, getCell2, setFormula, Style/setBold/setFontColor/setForegroundColor, setStyle, save) confirmed real and matching the real method signatures in workbook.ts/worksheet.ts/cell.ts/style.ts. Relabeled merged_verbatim -> merged_reframed (readme-refresh-trackb-and-followon-2026-09-01, TC-B-03): the candidate inlines 2 intermediate cell-reference variables (cellA1/cellB1) into chained calls -- same real behavior, not byte-identical to the original."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "s0002",
+    "source": "clone_cache/README.md",
+    "heading": "Load and update a workbook",
+    "excerpt": "import { Workbook } from \"./aspose_cells\";\n\nconst workbook = await Workbook.load(\"input.xlsx\");\nconst sheet = workbook.worksheets.get(0)!;\n\nconst cell = sheet.getCell2(\"A1\");\ncell.putValue(\"Updated\");\n\nconsole.log(\"Loaded value:\", sheet.getCell(0, 0)?.value);\n\nawait workbook.save(\"updated.xlsx\");",
+    "kind": "code_example",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook.load() (async, real) and save() (real) confirmed; getCell2/putValue confirmed real Cell methods. Relabeled merged_verbatim -> merged_reframed (readme-refresh-trackb-and-followon-2026-09-01, TC-B-03): the candidate had silently dropped the console.log read-back line and inlined the cell variable -- console.log restored to the candidate as part of this fix; disposition still correctly labeled reframed, not verbatim, since the variable inlining remains a real textual change."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "excluded_reason": null
+  }
+]

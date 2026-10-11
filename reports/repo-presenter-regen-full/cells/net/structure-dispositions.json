@@ -1,0 +1,73 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Validate Cell Input",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Highlight Data With Conditional Formatting",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Add Hyperlinks and Named Ranges",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Create a Chart",
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": [],
+    "correction_reason": "The owner's example assigns chart.Name, but Chart.Name is a get-only property (`public string Name => _model.Name;` at src/Aspose.Cells_FOSS/Chart.cs:47), so the snippet fails to compile with CS0200 against the published 26.9.0 package; the assignment line was removed and the rest kept verbatim."
+  }
+]

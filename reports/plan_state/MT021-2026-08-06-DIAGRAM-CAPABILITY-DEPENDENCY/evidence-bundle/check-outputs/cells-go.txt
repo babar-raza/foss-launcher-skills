@@ -1,0 +1,1 @@
+PASS: reports/repo-presenter/cells/go/readme.md -- no orphaned capability nodes

@@ -1,0 +1,8 @@
+{
+  "run_id": "test-blog-adapter",
+  "subdomain": "blog",
+  "en_segment_check": "NO /en/ inserted",
+  "adapters_activated": ["blog", "clone-cache"],
+  "adapters_NOT_activated": ["docs", "kb", "products", "reference"],
+  "proposals_generated": 0
+}

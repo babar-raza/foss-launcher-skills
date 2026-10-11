@@ -1,7 +1,9 @@
 # S-42: Category Fix — Run Specific Fixer on Files
 
 **Arguments**: $ARGUMENTS
-Expected format: `{category} {file-or-directory}` — e.g. `ST content/docs.aspose.org/en/3d/python/` or `RV content/kb.aspose.org/en/slides/java/faq.md`
+Expected format: `{category} {file-or-directory} [--files {file1} {file2} ...]` — e.g. `ST content/docs.aspose.org/en/3d/python/` or `RV content/kb.aspose.org/en/slides/java/faq.md` or `AA --files content/docs.aspose.org/en/3d/python/rendering.md content/docs.aspose.org/en/3d/python/overview.md`
+
+When `--files` is provided, the explicit file list is used instead of discovering files from the directory argument. This is useful when you have a specific set of files from an eval report.
 
 ## Purpose
 
@@ -29,20 +31,28 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 
 ## Steps
 
-1. **Parse arguments**: Extract category code and file path(s) from `$ARGUMENTS`.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-42 --scope "*"
+> ```
 
-2. **Discover files**: If path is a directory, discover all `.md` files within it.
+
+1. **Parse arguments**: Extract category code and file path(s) from `$ARGUMENTS`.
+   - If `--files` is provided, use the explicit file list directly (skip discovery).
+   - Otherwise, use the positional file-or-directory argument.
+
+2. **Discover files**: If path is a directory, discover all `.md` files within it. (Skipped when `--files` is used.)
 
 3. **Run eval** on just those files with the relevant evaluator:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
    ```
 
 4. **Run targeted fix**:
 
    ```bash
-   python scripts/pipeline/commands/content/remediate.py fix {report-path} --categories {category}
+   .venv/Scripts/python scripts/pipeline/commands/content/remediate.py fix {report-path} --categories {category}
    ```
 
 5. **For LLM-needed findings** in the category (RL, AA, PC, FC, PT, CP):
@@ -61,7 +71,7 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
 6. **Re-evaluate** the fixed files:
 
    ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
+   .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {files...} --evaluators {evaluator} --format json
    ```
 
 7. **Report**:
@@ -73,9 +83,31 @@ Run a specific category fixer on targeted files. Useful for surgical fixes when 
    Remaining: {remaining_count}
    ```
 
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-42 --status completed
+> ```
+
 ## Post-conditions
 
 - Only the specified category's findings are addressed.
 - Other content is untouched.
 - Evidence refreshed if EG category was fixed.
 - Ground-check passes for all LLM-modified files.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

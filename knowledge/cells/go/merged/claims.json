@@ -1,0 +1,1579 @@
+[
+  {
+    "claim_id": "CLM-cells-9426d9",
+    "kind": "api_class",
+    "text": "Class RowCallback defined in aspose/cells_foss/streaming_reader.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-8674ea",
+    "kind": "api_class",
+    "text": "Class StreamingReader defined in aspose/cells_foss/streaming_reader.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-597643",
+    "kind": "api_method",
+    "text": "Function NewStreamingReader(path) -> *StreamingReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-773853",
+    "kind": "api_method",
+    "text": "Function ProcessRows(sheetName, callback) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1e51d8",
+    "kind": "api_method",
+    "text": "Function LoadWorkbook(path) -> (*Workbook, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/xmlloader.go",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ec69c2",
+    "kind": "api_method",
+    "text": "Function LoadWithPassword(path, password) -> (*Workbook, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/xmlloader.go",
+        "line": 124
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-4e8da9",
+    "kind": "api_method",
+    "text": "Function Close() -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/xmlloader.go",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a7f824",
+    "kind": "api_method",
+    "text": "Function SaveWorkbook(wb, path) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/xmlsaver.go",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ada191",
+    "kind": "api_method",
+    "text": "Cell.XMLName field of type `xml:\"c\"`",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-86aff6",
+    "kind": "api_method",
+    "text": "Cell.Ref field of type `xml:\"r,attr\"`",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-689099",
+    "kind": "api_method",
+    "text": "Cell.StyleID field of type `xml:\"s,attr,omitempty\"`",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-aadb79",
+    "kind": "api_method",
+    "text": "Cell.Value field of type `xml:\"v,omitempty\"`",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-02ea7e",
+    "kind": "api_method",
+    "text": "Cell.Formula field of type `xml:\"f,omitempty\"`",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a6fe60",
+    "kind": "api_class",
+    "text": "Class Cell defined in aspose/cells_foss/cell.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-528e01",
+    "kind": "api_method",
+    "text": "Function SetStyle(style) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-de1c22",
+    "kind": "api_method",
+    "text": "Function GetStyle() -> *Style",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-d79b5d",
+    "kind": "api_method",
+    "text": "Function SetFormula(formula) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-fc6908",
+    "kind": "api_method",
+    "text": "Function GetFormula() -> string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cell.go",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-55e5ef",
+    "kind": "api_class",
+    "text": "Class Cells defined in aspose/cells_foss/cells.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cells.go",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-997ec7",
+    "kind": "api_method",
+    "text": "Function Get(ref) -> (*Cell, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cells.go",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1fdc7e",
+    "kind": "api_method",
+    "text": "Function Set(ref, value) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cells.go",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-4b8a57",
+    "kind": "api_method",
+    "text": "Function Remove(ref) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cells.go",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-4c2bbf",
+    "kind": "api_method",
+    "text": "Function All() -> map[string]*Cell",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/cells.go",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a1cd8c",
+    "kind": "api_method",
+    "text": "Function ExportToCSV(sheetIndex, path, delimiter) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/csv_handler.go",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-824803",
+    "kind": "api_method",
+    "text": "Function ImportFromCSV(path, sheetName, delimiter) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/csv_handler.go",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-0ee955",
+    "kind": "api_method",
+    "text": "Function ToCSV(delimiter) -> ([][]string, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/csv_handler.go",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-61963d",
+    "kind": "api_method",
+    "text": "Function FromCSV(data, delimiter) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/csv_handler.go",
+        "line": 166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-fee60d",
+    "kind": "api_method",
+    "text": "Function CellToString(v) -> string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/csv_handler.go",
+        "line": 180
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-bdbaea",
+    "kind": "api_method",
+    "text": "DataValidation.Type field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-b38487",
+    "kind": "api_method",
+    "text": "DataValidation.Ref field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-7604be",
+    "kind": "api_method",
+    "text": "DataValidation.Formula1 field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e8009c",
+    "kind": "api_method",
+    "text": "DataValidation.Formula2 field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ebaec7",
+    "kind": "api_method",
+    "text": "DataValidation.AllowBlank field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-b5c7cb",
+    "kind": "api_method",
+    "text": "DataValidation.ShowErrorMessage field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-5c043d",
+    "kind": "api_method",
+    "text": "DataValidation.ErrorTitle field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-99c457",
+    "kind": "api_method",
+    "text": "DataValidation.ErrorMessage field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-23718e",
+    "kind": "api_method",
+    "text": "DataValidation.ErrorStyle field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-83987a",
+    "kind": "api_class",
+    "text": "Class DataValidation defined in aspose/cells_foss/datavalidation.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f71877",
+    "kind": "api_method",
+    "text": "Function AddDataValidation(ref, dv) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 69
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-747f57",
+    "kind": "api_method",
+    "text": "Function RemoveDataValidation(ref) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/datavalidation.go",
+        "line": 87
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-01b526",
+    "kind": "api_method",
+    "text": "Function CalculateFormula(formula, ws) -> (interface{}, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/formula_engine.go",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-77800a",
+    "kind": "api_method",
+    "text": "Picture.Data field of type []byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-0ca2b9",
+    "kind": "api_method",
+    "text": "Picture.Format field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-19bc68",
+    "kind": "api_method",
+    "text": "Picture.Row field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-bdf65e",
+    "kind": "api_method",
+    "text": "Picture.Col field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-342d88",
+    "kind": "api_method",
+    "text": "Picture.RowOff field of type int64",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a93b4c",
+    "kind": "api_method",
+    "text": "Picture.ColOff field of type int64",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-47fbd1",
+    "kind": "api_method",
+    "text": "Picture.Width field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-cfabc9",
+    "kind": "api_method",
+    "text": "Picture.Height field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-308785",
+    "kind": "api_method",
+    "text": "Picture.Name field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e355a2",
+    "kind": "api_class",
+    "text": "Class Picture defined in aspose/cells_foss/picture.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-a10c24",
+    "kind": "api_method",
+    "text": "Function NewPicture(data, format) -> *Picture",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f7d475",
+    "kind": "api_method",
+    "text": "Function SetAnchor(row, col) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-754ecb",
+    "kind": "api_method",
+    "text": "Function AddPicture(pic) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/picture.go",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-592add",
+    "kind": "api_method",
+    "text": "Font.Name field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f9fe8d",
+    "kind": "api_method",
+    "text": "Font.Size field of type float64",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-2d3b17",
+    "kind": "api_method",
+    "text": "Font.Bold field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e08a94",
+    "kind": "api_method",
+    "text": "Font.Italic field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1af1c0",
+    "kind": "api_method",
+    "text": "Font.Color field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-364170",
+    "kind": "api_class",
+    "text": "Class Font defined in aspose/cells_foss/style.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e0242d",
+    "kind": "api_method",
+    "text": "Fill.Type field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-53c075",
+    "kind": "api_method",
+    "text": "Fill.Color field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-069e1f",
+    "kind": "api_class",
+    "text": "Class Fill defined in aspose/cells_foss/style.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-91e617",
+    "kind": "api_method",
+    "text": "Alignment.Horizontal field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-50000b",
+    "kind": "api_method",
+    "text": "Alignment.Vertical field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-aba143",
+    "kind": "api_method",
+    "text": "Alignment.WrapText field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-9fed89",
+    "kind": "api_class",
+    "text": "Class Alignment defined in aspose/cells_foss/style.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 61
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-996b8e",
+    "kind": "api_method",
+    "text": "Border.Top field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 80
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-eae260",
+    "kind": "api_method",
+    "text": "Border.Bottom field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-6484e2",
+    "kind": "api_method",
+    "text": "Border.Left field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-c7d599",
+    "kind": "api_method",
+    "text": "Border.Right field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f53ee6",
+    "kind": "api_method",
+    "text": "Border.Color field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-c04b55",
+    "kind": "api_class",
+    "text": "Class Border defined in aspose/cells_foss/style.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 79
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1881b9",
+    "kind": "api_method",
+    "text": "Style.Font field of type *Font",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-b2f4e0",
+    "kind": "api_method",
+    "text": "Style.Fill field of type *Fill",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 96
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-9361a6",
+    "kind": "api_method",
+    "text": "Style.Alignment field of type *Alignment",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e5d71f",
+    "kind": "api_method",
+    "text": "Style.Border field of type *Border",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 98
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-d3ddbf",
+    "kind": "api_class",
+    "text": "Class Style defined in aspose/cells_foss/style.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 94
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-823735",
+    "kind": "api_method",
+    "text": "Function NewStyle() -> *Style",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-213076",
+    "kind": "api_method",
+    "text": "Function DefaultStyle() -> *Style",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/style.go",
+        "line": 122
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-5db2e8",
+    "kind": "api_method",
+    "text": "Table.Name field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-2bdbfa",
+    "kind": "api_method",
+    "text": "Table.Range field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ac3307",
+    "kind": "api_method",
+    "text": "Table.HasHeaderRow field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-adced4",
+    "kind": "api_method",
+    "text": "Table.StyleName field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-c3aec5",
+    "kind": "api_class",
+    "text": "Class Table defined in aspose/cells_foss/table.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-2857bb",
+    "kind": "api_method",
+    "text": "Function NewTable(name, rangeRef) -> *Table",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-318c05",
+    "kind": "api_method",
+    "text": "Function AddTable(rangeRef) -> *Table",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ee8e48",
+    "kind": "api_method",
+    "text": "Function GetTable(name) -> *Table",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/table.go",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-7da3bd",
+    "kind": "api_method",
+    "text": "Function WriteTestXLSX(dst, sheetXML, sharedStringsXML) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/test_helpers.go",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f0db12",
+    "kind": "api_method",
+    "text": "Function ReadTestZipEntry(path, entryName) -> ([]byte, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/test_helpers.go",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-6b2c7c",
+    "kind": "api_method",
+    "text": "Function MinimalPNG() -> []byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/test_helpers.go",
+        "line": 102
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ff9577",
+    "kind": "api_method",
+    "text": "Workbook.Worksheets field of type []*Worksheet",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-5b1c4e",
+    "kind": "api_method",
+    "text": "Workbook.SourceXML field of type []byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-60a68b",
+    "kind": "api_method",
+    "text": "Workbook.StylesXML field of type []byte",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-7cc2a0",
+    "kind": "api_method",
+    "text": "Workbook.Modified field of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ddec01",
+    "kind": "api_method",
+    "text": "Workbook.FilePath field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-18ea89",
+    "kind": "api_class",
+    "text": "Class Workbook defined in aspose/cells_foss/workbook.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-1b926d",
+    "kind": "api_method",
+    "text": "Function SetPassword(password) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f3c3f5",
+    "kind": "api_method",
+    "text": "Function VerifyPassword(pw) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-9566ec",
+    "kind": "api_method",
+    "text": "Function Load(path) -> (*Workbook, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 147
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-cb479e",
+    "kind": "api_method",
+    "text": "Function NewWorkbook() -> *Workbook",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 154
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-892329",
+    "kind": "api_method",
+    "text": "Function Save(path) -> error",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/workbook.go",
+        "line": 173
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-842ed2",
+    "kind": "api_method",
+    "text": "Worksheet.Name field of type string",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-de60df",
+    "kind": "api_method",
+    "text": "Worksheet.Index field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-62049e",
+    "kind": "api_method",
+    "text": "Worksheet.DataValidations field of type []*DataValidation",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-0ffabf",
+    "kind": "api_method",
+    "text": "Worksheet.Tables field of type []*Table",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-44355c",
+    "kind": "api_method",
+    "text": "Worksheet.Pictures field of type []*Picture",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-c507de",
+    "kind": "api_class",
+    "text": "Class Worksheet defined in aspose/cells_foss/worksheet.go",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-c4c182",
+    "kind": "api_method",
+    "text": "Function Cells() -> *Cells",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/worksheet.go",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-e079e5",
+    "kind": "api_method",
+    "text": "Function ReadAt(p, off) -> (int, error)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "verify/check_open_xlsx.go",
+        "line": 184
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-ad8b4e",
+    "kind": "format_support",
+    "text": "import support for Streaming via StreamingReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose/cells_foss/streaming_reader.go",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-b3f5c4",
+    "kind": "format_support",
+    "text": "import support for byte via byteReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "verify/check_open_xlsx.go",
+        "line": 180
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-cells-f834cd",
+    "kind": "install",
+    "text": "Package name is github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Go/v26",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  }
+]

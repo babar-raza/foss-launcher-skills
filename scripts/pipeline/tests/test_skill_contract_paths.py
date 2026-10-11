@@ -1,0 +1,377 @@
+"""Contract-path regression tests for skill/docs alignment.
+
+These tests are intentionally file-content based so they do not require pytest
+plugins or live knowledge data. They catch stale command paths, removed flows,
+and missing wrapper inventory in the docs layer.
+"""
+
+from __future__ import annotations
+
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def read_text(rel_path: str) -> str:
+    return (REPO_ROOT / rel_path).read_text(encoding="utf-8", errors="ignore")
+
+
+class TestCanonicalSkillContracts(unittest.TestCase):
+    def test_knowledge_bootstrap_uses_current_chain(self):
+        text = read_text("skills/knowledge-bootstrap.md")
+        self.assertIn("knowledge-enrich", text)
+        self.assertIn("truth-merge", text)
+        self.assertIn("truth-index", text)
+        self.assertNotIn("truth-sync", text)
+
+    def test_knowledge_update_uses_promote_and_enrich(self):
+        text = read_text("skills/knowledge-update.md")
+        self.assertIn("scripts/pipeline/commands/knowledge/enrich.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/promote.py", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/index.py", text)
+
+    def test_truth_index_uses_pipeline_index_script(self):
+        text = read_text("skills/truth-index.md")
+        self.assertIn("scripts/pipeline/commands/knowledge/index.py", text)
+        self.assertNotIn("scripts/index.py", text)
+
+    def test_evidence_cite_uses_frontmatter(self):
+        text = read_text("skills/evidence-cite.md")
+        self.assertIn("evidence:", text)
+        self.assertIn("attach_evidence.py", text)
+        self.assertIn("Do not use inline HTML comments", text)
+
+    def test_getting_started_uses_current_pipeline(self):
+        text = read_text("skills/getting-started.md")
+        self.assertIn("python enrich.py", text)
+        self.assertIn("python promote.py", text)
+        self.assertIn("python index.py", text)
+        self.assertNotIn("truth-sync", text)
+
+    def test_knowledge_enrich_exists(self):
+        text = read_text("skills/knowledge-enrich.md")
+        self.assertIn("enriched_claims.json", text)
+        self.assertIn("scripts/pipeline/commands/knowledge/enrich.py", text)
+
+
+class TestWrapperInventory(unittest.TestCase):
+    def test_codex_kilo_wrapper_inventory(self):
+        required = [
+            ".agents/skills/knowledge-update/SKILL.md",
+            ".kilocode/skills/knowledge-update/SKILL.md",
+            ".agents/skills/rubric-align/SKILL.md",
+            ".kilocode/skills/rubric-align/SKILL.md",
+            ".agents/skills/faq-generate/SKILL.md",
+            ".kilocode/skills/faq-generate/SKILL.md",
+            ".agents/skills/category-fix/SKILL.md",
+            ".kilocode/skills/category-fix/SKILL.md",
+        ]
+        for rel_path in required:
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((REPO_ROOT / rel_path).exists(), rel_path)
+
+    def test_stack_wrappers_track_current_bootstrap_and_evidence_policy(self):
+        for rel_path in [
+            ".agents/skills/knowledge-bootstrap/SKILL.md",
+            ".kilocode/skills/knowledge-bootstrap/SKILL.md",
+            # knowledge-bootstrap internalized from .claude/commands/ (S-54)
+            ".agents/skills/getting-started/SKILL.md",
+            ".kilocode/skills/getting-started/SKILL.md",
+            ".claude/commands/getting-started.md",
+            ".agents/skills/evidence-cite/SKILL.md",
+            ".kilocode/skills/evidence-cite/SKILL.md",
+            # evidence-cite internalized from .claude/commands/ (S-24)
+            ".agents/skills/truth-index/SKILL.md",
+            ".kilocode/skills/truth-index/SKILL.md",
+            ".claude/commands/truth-index.md",
+        ]:
+            with self.subTest(rel_path=rel_path):
+                text = read_text(rel_path)
+                self.assertNotIn("/truth-sync", text)
+                self.assertNotIn("python scripts/index.py", text)
+                self.assertNotIn("<!-- evidence:", text)
+
+
+class TestSkillFirstAwareness(unittest.TestCase):
+    """Drift-detection tests: entry-point files must reference §6a/§6b and capability states.
+
+    These tests catch drift when AGENTS.md §6a/§6b are updated but entry-point files
+    are not updated to match. Fail here = update CODEX.md or governance.md.
+
+    CLAUDE.md was refactored to a "Session Gate" (no operational rules; all governance
+    lives in AGENTS.md). It is intentionally excluded from this drift-detection list.
+    """
+
+    ENTRY_POINTS = [
+        "CODEX.md",
+        ".kilocode/rules-code/governance.md",
+    ]
+
+    def test_entry_points_mention_skill_first(self):
+        """Each entry-point must reference §6a or 'skill-first' or §6b."""
+        for rel_path in self.ENTRY_POINTS:
+            with self.subTest(rel_path=rel_path):
+                text = read_text(rel_path)
+                has_ref = (
+                    "§6a" in text
+                    or "skill-first" in text.lower()
+                    or "§6b" in text
+                )
+                self.assertTrue(
+                    has_ref,
+                    f"{rel_path} does not mention §6a, §6b, or 'skill-first'. "
+                    "Update it to reference AGENTS.md §6a/§6b when those sections change.",
+                )
+
+    def test_entry_points_mention_capability_classification(self):
+        """Each entry-point must reference the capability classification states."""
+        for rel_path in self.ENTRY_POINTS:
+            with self.subTest(rel_path=rel_path):
+                text = read_text(rel_path)
+                has_states = (
+                    "FULL" in text
+                    or "PARTIAL" in text
+                    or "NONE" in text
+                    or "BROKEN" in text
+                    or "capability" in text.lower()
+                )
+                self.assertTrue(
+                    has_states,
+                    f"{rel_path} does not mention capability classification states "
+                    "(FULL/PARTIAL/NONE/BROKEN). Update when AGENTS.md §6b changes.",
+                )
+
+
+class TestS12Completeness(unittest.TestCase):
+    """Every skills/*.md file must be listed in AGENTS.md §12 Skills reference table.
+
+    Catches the class of defect where a skill is added to skills/ but is never
+    registered in §12 and therefore never subject to DAR governance checks.
+    Fail here = add the skill to the §12 Skills reference table in AGENTS.md.
+    """
+
+    def _parse_s12_names(self, agents_text: str) -> set[str]:
+        names: set[str] = set()
+        in_skills = False
+        for line in agents_text.splitlines():
+            if "Skills reference" in line:
+                in_skills = True
+                continue
+            if in_skills and "---" not in line and "Skill" not in line and line.startswith("| "):
+                cols = [c.strip() for c in line.split("|")[1:-1]]
+                if cols:
+                    names.add(cols[0].strip())
+            if in_skills and line.startswith("##") and "Skills reference" not in line:
+                in_skills = False
+        return names
+
+    # Documentation files that coexist with skills in skills/ but are not skills themselves
+    _NON_SKILL_SLUGS: set[str] = {"readme"}
+
+    def test_all_skill_files_registered_in_s12(self):
+        agents_text = read_text("AGENTS.md")
+        s12_names = self._parse_s12_names(agents_text)
+        # AGENTS.md §12 was decomposed to docs/registries/skills.md
+        child_doc = REPO_ROOT / "docs" / "registries" / "skills.md"
+        if child_doc.exists():
+            s12_names |= self._parse_s12_names(
+                child_doc.read_text(encoding="utf-8", errors="ignore")
+            )
+        skills_dir = REPO_ROOT / "skills"
+        for skill_path in sorted(skills_dir.glob("*.md")):
+            skill_name = skill_path.stem
+            if skill_name.lower() in self._NON_SKILL_SLUGS:
+                continue
+            with self.subTest(skill=skill_name):
+                self.assertIn(
+                    skill_name,
+                    s12_names,
+                    f"skills/{skill_name}.md exists but is not listed in AGENTS.md §12 "
+                    "Skills reference table. Add it to maintain DAR governance coverage.",
+                )
+
+
+class TestSkillGapIndexCompleteness(unittest.TestCase):
+    """Every reports/skill-gaps/*.md file must have a matching entry in index.yaml.
+
+    Catches the class of drift where a new gap report is filed but never
+    classified/indexed, silently regressing reports/skill-gaps/ back into an
+    unindexed flat directory. Fail here = add an entry to
+    reports/skill-gaps/index.yaml (see docs/workflows/gap-escalation.md's
+    "Disposition" section for the classification rubric).
+
+    reports/ is blanket-gitignored (.gitignore:18) — a fresh checkout (CI,
+    a new clone) legitimately has no reports/skill-gaps/ directory at all.
+    Every test here skips cleanly in that case rather than failing; the gate
+    only bites in a working session where the (locally-persistent,
+    never-committed) reports/ tree actually exists.
+    """
+
+    _VALID_DISPOSITIONS = {
+        "broken-dependency",
+        "constitutionally-excluded",
+        "operator-infra-script",
+        "bounded-oneoff",
+        "recurring-candidate",
+    }
+
+    def _gaps_dir(self):
+        gaps_dir = REPO_ROOT / "reports" / "skill-gaps"
+        if not gaps_dir.exists():
+            return None
+        return gaps_dir
+
+    def _load_index(self, gaps_dir):
+        import yaml
+
+        index_path = gaps_dir / "index.yaml"
+        if not index_path.exists():
+            return None
+        with index_path.open(encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        return data.get("reports", [])
+
+    def test_index_exists(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        self.assertTrue(
+            (gaps_dir / "index.yaml").exists(),
+            "reports/skill-gaps/index.yaml must exist — see docs/workflows/"
+            "gap-escalation.md's Disposition section.",
+        )
+
+    def test_every_report_is_indexed(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        entries = self._load_index(gaps_dir)
+        if entries is None:
+            self.skipTest("reports/skill-gaps/index.yaml not found")
+        indexed_paths = {entry["report"] for entry in entries}
+        all_reports = sorted(gaps_dir.glob("*.md"))
+        missing = []
+        for report_path in all_reports:
+            rel_path = f"reports/skill-gaps/{report_path.name}"
+            if rel_path not in indexed_paths:
+                missing.append(rel_path)
+        self.assertEqual(
+            missing,
+            [],
+            "Reports missing from reports/skill-gaps/index.yaml:\n"
+            + "\n".join(missing),
+        )
+
+    def test_index_entries_have_valid_disposition(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        entries = self._load_index(gaps_dir)
+        if entries is None:
+            self.skipTest("reports/skill-gaps/index.yaml not found")
+        for entry in entries:
+            with self.subTest(report=entry.get("report")):
+                self.assertIn(
+                    entry.get("disposition"),
+                    self._VALID_DISPOSITIONS,
+                    f"{entry.get('report')} has an invalid disposition: "
+                    f"{entry.get('disposition')!r}",
+                )
+
+
+class TestSkillContractPathExistence(unittest.TestCase):
+    """Phase F: every scripts/pipeline/ path referenced in skills/CI/docs must exist."""
+
+    _PATH_RE = __import__("re").compile(r"scripts/(?:pipeline|tests/pipeline)/[\w./]+\.py")
+
+    def _missing_refs(self, text: str, source_label: str) -> list[str]:
+        missing = []
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for m in self._PATH_RE.finditer(line):
+                p = REPO_ROOT / m.group()
+                if not p.exists():
+                    missing.append(f"{source_label}:{lineno} → {m.group()}")
+        return missing
+
+    def test_contract_tags_in_skills_exist(self):
+        skills_dir = REPO_ROOT / "skills"
+        all_missing: list[str] = []
+        for skill_file in sorted(skills_dir.glob("*.md")):
+            text = skill_file.read_text(encoding="utf-8", errors="ignore")
+            for lineno, line in enumerate(text.splitlines(), 1):
+                if "CONTRACT:" in line:
+                    for m in self._PATH_RE.finditer(line):
+                        p = REPO_ROOT / m.group()
+                        if not p.exists():
+                            all_missing.append(
+                                f"skills/{skill_file.name}:{lineno} → {m.group()}"
+                            )
+        self.assertEqual(all_missing, [], "\n".join(all_missing))
+
+    def test_ci_workflow_paths_exist(self):
+        ci_yml = REPO_ROOT / ".github" / "workflows" / "content-audit.yml"
+        if not ci_yml.exists():
+            self.skipTest("content-audit.yml not found")
+        text = ci_yml.read_text(encoding="utf-8", errors="ignore")
+        missing = self._missing_refs(text, ".github/workflows/content-audit.yml")
+        self.assertEqual(missing, [], "\n".join(missing))
+
+    def test_pipeline_docs_paths_exist(self):
+        all_missing: list[str] = []
+        for doc in ["scripts/pipeline/README.md", "scripts/pipeline/PIPELINE.md"]:
+            p = REPO_ROOT / doc
+            if p.exists():
+                text = p.read_text(encoding="utf-8", errors="ignore")
+                all_missing.extend(self._missing_refs(text, doc))
+        self.assertEqual(all_missing, [], "\n".join(all_missing))
+
+    def test_commit_skill_paths_exist(self):
+        commit_md = REPO_ROOT / "skills" / "commit.md"
+        if not commit_md.exists():
+            self.skipTest("skills/commit.md not found")
+        text = commit_md.read_text(encoding="utf-8", errors="ignore")
+        missing = self._missing_refs(text, "skills/commit.md")
+        self.assertEqual(missing, [], "\n".join(missing))
+
+
+class TestScriptRegistration(unittest.TestCase):
+    """Phase G: every root .py in scripts/pipeline/ must be in registry.yaml.
+
+    Runs check_pipeline_registration.py as a subprocess so that the test
+    picks up the same logic as the CI blocking step.
+    """
+
+    def test_registration_check_exits_zero(self):
+        import subprocess
+        result = subprocess.run(
+            ["python", str(REPO_ROOT / "scripts" / "ci" / "checks" / "check_pipeline_registration.py")],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            f"check_pipeline_registration.py exited {result.returncode}:\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}",
+        )
+
+
+
+
+class TestSessionStartReferencesPlanNormalize(unittest.TestCase):
+    """TC-02 acceptance: session-start.md must reference S-91 plan-normalize."""
+
+    def test_session_start_references_plan_normalize(self):
+        path = REPO_ROOT / 'skills' / 'session-start.md'
+        self.assertTrue(path.exists(), 'skills/session-start.md must exist')
+        text = path.read_text(encoding='utf-8', errors='ignore')
+        self.assertTrue(
+            'plan-normalize' in text or 'S-91' in text,
+            'skills/session-start.md must reference plan-normalize or S-91'
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

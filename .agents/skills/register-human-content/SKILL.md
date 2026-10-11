@@ -1,14 +1,14 @@
 ---
 name: register-human-content
-id: S-71
+id: S-66
 description: >
-  Onboard a human-authored content page into the automated quality and provenance
-  systems. Marks the page as human-authored, disables automated overwrite, attaches
-  evidence, assigns a quality grade baseline, and emits a registration report.
+  Onboard a human-authored content page into quality and provenance systems; set auto_updatable: false, attach evidence, assign grade baseline
 args: "{filepath}"
 ---
 
-# S-71: Register Human Content — Onboard Human-Authored Pages
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+# S-66: Register Human Content — Onboard Human-Authored Pages
 
 **Arguments**: $ARGUMENTS
 Expected format: `{filepath}` — path to the human-authored content file (relative to repo root)
@@ -25,71 +25,124 @@ page needs to participate in quality enforcement, evidence validation, and grade
 ## Pre-conditions
 
 1. Knowledge bootstrap confirmed for the product in the file's `{family}/{platform}` path
-2. File exists at `{filepath}` and is a valid Markdown content file
-3. File is an English source file (not a locale variant)
+   (run `/knowledge-bootstrap {family} {platform}`)
+2. Grading infrastructure complete: `grade_writer.py` must exist at
+   `scripts/pipeline/lib/grade_writer.py`
+3. Evidence attachment infrastructure complete: `attach_evidence.py` must be available
 
 ## Steps
 
-1. **Parse arguments**: Extract `{filepath}`. Derive `{family}` and `{platform}` from the path.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-66 --scope "*"
+> ```
 
-2. **Knowledge bootstrap check**:
-   Run `/knowledge-bootstrap {family} {platform}` and confirm `READY` or `BOOTSTRAPPED`.
-   If `STOP:partial` → halt.
 
-3. **Read the file**: Load full content including frontmatter.
+### Step 1: Identify the product scope
 
-4. **Set provenance block** in frontmatter:
-   ```yaml
-   provenance:
-     content_origin: human
-     last_mechanism: human
-     auto_updatable: false
-     registered_at: "{ISO date}"
-   ```
-   `auto_updatable: false` prevents automated skills (S-20, S-26, etc.) from overwriting
-   this page without explicit operator override.
+Parse `{filepath}` to extract `{family}` and `{platform}`:
+```
+content/{site}/en/{family}/{platform}/{page}.md
+```
 
-5. **Attach evidence**:
-   ```bash
-   python scripts/pipeline/commands/content/attach_evidence.py --files {filepath} --force
-   ```
+Confirm the knowledge model exists at `knowledge/{family}/{platform}/merged/model.yaml`.
 
-6. **Assign baseline grade**:
-   ```bash
-   python -m scripts.pipeline.content_eval evaluate --files {filepath} --format json
-   ```
-   Record the baseline grade. Human pages are exempt from automated heal escalation if grade >= B.
+### Step 2: Set provenance to human-authored
 
-7. **Run audit**:
-   ```bash
-   python scripts/pipeline/commands/content/audit.py --files {filepath}
-   ```
-   Human-authored pages with audit FAILs should be reviewed — report but do not block registration.
+Open `{filepath}` and update (or add) the `provenance:` frontmatter block:
 
-8. **Emit registration report** to `reports/human-content/registrations.md`:
-   ```markdown
-   | {filepath} | {date} | {grade} | {audit status} |
-   ```
+```yaml
+provenance:
+  content_origin: human-authored
+  last_mechanism: human-edit
+  auto_updatable: false
+  reviewed: true
+```
 
-9. **Confirm registration**:
-   ```
-   REGISTERED: {filepath}
-   Author:     human
-   Grade:      {grade}
-   Audit:      PASS | WARN | FAIL (see report)
-   Auto-updatable: false
-   ```
+**Critical:** `auto_updatable: false` prevents translator sync and batch overwrites from
+replacing this page. Do not change this unless the human explicitly requests it.
+
+### Step 3: Attach evidence
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files {filepath}
+```
+
+This attaches an `evidence:` block with `model_sha`, `claims`, `apis`, and `formats`
+derived from the page's content and the product knowledge model.
+
+If `attach_evidence.py` returns errors about unknown API tokens: review and fix those
+specific tokens in the page before proceeding. Unknown API tokens in human-authored pages
+are content defects, not pipeline errors.
+
+### Step 4: Assign quality grade baseline
+
+Run S-25 (eval-page) to determine the current grade:
+```bash
+.venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files {filepath}
+```
+
+Then persist the grade:
+```bash
+.venv/Scripts/python scripts/pipeline/lib/grade_writer.py --files {filepath}
+```
+
+Note the assigned grade. If grade is D or F, consider running S-26 (heal-page) before
+finalizing. If grade is F due to critical FC/PC findings, escalate to human review per §8
+before registering — do not protect a critically-wrong page from automated correction.
+
+### Step 5: Run content-check gate
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {filepath}
+```
+
+A FAIL at this stage means the page has API accuracy problems. Fix them before proceeding.
+
+### Step 6: Emit registration report
+
+Write to `reports/human-content/{family}-{platform}-{slug}-{date}.json`:
+
+```json
+{
+  "filepath": "{filepath}",
+  "family": "{family}",
+  "platform": "{platform}",
+  "registered_at": "ISO timestamp",
+  "grade": "A|B|C|D|F",
+  "auto_updatable": false,
+  "evidence_attached": true,
+  "audit_result": "PASS|FAIL",
+  "notes": ""
+}
+```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-66 --status completed
+> ```
 
 ## Post-conditions
 
-- `provenance.content_origin: human` in frontmatter
-- `provenance.auto_updatable: false` in frontmatter
-- Evidence block attached
-- Baseline grade assigned
-- Registration recorded in `reports/human-content/registrations.md`
+- `provenance.content_origin: human-authored` set in frontmatter
+- `provenance.auto_updatable: false` set (page protected from automated overwrite)
+- `evidence:` block attached with current knowledge model SHA
+- Grade assigned and persisted in frontmatter
+- Audit passes (no FAIL findings)
+- Registration report written to `reports/human-content/`
 
-## Hard rules
+## Failure handling
 
-- Never set `auto_updatable: true` for human-authored pages
-- Never invoke this skill on skill-generated pages (use evidence-repair S-77 instead)
-- Grade FAILs do not block registration but must be documented
+| Failure | Action |
+|---------|--------|
+| Knowledge model missing | Run `/knowledge-bootstrap {family} {platform}` first |
+| Evidence attachment fails (unknown tokens) | Fix API references in the page; retry |
+| Audit FAIL after evidence | Do not register; fix content defects first |
+| Grade F with critical FC/PC finding | Escalate to human review per §8; do not protect |
+| File is a locale variant (non-English path) | Do not register via this skill; locale files follow translator workflow |
+
+## When NOT to use this skill
+
+- Machine-generated pages (use the appropriate generation skill instead)
+- Translator-produced locale files (use the translator workflow)
+- Pages that should remain auto-updatable (omit this skill; leave default provenance)

@@ -1,0 +1,1685 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf8",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "60eb504ea6476aa7a3011936f063d664d2c9e48defe43e73f27695c285c50f92",
+      "norm": "60eb504ea6476aa7a3011936f063d664d2c9e48defe43e73f27695c285c50f92"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf16_le",
+    "source_line": 33,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "068e839e053b24c07a2c7073f0992252538309f6356193101b243e5df8b3c440",
+      "norm": "068e839e053b24c07a2c7073f0992252538309f6356193101b243e5df8b3c440"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_utf16_be",
+    "source_line": 41,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6edb65b3e02a7e18d3beb12e1a17043222e93ee0feee66f0f537ba108167a22a",
+      "norm": "6edb65b3e02a7e18d3beb12e1a17043222e93ee0feee66f0f537ba108167a22a"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_bom_overrides_prescan",
+    "source_line": 49,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2cb3e8c9d108f0ed5c2d1bcea0284862800e635cfcad7ac6334d5269b86390d9",
+      "norm": "2cb3e8c9d108f0ed5c2d1bcea0284862800e635cfcad7ac6334d5269b86390d9"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_meta_charset_double_quote",
+    "source_line": 63,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "787ee5dd6c535f298032b0838e8d151f21fbd6feeada141a33335d7a3ab43637",
+      "norm": "787ee5dd6c535f298032b0838e8d151f21fbd6feeada141a33335d7a3ab43637"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_meta_charset_single_quote",
+    "source_line": 67,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e35c535d13d09afc2284b5fc3da1c7d1822d6f0b0c9ac67b39a8f08a2851452",
+      "norm": "0e35c535d13d09afc2284b5fc3da1c7d1822d6f0b0c9ac67b39a8f08a2851452"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_http_equiv",
+    "source_line": 71,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a568d8640f3b131f061847ac6ee2021da89a79b62da34f1cb8155f87bf60834",
+      "norm": "7a568d8640f3b131f061847ac6ee2021da89a79b62da34f1cb8155f87bf60834"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_limit_1024",
+    "source_line": 76,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "54c937cb862830498e1fb0bbe89ae521bc37e9c2cac02e7e911bb37bc0aec910",
+      "norm": "54c937cb862830498e1fb0bbe89ae521bc37e9c2cac02e7e911bb37bc0aec910"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_prescan_no_charset",
+    "source_line": 83,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "092949ff17cda0d83b551ec3fdd268beeb5367c2b62ed4a999e14597af747d9e",
+      "norm": "092949ff17cda0d83b551ec3fdd268beeb5367c2b62ed4a999e14597af747d9e"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_override_latin1_maps_to_windows1252",
+    "source_line": 91,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "10d68637a7cde134bc2f008393dd2d177858a5e089439823e06a182cd04ad002",
+      "norm": "10d68637a7cde134bc2f008393dd2d177858a5e089439823e06a182cd04ad002"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_override_invalid_label",
+    "source_line": 97,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b4926d265e407bb46f4895b77114165960a6e7cccbf1362edc4f5647b96ce5b",
+      "norm": "3b4926d265e407bb46f4895b77114165960a6e7cccbf1362edc4f5647b96ce5b"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_default_utf8",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6dcd790b2826f6b2c5e793111c37580bb5cc65e4be75ccabea80d74614cfa0ac",
+      "norm": "6dcd790b2826f6b2c5e793111c37580bb5cc65e4be75ccabea80d74614cfa0ac"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_empty_bytes",
+    "source_line": 112,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d587b42ba8c89443f474cdbdc3fa39742b2881074f13e101937276d921684ccc",
+      "norm": "7ea9d1d6bd83477e2eb26d539954dfc85ddb825ee70627f8815883d843643d70"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_case_insensitive",
+    "source_line": 123,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7f25cd9a82c5632f7a9324d77dd6a3d5405a6e5d9d7901fe8a97c7b7638e1633",
+      "norm": "7f25cd9a82c5632f7a9324d77dd6a3d5405a6e5d9d7901fe8a97c7b7638e1633"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_whitespace",
+    "source_line": 127,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ae81672c9c2b481be41b19a2f560f0956355dc2a81a0173ebcf4ecebb7c4af7a",
+      "norm": "ae81672c9c2b481be41b19a2f560f0956355dc2a81a0173ebcf4ecebb7c4af7a"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_label_aliases",
+    "source_line": 131,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c806628434b4467844ee17363838b0bceb9d07ecaa89861f726220439e064f8c",
+      "norm": "c806628434b4467844ee17363838b0bceb9d07ecaa89861f726220439e064f8c"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_windows1252_non_ascii",
+    "source_line": 153,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "898d00f96da521956d5862696519dc4a8a557b2c5387d4a238339d2bc1186bcd",
+      "norm": "898d00f96da521956d5862696519dc4a8a557b2c5387d4a238339d2bc1186bcd"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_gbk",
+    "source_line": 159,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "409384840c8ab5c1c59d010c2cc086d6036307d89f886776498d0b3ed812be55",
+      "norm": "409384840c8ab5c1c59d010c2cc086d6036307d89f886776498d0b3ed812be55"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_decode_shift_jis",
+    "source_line": 167,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75bb88c37a02b4b4c56e8043e6fd3da460e853385967a8fd588ab6f61a983177",
+      "norm": "75bb88c37a02b4b4c56e8043e6fd3da460e853385967a8fd588ab6f61a983177"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_crlf_normalised",
+    "source_line": 179,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b9cacfc04d327231272d47111d8a0cf31aae59e04e6adc38d31edd7ad6f98697",
+      "norm": "b9cacfc04d327231272d47111d8a0cf31aae59e04e6adc38d31edd7ad6f98697"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_lone_cr_normalised",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "919bd8bb4dcce6d52c4438c2040dc23b56851f839ec4f86257e32008c4fe8edc",
+      "norm": "919bd8bb4dcce6d52c4438c2040dc23b56851f839ec4f86257e32008c4fe8edc"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_replacement_char_recorded",
+    "source_line": 197,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e5e69396339414d9c5fb00f059f8e3b54be2271d3891815eebf6b71c0c2177ad",
+      "norm": "e5e69396339414d9c5fb00f059f8e3b54be2271d3891815eebf6b71c0c2177ad"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_result_has_encoding_attr",
+    "source_line": 208,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a8160d4e4dd424bc0fffc6b901ce3678b43163147e25bd5e6cfd7212960c7bc",
+      "norm": "7a8160d4e4dd424bc0fffc6b901ce3678b43163147e25bd5e6cfd7212960c7bc"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_public_api_doctest",
+    "source_line": 214,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "da38953bdbd86e6e7fc4ad70ba3263988306561d6b0bc67fbb7d4047cb836420",
+      "norm": "da38953bdbd86e6e7fc4ad70ba3263988306561d6b0bc67fbb7d4047cb836420"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_smoke_all_codecs",
+    "source_line": 241,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "21ead353b4acf2a81f8526b426677c00f216e086822225d84291d2f9571e09f9",
+      "norm": "a3c0a23b0b361c899f40a04776fcc30af2fe256a6456bda513610726b6f800f4"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_public_exports",
+    "source_line": 252,
+    "classes_used": [
+      "EncodingDetectionResult",
+      "UnsupportedEncodingError"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9afb12329bd28bf00c4198e769251b32d3a509eac398300c2f108b6abe6fadcc",
+      "norm": "9afb12329bd28bf00c4198e769251b32d3a509eac398300c2f108b6abe6fadcc"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/encoding/test_encoding.py",
+    "source_function": "test_unsupported_encoding_raises",
+    "source_line": 258,
+    "classes_used": [
+      "UnsupportedEncodingError"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4edaa0e210c51e477785c79a751d4e9720834ea904be3d6a66d682f8b23d174b",
+      "norm": "4edaa0e210c51e477785c79a751d4e9720834ea904be3d6a66d682f8b23d174b"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_single_token",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7b3f2c6ab0f4409543e15f91c9622b103dd086ab8aa107d35ad295774552ea56",
+      "norm": "7b3f2c6ab0f4409543e15f91c9622b103dd086ab8aa107d35ad295774552ea56"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_four_tokens",
+    "source_line": 41,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b62101675c73364f3823d4fc59bf2f2881fc10b09ca6fa90db2207baf94c0eca",
+      "norm": "b62101675c73364f3823d4fc59bf2f2881fc10b09ca6fa90db2207baf94c0eca"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_two_tokens",
+    "source_line": 51,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "246a7dd3c37f6a162b6a64486203d6074c8e9d93dbcaa22ba2aad5ef34c63a52",
+      "norm": "246a7dd3c37f6a162b6a64486203d6074c8e9d93dbcaa22ba2aad5ef34c63a52"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_width_three_tokens",
+    "source_line": 61,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd6535e9e5d58cc0f308e0c85cfb043eae9f6df117b42642fbac25f67bb24fd3",
+      "norm": "fd6535e9e5d58cc0f308e0c85cfb043eae9f6df117b42642fbac25f67bb24fd3"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_single_token",
+    "source_line": 76,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0d04469fe6266ac03e49e56a5997e08e8024cd5b0e8274678f929d3c18b6f69c",
+      "norm": "0d04469fe6266ac03e49e56a5997e08e8024cd5b0e8274678f929d3c18b6f69c"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_two_tokens",
+    "source_line": 86,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b55c2fe7def9e7e9a798d9153cbdac19864808d1d2e2a6536431719f8ca6aca8",
+      "norm": "b55c2fe7def9e7e9a798d9153cbdac19864808d1d2e2a6536431719f8ca6aca8"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_four_tokens",
+    "source_line": 96,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "df445b7b2593b40c8e7453093eb64abef471476bdfdaa98787d3ba665a2e9c01",
+      "norm": "df445b7b2593b40c8e7453093eb64abef471476bdfdaa98787d3ba665a2e9c01"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_style_three_tokens",
+    "source_line": 106,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2781b3f6c0f6026e9e8f23ac57085d87bbea886b83a4c3c3e5248960bff1d083",
+      "norm": "2781b3f6c0f6026e9e8f23ac57085d87bbea886b83a4c3c3e5248960bff1d083"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_single_token",
+    "source_line": 121,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5fed213918d47e8a48d09bf0d81c28e868e902bb7b30df8e118a1384105a911d",
+      "norm": "5fed213918d47e8a48d09bf0d81c28e868e902bb7b30df8e118a1384105a911d"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_four_tokens",
+    "source_line": 131,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8e0763ee2998881a47f03b07d670cd10bdd201f6dac2fc3206d443a1347abc17",
+      "norm": "8e0763ee2998881a47f03b07d670cd10bdd201f6dac2fc3206d443a1347abc17"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_two_tokens",
+    "source_line": 141,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "495f551e852cd47c947fc5512c260ca0619e7aef31421a822406b32212d1a18c",
+      "norm": "495f551e852cd47c947fc5512c260ca0619e7aef31421a822406b32212d1a18c"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_color_three_tokens",
+    "source_line": 151,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "497f389bc32a607342795541f5cb5c29ad527d43c0b9f024cb89df426dc43b2f",
+      "norm": "497f389bc32a607342795541f5cb5c29ad527d43c0b9f024cb89df426dc43b2f"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_width",
+    "source_line": 166,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b45b2ef43443e1ee3dd197f387e909c7cd5d1021fadc0b7cefeb3c9058a447bf",
+      "norm": "b45b2ef43443e1ee3dd197f387e909c7cd5d1021fadc0b7cefeb3c9058a447bf"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_style",
+    "source_line": 171,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0903ee617aee956fc88d3ba78a09c1ee1009ee5e99352ed49026565e86635266",
+      "norm": "0903ee617aee956fc88d3ba78a09c1ee1009ee5e99352ed49026565e86635266"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_css_supports_border_color",
+    "source_line": 176,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [
+      "CSS.supports"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "321bc68a38885efe4a0d690e2bf90f8be49716e8013a757a22c3fe1695e6d055",
+      "norm": "321bc68a38885efe4a0d690e2bf90f8be49716e8013a757a22c3fe1695e6d055"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_shorthand_regression",
+    "source_line": 186,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "421b08d31b20847b4f6b00a9e94f50f6c4d5ad5c7263aef8850b08c6675e2c2b",
+      "norm": "421b08d31b20847b4f6b00a9e94f50f6c4d5ad5c7263aef8850b08c6675e2c2b"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/test_css/test_border_sub_shorthands.py",
+    "source_function": "test_border_top_shorthand_regression",
+    "source_line": 202,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a822cebeec7c9f15bfa7e888ced771ca107be7b4a0d3a9d69253cfcb71c3ab0b",
+      "norm": "a822cebeec7c9f15bfa7e888ced771ca107be7b4a0d3a9d69253cfcb71c3ab0b"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_beats_type_selector_author_rule",
+    "source_line": 26,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e3cec74f4a084306bb918cdc329b67cb88d462f7c2ba5ef7480917be5c4e02b",
+      "norm": "4e3cec74f4a084306bb918cdc329b67cb88d462f7c2ba5ef7480917be5c4e02b"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_beats_class_selector_author_rule",
+    "source_line": 49,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "924e2ee6ceffd3bafd4b565b2bea9d0e7beb82ff5b581070ecc11f4cdfa4b8cc",
+      "norm": "924e2ee6ceffd3bafd4b565b2bea9d0e7beb82ff5b581070ecc11f4cdfa4b8cc"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_author_important_beats_inline_normal",
+    "source_line": 78,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ee2d8a0ae602066c2df0216b2be0c5caf2f50f21f283b67421f3473d97bb09b8",
+      "norm": "ee2d8a0ae602066c2df0216b2be0c5caf2f50f21f283b67421f3473d97bb09b8"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_important_beats_author_important_by_specificity",
+    "source_line": 100,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c4e2543a8201d2845bf021ebc15e2eb49fecf550ab1424935e3536344b00a46f",
+      "norm": "c4e2543a8201d2845bf021ebc15e2eb49fecf550ab1424935e3536344b00a46f"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_class_beats_type_selector",
+    "source_line": 133,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "78098a6c08a92368a46b3fb15bf9cabb640cdf51ed14a46a40a752973c32759f",
+      "norm": "78098a6c08a92368a46b3fb15bf9cabb640cdf51ed14a46a40a752973c32759f"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_id_beats_class_selector",
+    "source_line": 150,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b155ac23de5af837bcee3abb7797c52482dde7f4e00b16b721ea2dae6407b743",
+      "norm": "b155ac23de5af837bcee3abb7797c52482dde7f4e00b16b721ea2dae6407b743"
+    }
+  },
+  {
+    "id": "snippet_051",
+    "file": "snippet_051.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_compound_selector_beats_type_selector",
+    "source_line": 167,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7598eb70ff8043f4e8776767888f6097ebcfb33a17a8f717bca3260c6f7a525e",
+      "norm": "7598eb70ff8043f4e8776767888f6097ebcfb33a17a8f717bca3260c6f7a525e"
+    }
+  },
+  {
+    "id": "snippet_052",
+    "file": "snippet_052.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_later_rule_wins_same_specificity",
+    "source_line": 190,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce426cc54a076ea8b26d55078ac26f6bb5f46a8bc5cb794c7a9f64f88b64943f",
+      "norm": "ce426cc54a076ea8b26d55078ac26f6bb5f46a8bc5cb794c7a9f64f88b64943f"
+    }
+  },
+  {
+    "id": "snippet_053",
+    "file": "snippet_053.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_later_stylesheet_wins_same_specificity",
+    "source_line": 206,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0b4ab82bc758a309aef75cf7d0f4faf3da699e7474b40ab55dd3c7ab865026e7",
+      "norm": "0b4ab82bc758a309aef75cf7d0f4faf3da699e7474b40ab55dd3c7ab865026e7"
+    }
+  },
+  {
+    "id": "snippet_054",
+    "file": "snippet_054.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_no_rule_no_property",
+    "source_line": 231,
+    "classes_used": [
+      "Document",
+      "Element"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element",
+      "Element.append_child",
+      "Element.get_computed_style"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e40ff7447161c3032c07b15bb6d28603e4ce7b26a9f39b9bd41dbaf403449883",
+      "norm": "e40ff7447161c3032c07b15bb6d28603e4ce7b26a9f39b9bd41dbaf403449883"
+    }
+  },
+  {
+    "id": "snippet_055",
+    "file": "snippet_055.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_inline_only_resolves",
+    "source_line": 239,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12910ba00d9aab56f999d35dae443a38a328bd5c8790ae6df7dca83d078cbdd7",
+      "norm": "12910ba00d9aab56f999d35dae443a38a328bd5c8790ae6df7dca83d078cbdd7"
+    }
+  },
+  {
+    "id": "snippet_056",
+    "file": "snippet_056.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_shorthand_expansion_still_works",
+    "source_line": 248,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e6e1b3832c70a0de81fb5e2ba55356987359ad700df3800a00499a0064fe814",
+      "norm": "0e6e1b3832c70a0de81fb5e2ba55356987359ad700df3800a00499a0064fe814"
+    }
+  },
+  {
+    "id": "snippet_057",
+    "file": "snippet_057.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_important_without_inline",
+    "source_line": 264,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e8be52280f09768bcb0b9b8fef0d1a4c38ec8b29b92fc081026bf8095512cca6",
+      "norm": "e8be52280f09768bcb0b9b8fef0d1a4c38ec8b29b92fc081026bf8095512cca6"
+    }
+  },
+  {
+    "id": "snippet_058",
+    "file": "snippet_058.py",
+    "source_file": "tests/test_css/test_cascade_full.py",
+    "source_function": "test_author_stylesheet_property_resolves",
+    "source_line": 277,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "782680f188a4a8c1f747f00c40aae7bf0bf18840970ff0f92d9e58a711147a14",
+      "norm": "782680f188a4a8c1f747f00c40aae7bf0bf18840970ff0f92d9e58a711147a14"
+    }
+  },
+  {
+    "id": "snippet_059",
+    "file": "snippet_059.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_color_inherits_to_child",
+    "source_line": 62,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "20beeb84ffc841b6101c82239c7eef7664ef0391720663ed28c42464392e136b",
+      "norm": "20beeb84ffc841b6101c82239c7eef7664ef0391720663ed28c42464392e136b"
+    }
+  },
+  {
+    "id": "snippet_060",
+    "file": "snippet_060.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_local_color_overrides_inherited",
+    "source_line": 74,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3bb89aa21c60276ae3fd3e9e21d06c97c3a7f2a95f964f6c55f5a64335089c51",
+      "norm": "3bb89aa21c60276ae3fd3e9e21d06c97c3a7f2a95f964f6c55f5a64335089c51"
+    }
+  },
+  {
+    "id": "snippet_061",
+    "file": "snippet_061.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_text_align_inherits_to_child",
+    "source_line": 91,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b589a3fc02db658022383c2526500252dd8ffd3f5e1714dc1bcd3d0080cf4f9",
+      "norm": "5b589a3fc02db658022383c2526500252dd8ffd3f5e1714dc1bcd3d0080cf4f9"
+    }
+  },
+  {
+    "id": "snippet_062",
+    "file": "snippet_062.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_word_spacing_inherits",
+    "source_line": 101,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f67d25dd77a36de6bbc2d5c74302335b32c9248700b8ae04274dad69a27c3129",
+      "norm": "f67d25dd77a36de6bbc2d5c74302335b32c9248700b8ae04274dad69a27c3129"
+    }
+  },
+  {
+    "id": "snippet_063",
+    "file": "snippet_063.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_visibility_inherits",
+    "source_line": 109,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ac29b0845c8781ef485cd1c5629c9ffcfc87d9b68c94fbb5e246a3dd2113df6b",
+      "norm": "ac29b0845c8781ef485cd1c5629c9ffcfc87d9b68c94fbb5e246a3dd2113df6b"
+    }
+  },
+  {
+    "id": "snippet_064",
+    "file": "snippet_064.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_list_style_type_inherits_to_child",
+    "source_line": 124,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet",
+      "Document"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync",
+      "Document.append_child",
+      "Document.attach_style_sheet",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef47bc7ddc9117079fcf72d2fb060e4090573b70a5f30dd8bd3b8b7f25073659",
+      "norm": "ef47bc7ddc9117079fcf72d2fb060e4090573b70a5f30dd8bd3b8b7f25073659"
+    }
+  },
+  {
+    "id": "snippet_065",
+    "file": "snippet_065.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_list_style_position_inherits",
+    "source_line": 139,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc78e5eac5044458c29ce29bd8b3e53e4cbb21e6fbf8cab8ea812ec1cd7c5168",
+      "norm": "fc78e5eac5044458c29ce29bd8b3e53e4cbb21e6fbf8cab8ea812ec1cd7c5168"
+    }
+  },
+  {
+    "id": "snippet_066",
+    "file": "snippet_066.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_background_color_does_not_inherit",
+    "source_line": 154,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c8fe2d067d810339c83bf36a1ac116c8bbb15aec163a7d108494d59203316829",
+      "norm": "c8fe2d067d810339c83bf36a1ac116c8bbb15aec163a7d108494d59203316829"
+    }
+  },
+  {
+    "id": "snippet_067",
+    "file": "snippet_067.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_margin_top_does_not_inherit",
+    "source_line": 164,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c73c66a475400fcadfc5a42c494714aa2e359d15df793033c53023ec0e7883f3",
+      "norm": "c73c66a475400fcadfc5a42c494714aa2e359d15df793033c53023ec0e7883f3"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_non_inherited_property",
+    "source_line": 179,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a2d95dd098800fc50e544820a6b23114bba4f7077f71f4219b4eb786b1d5f51d",
+      "norm": "a2d95dd098800fc50e544820a6b23114bba4f7077f71f4219b4eb786b1d5f51d"
+    }
+  },
+  {
+    "id": "snippet_069",
+    "file": "snippet_069.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_inherited_property",
+    "source_line": 190,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd71d7cf230f8ccb365ce0fa274e018f08035eb5c04c1c16d63e02582ac18587",
+      "norm": "fd71d7cf230f8ccb365ce0fa274e018f08035eb5c04c1c16d63e02582ac18587"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_inherit_keyword_on_root_returns_initial",
+    "source_line": 199,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "693e5441ce21d33386399ebb7f4576dca2a9e24e539238e1927dabafc9e303fc",
+      "norm": "693e5441ce21d33386399ebb7f4576dca2a9e24e539238e1927dabafc9e303fc"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_initial_on_inherited_resets_to_empty",
+    "source_line": 216,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a61b52c9cfc954bf230f830025e64bed9356f8185dcd89f701ae5d09fa1f2b7",
+      "norm": "7a61b52c9cfc954bf230f830025e64bed9356f8185dcd89f701ae5d09fa1f2b7"
+    }
+  },
+  {
+    "id": "snippet_072",
+    "file": "snippet_072.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_initial_on_non_inherited_returns_empty",
+    "source_line": 227,
+    "classes_used": [
+      "CSS"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b7ed1cfac9ae83119b57bd178ba58b6d01d2e668f93b17f1a65ba1aba31d716a",
+      "norm": "b7ed1cfac9ae83119b57bd178ba58b6d01d2e668f93b17f1a65ba1aba31d716a"
+    }
+  },
+  {
+    "id": "snippet_073",
+    "file": "snippet_073.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_color_acts_as_inherit",
+    "source_line": 242,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e62fd787f2760288d971d5087c695c32360f8cd24f513557258f0b9b8acae9f9",
+      "norm": "e62fd787f2760288d971d5087c695c32360f8cd24f513557258f0b9b8acae9f9"
+    }
+  },
+  {
+    "id": "snippet_074",
+    "file": "snippet_074.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_text_align_acts_as_inherit",
+    "source_line": 253,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7be1ff2e8002d256de0dd5078396b5ba3cc066756943195b1365bd85932a3795",
+      "norm": "7be1ff2e8002d256de0dd5078396b5ba3cc066756943195b1365bd85932a3795"
+    }
+  },
+  {
+    "id": "snippet_075",
+    "file": "snippet_075.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_background_color_acts_as_initial",
+    "source_line": 269,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "05827b2162565950f0881f12e89bf767a417444891e45c2ad396b012c06d8893",
+      "norm": "05827b2162565950f0881f12e89bf767a417444891e45c2ad396b012c06d8893"
+    }
+  },
+  {
+    "id": "snippet_076",
+    "file": "snippet_076.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_unset_on_margin_top_acts_as_initial",
+    "source_line": 279,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8c508280e94fa97ff142eabafb977daf66bf0ae02c53fb45fc6ab24dd0fabc2d",
+      "norm": "8c508280e94fa97ff142eabafb977daf66bf0ae02c53fb45fc6ab24dd0fabc2d"
+    }
+  },
+  {
+    "id": "snippet_077",
+    "file": "snippet_077.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_inherited_property_acts_as_inherit",
+    "source_line": 294,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "649456b93688c37969e6c82e8fb03c7d6ec897845fc3c89c8743444b948395ab",
+      "norm": "649456b93688c37969e6c82e8fb03c7d6ec897845fc3c89c8743444b948395ab"
+    }
+  },
+  {
+    "id": "snippet_078",
+    "file": "snippet_078.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_non_inherited_acts_as_initial",
+    "source_line": 305,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91806c8245f3202e8e2db0a45c82e0352e090a6146198ebc6eba83890cbba9bd",
+      "norm": "91806c8245f3202e8e2db0a45c82e0352e090a6146198ebc6eba83890cbba9bd"
+    }
+  },
+  {
+    "id": "snippet_079",
+    "file": "snippet_079.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_revert_on_text_align_on_root_returns_initial",
+    "source_line": 313,
+    "classes_used": [
+      "Document"
+    ],
+    "methods_used": [
+      "Document.append_child",
+      "Document.create_element"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25fa0423d1104467696bbe7e7a0b259c2cff7d046444af37dda50c263b715b26",
+      "norm": "25fa0423d1104467696bbe7e7a0b259c2cff7d046444af37dda50c263b715b26"
+    }
+  },
+  {
+    "id": "snippet_080",
+    "file": "snippet_080.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_color_propagates_through_two_ancestor_levels",
+    "source_line": 330,
+    "classes_used": [
+      "CSS",
+      "CSSStyleSheet"
+    ],
+    "methods_used": [
+      "CSSStyleSheet.replace_sync"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9775b80110f2237bc8f0e9629f213d7ece373bed7412730803d3fd5c0c051a0a",
+      "norm": "9775b80110f2237bc8f0e9629f213d7ece373bed7412730803d3fd5c0c051a0a"
+    }
+  },
+  {
+    "id": "snippet_081",
+    "file": "snippet_081.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_nearest_ancestor_wins_in_deep_chain",
+    "source_line": 342,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "48e9f7d9a19b3c7eefaafc696cd96395cbcb7159600e3f0c81d33ede7df83e75",
+      "norm": "48e9f7d9a19b3c7eefaafc696cd96395cbcb7159600e3f0c81d33ede7df83e75"
+    }
+  },
+  {
+    "id": "snippet_082",
+    "file": "snippet_082.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_text_align_propagates_through_two_levels",
+    "source_line": 353,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "db7e23932bda2939943d0efc17a2c921a5af5c6f32d4f417f9fcdc9dcd88e0af",
+      "norm": "db7e23932bda2939943d0efc17a2c921a5af5c6f32d4f417f9fcdc9dcd88e0af"
+    }
+  },
+  {
+    "id": "snippet_083",
+    "file": "snippet_083.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_child_local_rule_overrides_deep_inherited_value",
+    "source_line": 361,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3a7436e404a886a20fac4829ae13886a07646f83bfd969381f2a420298ded42f",
+      "norm": "3a7436e404a886a20fac4829ae13886a07646f83bfd969381f2a420298ded42f"
+    }
+  },
+  {
+    "id": "snippet_084",
+    "file": "snippet_084.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_letter_spacing_inherits",
+    "source_line": 377,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a89fc05b45d7804a664cf92af3d133a7ae943113a40d784129d6fef9c804f0be",
+      "norm": "a89fc05b45d7804a664cf92af3d133a7ae943113a40d784129d6fef9c804f0be"
+    }
+  },
+  {
+    "id": "snippet_085",
+    "file": "snippet_085.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_white_space_inherits",
+    "source_line": 382,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c289bcf2905997af9410ef8e79a85fbaf2ea55db5bb8fd3a401311fb8ef588db",
+      "norm": "c289bcf2905997af9410ef8e79a85fbaf2ea55db5bb8fd3a401311fb8ef588db"
+    }
+  },
+  {
+    "id": "snippet_086",
+    "file": "snippet_086.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_word_break_inherits",
+    "source_line": 387,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fc83ac74dd41adbd454de72efcb96586e5149165b03b4b4708a0602fdf22ceae",
+      "norm": "fc83ac74dd41adbd454de72efcb96586e5149165b03b4b4708a0602fdf22ceae"
+    }
+  },
+  {
+    "id": "snippet_087",
+    "file": "snippet_087.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_cursor_inherits",
+    "source_line": 392,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2ba03ba4a7bb6afd71d1affceab212bcd2d6cf827eabe262543b4992dffb53f",
+      "norm": "e2ba03ba4a7bb6afd71d1affceab212bcd2d6cf827eabe262543b4992dffb53f"
+    }
+  },
+  {
+    "id": "snippet_088",
+    "file": "snippet_088.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_pointer_events_inherits",
+    "source_line": 397,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e4e7e7bb661a93539d1c872782c86bbdde15070fdc97bd879f01f48abc5b440",
+      "norm": "0e4e7e7bb661a93539d1c872782c86bbdde15070fdc97bd879f01f48abc5b440"
+    }
+  },
+  {
+    "id": "snippet_089",
+    "file": "snippet_089.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_border_collapse_inherits",
+    "source_line": 402,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "33b440f5ea6b594bbfb96e2b39df39495b94cb07f1b9ed2164d4726a14e923bc",
+      "norm": "33b440f5ea6b594bbfb96e2b39df39495b94cb07f1b9ed2164d4726a14e923bc"
+    }
+  },
+  {
+    "id": "snippet_090",
+    "file": "snippet_090.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_writing_mode_inherits",
+    "source_line": 407,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cf189a8f3234e8b6e658b1b1d49a91c98a3a1357fe2d6b918e454d3f5d831d8b",
+      "norm": "cf189a8f3234e8b6e658b1b1d49a91c98a3a1357fe2d6b918e454d3f5d831d8b"
+    }
+  },
+  {
+    "id": "snippet_091",
+    "file": "snippet_091.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_direction_inherits",
+    "source_line": 412,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5c4890954eb572685d63612a3796aa4cabfdbaac8663d11301dd4c677e58e12a",
+      "norm": "5c4890954eb572685d63612a3796aa4cabfdbaac8663d11301dd4c677e58e12a"
+    }
+  },
+  {
+    "id": "snippet_092",
+    "file": "snippet_092.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_font_variant_inherits",
+    "source_line": 417,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "642f9101fae8fc238e9be845c2df108d60fca3860a5adbc5956ebda1e36ed8ff",
+      "norm": "642f9101fae8fc238e9be845c2df108d60fca3860a5adbc5956ebda1e36ed8ff"
+    }
+  },
+  {
+    "id": "snippet_093",
+    "file": "snippet_093.py",
+    "source_file": "tests/test_css/test_cascade_inheritance.py",
+    "source_function": "test_quotes_inherits",
+    "source_line": 422,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8616cbdfa5e8a344c61e51a096c0fce5db772bca6362ac29658f5fd0e6ba6ba0",
+      "norm": "8616cbdfa5e8a344c61e51a096c0fce5db772bca6362ac29658f5fd0e6ba6ba0"
+    }
+  },
+  {
+    "id": "snippet_094",
+    "file": "snippet_094.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_x_present",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eebce1682e196aa60f1595f8e8cc7b0a3e2d8181cce950be6c30d9d749268d49",
+      "norm": "eebce1682e196aa60f1595f8e8cc7b0a3e2d8181cce950be6c30d9d749268d49"
+    }
+  },
+  {
+    "id": "snippet_095",
+    "file": "snippet_095.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_y_present",
+    "source_line": 28,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e42939fa8102b5bbf94327c280683b16fde1175779b4c9cc6b056a0c0a03fc9d",
+      "norm": "e42939fa8102b5bbf94327c280683b16fde1175779b4c9cc6b056a0c0a03fc9d"
+    }
+  },
+  {
+    "id": "snippet_096",
+    "file": "snippet_096.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_overflow_present",
+    "source_line": 31,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "37f139e1b89aef9b5ba46d8a92e224f1dd6e4aa78e3813840fb8d329802e2b59",
+      "norm": "37f139e1b89aef9b5ba46d8a92e224f1dd6e4aa78e3813840fb8d329802e2b59"
+    }
+  },
+  {
+    "id": "snippet_097",
+    "file": "snippet_097.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_position_present",
+    "source_line": 34,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1cac4ab8de55d39998ee8b932ed39caae6dd37394224106bd35fa02045f4a3ce",
+      "norm": "1cac4ab8de55d39998ee8b932ed39caae6dd37394224106bd35fa02045f4a3ce"
+    }
+  },
+  {
+    "id": "snippet_098",
+    "file": "snippet_098.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_box_sizing_present",
+    "source_line": 37,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e149b50f6d7ec467359617c0ebdfe07b792da57ac112b16fa4b08c4c01d87b7f",
+      "norm": "e149b50f6d7ec467359617c0ebdfe07b792da57ac112b16fa4b08c4c01d87b7f"
+    }
+  },
+  {
+    "id": "snippet_099",
+    "file": "snippet_099.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_z_index_present",
+    "source_line": 40,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "84fed524e75710799806aa687fac213b7d627db005445dee85a70ed3ad917ff9",
+      "norm": "84fed524e75710799806aa687fac213b7d627db005445dee85a70ed3ad917ff9"
+    }
+  },
+  {
+    "id": "snippet_100",
+    "file": "snippet_100.py",
+    "source_file": "tests/test_css/test_cascade_property_table.py",
+    "source_function": "test_float_present",
+    "source_line": 43,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0d43f082769999080283e6ac55b8e2dbfe3eef8e0c43cfb6ed6f8df008855287",
+      "norm": "0d43f082769999080283e6ac55b8e2dbfe3eef8e0c43cfb6ed6f8df008855287"
+    }
+  }
+]

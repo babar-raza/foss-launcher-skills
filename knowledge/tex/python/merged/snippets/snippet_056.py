@@ -1,0 +1,1 @@
+def test_fontdimen_assignment_changes_read_value(self) -> None:

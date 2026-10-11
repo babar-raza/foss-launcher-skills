@@ -1,0 +1,38 @@
+bundle_generated_at: '2026-10-08T10:02:52.393324+00:00'
+bundle_id: dff87b26-c2af-4b94-97ea-dca060fa8f15
+config_sha: ba558925e966ce6d
+enrichment_status: full
+extractor_hash: 05afc3e6317c4213
+family: pdf
+generator_fingerprint: 2c63eb86851f18b3c89c6d999d15086233a7287d1548d28209403f5372d3eab4
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 3f12da4114aeaf4121295428d1f182a40a10f5253a2bb7f0909459e717ae83b1
+  extractor_config_sha: ba558925e966ce6d
+  products_json_entry_sha: d26bd7dd2a51d23eed7e89e4234244356512cc82a171a4f9a22202a278db6abc
+  scout_api_surface_sha: b55ff27ee5742db86fbc14ee31f873fab831fb9b40a077bc3337c3cb40c8c893
+  scout_claims_sha: 3a6a5ed9b95e2b7fe21f74eec4db341cb1ebf0c551e650b78138c6faede85f5f
+license: ''
+module_assignment_version: 1
+platform: java
+product_name: aspose-pdf-foss
+promoted_at: '2026-10-08T10:02:53.089273+00:00'
+repo_sha: 736cedaa2922e4952f429364bdb9a4bbb1d97863
+repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 1181
+  classes:
+    public_documented: 1136
+    raw_entries_including_non_class: 1181
+    total_declared: 1181
+  enriched_claims: 2247
+  forbidden_count: 1
+  scout_claims: 14456
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 16606
+version: 26.9.0

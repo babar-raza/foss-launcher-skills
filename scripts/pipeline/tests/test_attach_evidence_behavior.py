@@ -1,0 +1,502 @@
+"""Behavioral tests for attach_evidence.py — CLI entry point and evidence.runner.
+
+Covers:
+  - CLI: --files with nonexistent path → SKIP logged, no crash, exit 0
+  - CLI: --files with file outside known site paths → SKIP (cannot infer product)
+  - attach_files(): evidence block written with required fields (mocked Knowledge)
+  - attach_files(): idempotent — second call with same model_sha → "SKIP (current)"
+  - attach_evidence(): audit FAILs prevent evidence attachment
+"""
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+
+_PIPELINE_DIR = Path(__file__).resolve().parent.parent
+if str(_PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(_PIPELINE_DIR))
+
+_SCRIPT = str(_PIPELINE_DIR / "commands" / "healing" / "attach_evidence.py")
+_REPO_ROOT = _PIPELINE_DIR.parent.parent
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _make_content_file(path: Path, with_frontmatter: bool = True) -> Path:
+    """Write a minimal markdown file with optional frontmatter."""
+    if with_frontmatter:
+        path.write_text(
+            "---\ntitle: Test Page\nweight: 10\n---\n\n# Test\n\nSome content.\n",
+            encoding="utf-8",
+        )
+    else:
+        path.write_text("# Test\n\nSome content.\n", encoding="utf-8")
+    return path
+
+
+class _FakeKnowledge:
+    """Minimal duck-type substitute. No disk I/O required."""
+
+    def __init__(self, repo_sha="abc12345", version="1.0.0", family="cells", platform="python"):
+        self.available = True
+        self.repo_sha = repo_sha
+        self.version = version
+        self.family = family
+        self.platform = platform
+        self.claim_ids = set()
+        self.classes = {}
+        self.api_to_claim = {}
+
+    def has_method(self, *_): return False
+    def has_property(self, *_): return False
+    def has_enum_member(self, *_): return False
+
+
+@pytest.fixture(autouse=True)
+def reset_runner_config():
+    """Reset evidence.runner.configure() overrides after each test."""
+    import evidence.runner as er
+    yield
+    er.configure()
+
+
+@pytest.fixture(autouse=True)
+def _isolate_knowledge_state(tmp_path, monkeypatch):
+    """MT030-2026-08-13: attach_evidence()'s skip branches now durably record via
+    knowledge_state.record_evidence_skip() -- never let this test file's fake
+    family/platform values ("cells/python" etc.) write to the real repo-root
+    data/knowledge_state.json. evidence/runner.py imports knowledge_state
+    unprefixed (matching its own sys.path setup), so patching the bare module
+    here (not lib.knowledge_state) intercepts the same object it resolves."""
+    import knowledge_state as ks
+    monkeypatch.setattr(ks, "_STATE_PATH", tmp_path / "knowledge_state.json")
+    monkeypatch.setattr(ks, "_LOCK_PATH", tmp_path / "knowledge_state.json.lock")
+
+
+# ---------------------------------------------------------------------------
+# Section 1 — CLI smoke tests via subprocess
+# ---------------------------------------------------------------------------
+
+class TestCLISkipPaths:
+    def test_nonexistent_file_does_not_crash(self, tmp_path):
+        """CLI --files with a nonexistent path must exit 0 and log SKIP, not crash."""
+        ghost = str(tmp_path / "ghost.md")
+        result = subprocess.run(
+            [sys.executable, _SCRIPT, "--files", ghost],
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (
+            f"attach_evidence.py crashed (exit {result.returncode}):\n{result.stderr}"
+        )
+        # Must log SKIP, not raise an exception
+        assert "SKIP" in result.stderr or "not found" in result.stderr.lower(), (
+            f"Expected SKIP in stderr, got:\n{result.stderr}"
+        )
+
+    def test_file_outside_site_paths_skipped(self, tmp_path):
+        """CLI --files with a file at an unknown path must SKIP (cannot infer product)."""
+        f = tmp_path / "random_place" / "page.md"
+        f.parent.mkdir()
+        _make_content_file(f)
+
+        result = subprocess.run(
+            [sys.executable, _SCRIPT, "--files", str(f)],
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert "SKIP" in result.stderr, (
+            f"Expected SKIP for unrecognised path, got:\n{result.stderr}"
+        )
+
+    def test_no_args_prints_usage(self):
+        """Invoking with no args must print usage and exit non-zero."""
+        result = subprocess.run(
+            [sys.executable, _SCRIPT],
+            cwd=str(_REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode != 0
+        # Docstring usage text should appear in stdout or stderr
+        output = result.stdout + result.stderr
+        assert "python" in output.lower() or "usage" in output.lower() or "--files" in output
+
+
+# ---------------------------------------------------------------------------
+# Section 2 — Unit tests for attach_files() with mocked dependencies
+# ---------------------------------------------------------------------------
+
+class TestAttachFilesUnit:
+    """Tests for evidence.runner.attach_files() using mocked Knowledge and helpers."""
+
+    def _run_attach_files(self, file_path, fake_knowledge, second_call=False):
+        """Invoke attach_files with all heavyweight dependencies replaced via configure()."""
+        import evidence.runner as er
+
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fake_knowledge,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=lambda *a, **kw: None,
+            compute_grade_fn=lambda f, w: "B",
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([file_path])
+        return counts
+
+    def test_evidence_block_written(self, tmp_path):
+        """attach_files() must write evidence block to frontmatter."""
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha001")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("UPDATED") == 1, f"Expected UPDATED, got {counts}"
+        text = f.read_text(encoding="utf-8")
+        assert "evidence:" in text
+
+    def test_evidence_block_has_required_fields(self, tmp_path):
+        """Written evidence block must contain model_sha, model_version, claims, apis."""
+        import yaml
+
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha002", version="2.0.0")
+
+        self._run_attach_files(f, fk)
+
+        text = f.read_text(encoding="utf-8")
+        # Extract frontmatter
+        fm_text = text.split("---")[1]
+        fm = yaml.safe_load(fm_text)
+        ev = fm.get("evidence", {})
+
+        assert ev.get("model_sha") == "sha002", f"model_sha missing or wrong: {ev}"
+        assert ev.get("model_version") == "2.0.0", f"model_version missing or wrong: {ev}"
+        assert "claims" in ev, f"claims key missing: {ev}"
+        assert "apis" in ev, f"apis key missing: {ev}"
+        assert isinstance(ev["claims"], list)
+        assert isinstance(ev["apis"], list)
+
+    def test_idempotent_same_sha(self, tmp_path):
+        """Second call with same model_sha must return 'SKIP (current)', not 'UPDATED'."""
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha003")
+
+        counts_first = self._run_attach_files(f, fk)
+        assert counts_first.get("UPDATED") == 1, f"First call should be UPDATED: {counts_first}"
+
+        counts_second = self._run_attach_files(f, fk)
+        assert counts_second.get("SKIP (current)") == 1, (
+            f"Second call with same sha should be SKIP (current): {counts_second}"
+        )
+
+    def test_file_without_frontmatter_gets_evidence_block(self, tmp_path):
+        """Files with no frontmatter must receive a new frontmatter block with evidence."""
+        f = _make_content_file(tmp_path / "nofm.md", with_frontmatter=False)
+        fk = _FakeKnowledge(repo_sha="sha004")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("UPDATED") == 1
+        text = f.read_text(encoding="utf-8")
+        assert text.startswith("---")
+        assert "evidence:" in text
+
+    def test_null_claims_same_sha_triggers_reattach(self, tmp_path):
+        """Page with current model_sha but null claims (YAML null) must be re-attached.
+
+        Root cause BL-EVIDENCE-RUNNER-CLAIMS-001: SHA-match skip fired even when claims
+        was None (YAML null), meaning evidence block was manually set or partially written.
+        Fix: only skip when claims is not None. claims=[] (empty list) is still a valid
+        complete state for pages with no API claims.
+        """
+        # Write a page that already has evidence with correct SHA but claims: null (YAML)
+        f = tmp_path / "page_null_claims.md"
+        f.write_text(
+            "---\ntitle: Null Claims Page\n"
+            "evidence:\n"
+            "  model_sha: sha-null-test\n"
+            "  model_version: 1.0.0\n"
+            "  claims:\n"       # YAML null — becomes Python None
+            "  apis:\n"
+            "---\n\n# Content\n",
+            encoding="utf-8",
+        )
+        fk = _FakeKnowledge(repo_sha="sha-null-test")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("UPDATED") == 1, (
+            f"Page with claims=null + matching SHA must be UPDATED (not SKIP): {counts}"
+        )
+
+    def test_empty_list_claims_same_sha_skips(self, tmp_path):
+        """Page with current model_sha and claims=[] must still SKIP.
+
+        claims=[] is a valid complete state for pages with no API calls.
+        Only claims=None (YAML null, never attached) triggers re-attachment.
+        """
+        f = tmp_path / "page_empty_claims.md"
+        f.write_text(
+            "---\ntitle: Empty Claims Page\n"
+            "evidence:\n"
+            "  model_sha: sha-empty-list\n"
+            "  model_version: 1.0.0\n"
+            "  claims: []\n"    # explicit empty list — valid complete state
+            "  apis: []\n"
+            "---\n\n# Content\n",
+            encoding="utf-8",
+        )
+        fk = _FakeKnowledge(repo_sha="sha-empty-list")
+
+        counts = self._run_attach_files(f, fk)
+
+        assert counts.get("SKIP (current)") == 1, (
+            f"Page with claims=[] + matching SHA must SKIP (current): {counts}"
+        )
+
+    def test_populated_claims_same_sha_still_skips(self, tmp_path):
+        """Regression guard: page with current SHA and non-empty claims must still SKIP."""
+        # First call writes the evidence block with populated claims
+        f = _make_content_file(tmp_path / "page_populated.md")
+        fk = _FakeKnowledge(repo_sha="sha-stable")
+
+        counts_first = self._run_attach_files(f, fk)
+        assert counts_first.get("UPDATED") == 1, f"First call must be UPDATED: {counts_first}"
+
+        # Second call: same SHA, claims now non-null ([] from mock) → must SKIP
+        counts_second = self._run_attach_files(f, fk)
+        assert counts_second.get("SKIP (current)") == 1, (
+            f"Non-null claims + same SHA must SKIP (current): {counts_second}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Section 3 — Audit FAIL gate
+# ---------------------------------------------------------------------------
+
+class TestAuditFailGate:
+    def test_audit_fail_prevents_evidence(self, tmp_path):
+        """Pages with audit FAIL findings must be skipped; evidence must NOT be written."""
+        import evidence.runner as er
+
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha005")
+
+        # Simulate a FAIL finding
+        fake_fail = SimpleNamespace(level="FAIL")
+
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [fake_fail],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+        )
+        counts = er.attach_files([f])
+
+        assert counts.get("SKIP (audit FAILs)") == 1, f"Expected SKIP (audit FAILs): {counts}"
+        text = f.read_text(encoding="utf-8")
+        assert "evidence:" not in text, "Evidence block must NOT be written when FAILs present"
+
+    def test_audit_fail_skip_recorded_durably(self, tmp_path):
+        """MT030-2026-08-13: an audit-FAIL skip must be queryable via knowledge_state,
+        not just a stdout log line -- the confirmed root cause of PDF-JAVA-REFRESH-003's
+        one live evidence-staleness gap surviving unnoticed across refresh cycles."""
+        import evidence.runner as er
+        import knowledge_state as ks
+
+        f = _make_content_file(tmp_path / "page.md")
+        fk = _FakeKnowledge(repo_sha="sha005", family="pdf", platform="java")
+        fake_fail = SimpleNamespace(level="FAIL")
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "java"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [fake_fail],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+        )
+        er.attach_files([f])
+
+        state = ks.read_state("pdf", "java")
+        assert state is not None
+        skips = state["evidence_skips"]
+        assert str(f) in skips
+        assert skips[str(f)]["reason"] == "audit_fail"
+
+    def test_draft_skip_recorded_durably(self, tmp_path):
+        """A draft-page skip is expected, non-blocking behavior -- but recording it
+        too lets a reconciler tell 'known accepted debt' apart from 'never checked'."""
+        import evidence.runner as er
+        import knowledge_state as ks
+
+        f = tmp_path / "draft-page.md"
+        f.write_text("---\ntitle: Draft\ndraft: true\n---\n\n# Draft\n", encoding="utf-8")
+        fk = _FakeKnowledge(repo_sha="sha006", family="pdf", platform="java")
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "java"),
+            knowledge_fn=lambda f, p: fk,
+        )
+        er.attach_files([f])
+
+        state = ks.read_state("pdf", "java")
+        assert state is not None
+        assert state["evidence_skips"][str(f)]["reason"] == "draft"
+
+
+# ---------------------------------------------------------------------------
+# Section 4 — content_substance hardening for reference pages (SFX-4 BATCH 4)
+# ---------------------------------------------------------------------------
+
+class TestContentSubstanceHardeningForReference:
+    """Verify that attach_evidence() runs ContentSubstanceEvaluator for reference pages.
+
+    Before this hardening, a reference page stub with <50 prose words could receive
+    grade A from attach_evidence() because only verify_tokens() and
+    DescriptionCompletenessEvaluator were run.  After hardening, a stub page
+    must produce a grade of C or lower.
+    """
+
+    def _make_reference_stub(self, tmp_path: Path) -> Path:
+        """Write a minimal reference page that sits on a reference.aspose.org path."""
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "go"
+        ref_dir.mkdir(parents=True)
+        stub = ref_dir / "FakeType.md"
+        stub.write_text(
+            "---\n"
+            "title: FakeType\n"
+            "weight: 10\n"
+            "---\n\n"
+            "FakeType is a class in Aspose.PDF FOSS for Go.\n",
+            encoding="utf-8",
+        )
+        return stub
+
+    def test_stub_reference_page_does_not_get_grade_a(self, tmp_path):
+        """A reference page stub (<50 prose words) must not receive grade A."""
+        import evidence.runner as er
+
+        stub = self._make_reference_stub(tmp_path)
+        fk = _FakeKnowledge(repo_sha="sha_cs_test", family="pdf", platform="go")
+
+        captured_grades: list[str] = []
+
+        def fake_write_grade(path, grade, **kwargs):
+            captured_grades.append(grade)
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "go"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=fake_write_grade,
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([stub])
+
+        assert counts.get("UPDATED") == 1, f"Expected UPDATED, got {counts}"
+        assert len(captured_grades) == 1, f"write_grade should be called once: {captured_grades}"
+        grade = captured_grades[0]
+        # Stub page (<50 prose words) must NOT receive grade A via attach_evidence
+        assert grade != "A", (
+            f"Stub reference page received grade A — ContentSubstanceEvaluator "
+            f"is not being applied. Got grade: {grade}"
+        )
+
+    def test_evaluator_tier_includes_content_substance_when_cs_fires(self, tmp_path):
+        """When ContentSubstanceEvaluator produces findings, tier must include 'content_substance'."""
+        import evidence.runner as er
+
+        stub = self._make_reference_stub(tmp_path)
+        fk = _FakeKnowledge(repo_sha="sha_cs_tier", family="pdf", platform="go")
+
+        captured_tiers: list[str] = []
+
+        def fake_write_grade(path, grade, evaluator_tier="audit", **kwargs):
+            captured_tiers.append(evaluator_tier)
+
+        er.configure(
+            infer_product_fn=lambda fp: ("pdf", "go"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_grade_fn=fake_write_grade,
+            evaluator_logic_version="v1",
+        )
+        er.attach_files([stub])
+
+        assert len(captured_tiers) == 1, f"write_grade not called: {captured_tiers}"
+        tier = captured_tiers[0]
+        assert "content_substance" in tier, (
+            f"evaluator_tier must include 'content_substance' when CS fires. Got: {tier}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Section 5 — G-16 companion: a ValueError from the writer must not abort the batch
+# ---------------------------------------------------------------------------
+
+class TestWriteEvidenceErrorDoesNotAbortBatch:
+    """A malformed-frontmatter file raising ValueError inside the writer must be
+    reported as 'ERROR' for that file only — attach_files() must still process
+    the remaining files in the batch (see runner.py's try/except around
+    _eff_write_evidence)."""
+
+    def test_write_evidence_error_does_not_abort_batch(self, tmp_path):
+        import evidence.runner as er
+
+        good_a = _make_content_file(tmp_path / "good_a.md")
+        bad = _make_content_file(tmp_path / "bad.md")
+        good_b = _make_content_file(tmp_path / "good_b.md")
+        fk = _FakeKnowledge(repo_sha="sha-batch")
+
+        def flaky_write_evidence(filepath, evidence_dict):
+            if filepath.name == "bad.md":
+                raise ValueError("simulated malformed frontmatter")
+            return True
+
+        er.configure(
+            infer_product_fn=lambda fp: ("cells", "python"),
+            knowledge_fn=lambda f, p: fk,
+            extract_tokens_fn=lambda *a, **kw: [],
+            verify_tokens_fn=lambda *a, **kw: [],
+            map_tokens_fn=lambda *a, **kw: ([], []),
+            detect_formats_fn=lambda *a, **kw: [],
+            build_sections_fn=lambda *a, **kw: [],
+            write_evidence_fn=flaky_write_evidence,
+            write_grade_fn=lambda *a, **kw: None,
+            compute_grade_fn=lambda f, w: "B",
+            evaluator_logic_version="v1",
+        )
+        counts = er.attach_files([good_a, bad, good_b])
+
+        assert counts.get("ERROR") == 1, f"Expected 1 ERROR for the bad file: {counts}"
+        assert counts.get("UPDATED") == 2, (
+            f"Both good files must still be processed after the bad one: {counts}"
+        )

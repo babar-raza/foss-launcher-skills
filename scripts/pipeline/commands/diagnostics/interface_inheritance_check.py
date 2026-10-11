@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Interface inheritance precheck — SH-13 implementation.
 
 Detects when api_surface.json has interfaces/classes with empty method lists
@@ -8,6 +7,11 @@ Specifically targets the slides/java ISlide false-positive pattern.
 This is a precheck that BLOCKS unsafe verdicts when interface inheritance
 data is missing. It does NOT fix the api_surface — that requires /repo-scout.
 
+Usage:
+    .venv/Scripts/python scripts/pipeline/commands/diagnostics/interface_inheritance_check.py slides java
+    .venv/Scripts/python scripts/pipeline/commands/diagnostics/interface_inheritance_check.py --all-java
+    .venv/Scripts/python scripts/pipeline/commands/diagnostics/interface_inheritance_check.py --json
+
 Exit codes:
     0  No suspicious empty-method interfaces found
     1  One or more interfaces with empty methods found where inheritance expected
@@ -16,19 +20,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
-REPO_ROOT = Path(os.environ.get("FOSS_REPO_ROOT", Path(__file__).resolve().parents[4]))
+REPO_ROOT = Path(__file__).resolve().parents[4]
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 
-# Clone cache location — override via FOSS_CLONE_CACHE env var
-CLONE_CACHE = Path(os.environ.get("FOSS_CLONE_CACHE", REPO_ROOT / "runs" / ".clone_cache"))
-
 # Interfaces commonly expected to have inherited methods
+# (pattern: interface name starts with 'I' and has a known parent interface)
 INTERFACE_PREFIXES = ("ISlide", "IShape", "IPresentation", "IBaseSlide", "ITextFrame")
 
 
@@ -54,6 +55,7 @@ def find_empty_interface_methods(family: str, platform: str) -> list[dict]:
     data = surface["data"]
     findings = []
 
+    # api_surface.json can be a list of class objects or a dict
     items = data if isinstance(data, list) else list(data.values()) if isinstance(data, dict) else []
 
     for item in items:
@@ -62,7 +64,7 @@ def find_empty_interface_methods(family: str, platform: str) -> list[dict]:
         name = item.get("name", item.get("class", ""))
         methods = item.get("methods", [])
         is_interface = (
-            name.startswith("I") and name[1:2].isupper()
+            name.startswith("I") and name[1:2].isupper()  # Java interface convention
             or item.get("kind", "") in ("interface", "abstract")
         )
         extends = item.get("extends", item.get("parent", item.get("implements", [])))
@@ -85,18 +87,21 @@ def find_empty_interface_methods(family: str, platform: str) -> list[dict]:
 
 def check_clone_cache_for_inheritance(family: str, platform: str) -> list[str]:
     """Check clone cache for interfaces that extend parents with methods."""
+    cache_dir = REPO_ROOT / "runs" / ".clone_cache"
     product_dir_name = f"aspose_{family}_{platform}"
-    clone_dir = CLONE_CACHE / product_dir_name
+    clone_dir = cache_dir / product_dir_name
 
     if not clone_dir.exists():
         return []
 
+    # Look for interface files that extend other interfaces
     inheritance_evidence = []
     for java_file in clone_dir.rglob("*.java"):
         try:
             content = java_file.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        # Pattern: "interface IFoo extends IBar {"
         m = re.search(r"interface\s+(\w+)\s+extends\s+([\w, ]+)\s*\{", content)
         if m:
             iface_name = m.group(1)
@@ -105,7 +110,7 @@ def check_clone_cache_for_inheritance(family: str, platform: str) -> list[str]:
                 f"{java_file.name}: {iface_name} extends {', '.join(parent_names)}"
             )
 
-    return inheritance_evidence[:20]
+    return inheritance_evidence[:20]  # Return up to 20 examples
 
 
 def main():

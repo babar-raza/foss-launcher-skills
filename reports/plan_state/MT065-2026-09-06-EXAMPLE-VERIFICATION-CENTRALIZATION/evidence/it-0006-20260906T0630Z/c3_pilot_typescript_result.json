@@ -1,0 +1,43 @@
+{
+  "old": {
+    "runner": "typescript_verification_runner_v2",
+    "blocks_found": 1,
+    "block_statuses": [
+      {
+        "index": 0,
+        "status": "BLOCKED-WITH-REASON",
+        "reason": "FIXTURE-UNAVAILABLE",
+        "detail": "node:fs:559\n  return binding.open(\n                 ^\n\nError: ENOENT: no such file or directory, open '<local-plan-cache>/in.pdf'\n    at Object.openSync (node:fs:559:18)\n    at readFileSync (node:fs:443:35)\n    at Document.OpenFile (file:///<local-plan-cache>/document.js:725:45)\n    at <anonymous> (<local-plan-cache>/verify_block_0.mts:2:22)\n    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  errno: -4058,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: 'C:\\\\Users\\\\prora\\\\AppData\\\\Local\\\\Temp\\\\readme-refresh-verify-ts-pdf-typescript-3q9vbl3s\\\\project\\\\in.pdf'\n}\n\nNode.js v24.13.1",
+        "missing_fixture": "in.pdf"
+      }
+    ],
+    "fixtures": {
+      "staged": {},
+      "unresolved": [
+        "in.pdf"
+      ]
+    },
+    "all_named": true
+  },
+  "new": {
+    "runner": "typescript_verification_runner_v2",
+    "blocks_found": 1,
+    "block_statuses": [
+      {
+        "index": 0,
+        "status": "BLOCKED-WITH-REASON",
+        "reason": "FIXTURE-UNAVAILABLE",
+        "detail": "node:fs:559\n  return binding.open(\n                 ^\n\nError: ENOENT: no such file or directory, open '<local-plan-cache>/in.pdf'\n    at Object.openSync (node:fs:559:18)\n    at readFileSync (node:fs:443:35)\n    at Document.OpenFile (file:///<local-plan-cache>/document.js:725:45)\n    at <anonymous> (<local-plan-cache>/verify_block_0.mts:2:22)\n    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  errno: -4058,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: 'C:\\\\Users\\\\prora\\\\AppData\\\\Local\\\\Temp\\\\readme-refresh-verify-ts-pdf-typescript-5cp8nqfv\\\\project\\\\in.pdf'\n}\n\nNode.js v24.13.1",
+        "missing_fixture": "in.pdf"
+      }
+    ],
+    "fixtures": {
+      "staged": {},
+      "unresolved": [
+        "in.pdf"
+      ]
+    },
+    "all_named": true
+  },
+  "identical": false
+}

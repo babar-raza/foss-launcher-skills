@@ -1,0 +1,9 @@
+{
+  "family": "3d",
+  "platform": "java",
+  "clean": true,
+  "hard_gate_findings": {},
+  "published": false,
+  "candidate_drift": [],
+  "disposition_tracking": "verified"
+}

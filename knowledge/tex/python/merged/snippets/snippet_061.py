@@ -1,0 +1,1 @@
+def test_mark_emits_mark_node(self) -> None:

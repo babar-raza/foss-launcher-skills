@@ -1,74 +1,200 @@
-# S-65: Gap Apply — Execute Wave-Ordered Fix Specs
+# S-46: Gap Apply — Execute Wave-Ordered Fix Specs
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform} [--waves 1,2,3] [--dry-run]`
 
 ## Purpose
 
-Execute the wave-ordered remediation plan produced by S-63 (gap-plan). Applies Wave 1
+Execute the wave-ordered remediation plan produced by S-44 (gap-plan). Applies Wave 1
 auto-fixes via batch scripts, Wave 2 LLM-planned substitutions from the fix spec file,
 Wave 3 page generation via S-19 (page-draft), and halts at Wave 4 (human-required fixes).
 
-This closes the handoff gap between S-63 (plan generation) and actual content repair.
-Full gap remediation pipeline: `S-62 → S-63 → S-65 → S-23 → S-56 → write`.
+This skill closes the handoff gap between S-44 (plan generation) and actual content repair.
+It is the final step in the gap remediation pipeline: `S-43 → S-44 → S-46 → S-23 → S-01 → write`.
 
 ## Pre-conditions
 
 1. `reports/agents/remediation/{family}-{platform}/plan.md` must exist (run `/gap-plan {family} {platform}` first)
 2. `reports/agents/remediation/{family}-{platform}/fix_specs.json` must exist
-3. Knowledge bootstrap confirmed passing for `{family} {platform}`
+3. Knowledge bootstrap confirmed passing for `{family} {platform}` (run `/knowledge-bootstrap {family} {platform}`)
+4. `LLM_API_KEY` recommended for Wave 2 verification (not required — substitutions are pre-computed in fix_specs.json)
 
 ## Steps
 
-### Wave 1 — Auto-fixes (deterministic)
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-46 --scope "*"
+> ```
 
-Use the normalized gap plan from `/gap-plan {family} {platform}` and apply the Wave 1 deterministic fixes it names.
 
-Wave 1 applies deterministic fixes: wrong API names, format strings, structural corrections.
-All Wave 1 fixes are idempotent and safe to re-run.
+### Step 1: Validate plan exists
 
-### Wave 2 — LLM substitutions
-
-Continue from the normalized gap plan and apply Wave 2 substitutions only after reviewing the generated fix specs.
-
-Wave 2 applies pre-computed old→new substitutions from `fix_specs.json`.
-Each substitution is verified by running the ground-check (S-23) after application.
-
-### Wave 3 — Page generation
-
-For each missing page identified in the plan:
 ```bash
-/page-draft {family} {platform} {slug}
+.venv/Scripts/python -c "
+import json, sys
+from pathlib import Path
+specs = Path('reports/agents/remediation/{family}-{platform}/fix_specs.json')
+if not specs.exists():
+    print('ERROR: fix_specs.json not found — run /gap-plan {family} {platform} first')
+    sys.exit(1)
+data = json.loads(specs.read_text())
+waves = {item['wave'] for item in data.get('fixes', [])}
+print(f'Plan found: {len(data[\"fixes\"])} fixes across waves {sorted(waves)}')
+"
 ```
 
-### Wave 4 — Halt and escalate
+If the plan is missing or stale (older than the latest gap-eval run), re-run S-44 first.
 
-Wave 4 findings are items that require human judgment. Print each item:
+### Step 2: Apply Wave 1 fixes (auto)
+
+Wave 1 findings have `strategy: auto` — deterministic scripted fixes, safe to apply in bulk:
+
+```bash
+/batch-eval-fix {family} {platform}
 ```
-WAVE 4 — HUMAN REQUIRED
-File: {path}
-Finding: {description}
-Reason: {why automated fix is not safe}
-Recommended action: {suggested next step}
+
+Or apply by category code if you want finer control:
+```bash
+/category-fix {family} {platform} {fixer_name}
 ```
 
-## Verification after all waves
+After Wave 1, verify no regressions:
+```bash
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py {family} {platform}
+```
 
-1. Re-run gap-eval to confirm findings are resolved:
-   ```bash
-   /gap-eval {family} {platform}
-   ```
-   Expected: PUBLICATION READY or CONDITIONAL (no M-findings remaining)
+### Step 3: Apply Wave 2 fixes (LLM-planned substitutions)
 
-2. Run audit on modified files:
-   ```bash
-   python scripts/pipeline/commands/content/audit.py --files {modified-files}
-   ```
+Wave 2 has pre-computed `old` → `new` substitutions in `fix_specs.json`. Apply each fix:
+
+For each fix in `fix_specs.json` where `wave == 2`:
+1. Locate the target file at `path`
+2. Confirm the `old` text is present exactly as specified (byte-for-byte)
+3. Replace with `new` text
+4. If `old` text not found: log as `SKIP - source changed` and continue (do not fabricate)
+
+After all Wave 2 substitutions, run S-23 (content-check):
+```bash
+.venv/Scripts/python scripts/pipeline/commands/content/audit.py --files {modified_files}
+```
+
+If audit FAILs on a Wave 2 page: revert that specific file's change and add it to the Wave 4 (human) escalation list.
+
+### Step 4: Wave 3 — Generate missing pages
+
+For each fix in `fix_specs.json` where `wave == 3` (finding_type = missing-section or missing-page):
+
+```bash
+/page-draft {family} {platform} {section}
+```
+
+Follow the standard generation chain for each missing page. Mark each as complete in a
+local checklist before proceeding to the next.
+
+### Step 5: Collect Wave 4 escalation list
+
+Wave 4 items (`wave == 4`, or any items that failed Wave 2 application) require governed
+inspection before escalating. **Do not halt here.** Invoke S-90 (`/publish-readiness-review`)
+in `--dry-run` mode first to classify each Wave 4 item. S-90 will determine:
+- Which items are actionable (S-21, S-26, or S-73 with agent-derived spec)
+- Which items require real human escalation per §7c
+
+Emit a Wave 4 manifest:
+
+```markdown
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-46 --status completed
+> ```
+
+## Wave 4 Escalation — {family}/{platform}
+
+Files requiring governed inspection via S-90 (LLM unavailable, ambiguous fix, or application failed):
+
+| File | Finding | Reason | S-90 action |
+|------|---------|--------|-------------|
+| ... | ... | ... | ... |
+
+Save as: reports/agents/remediation/{family}-{platform}/wave4-escalation.md
+```
+
+After writing this manifest, invoke:
+```
+/publish-readiness-review {family} {platform} --grade-filter C,D,F
+```
+
+S-90 will inspect each Wave 4 item, route actionable items to S-21/S-26/S-73, and emit a
+per-item disposition. For items that S-90 classifies as requiring a specific targeted change
+(S-73), the operator specifies the exact change via **S-73 (manual-edit)** — S-73 is the
+sanctioned path for operator-directed targeted edits. Do not apply ad hoc fixes outside the
+skill chain.
+
+### Step 6: Re-run gap-eval to verify
+
+```bash
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform}
+```
+
+The delta section must show prior Wave 1/2 findings as `fixed` with 0 regressions. If
+regressions appear, investigate before marking the run complete.
 
 ## Post-conditions
 
-- Wave 1 fixes applied (deterministic, idempotent)
-- Wave 2 substitutions applied and verified
-- Wave 3 new pages generated
-- Wave 4 items documented and escalated to human
-- Gap-eval re-run confirms no remaining M-findings
+- Wave 1 fixes applied via batch scripts; audit passes
+- Wave 2 substitutions applied; each substitution traceable to fix_specs.json entry
+- Wave 3 missing pages generated via page-draft
+- Wave 4 escalation list written to `reports/agents/remediation/{family}-{platform}/wave4-escalation.md`
+- Gap-eval delta confirms: prior findings `fixed`, no new regressions
+- Execution report written to `reports/gap-apply/{family}-{platform}-{timestamp}.json`
+
+## Failure handling
+
+| Failure | Action |
+|---------|--------|
+| Plan not found | Halt; run S-44 first |
+| Wave 1 script errors | Log and continue with other Wave 1 fixes; add failed files to Wave 4 escalation |
+| Wave 2 `old` text not found | Skip (log as `SKIP - source changed`); do not fabricate |
+| Wave 2 audit FAIL after apply | Revert that file's change; add to Wave 4 escalation |
+| Wave 3 page-draft STOP | Halt page generation for that item; add to Wave 4 escalation |
+| Knowledge bootstrap stale | Halt all waves; run S-12 → S-14 first |
+
+## Output artifacts
+
+```
+reports/gap-apply/{family}-{platform}-{timestamp}.json    # execution log
+reports/agents/remediation/{family}-{platform}/wave4-escalation.md  # Wave 4 items
+```
+
+The execution log format:
+```json
+{
+  "family": "{family}",
+  "platform": "{platform}",
+  "executed_at": "ISO timestamp",
+  "waves_attempted": [1, 2, 3],
+  "wave1_fixes_applied": 0,
+  "wave2_substitutions_applied": 0,
+  "wave2_skipped": 0,
+  "wave3_pages_generated": 0,
+  "wave4_escalated": 0,
+  "gap_eval_delta": "PASS | REGRESSIONS"
+}
+```
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

@@ -1,60 +1,107 @@
----
-name: gap-plan
-id: S-63
-description: >
-  Convert gap-eval findings into an exact, wave-ordered remediation plan. Uses LLM
-  to generate precise old→new substitutions for each finding, grounded in clone cache
-  evidence. Produces a machine-applicable plan ready for gap-apply (S-65).
-args: "{family} {platform} [--dry-run]"
----
-
-# S-63: Gap Plan — Wave-Ordered Remediation Planning
+# S-44: Gap Plan — Wave-Ordered Remediation Planning
 
 **Arguments**: $ARGUMENTS
 Expected format: `{family} {platform} [--dry-run]`
 
 ## Purpose
-
-Convert S-62 (gap-eval) findings into an exact, wave-ordered remediation plan. Uses LLM
-to generate precise old→new substitutions for each finding, grounded in clone cache evidence.
-Produces a machine-applicable plan ready for S-65 (gap-apply).
+Convert S-43 gap-eval findings into an exact, wave-ordered remediation plan. Uses LLM to generate precise old→new substitutions for each finding, grounded in clone cache evidence. Produces a machine-applicable plan ready for S-40/S-41.
 
 ## Pre-conditions
-
 1. `reports/gap-analysis/{family}-{platform}.json` must exist (run `/gap-eval {family} {platform}` first)
 2. Clone cache at `runs/.clone_cache/aspose_{family}_{platform}/` (for evidence retrieval)
 3. `LLM_API_KEY` env var recommended for best fix quality (falls back to Ollama llama3.2)
 
 ## Steps
 
-1. **Load gap-eval report** from `reports/gap-analysis/{family}-{platform}.json`.
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-44 --scope "*"
+> ```
 
-2. **Wave assignment**: Findings are assigned to waves by severity and fix complexity:
 
-   | Wave | Finding type | Mechanism |
-   |---|---|---|
-   | 1 | Deterministic fixes (wrong API names, format strings) | batch scripts |
-   | 2 | LLM substitutions (prose accuracy, evidence gaps) | fix_specs.json |
-   | 3 | Page generation (missing pages identified by gap-eval) | S-19 page-draft |
-   | 4 | Human-required fixes (ambiguous or high-risk changes) | escalate |
+### Step 1: Classify findings by wave
 
-3. **Output files**:
-   - `reports/agents/remediation/{family}-{platform}/plan.md` — human-readable plan
-   - `reports/agents/remediation/{family}-{platform}/fix_specs.json` — machine-applicable specs
+```bash
+.venv/Scripts/python scripts/gap-eval/src/fix_spec.py {family} {platform} --dry-run
+```
 
-4. **Review plan** before executing:
-   - Wave 1 count (safe to auto-apply)
-   - Wave 2 count (LLM-generated; verify spot-check)
-   - Wave 3 count (new pages to generate)
-   - Wave 4 count (escalated to human)
+This shows the wave breakdown without writing files. Review wave assignments before proceeding.
 
-5. **Proceed to apply**:
-   ```bash
-   /gap-apply {family} {platform}
-   ```
+### Step 2: Generate full remediation plan
+
+```bash
+.venv/Scripts/python scripts/gap-eval/src/fix_spec.py {family} {platform}
+```
+
+Outputs:
+- `reports/agents/remediation/{family}-{platform}/plan.md` — wave-ordered plan with exact fix specs
+- `reports/agents/remediation/{family}-{platform}/fix_specs.json` — machine-readable fix specs
+
+### Step 3: Apply Wave 1 fixes (auto)
+
+Wave 1 findings have `strategy: auto` — scripted, safe to run in bulk using S-40:
+
+```bash
+/batch-eval-fix {family} {platform}
+```
+
+Or apply specific category fixes:
+```bash
+/category-fix {family} {platform} {fixer_name}
+```
+
+### Step 4: Apply Wave 2 fixes (LLM-planned)
+
+Review each fix spec in `plan.md`. Apply file-by-file using the exact `old` → `new` substitutions.
+Each fix is bounded to a single content block — no side effects.
+
+### Step 5: Rerun gap-eval to verify
+
+```bash
+.venv/Scripts/python scripts/gap-eval/src/run.py {family} {platform}
+```
+
+Delta section will show all prior findings as `fixed` with 0 regressions if applied correctly.
+
+### Step 6: Wave 3 (page generation)
+
+For missing-section findings, use the appropriate page generation skill:
+```bash
+/page-draft {family} {platform} {section}
+```
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-44 --status completed
+> ```
 
 ## Post-conditions
+- `reports/agents/remediation/{family}-{platform}/plan.md` written with wave-ordered fixes
+- `reports/agents/remediation/{family}-{platform}/fix_specs.json` written for machine application
+- All Wave 2 NEEDS_HUMAN_EDIT blocks identified with partial evidence
 
-- `plan.md` written with wave-ordered remediation steps
-- `fix_specs.json` written with machine-applicable old→new substitutions
-- All M-severity findings addressed in waves 1–3 or escalated to wave 4
+## Wave Order
+
+| Wave | Strategy | Trigger | Condition |
+|------|----------|---------|-----------|
+| 1 | Auto-fix | S-40/S-41 bulk scripts | finding_type in {wrong-package, broken-link, structural-reference-page, internal-class-wrong-package} |
+| 2 | LLM-planned | Manual apply per plan | finding_type in {phantom-api, wrong-api-name, wrong-claim, wrong-unit, unimplemented-as-working} |
+| 3 | Plan-only | Page generation skills | finding_type = missing-section |
+| 4 | Human | Manual review | LLM unavailable or unknown finding type |
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

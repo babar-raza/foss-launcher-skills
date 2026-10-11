@@ -1,0 +1,186 @@
+{
+  "mission_id": "readme-refresh-at-a-glance-retention-hardening-2026-09-02",
+  "generated_at": "2026-09-02T11:22:09Z",
+  "artifacts": [
+    {
+      "path": "evidence/font-python-assessment/ASSESSMENT.md",
+      "sha256": "0b817ae835245dfb09ffdfcea403a8fc840afb5fb37944054f253b3f18fe0bac",
+      "bytes": 4864
+    },
+    {
+      "path": "evidence/font-python-assessment/audit-portfolio.post-font-regen.json",
+      "sha256": "5b720e0c9ea79b043bbd513a508fa5e60365d26b31085fb325a5090df11ede20",
+      "bytes": 11264
+    },
+    {
+      "path": "evidence/font-python-assessment/ingest.result.json",
+      "sha256": "884a450d49e3c6df7bdeea59ab0faf60e3f603b4bdf8ea926b06dd7fabcdec92",
+      "bytes": 118652
+    },
+    {
+      "path": "evidence/font-python-assessment/ingest.retention-report.md",
+      "sha256": "3c685f62a153d68f896696d1ab64479a309ec180d116d44d25331f04f00e8bc7",
+      "bytes": 20739
+    },
+    {
+      "path": "evidence/font-python-assessment/regen.live-execution.md",
+      "sha256": "a1a4fd952f58d4d3a4f3caf10cb313b1a614a30e9cd6dfa015a5d4066f8dd0c1",
+      "bytes": 1266
+    },
+    {
+      "path": "evidence/font-python-assessment/regen.recheck-1.result.json",
+      "sha256": "212dece4da214277b6159f841b48d66cdad1a3d26ba67b9f2493aa3bee70f28e",
+      "bytes": 35786
+    },
+    {
+      "path": "evidence/font-python-assessment/regen.recheck-2.result.json",
+      "sha256": "e6f62e06ddacb407ee804f8d5b654a55ec660a7de8d6a7eb072a957049d758c6",
+      "bytes": 35408
+    },
+    {
+      "path": "evidence/font-python-assessment/regen.retention-report.json",
+      "sha256": "ea7403d5a39075b0a20e452274f9c296afd0a00ae5cc7306b702bd4c76c7ab75",
+      "bytes": 83310
+    },
+    {
+      "path": "evidence/font-python-assessment/regen.retention-report.md",
+      "sha256": "c2682ad2ba9807a8b8f1d2571eb6c2608c3b3f0d6ff6ad1d43dedb4f7e9b08b1",
+      "bytes": 20363
+    },
+    {
+      "path": "evidence/font-python-assessment/retention-report.json",
+      "sha256": "592e3a735ab0804404047c2bf976b4727267016dcde129b6cf78b55b3ea87caa",
+      "bytes": 81687
+    },
+    {
+      "path": "evidence/font-python-assessment/retention-report.md",
+      "sha256": "3c685f62a153d68f896696d1ab64479a309ec180d116d44d25331f04f00e8bc7",
+      "bytes": 20739
+    },
+    {
+      "path": "evidence/font-python-assessment/run_id.txt",
+      "sha256": "aaed51db12b06fd9d21ff4295734c1d4e9aadd68ab02b46daa279aadfae7b07b",
+      "bytes": 33
+    },
+    {
+      "path": "evidence/pre_flight/audit-portfolio.pre-mission.json",
+      "sha256": "12905b478ef11b314b48135513397afea770f230938322065cd3b5a93f925b66",
+      "bytes": 9039
+    },
+    {
+      "path": "evidence/pre_flight/audit-portfolio.pre-mission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-badge-dispositions.pre-mission.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-code-example-dispositions.pre-mission.json",
+      "sha256": "1a34a93073dffba27f8e7e098150ad14d2628774397e9206198fd3f492abc2c0",
+      "bytes": 3821
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-content-dispositions.pre-mission.json",
+      "sha256": "44402908c2fdca1b1b04bbcb91f385e305611328ac928275338cba6559c2a0c8",
+      "bytes": 13231
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-readme.pre-mission.md",
+      "sha256": "34a737e344343e9b4cc1244b8cf9085f06fffd1d8a8edb808c5d71aa48276317",
+      "bytes": 13969
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-structure-dispositions.pre-mission.json",
+      "sha256": "8727316966beeb57d30179f6a8caccf33d60a449931a161a8eba90cf30299998",
+      "bytes": 334
+    },
+    {
+      "path": "evidence/pre_flight/tex-python-upstream-issues.pre-mission.md",
+      "sha256": "7562b9c562b4c60af01a474b9fbceb15386071e37479ff7395fdc6f56f5938c4",
+      "bytes": 4172
+    },
+    {
+      "path": "evidence/regen/01-negative-control.result.json",
+      "sha256": "0ebe8ab41b8d75f0e69990852515e14f6f6a8793558ac4c95c43f2d6b0a0a617",
+      "bytes": 21572
+    },
+    {
+      "path": "evidence/regen/01-negative-control.retention-report.md",
+      "sha256": "f68327cf471de27dac7d57fe811153beac74c062c7027cfb483cdcf8e367e064",
+      "bytes": 5858
+    },
+    {
+      "path": "evidence/regen/02-clean-ingest.result.json",
+      "sha256": "a61cb01062c4ba5d144d52ccfc6e6d2cacc0ebb3ab3dba9c32466ec3e1b05cac",
+      "bytes": 19711
+    },
+    {
+      "path": "evidence/regen/02-clean-ingest.retention-report.md",
+      "sha256": "b625be943b2044dca9c6db1a085373a55ad3254e73df9884c0fe0c31dd1220de",
+      "bytes": 5801
+    },
+    {
+      "path": "evidence/regen/03-verification.result.json",
+      "sha256": "e4624c59a2e43fb7d5368bbc4ea3ef4fdd9c047a5168c9278dd5d608f3d0b719",
+      "bytes": 10561
+    },
+    {
+      "path": "evidence/regen/04-recheck-1.result.json",
+      "sha256": "654229305b5742a1b2fb742303c1a1be2d0f3f30787450b9f60653d73944005e",
+      "bytes": 19417
+    },
+    {
+      "path": "evidence/regen/04-recheck-2.result.json",
+      "sha256": "e4896622758ec6fb5c247e4d7ed201d0f15ecb0a51f5e1bc636ad52c8480fa8a",
+      "bytes": 19333
+    },
+    {
+      "path": "evidence/regen/04-recheck-2.retention-report.md",
+      "sha256": "b625be943b2044dca9c6db1a085373a55ad3254e73df9884c0fe0c31dd1220de",
+      "bytes": 5801
+    },
+    {
+      "path": "evidence/regen/05-retention-report.post-regen.json",
+      "sha256": "2c4a28fcb217e22566df21bec449d4e68872c9bd44689788a0d0ae52a0c92283",
+      "bytes": 25597
+    },
+    {
+      "path": "evidence/regen/05-retention-report.post-regen.md",
+      "sha256": "b625be943b2044dca9c6db1a085373a55ad3254e73df9884c0fe0c31dd1220de",
+      "bytes": 5801
+    },
+    {
+      "path": "evidence/regen/06-audit-portfolio.post-mission.json",
+      "sha256": "0ba83dab5f7f19ed9313830c9d5caf8ec29485e2ca2ae21c1462c7442d56c310",
+      "bytes": 11811
+    },
+    {
+      "path": "evidence/regen/06-audit-portfolio.post-mission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/regen/07-recheck-final.result.json",
+      "sha256": "e4896622758ec6fb5c247e4d7ed201d0f15ecb0a51f5e1bc636ad52c8480fa8a",
+      "bytes": 19333
+    },
+    {
+      "path": "evidence/regen/07-recheck-final.retention-report.md",
+      "sha256": "b625be943b2044dca9c6db1a085373a55ad3254e73df9884c0fe0c31dd1220de",
+      "bytes": 5801
+    },
+    {
+      "path": "evidence/regen/08-audit-portfolio.final.json",
+      "sha256": "c6ac83aad1afbd1a57445d4f4681b16a318e2e867b0ade6f796139721c6e1412",
+      "bytes": 11684
+    },
+    {
+      "path": "evidence/regen/run_id.txt",
+      "sha256": "56dbac8d191f1ffe434f7afd79745565bfa7de171954d2e750eef090035949fc",
+      "bytes": 33
+    }
+  ]
+}

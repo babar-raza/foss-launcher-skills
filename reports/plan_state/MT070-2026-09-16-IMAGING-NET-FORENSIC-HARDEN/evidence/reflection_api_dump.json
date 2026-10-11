@@ -1,0 +1,49 @@
+[
+  {
+    "name": "Aspose.Imaging.Foss.ImageFormat",
+    "kind": "enum",
+    "is_public": true,
+    "namespace": "Aspose.Imaging.Foss",
+    "enum_members": [
+      "Bmp",
+      "Dicom",
+      "Emf",
+      "Gif",
+      "Ico",
+      "Jpeg",
+      "Png",
+      "Psd",
+      "Tiff",
+      "Unknown",
+      "WebP",
+      "Wmf"
+    ]
+  },
+  {
+    "name": "Aspose.Imaging.Foss.ImageInfo",
+    "kind": "class",
+    "is_public": true,
+    "namespace": "Aspose.Imaging.Foss",
+    "members": [
+      "Constructor:Void .ctor(Aspose.Imaging.Foss.ImageFormat, System.Nullable\u00601[System.Int32], System.Nullable\u00601[System.Int32], System.Nullable\u00601[System.Int32], System.Nullable\u00601[System.Int32])",
+      "Property:System.Nullable\u00601[System.Int32] BitDepth",
+      "Property:Aspose.Imaging.Foss.ImageFormat Format",
+      "Property:System.Nullable\u00601[System.Int32] FrameCount",
+      "Property:System.Nullable\u00601[System.Int32] Height",
+      "Property:System.Nullable\u00601[System.Int32] Width"
+    ]
+  },
+  {
+    "name": "Aspose.Imaging.Foss.ImageProbe",
+    "kind": "static class",
+    "is_public": true,
+    "namespace": "Aspose.Imaging.Foss",
+    "members": [
+      "Method:Aspose.Imaging.Foss.ImageFormat DetectFormat(System.IO.Stream)",
+      "Method:Aspose.Imaging.Foss.ImageFormat DetectFormat(Byte[])",
+      "Method:Aspose.Imaging.Foss.ImageInfo Probe(System.IO.Stream)",
+      "Method:Aspose.Imaging.Foss.ImageInfo Probe(Byte[])",
+      "Method:Aspose.Imaging.Foss.ImageInfo ProbeFile(System.String)"
+    ]
+  }
+]

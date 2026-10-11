@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """Prerequisite checker for pipeline entry points.
 
 Provides clear, actionable error messages when required artifacts are missing,
@@ -61,6 +60,7 @@ def check_venv() -> PrerequisiteResult:
 
 def check_clone_cache(family: str, platform: str) -> PrerequisiteResult:
     """Check that clone cache exists for the given family/platform."""
+    # Respect the same env var as core/clone_cache.py
     env_override = os.environ.get("ASPOSE_CLONE_CACHE", "")
     if env_override:
         cache_root = Path(env_override)
@@ -69,6 +69,7 @@ def check_clone_cache(family: str, platform: str) -> PrerequisiteResult:
 
     cache_dir = cache_root / f"aspose_{family}_{platform}"
     if not cache_dir.exists():
+        # Try alternate naming used by some FOSS repos
         cache_dir = cache_root / f"Aspose.{family.capitalize()}-for-{platform.capitalize()}"
         if not cache_dir.exists():
             return PrerequisiteResult.fail(

@@ -1,12 +1,19 @@
 ---
 name: stale-detect
-id: S-13
 description: >
-  Map upstream repository changes to content pages that may need updating.
-  Identifies stale, at-risk, and current content across all sites.
+  Map upstream changes to affected content pages
 args: "{family} {platform}"
 ---
 
+> Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
+
+<!-- CONTRACT: agent-executed workflow (no single script runs the full skill)
+     postcondition: staleness report written or printed identifying STALE/AT_RISK/CURRENT pages
+     postcondition: checks model_sha comparison and orphaned claim detection
+     note: API surface and format change detection described in Steps 4c-4d are agent-reasoned,
+           not automated by stale_detect.py (which only checks model_sha and orphaned claims)
+     verified: 2026-04-01
+-->
 # S-13: Stale Detect — Map Changes to Affected Content
 
 **Arguments**: $ARGUMENTS
@@ -21,6 +28,12 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
 
 ## Steps
 
+> **Skill context gate** — run before step 1:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin --skill S-13 --scope "*"
+> ```
+
+
 1. **Load knowledge**: Read `merged/index.json` and `merged/claims.json`
 2. **Identify changed claims**: Compare current claims against content citations
 3. **Scan content pages**: Find all content files for `{family}/{platform}` across all sites:
@@ -29,15 +42,22 @@ Map upstream repository changes (detected by S-12) to content pages that may nee
    - `content/kb.aspose.org/en/{family}/{platform}/`
    - `content/reference.aspose.org/en/{family}/{platform}/`
 4. **For each content page**:
-   - Read claim IDs from YAML `evidence:` frontmatter
-   - Check if cited claims have changed or been removed
+   - Read evidence from YAML frontmatter: `evidence.claims` array and `evidence.model_sha`
+   - Check if cited claim IDs in `evidence.claims` have changed or been removed in current `claims.json`
+   - Check `evidence.model_sha` against current `merged/model.yaml` `repo_sha` — mismatch means stale
    - Check if page references classes/methods that no longer exist
    - Check if page mentions formats whose support status changed
+   - Note: `<!-- evidence: ... -->` HTML comment citations are forbidden (AGENTS.md §5); if found, flag page as needing `attach_evidence.py` re-run
 5. **Classify staleness**:
    - STALE: Page cites changed/removed claims
    - AT_RISK: Page references changed API surface
    - CURRENT: No changes detected
 6. **Write report**
+
+> **Skill context close** — run after the last step:
+> ```bash
+> PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py end --skill S-13 --status completed
+> ```
 
 ## Output
 ```
@@ -58,3 +78,31 @@ CURRENT: N pages are up to date
 ## Post-conditions
 - Report identifies all potentially affected content pages
 - STALE pages should be prioritized for update
+
+## Translation Integration
+
+After stale-detect identifies modified English source pages, the translate-batch skill
+should be invoked to regenerate their translated counterparts:
+
+  Trigger: any English page under content/{site}/en/ is written or updated
+  Action: use `/ht-translate-batch {family} {platform} {site} {changed_locales}` (S-HT-02)
+  Note: the internal translator is retired; use hugo-translator with explicit --site profile
+
+This integration ensures translations stay in sync with English source changes automatically.
+
+---
+
+## LLM Metrics Obligation
+
+If this skill invokes `llm.professionalize.com` directly or through `LLMRouter`,
+the run carries a **metrics obligation** (METRICS-PLAN-001, `AGENTS.md §15`):
+
+- All professionalize calls must use `ProfessionalizeClient`, `LLMRouter`, or a
+  registered adapter entry in `metrics_callsite_registry.yaml`.
+- Each run must capture per-call `MetricsEvent` records and aggregate them into a
+  validated `MetricsRow` via `RunMetrics`.
+- Default mode is **dry-run**. Live posting requires explicit owner approval and
+  `AGENT_METRICS_ENDPOINT` / `AGENT_METRICS_TOKEN` set locally.
+- Non-professionalize calls (Gemini, Ollama, M2M) are excluded from
+  `token_usage` and `api_calls_count`.
+- Metrics failures must not crash or block the parent pipeline job.

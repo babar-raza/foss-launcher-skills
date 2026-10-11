@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Anchor Overrides",
+  "description": "Page-specific anchor text exceptions",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "overrides"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "overrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "link_slot",
+          "anchor_text",
+          "reason",
+          "evidence",
+          "review_policy"
+        ],
+        "properties": {
+          "link_slot": {
+            "type": "string"
+          },
+          "target_path": {
+            "type": "string"
+          },
+          "target_url": {
+            "type": "string"
+          },
+          "anchor_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "review_policy": {
+            "type": "string",
+            "enum": [
+              "annual",
+              "never",
+              "on_config_change"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

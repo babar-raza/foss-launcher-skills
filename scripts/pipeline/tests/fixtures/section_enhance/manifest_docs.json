@@ -1,0 +1,7 @@
+{
+  "run_id": "test-docs-adapter",
+  "subdomain": "docs",
+  "adapters_activated": ["docs", "clone-cache", "sibling-content", "package-metadata"],
+  "adapters_NOT_activated": ["kb", "products", "blog", "reference"],
+  "proposals_generated": 0
+}

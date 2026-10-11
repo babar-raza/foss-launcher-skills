@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/pipeline/lib/ for standalone use
 """fingerprint_collector.py — TC-PROD-003: Input fingerprint collection for the refresh decision engine.
 
 Collects all input fingerprints for a (product, subdomain) pair as defined in the
@@ -16,13 +15,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from scripts.pipeline.lib.dependency_registry import DependencyRegistry, SurfaceEntry
+from dependency_registry import DependencyRegistry, SurfaceEntry
 
 # TC-HEAL-001: Use the canonical clone cache path resolver from core.clone_cache
 # so the path pattern stays in sync with the rest of the pipeline.
@@ -32,7 +30,7 @@ import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core.clone_cache import clone_path as _clone_cache_path
 
-_REPO_ROOT = Path(os.environ.get("CONTENT_REPO_PATH", str(Path(__file__).resolve().parents[3])))
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 _VALID_RUN_TYPES = frozenset({
     "full-s84", "reference-only", "knowledge-only", "targeted", "harness", "unknown"

@@ -1,0 +1,18 @@
+[
+  {
+    "format": "Wkt",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.GIS.FOSS/Formats/Wkt/WktWriter.cs",
+    "line": 10,
+    "direction": "export"
+  },
+  {
+    "format": "GeoJson",
+    "enum": "",
+    "value": "",
+    "file": "Aspose.GIS.FOSS/GeoJsonDriver.cs",
+    "line": 6,
+    "direction": "import"
+  }
+]

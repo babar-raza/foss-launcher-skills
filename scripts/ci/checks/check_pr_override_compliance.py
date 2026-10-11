@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_pr_override_compliance.py — Verify that PR changes to forbidden paths have archived override proofs.
 
 Called by content-audit.yml for any PR that touches forbidden paths.
@@ -15,11 +14,10 @@ Exit codes:
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 # override_manager.py stores archived tokens here:
 ARCHIVE_DIR = REPO_ROOT / "reports" / "overrides" / "archived"
 # Legacy archive from simple overrides design:
@@ -90,7 +88,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  python scripts/pipeline/commands/governance/override_manager.py create \\")
         print("    --paths <path> --reason '...' --plan '...'")
         print("Then stage the token file (reports/overrides/pending/*.json) with your commit.")
-        print("See governance docs §4 for the override policy.")
+        print("See AGENTS.md §4 for the override policy.")
         return 1
 
     if forbidden_checked:

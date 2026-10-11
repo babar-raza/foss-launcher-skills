@@ -1,4 +1,3 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_metrics_taxonomy.py — CI gate: validate metrics taxonomy consistency.
 
 Loads scripts/pipeline/config/metrics_taxonomy.yaml and validates:
@@ -8,6 +7,8 @@ Loads scripts/pipeline/config/metrics_taxonomy.yaml and validates:
 - Posting modes enforce dry_run_default=true, correct limits, test markers
 - Non-professionalize boundaries are documented
 - No secret-like values appear in taxonomy
+
+Slice 9 of Agent Metrics Integration (METRICS-PLAN-001 v7.7).
 
 Usage:
     python scripts/ci/checks/check_metrics_taxonomy.py
@@ -23,12 +24,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-_REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent.parent)))))
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _DEFAULT_TAXONOMY = _REPO_ROOT / "scripts" / "pipeline" / "config" / "metrics_taxonomy.yaml"
 
 REQUIRED_SECTIONS = [
@@ -45,7 +45,7 @@ REQUIRED_SECTIONS = [
     "posting_modes",
 ]
 
-REQUIRED_AGENT_OWNER = os.environ.get("REQUIRED_AGENT_OWNER", "Babar Raza")
+REQUIRED_AGENT_OWNER = "Babar Raza"
 
 # Agents required after Slice 8
 REQUIRED_AGENTS = [

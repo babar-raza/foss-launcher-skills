@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """
 Check audit results JSON and exit with non-zero status if any failures are found.
 

@@ -1,0 +1,33 @@
+docs(example-verification): C10 fast-follow -- disclose that the verified-selection path is portfolio-wide inert until products are re-promoted
+
+An independent reviewer (ACCEPT WITH NOTES) confirmed both fixes in
+commit f9b8bd2e2b are real and correct, and found no code defects -- but
+flagged that the evidence's phrasing ("code_sha256, populated by every
+promote() run since C6") reads as already-broadly-available when it is
+not. Verified live: ZERO of this portfolio's ~32 real
+snippets_index.json files currently have a code_sha256 entry anywhere --
+no product has been re-promoted since C6 landed (commit 907ba11f62).
+body_impact.py routes both API_REMOVED and API_RENAMED example-containing
+sections through _example_regeneration, so in practice, right now, every
+real example-containing change of either type falls straight through to
+the removal-marker branch (never a real substitution) until whichever
+product it touches is next re-promoted.
+
+This is the correct, intended, safer behavior given the alternative (the
+old bug: silently injecting unverified code) -- not a defect -- but it
+means the fix currently only provides its "stop injecting wrong code"
+safety net, not yet its "inject the right code" feature, for any real run
+today. Added this disclosure explicitly to _example_regeneration's own
+docstring so a future reader isn't surprised that every touched example
+gets stripped rather than fixed, until the second half activates
+automatically (no further code change needed) the next time a touched
+product is re-promoted.
+
+Docstring-only change; no logic touched. Verification: full
+test_body_refresh.py suite (90 tests) unchanged, still green.
+check_monkeypatch_lint.py: 0 violations.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C10 (pending closure decision)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

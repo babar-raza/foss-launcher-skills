@@ -1,4 +1,3 @@
-# Adapted from aspose.org
 """check_knowledge_completeness.py — Validate knowledge completeness before downstream use.
 
 Checks that each product's knowledge artifacts meet minimum quality thresholds after
@@ -22,16 +21,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
 import yaml
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
-_KNOWLEDGE_ROOT = Path(
-    os.environ.get("KNOWLEDGE_ROOT", str(_REPO_ROOT / "knowledge"))
-)
+_KNOWLEDGE_ROOT = _REPO_ROOT / "knowledge"
 
 # New-schema field name for promoted_at
 _NEW_SCHEMA_FIELD = "promoted_at"
@@ -178,13 +174,7 @@ def main() -> None:
     parser.add_argument("--min-snippet-ratio", type=float,
                         default=_DEFAULT_MIN_SNIPPET_RATIO,
                         help=f"Min snippet/class ratio (default {_DEFAULT_MIN_SNIPPET_RATIO})")
-    parser.add_argument("--knowledge-root", type=Path, default=None,
-                        help="Override knowledge root directory")
     args = parser.parse_args()
-
-    if args.knowledge_root is not None:
-        global _KNOWLEDGE_ROOT
-        _KNOWLEDGE_ROOT = args.knowledge_root
 
     kwargs = {
         "min_enrichment_ratio": args.min_enrichment_ratio,

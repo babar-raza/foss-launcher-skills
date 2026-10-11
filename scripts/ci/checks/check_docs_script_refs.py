@@ -1,6 +1,4 @@
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 #!/usr/bin/env python3
-# Adapted from aspose.org scripts/ci/checks/ for standalone use
 """check_docs_script_refs.py — Docs-layer drift guard for stale script paths.
 
 Scans tracked documentation files (.md, .yml, .json) for references to old
@@ -22,11 +20,10 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
-import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(os.environ.get("REPO_ROOT", Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parents[3])))))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 # Old root-level paths that should now use canonical subdirectory paths
 STALE_PIPELINE_RE = re.compile(
@@ -80,6 +77,7 @@ def get_tracked_doc_files() -> list[Path]:
     result = subprocess.run(
         ["git", "ls-files", "--", "*.md", "*.yml", "*.yaml", "*.json"],
         capture_output=True, text=True, cwd=REPO_ROOT,
+        encoding="utf-8", errors="replace",
     )
     paths = []
     for line in result.stdout.strip().splitlines():

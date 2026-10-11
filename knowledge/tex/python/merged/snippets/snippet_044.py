@@ -1,0 +1,1 @@
+def test_unpenalty_in_vertical_mode_clears_last_break(self) -> None:

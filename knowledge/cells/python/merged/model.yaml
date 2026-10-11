@@ -1,0 +1,37 @@
+family: cells
+platform: python
+product_name: aspose-cells-foss
+version: 26.7.0
+license: MIT
+repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python.git
+repo_sha: 26c3bd1633e84b91c0f6fad1fd353662fd61fb54
+config_sha: 5676a5ada3d9dda2
+stale_since: null
+promoted_at: '2026-09-10T11:07:24.153104+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: c1832efa-40d0-4a72-9b0e-048dafd22218
+bundle_generated_at: '2026-09-10T11:07:23.999229+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 5676a5ada3d9dda2
+  scout_claims_sha: b5f06550c740049cfc995f50845a37c6a6e8566ac8c67c0600a80ae6013f6691
+  scout_api_surface_sha: 98e4ea5333069874debf30de1d02541e561ff2a6c9e94d6ea20dc40ac7aa1710
+  enriched_claims_sha: 46ee7bce32e94b4d9e2a015fc84c463aef8212886bb41173ab7e388c8f45e4a5
+  products_json_entry_sha: 6ea1eff46cc418b0372db9a2459f2ccead4b794446478a0bdfb2ba007f821f81
+stats:
+  scout_claims: 1314
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 1313
+  class_count: 129
+  classes:
+    total_declared: 129
+    public_documented: 129
+    raw_entries_including_non_class: 141
+  forbidden_count: 5
+  snippet_count: 100
