@@ -1,0 +1,31 @@
+# .gitlab-ci.yml -- GitLab side of the GitHub <-> GitLab mirror (GHGL-1).
+# Only the sync job is kept from the legacy pipeline; the other legacy jobs
+# validated files that do not exist in this repository.
+
+stages:
+  - sync
+
+variables:
+  PYTHON_VERSION: "3.11"
+
+default:
+  image: python:${PYTHON_VERSION}-slim
+  before_script:
+    # The slim image has no git; sync_remotes.py needs it (same line as legacy).
+    - apt-get update -qq && apt-get install -y -qq git > /dev/null 2>&1 || true
+
+# -- Stage: sync (GHGL-1) -----------------------------------------------------
+# Mirrors main to GitHub, fast-forward-only. See the legacy
+# docs/adr/ADR-007-github-gitlab-sync.md and scripts/ci/sync_remotes.py.
+# github_token (lowercase) is a masked+protected GitLab CI/CD variable
+# holding a GitHub-authenticating credential -- it is NOT set up by this
+# file; a human adds it under Settings > CI/CD > Variables (GHGL-1-T8).
+
+sync-to-github:
+  stage: sync
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - python scripts/ci/sync_remotes.py --platform gitlab --branch main
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"'

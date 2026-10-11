@@ -1,0 +1,40 @@
+{
+ "base": {
+  "commit": "7b6ee715fb95c112d162804e3d8c6a8e10eb5128",
+  "tree": "791c4e132ac6f30bf0f2b70c8d33f2b1a31acd3b"
+ },
+ "buckets": {
+  "excluded": {
+   "A": 20
+  },
+  "moved": {
+   "A": 558,
+   "M": 6508,
+   "S": 4
+  },
+  "stays": {
+   "R": 168560
+  }
+ },
+ "counts": {
+  "additions": 16,
+  "excluded": 20,
+  "moved": 7070,
+  "replica_files": 7086,
+  "stays": 168560,
+  "universe": 175650
+ },
+ "files": {
+  "additions.tsv": "f5806f6369bc4ecae413627bf0a310fd9517f55490d50e626a3492e851a568df",
+  "not-transferred.tsv": "1640e52a33d6c92d36b3cc333f39c6529d161213093e8f3b973df26cde099f47",
+  "stays.rules.tsv": "1df69408eb5d2e59c0e138135812c85bdc779e28a3179d561f39f9797c69f660",
+  "transferred.tsv": "139b6adca42b0b338ba7862984c7fa9d7f0edfabfef429a77e90fabcc01ed747"
+ },
+ "hashes": {
+  "excluded_sha256": "5ab87ba13b7e00124065a442472a6645235219226bdb81c109bcb773690bce5f",
+  "moveset_sha256": "b52a77adb0375fb4a834548c96642ee1fe03584b7de653aaa3589143ad55e289",
+  "policy_sha256": "4a99635505f18f9b9421fbc74bc5dd16a6f0755f414691f1eb7334d45fc3549e",
+  "stays_sha256": "254b6d37086f9b9390f0cd5ffad47ca3c405d74074c5a58bc018e6244b296ed9"
+ },
+ "schema_version": 1
+}
