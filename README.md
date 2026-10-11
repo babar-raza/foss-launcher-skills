@@ -21,6 +21,10 @@ behaviour are unchanged: this is a move, not a rewrite.
   `not-transferred.tsv`, `stays.rules.tsv` (what stays, by rule) and `additions.tsv` (files that
   exist only in this repository, such as this README).
 
+## Skills
+
+The skills are the files in [`skills/`](skills/README.md) (start with [`skills/README.md`](skills/README.md)); `.claude/commands/`, `.agents/skills/` and `.kilocode/skills/` hold their provider mirrors. The authoritative list is [`docs/registries/skills.md`](docs/registries/skills.md).
+
 ## How to run the tools today
 
 The tools still find the repository root from their own file location, so they expect the website
