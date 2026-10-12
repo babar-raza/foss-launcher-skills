@@ -1,0 +1,27 @@
+# CODEOWNERS -- Ownership mapping for PR review gates
+
+# Default owner for all files
+* @prora
+
+# Governance files (critical)
+/AGENTS.md @prora
+/CLAUDE.md @prora
+/CODEX.md @prora
+
+# Core source
+/scripts/ @prora
+
+# Skill definitions and registry
+/skills/ @prora
+
+# Tests
+/tests/ @prora
+
+# CI/CD configuration
+/.github/ @prora
+/.gitlab-ci.yml @prora
+
+# Configuration
+/config.yaml @prora
+/configs/ @prora
+/pyproject.toml @prora
