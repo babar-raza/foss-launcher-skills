@@ -1,0 +1,5 @@
+# Reference page generator: llms-generator.py
+# Note: generate_reference_pages.py has moved to scripts/maintenance/
+requests>=2.28
+pyyaml>=6.0
+python-dotenv>=1.0

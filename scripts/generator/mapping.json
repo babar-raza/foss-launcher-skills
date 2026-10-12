@@ -1,0 +1,479 @@
+{
+  "blog.aspose.org": {
+    "type": "file",
+    "url": "https://blog.aspose.org",
+    "metadata": [
+      {
+        "key": "title",
+        "template": "# {title}"
+      }
+    ],
+    "root": {
+      "title": "Aspose FOSS Blog",
+      "description": "Official blog for Aspose FOSS open-source libraries — free, MIT-licensed document processing for Python, .NET, Java, TypeScript, and C++."
+    },
+    "families": {
+      "3d": {
+        "title": "Aspose.3D FOSS",
+        "description": "Open-source 3D file processing library for loading, converting, and manipulating scenes in OBJ, STL, glTF, COLLADA, 3MF, and FBX formats.",
+        "platforms": {
+          "python": "Pure Python library for 3D file processing. Zero dependencies, MIT-licensed.",
+          "typescript": "TypeScript/Node.js library for 3D format loading and conversion.",
+          "java": "Java library for 3D scene graph, geometry access, and format conversion.",
+          "net": ".NET library for 3D file manipulation and scene graph APIs."
+        }
+      },
+      "cells": {
+        "title": "Aspose.Cells FOSS",
+        "description": "Open-source spreadsheet processing library for reading, writing, and manipulating Excel files in Python without requiring Microsoft Office.",
+        "platforms": {
+          "python": "Pure Python library for Excel and CSV spreadsheet processing. No Office dependencies.",
+          "rust": "Rust crate for Excel spreadsheet processing — memory-safe XLSX handling with no Office dependencies."
+        }
+      },
+      "email": {
+        "title": "Aspose.Email FOSS",
+        "description": "Open-source email processing library for creating, parsing, and converting email messages and file formats such as EML, MSG, and MHTML.",
+        "platforms": {
+          "python": "Pure Python library for email file processing — EML, MSG, MHTML, and RFC 822 formats."
+        }
+      },
+      "note": {
+        "title": "Aspose.Note FOSS",
+        "description": "Open-source OneNote file processing library for reading, extracting text from, and converting Microsoft OneNote .one documents.",
+        "platforms": {
+          "python": "Pure Python library for Microsoft OneNote file processing with no native dependencies."
+        }
+      },
+      "slides": {
+        "title": "Aspose.Slides FOSS",
+        "description": "Open-source presentation processing library for creating, editing, and converting PowerPoint PPTX files across multiple platforms.",
+        "platforms": {
+          "python": "Python library for PowerPoint presentation processing and conversion.",
+          "java": "Java library for PowerPoint presentation creation, editing, and format conversion.",
+          "net": ".NET library for PowerPoint PPTX file manipulation and rendering.",
+          "cpp": "C++ library for PowerPoint file manipulation without Office dependencies."
+        }
+      }
+    }
+  },
+  "docs.aspose.org": {
+    "type": "dir",
+    "url": "https://docs.aspose.org",
+    "metadata": [
+      {
+        "key": "title",
+        "template": "# {title}"
+      },
+      {
+        "key": "description",
+        "template": "{description}"
+      }
+    ],
+    "families": {
+      "3d": {
+        "title": "Aspose.3D FOSS",
+        "description": "Open-source 3D file processing library for loading, converting, and manipulating scenes in OBJ, STL, glTF, COLLADA, 3MF, and FBX formats.",
+        "platforms": {
+          "java": "Java library for 3D scene graph, geometry access, and format conversion.",
+          "net": ".NET library for 3D file manipulation and scene graph APIs.",
+          "python": "Pure Python library for 3D file processing. Zero dependencies, MIT-licensed.",
+          "typescript": "TypeScript/Node.js library for 3D format loading and conversion."
+        }
+      },
+      "cells": {
+        "title": "Aspose.Cells FOSS",
+        "description": "Open-source spreadsheet processing library for reading, writing, and converting Excel and CSV files without Microsoft Office.",
+        "platforms": {
+          "cpp": "C++ library for Excel file manipulation without Office dependencies.",
+          "java": "Java library for Excel spreadsheet reading, writing, and formula evaluation.",
+          "net": ".NET library for spreadsheet processing, formula engine, and chart rendering.",
+          "python": "Pure Python library for Excel and CSV spreadsheet processing. No Office dependencies.",
+          "rust": "Rust crate for Excel spreadsheet creation, reading, modification, and conversion.",
+          "typescript": "TypeScript/Node.js library for spreadsheet reading and writing."
+        }
+      },
+      "email": {
+        "title": "Aspose.Email FOSS",
+        "description": "Open-source email processing library for creating, parsing, and converting email messages and file formats such as EML, MSG, and MHTML.",
+        "platforms": {
+          "cpp": "C++ library for email message parsing and format conversion.",
+          "net": ".NET library for email file processing — EML, MSG, MHTML, PST formats.",
+          "python": "Pure Python library for email file processing — EML, MSG, MHTML, and RFC 822 formats."
+        }
+      },
+      "font": {
+        "title": "Aspose.Font FOSS",
+        "description": "Open-source font processing library for loading, rendering, and converting font files in TrueType, OpenType, and Type1 formats.",
+        "platforms": {
+          "python": "Pure Python library for font file reading, glyph access, and format conversion."
+        }
+      },
+      "note": {
+        "title": "Aspose.Note FOSS",
+        "description": "Open-source OneNote file processing library for reading, extracting text from, and converting Microsoft OneNote .one documents.",
+        "platforms": {
+          "python": "Pure Python library for Microsoft OneNote file processing with no native dependencies."
+        }
+      },
+      "page": {
+        "title": "Aspose.Page FOSS",
+        "description": "Open-source page description language processing library for XPS, EPS, and PostScript document conversion and rendering.",
+        "platforms": {
+          "python": "Pure Python library for XPS and PostScript file processing and conversion."
+        }
+      },
+      "pdf": {
+        "title": "Aspose.PDF FOSS",
+        "description": "Open-source PDF processing library for creating, editing, parsing, and converting PDF documents with comprehensive annotation and form support.",
+        "platforms": {
+          "go": "Go library for PDF creation, parsing, and format conversion.",
+          "java": "Java library for PDF document creation, editing, and conversion.",
+          "net": ".NET library for PDF processing with full annotation, form, and rendering APIs."
+        }
+      },
+      "slides": {
+        "title": "Aspose.Slides FOSS",
+        "description": "Open-source presentation processing library for creating, editing, and converting PowerPoint PPTX files across multiple platforms.",
+        "platforms": {
+          "cpp": "C++ library for PowerPoint file manipulation without Office dependencies.",
+          "java": "Java library for PowerPoint presentation creation, editing, and format conversion.",
+          "net": ".NET library for PowerPoint PPTX file manipulation and rendering.",
+          "python": "Python library for PowerPoint presentation processing and conversion."
+        }
+      },
+      "tex": {
+        "title": "Aspose.TeX FOSS",
+        "description": "Open-source TeX/LaTeX typesetting library for converting TeX documents to PDF, XPS, and image formats.",
+        "platforms": {
+          "python": "Pure Python library for TeX and LaTeX document typesetting and conversion."
+        }
+      },
+      "words": {
+        "title": "Aspose.Words FOSS",
+        "description": "Open-source Word document processing library for reading, writing, converting, and rendering DOCX, DOC, RTF, and HTML documents.",
+        "platforms": {
+          "python": "Pure Python library for Word document processing — DOCX, DOC, RTF, ODT, and HTML."
+        }
+      }
+    }
+  },
+  "kb.aspose.org": {
+    "type": "dir",
+    "url": "https://kb.aspose.org",
+    "metadata": [
+      {
+        "key": "title",
+        "template": "# {title}"
+      },
+      {
+        "key": "description",
+        "template": "{description}"
+      }
+    ],
+    "families": {
+      "3d": {
+        "title": "Aspose.3D FOSS",
+        "description": "Knowledge base for Aspose.3D — open-source 3D file processing in OBJ, STL, glTF, COLLADA, 3MF, and FBX formats.",
+        "platforms": {
+          "java": "Java how-to guides and troubleshooting for Aspose.3D.",
+          "net": ".NET how-to guides and troubleshooting for Aspose.3D.",
+          "python": "Python how-to guides and troubleshooting for Aspose.3D."
+        }
+      },
+      "cells": {
+        "title": "Aspose.Cells FOSS",
+        "description": "Knowledge base for Aspose.Cells — open-source spreadsheet processing without Microsoft Office.",
+        "platforms": {
+          "java": "Java how-to guides for Excel spreadsheet processing with Aspose.Cells.",
+          "net": ".NET how-to guides for spreadsheet processing with Aspose.Cells.",
+          "python": "Python how-to guides for Excel and CSV processing with Aspose.Cells.",
+          "rust": "Rust how-to guides for Excel spreadsheet processing with Aspose.Cells."
+        }
+      },
+      "email": {
+        "title": "Aspose.Email FOSS",
+        "description": "Knowledge base for Aspose.Email — open-source email message and file format processing.",
+        "platforms": {
+          "net": ".NET how-to guides for email processing with Aspose.Email.",
+          "python": "Python how-to guides for EML, MSG, and MHTML processing with Aspose.Email."
+        }
+      },
+      "font": {
+        "title": "Aspose.Font FOSS",
+        "description": "Knowledge base for Aspose.Font — open-source font file processing and conversion.",
+        "platforms": {
+          "python": "Python how-to guides for font loading and conversion with Aspose.Font."
+        }
+      },
+      "note": {
+        "title": "Aspose.Note FOSS",
+        "description": "Knowledge base for Aspose.Note — open-source Microsoft OneNote file processing.",
+        "platforms": {
+          "python": "Python how-to guides for OneNote processing with Aspose.Note."
+        }
+      },
+      "page": {
+        "title": "Aspose.Page FOSS",
+        "description": "Knowledge base for Aspose.Page — open-source XPS, EPS, and PostScript processing.",
+        "platforms": {
+          "python": "Python how-to guides for XPS and PostScript conversion with Aspose.Page."
+        }
+      },
+      "pdf": {
+        "title": "Aspose.PDF FOSS",
+        "description": "Knowledge base for Aspose.PDF — open-source PDF creation, editing, and conversion.",
+        "platforms": {
+          "java": "Java how-to guides for PDF processing with Aspose.PDF.",
+          "net": ".NET how-to guides for PDF processing with Aspose.PDF."
+        }
+      },
+      "slides": {
+        "title": "Aspose.Slides FOSS",
+        "description": "Knowledge base for Aspose.Slides — open-source PowerPoint file processing.",
+        "platforms": {
+          "java": "Java how-to guides for PowerPoint processing with Aspose.Slides.",
+          "net": ".NET how-to guides for PowerPoint processing with Aspose.Slides.",
+          "python": "Python how-to guides for presentation processing with Aspose.Slides."
+        }
+      },
+      "tex": {
+        "title": "Aspose.TeX FOSS",
+        "description": "Knowledge base for Aspose.TeX — open-source TeX/LaTeX document typesetting.",
+        "platforms": {
+          "python": "Python how-to guides for TeX document conversion with Aspose.TeX."
+        }
+      },
+      "words": {
+        "title": "Aspose.Words FOSS",
+        "description": "Knowledge base for Aspose.Words — open-source Word document processing.",
+        "platforms": {
+          "python": "Python how-to guides for DOCX, DOC, and RTF processing with Aspose.Words."
+        }
+      }
+    }
+  },
+  "products.aspose.org": {
+    "type": "dir",
+    "url": "https://products.aspose.org",
+    "metadata": [
+      {
+        "key": "banner.title",
+        "template": "# {banner.title}"
+      },
+      {
+        "key": "head_description",
+        "template": "{head_description}"
+      },
+      {
+        "key": "banner.content",
+        "template": "{banner.content}"
+      },
+      {
+        "key": "product.summary",
+        "template": "{product.summary}"
+      },
+      {
+        "key": "title",
+        "template": "# {title}"
+      },
+      {
+        "key": "description",
+        "template": "{description}"
+      },
+      {
+        "key": "overview.content",
+        "template": "{overview.content}"
+      },
+      {
+        "key": "single.block",
+        "repeat": true,
+        "template": "## {title}\n\n{content}"
+      }
+    ],
+    "families": {
+      "3d": {
+        "title": "Aspose.3D FOSS",
+        "description": "Open-source 3D file processing library. Available for Python, TypeScript, Java, and .NET.",
+        "platforms": {
+          "java": "Aspose.3D for Java — 3D scene graph, geometry access, and format conversion.",
+          "net": "Aspose.3D for .NET — 3D file manipulation and scene graph APIs.",
+          "python": "Aspose.3D for Python — zero-dependency Python library for 3D file processing.",
+          "typescript": "Aspose.3D for TypeScript — Node.js library for 3D format loading and conversion."
+        }
+      },
+      "cells": {
+        "title": "Aspose.Cells FOSS",
+        "description": "Open-source spreadsheet processing library. Available for Python, Java, .NET, C++, TypeScript, and Rust.",
+        "platforms": {
+          "cpp": "Aspose.Cells for C++ — Excel processing without Office dependencies.",
+          "java": "Aspose.Cells for Java — spreadsheet reading, writing, and formula evaluation.",
+          "net": "Aspose.Cells for .NET — spreadsheet processing, formula engine, and chart rendering.",
+          "python": "Aspose.Cells for Python — Excel and CSV processing without Office.",
+          "rust": "Aspose.Cells for Rust — memory-safe Excel processing without Office dependencies.",
+          "typescript": "Aspose.Cells for TypeScript — spreadsheet reading and writing for Node.js."
+        }
+      },
+      "email": {
+        "title": "Aspose.Email FOSS",
+        "description": "Open-source email processing library for EML, MSG, and MHTML formats. Available for Python, .NET, and C++.",
+        "platforms": {
+          "cpp": "Aspose.Email for C++ — email parsing and conversion for native applications.",
+          "net": "Aspose.Email for .NET — email file processing including EML, MSG, MHTML, and PST.",
+          "python": "Aspose.Email for Python — pure Python library for EML, MSG, and MHTML processing."
+        }
+      },
+      "font": {
+        "title": "Aspose.Font FOSS",
+        "description": "Open-source font processing library for TrueType, OpenType, and Type1 formats. Available for Python.",
+        "platforms": {
+          "python": "Aspose.Font for Python — font file reading, glyph access, and conversion."
+        }
+      },
+      "note": {
+        "title": "Aspose.Note FOSS",
+        "description": "Open-source Microsoft OneNote file processing library. Available for Python.",
+        "platforms": {
+          "python": "Aspose.Note for Python — read, extract, and convert OneNote .one files."
+        }
+      },
+      "page": {
+        "title": "Aspose.Page FOSS",
+        "description": "Open-source XPS, EPS, and PostScript processing library. Available for Python.",
+        "platforms": {
+          "python": "Aspose.Page for Python — XPS and PostScript document conversion and rendering."
+        }
+      },
+      "pdf": {
+        "title": "Aspose.PDF FOSS",
+        "description": "Open-source PDF processing library for creating, editing, and converting PDF documents. Available for .NET, Java, and Go.",
+        "platforms": {
+          "go": "Aspose.PDF for Go — PDF creation, parsing, and format conversion.",
+          "java": "Aspose.PDF for Java — PDF document creation, editing, and conversion.",
+          "net": "Aspose.PDF for .NET — full-featured PDF processing with annotations, forms, and rendering."
+        }
+      },
+      "slides": {
+        "title": "Aspose.Slides FOSS",
+        "description": "Open-source PowerPoint presentation processing library. Available for Python, Java, .NET, and C++.",
+        "platforms": {
+          "cpp": "Aspose.Slides for C++ — PowerPoint processing without Office dependencies.",
+          "java": "Aspose.Slides for Java — PowerPoint creation, editing, and conversion.",
+          "net": "Aspose.Slides for .NET — PPTX file manipulation and rendering.",
+          "python": "Aspose.Slides for Python — presentation processing and format conversion."
+        }
+      },
+      "tex": {
+        "title": "Aspose.TeX FOSS",
+        "description": "Open-source TeX/LaTeX typesetting library for converting documents to PDF, XPS, and images. Available for Python.",
+        "platforms": {
+          "python": "Aspose.TeX for Python — TeX and LaTeX document typesetting and conversion."
+        }
+      },
+      "words": {
+        "title": "Aspose.Words FOSS",
+        "description": "Open-source Word document processing library for DOCX, DOC, RTF, and HTML. Available for Python.",
+        "platforms": {
+          "python": "Aspose.Words for Python — DOCX, DOC, RTF, ODT, and HTML document processing."
+        }
+      }
+    }
+  },
+  "reference.aspose.org": {
+    "type": "dir",
+    "url": "https://reference.aspose.org",
+    "metadata": [
+      {
+        "key": "title",
+        "template": "# {title}"
+      }
+    ],
+    "families": {
+      "3d": {
+        "title": "Aspose.3D FOSS",
+        "description": "API reference for Aspose.3D — open-source 3D file processing library.",
+        "platforms": {
+          "java": "Aspose.3D for Java API reference — classes, methods, and interfaces.",
+          "net": "Aspose.3D for .NET API reference — classes, enums, and members.",
+          "python": "Aspose.3D for Python API reference — classes, properties, and methods.",
+          "typescript": "Aspose.3D for TypeScript API reference — classes and interfaces."
+        }
+      },
+      "cells": {
+        "title": "Aspose.Cells FOSS",
+        "description": "API reference for Aspose.Cells — open-source spreadsheet processing library.",
+        "platforms": {
+          "cpp": "Aspose.Cells for C++ API reference — classes and functions.",
+          "java": "Aspose.Cells for Java API reference — classes, methods, and enums.",
+          "net": "Aspose.Cells for .NET API reference — classes, properties, and members.",
+          "python": "Aspose.Cells for Python API reference — classes and methods.",
+          "rust": "Aspose.Cells for Rust API reference — structs, traits, and enums.",
+          "typescript": "Aspose.Cells for TypeScript API reference — interfaces and classes."
+        }
+      },
+      "email": {
+        "title": "Aspose.Email FOSS",
+        "description": "API reference for Aspose.Email — open-source email processing library.",
+        "platforms": {
+          "cpp": "Aspose.Email for C++ API reference — classes and structures.",
+          "net": "Aspose.Email for .NET API reference — classes, properties, and events.",
+          "python": "Aspose.Email for Python API reference — classes and methods."
+        }
+      },
+      "font": {
+        "title": "Aspose.Font FOSS",
+        "description": "API reference for Aspose.Font — open-source font processing library.",
+        "platforms": {
+          "python": "Aspose.Font for Python API reference — classes and methods."
+        }
+      },
+      "note": {
+        "title": "Aspose.Note FOSS",
+        "description": "API reference for Aspose.Note — open-source OneNote processing library.",
+        "platforms": {
+          "python": "Aspose.Note for Python API reference — classes and methods."
+        }
+      },
+      "page": {
+        "title": "Aspose.Page FOSS",
+        "description": "API reference for Aspose.Page — open-source XPS and PostScript processing library.",
+        "platforms": {
+          "python": "Aspose.Page for Python API reference — classes and methods."
+        }
+      },
+      "pdf": {
+        "title": "Aspose.PDF FOSS",
+        "description": "API reference for Aspose.PDF — open-source PDF processing library.",
+        "platforms": {
+          "go": "Aspose.PDF for Go API reference — types, functions, and constants.",
+          "java": "Aspose.PDF for Java API reference — classes, methods, and interfaces.",
+          "net": "Aspose.PDF for .NET API reference — classes, properties, and members."
+        }
+      },
+      "slides": {
+        "title": "Aspose.Slides FOSS",
+        "description": "API reference for Aspose.Slides — open-source PowerPoint processing library.",
+        "platforms": {
+          "cpp": "Aspose.Slides for C++ API reference — classes and structures.",
+          "java": "Aspose.Slides for Java API reference — classes and interfaces.",
+          "net": "Aspose.Slides for .NET API reference — classes, properties, and members.",
+          "python": "Aspose.Slides for Python API reference — classes and methods."
+        }
+      },
+      "tex": {
+        "title": "Aspose.TeX FOSS",
+        "description": "API reference for Aspose.TeX — open-source TeX/LaTeX processing library.",
+        "platforms": {
+          "python": "Aspose.TeX for Python API reference — classes and methods."
+        }
+      },
+      "words": {
+        "title": "Aspose.Words FOSS",
+        "description": "API reference for Aspose.Words — open-source Word document processing library.",
+        "platforms": {
+          "python": "Aspose.Words for Python API reference — classes, properties, and methods."
+        }
+      }
+    }
+  }
+}
