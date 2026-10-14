@@ -42,6 +42,14 @@ jobs:
         with:
           python-version: '3.11'
 
+      # sync_remotes.py is stdlib-only (no requirements file), so this venv installs
+      # nothing; it only exists to make the bare `python` call below resolve through
+      # .venv, per this repo's governance convention (enforce_venv_python.py).
+      - name: Create a throwaway venv
+        run: |
+          python -m venv .venv
+          echo "$(pwd)/.venv/bin" >> $GITHUB_PATH
+
       - name: Sync main to GitLab
         env:
           # GitHub Actions forces secret names to uppercase on storage --
